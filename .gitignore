@@ -1,0 +1,19 @@
+# Haskell general
+*.o
+*.hi
+*.chi
+*.chs.h
+*.dyn_o
+*.dyn_hi
+*.prof
+
+# Cabal
+.cabal-sandbox/
+cabal.project.local
+
+# Stack
+.stack-work/
+
+# Editor specifics
+.dir-locals.el
+*~
