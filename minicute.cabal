@@ -24,7 +24,10 @@ extra-source-files:  README.md
 -- extra-tmp-files:
 
 library
-  -- exposed-modules:
+  exposed-modules:     Minicute.Common.Expression
+                     , Minicute.Common.Program
+                     , Minicute.Parser.Lexer
+                     , Minicute.Parser.Parser
   -- virtual-modules:
   -- exposed:
   -- reexported-modules:
@@ -105,12 +108,13 @@ executable minicute
 test-suite minicute-test
   type:                exitcode-stdio-1.0
   main-is:             Spec.hs
-  -- test-module
+  -- test-module:
 
   build-depends:       base
+                     , megaparsec
                      , minicute
                      , hspec
-  -- other-modules:
+  other-modules:       Minicute.Parser.LexerSpec
   hs-source-dirs:      test
   -- default-extensions:
   -- other-extensions:
