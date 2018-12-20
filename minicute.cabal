@@ -26,6 +26,8 @@ extra-source-files:  README.md
 library
   exposed-modules:     Minicute.Common.Expression
                      , Minicute.Common.Program
+                     , Minicute.Common.Value
+                     , Minicute.Interpreter.Evaluator
                      , Minicute.Parser.Lexer
                      , Minicute.Parser.Parser
   -- virtual-modules:
@@ -114,7 +116,8 @@ test-suite minicute-test
                      , megaparsec
                      , minicute
                      , hspec
-  other-modules:       Minicute.Parser.LexerSpec
+  other-modules:       Minicute.Interpreter.EvaluatorSpec
+                     , Minicute.Parser.LexerSpec
   hs-source-dirs:      test
   -- default-extensions:
   -- other-extensions:
