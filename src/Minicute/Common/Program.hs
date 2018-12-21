@@ -7,3 +7,4 @@ import Minicute.Common.Expression
 
 newtype Program
   = Program Expression
+  deriving ( Eq, Show )

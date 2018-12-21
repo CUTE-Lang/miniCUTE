@@ -1,16 +1,29 @@
-module Minicute.Parser.Parser where
+module Minicute.Parser.Parser
+  ( L.Parser
+  , program
+  ) where
 
+import Control.Monad.Combinators.Expr
 import Data.Void
-import Minicute.Parser.Lexer
+import Text.Megaparsec
 
-import qualified Minicute.Common.Program as P
-import qualified Text.Megaparsec as MP
+import qualified Minicute.Parser.Lexer as L
+import qualified Minicute.Common.Program as Prog
 
-program :: Parser P.Program
-program = P.Program <$> expression
+program :: L.Parser Prog.Program
+program = (Prog.Program <$> expression) <* eof
 
-expression :: Parser P.Expression
-expression = integerExpression
+expression :: L.Parser Prog.Expression
+expression = makeExprParser integerExpression operatorTable
 
-integerExpression :: Parser P.Expression
-integerExpression = P.IntegerExpression <$> integer
+integerExpression :: L.Parser Prog.Expression
+integerExpression = Prog.IntegerExpression <$> L.integer
+
+operatorTable :: [[Operator L.Parser Prog.Expression]]
+operatorTable =
+  [ [ InfixL (Prog.OperatorExpression Prog.MultiplyOperator <$ L.symbol "*")
+    ]
+  , [ InfixL (Prog.OperatorExpression Prog.PlusOperator <$ L.symbol "+")
+    , InfixL (Prog.OperatorExpression Prog.MinusOperator <$ L.symbol "-")
+    ]
+  ]

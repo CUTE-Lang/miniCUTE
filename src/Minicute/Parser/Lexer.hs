@@ -13,6 +13,9 @@ import qualified Text.Megaparsec.Char.Lexer as MPCL
 
 type Parser = Parsec Void String
 
+symbol :: String -> Parser ()
+symbol s = lexeme . void $ MPC.string s
+
 integer :: Parser Integer
 integer = prefixedInteger <|> decimal
   where
