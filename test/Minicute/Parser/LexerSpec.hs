@@ -3,15 +3,11 @@ module Minicute.Parser.LexerSpec
   ( spec
   ) where
 
+import Minicute.Parser.TestUtils
 import Test.Hspec
 
 import Data.Either
-import Data.Void
 import qualified Minicute.Parser.Lexer as L
-import Text.Megaparsec
-
-runParserTest :: L.Parser a -> String -> Either (ParseError (Token String) Void) a
-runParserTest p = parse (p <* eof) ""
 
 -- TODO: Update these tests to use QuickCheck
 spec :: Spec

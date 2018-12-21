@@ -118,6 +118,7 @@ test-suite minicute-test
                      , hspec
   other-modules:       Minicute.Interpreter.EvaluatorSpec
                      , Minicute.Parser.LexerSpec
+                     , Minicute.Parser.TestUtils
   hs-source-dirs:      test
   -- default-extensions:
   -- other-extensions:
