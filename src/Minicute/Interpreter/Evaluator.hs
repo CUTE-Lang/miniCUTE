@@ -15,8 +15,9 @@ evaluateOperatorExpression op e0 e1 =
   case (evaluateExpression e0, evaluateExpression e1) of
     (V.IntegerValue i0, V.IntegerValue i1) -> V.IntegerValue $ opFun i0 i1
     _ -> V.ErrorValue
-  where opFun =
-          case op of
-            P.PlusOperator -> (+)
-            P.MinusOperator -> (-)
-            P.MultiplyOperator -> (*)
+  where
+    opFun =
+      case op of
+        P.PlusOperator -> (+)
+        P.MinusOperator -> (-)
+        P.MultiplyOperator -> (*)

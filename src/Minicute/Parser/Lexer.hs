@@ -28,7 +28,7 @@ integer = prefixedInteger <|> decimal
           'o' -> octal
           'd' -> decimal
           'x' -> hexadecimal
-          _ -> fail $ ""
+          _ -> fail ""
 
 binary :: Parser Integer
 binary = lexeme (binary_ <?> "binary integer")
