@@ -108,7 +108,7 @@ executable minicute
 
   default-language:    Haskell2010
 
-test-suite minicute-test
+test-suite test
   type:                exitcode-stdio-1.0
   main-is:             Spec.hs
   -- test-module:
@@ -152,7 +152,7 @@ test-suite minicute-test
 
   default-language:    Haskell2010
 
-benchmark minicute-bench
+benchmark bench
   type:                exitcode-stdio-1.0
   main-is:             Bench.hs
 
