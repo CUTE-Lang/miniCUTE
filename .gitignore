@@ -7,6 +7,9 @@
 *.dyn_hi
 *.prof
 
+# Hpack
+*.cabal
+
 # Cabal
 .cabal-sandbox/
 cabal.project.local
