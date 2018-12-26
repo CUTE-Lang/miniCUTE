@@ -13,6 +13,9 @@ import qualified Text.Megaparsec.Char.Lexer as MPCL
 
 type Parser = Parsec Void String
 
+betweenRoundBrackets :: Parser a -> Parser a
+betweenRoundBrackets = between (symbol "(") (symbol ")")
+
 symbol :: String -> Parser ()
 symbol s = lexeme . void $ MPC.string s
 

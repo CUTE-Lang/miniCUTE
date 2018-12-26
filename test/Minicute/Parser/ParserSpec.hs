@@ -5,6 +5,7 @@ module Minicute.Parser.ParserSpec
 import Minicute.Parser.TestUtils
 import Test.Hspec
 
+import Control.Monad
 import Data.Either
 import Minicute.Common.Program
 
@@ -42,6 +43,21 @@ cases =
         )
       )
     )
+  , ( "2 * (3 + 1)"
+    , Program
+      ( OperatorExpression
+        MultiplyOperator
+        ( IntegerExpression 2
+        )
+        ( OperatorExpression
+          PlusOperator
+          ( IntegerExpression 3
+          )
+          ( IntegerExpression 1
+          )
+        )
+      )
+    )
   ]
 
 spec :: Spec
@@ -49,6 +65,6 @@ spec =
   do
     describe "program parser" $ do
       it "parses valid programs successfullly" $ do
-        runParserTest P.program (fst $ cases!!0) `shouldBe` Right (snd $ cases!!0)
-        runParserTest P.program (fst $ cases!!1) `shouldBe` Right (snd $ cases!!1)
-        runParserTest P.program (fst $ cases!!2) `shouldBe` Right (snd $ cases!!2)
+        let
+          runCase (s, v) = runParserTest P.program s `shouldBe` Right v
+        forM_ cases runCase

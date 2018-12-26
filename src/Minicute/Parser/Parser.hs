@@ -14,10 +14,12 @@ program :: L.Parser Prog.Program
 program = (Prog.Program <$> expression) <* eof
 
 expression :: L.Parser Prog.Expression
-expression = makeExprParser integerExpression operatorTable
+expression = makeExprParser arithmaticExpression operatorTable
 
-integerExpression :: L.Parser Prog.Expression
-integerExpression = Prog.IntegerExpression <$> L.integer
+arithmaticExpression :: L.Parser Prog.Expression
+arithmaticExpression =
+  L.betweenRoundBrackets expression <|>
+  Prog.IntegerExpression <$> L.integer
 
 operatorTable :: [[Operator L.Parser Prog.Expression]]
 operatorTable =
