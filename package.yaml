@@ -1,34 +1,126 @@
 #### Top-level fields ####
-spec-version: 0.30.0
-name: minicute
-version: 0.1.0.0
-synopsis: Experimental package for a language implemented by Haskell
+spec-version:                       0.31.0
+name:                               minicute
+version:                            0.1.0.0
+synopsis:                           Experimental package for a language implemented by Haskell
 description: >
   This package is only for experiment to implement CUTE Lang.
   Do not use this any other purpose. This package would
   introduce breaking changes without any notifications.
-category: Language
+category:                           Language
 ## Practically deprecated
 # stability:
-## Followings are inferred from "github" field.
+## Following two are inferred from "github" field.
 # homepage:
 # bug-reports:
-author: Junyoung Clare Jang
-maintainer: jjc9310@gmail.com
-copyright: 2018-present Junyoung Clare Jang
+author:                             Junyoung Clare Jang
+maintainer:                         jjc9310@gmail.com
+copyright:                          2018-present Junyoung Clare Jang
 ## Inferred from license-file
-# license:
-license-file: LICENSE
+license:                            BSD-3-Clause
+license-file:                       LICENSE
 # tested-with:
 # build-type:
-extra-source-files: README.md
+extra-source-files:                 README.md
 # extra-doc-files:
 # data-files:
 # data-dir:
-github: CUTE-Lang/minicute
-## Ignored when "github" field exists
+github:                             CUTE-Lang/minicute
+## Following is ignored when "github" field exists
 # git:
 # custom-setup:
+
+#### Sections ####
+# flags:
+
+library:
+  ### Library fields ###
+  # exposed:
+  # exposed-modules:
+  # generated-exposed-modules:
+  # other-modules:
+  # generated-other-modules:
+  # reexported-modules:
+  # signatures:
+
+  ### Common fields ###
+  source-dirs:
+    - src
+  dependencies:
+    - base >= 4.12 && < 5
+    - parser-combinators
+    - megaparsec >= 7.0 && < 7.1
+
+# internal-libraries:
+
+executables:
+  minicute:
+    ### Executable fields ###
+    main:                           Main.hs
+    # other-modules:
+    # generated-other-modules:
+
+    ### Common fields ###
+    source-dirs:
+      - app
+    ghc-options:                    -threaded -rtsopts -with-rtsopts=-N
+    dependencies:
+      - base
+      - minicute
+
+# executable:
+
+tests:
+  test:
+    ### Test fields ###
+    main:                           Spec.hs
+    # other-modules:
+    # generated-other-modules:
+
+    ### Common fields ###
+    source-dirs:
+      - test
+    ghc-options:                    -threaded -rtsopts -with-rtsopts=-N
+    dependencies:
+      - base
+      - megaparsec
+      - minicute
+      - hspec
+
+  hlint:
+    ### Test fields ###
+    main:                           Main.hs
+    # other-modules:
+    # generated-other-modules:
+
+    ### Common fields ###
+    source-dirs:
+      - hlint
+    ghc-options:                    -threaded -rtsopts -with-rtsopts=-N
+    dependencies:
+      - base
+      - hlint
+
+benchmarks:
+  bench:
+    ### Benchmark fields ###
+    main:                           Bench.hs
+    # other-modules:
+    # generated-other-modules:
+
+    ### Common fields ###
+    source-dirs:
+      - bench
+    ghc-options:                    -threaded -rtsopts -with-rtsopts=-N
+    dependencies:
+      - base
+      - minicute
+
+# defaults:
+  # github:
+  # ref:
+  # path:
+  # local:
 
 #### Common fields ####
 # buildable:
@@ -56,86 +148,3 @@ github: CUTE-Lang/minicute
 # build-tools:
 # system-build-tools:
 # when:
-
-#### Sections ####
-flags: {}
-
-library:
-  ### Library fields ###
-  # exposed:
-  # exposed-modules:
-  # generated-exposed-modules:
-  # other-modules:
-  # generated-other-modules:
-  # reexported-modules:
-  # signatures:
-
-  ### Common fields ###
-  source-dirs: src
-  dependencies:
-    - base >= 4.7 && < 5
-    - parser-combinators
-    - megaparsec >= 6.5 && < 7
-
-internal-libraries: {}
-
-executables:
-  minicute:
-    ### Executable fields ###
-    main: Main.hs
-    # other-modules:
-    # generated-other-modules:
-
-    ### Common fields ###
-    source-dirs: app
-    ghc-options: "-threaded -rtsopts -with-rtsopts=-N"
-    dependencies:
-      - base
-      - minicute
-
-# executable:
-
-tests:
-  test:
-    ### Test fields ###
-    main: Spec.hs
-    # other-modules:
-    # generated-other-modules:
-
-    ### Common fields ###
-    source-dirs: test
-    ghc-options: "-threaded -rtsopts -with-rtsopts=-N"
-    dependencies:
-      - base
-      - megaparsec
-      - minicute
-      - hspec
-
-  hlint:
-    ### Test fields ###
-    main: Main.hs
-    # other-modules:
-    # generated-other-modules:
-
-    ### Common fields ###
-    source-dirs: hlint
-    ghc-options: "-threaded -rtsopts -with-rtsopts=-N"
-    dependencies:
-      - base
-      - hlint
-
-benchmarks:
-  bench:
-    ### Benchmark fields ###
-    main: Bench.hs
-    # other-modules:
-    # generated-other-modules:
-
-    ### Common fields ###
-    source-dirs: bench
-    ghc-options: "-threaded -rtsopts -with-rtsopts=-N"
-    dependencies:
-      - base
-      - minicute
-
-# defaults:

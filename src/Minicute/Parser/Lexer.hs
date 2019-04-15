@@ -25,7 +25,7 @@ integer = prefixedInteger <|> decimal
     prefixedInteger =
       do
         void $ MPC.char '0'
-        b <- Char.toLower <$> MPC.oneOf "bBoOdDxX"
+        b <- Char.toLower <$> oneOf "bBoOdDxX"
         case b of
           'b' -> binary
           'o' -> octal
