@@ -39,7 +39,7 @@ simpleTestCases
       , ProgramL
         [ ( "f"
           , []
-          , ELNum 1
+          , ELInteger 1
           )
         ]
       )
@@ -47,7 +47,7 @@ simpleTestCases
       , ProgramL
         [ ( "f"
           , []
-          , ELNum 1
+          , ELInteger 1
           )
         ]
       )
@@ -55,7 +55,7 @@ simpleTestCases
       , ProgramL
         [ ( "f"
           , []
-          , ELNum 1
+          , ELInteger 1
           )
         ]
       )
@@ -63,7 +63,7 @@ simpleTestCases
       , ProgramL
         [ ( "f"
           , []
-          , ELNum 1
+          , ELInteger 1
           )
         ]
       )
@@ -71,7 +71,7 @@ simpleTestCases
       , ProgramL
         [ ( "f"
           , []
-          , ELNum 1
+          , ELInteger 1
           )
         ]
       )
@@ -79,11 +79,11 @@ simpleTestCases
       , ProgramL
         [ ( "f"
           , []
-          , ELNum 1
+          , ELInteger 1
           )
         , ( "g"
           , []
-          , ELNum 2
+          , ELInteger 2
           )
         ]
       )
@@ -91,11 +91,11 @@ simpleTestCases
       , ProgramL
         [ ( "f"
           , []
-          , ELNum 1
+          , ELInteger 1
           )
         , ( "g"
           , []
-          , ELNum 2
+          , ELInteger 2
           )
         ]
       )
@@ -103,11 +103,11 @@ simpleTestCases
       , ProgramL
         [ ( "f"
           , []
-          , ELVar "g"
+          , ELVariable "g"
           )
         , ( "g"
           , []
-          , ELNum 2
+          , ELInteger 2
           )
         ]
       )
@@ -120,7 +120,7 @@ arithOpTestCases
       , ProgramL
         [ ( "f"
           , []
-          , eLAp2 (ELVar "+") (ELNum 1) (ELNum 1)
+          , ELApplication2 (ELVariable "+") (ELInteger 1) (ELInteger 1)
           )
         ]
       )
@@ -129,11 +129,11 @@ arithOpTestCases
       , ProgramL
         [ ( "f"
           , []
-          , eLAp2 (ELVar "*") (ELNum 1) (ELVar "g")
+          , ELApplication2 (ELVariable "*") (ELInteger 1) (ELVariable "g")
           )
         , ( "g"
           , []
-          , ELNum 3
+          , ELInteger 3
           )
         ]
       )
@@ -142,17 +142,14 @@ arithOpTestCases
       , ProgramL
         [ ( "f"
           , []
-          , eLAp2
-            (ELVar "*")
-            (eLAp2
-              (ELVar "*")
-              (ELNum 1)
-              (ELNum 2))
-            (ELNum 3)
+          , ELApplication2
+            (ELVariable "*")
+            (ELApplication2
+              (ELVariable "*")
+              (ELInteger 1)
+              (ELInteger 2))
+            (ELInteger 3)
           )
         ]
       )
     ]
-
-eLAp2 :: MainExpressionL -> MainExpressionL -> MainExpressionL -> MainExpressionL
-eLAp2 = (ELAp .) . ELAp
