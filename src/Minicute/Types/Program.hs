@@ -1,37 +1,52 @@
+{-# LANGUAGE LiberalTypeSynonyms #-}
+{-# LANGUAGE MagicHash #-}
+{-# LANGUAGE PatternSynonyms #-}
 module Minicute.Types.Program
   ( module Minicute.Types.Expression
 
-  , SuperCombinator
-  , MainSuperCombinator
+  , Supercombinator#
 
-  , SuperCombinatorL
-  , MainSuperCombinatorL
+  , Supercombinator
+  , MainSupercombinator
 
-  , Program( .. )
+  , SupercombinatorL
+  , MainSupercombinatorL
+
+  , Program#
+
+  , Program
   , MainProgram
+  , pattern Program
 
-  , ProgramL( .. )
+  , ProgramL
   , MainProgramL
+  , pattern ProgramL
   ) where
 
 import Minicute.Types.Expression
 
-type SuperCombinator a = (Identifier, [a], Expression a)
-type MainSuperCombinator = SuperCombinator Identifier
+type Supercombinator# a expr = (Identifier, [a], expr)
 
-type SuperCombinatorL a = (Identifier, [a], ExpressionL a)
-type MainSuperCombinatorL = SuperCombinatorL Identifier
+type Supercombinator a = Supercombinator# a (Expression a)
+type MainSupercombinator = Supercombinator Identifier
 
-newtype Program a
-  = Program [SuperCombinator a]
+type SupercombinatorL a = Supercombinator# a (ExpressionL a)
+type MainSupercombinatorL = SupercombinatorL Identifier
+
+newtype Program# a expr
+  = Program# [Supercombinator# a expr]
   deriving ( Eq
            , Show
            )
+
+type Program a = Program# a (Expression a)
 type MainProgram = Program Identifier
 
-newtype ProgramL a
-  = ProgramL [SuperCombinatorL a]
-  deriving ( Eq
-           , Show
-           )
+pattern Program sc = Program# sc
+{-# COMPLETE Program #-}
+
+type ProgramL a = Program# a (ExpressionL a)
 type MainProgramL = ProgramL Identifier
+
+pattern ProgramL sc = Program# sc
+{-# COMPLETE ProgramL #-}
