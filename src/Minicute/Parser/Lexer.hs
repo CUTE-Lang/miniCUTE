@@ -16,6 +16,9 @@ type Parser = Parsec Void String
 betweenRoundBrackets :: Parser a -> Parser a
 betweenRoundBrackets = between (symbol "(") (symbol ")")
 
+identifier :: Parser String
+identifier = undefined
+
 symbol :: String -> Parser ()
 symbol s = lexeme . void $ MPC.string s
 
