@@ -86,6 +86,7 @@ tests:
       - megaparsec
       - minicute
       - hspec
+      - hspec-megaparsec
 
   hlint:
     ### Test fields ###
