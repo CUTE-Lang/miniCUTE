@@ -7,7 +7,7 @@ import Test.Hspec
 
 import Control.Monad
 import Data.Either
-import Minicute.Common.Program
+import Minicute.Types.Program
 
 import qualified Minicute.Parser.Parser as P
 
