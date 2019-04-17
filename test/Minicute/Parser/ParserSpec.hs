@@ -7,7 +7,7 @@ import Test.Hspec
 import Test.Hspec.Megaparsec
 
 import Control.Monad
-import Minicute.Data.Tuple
+import Minicute.Data.Tuple ( tupleUnzip2 )
 import Minicute.Types.Minicute.Program
 import Text.Megaparsec
 
@@ -31,8 +31,10 @@ type TestCase = (TestName, TestContent, TestResult)
 testCases :: [TestCase]
 testCases
   = simpleTestCases
-    <> arithOpTestCases
+    <> arithmeticOperatorTestCases
     <> constructorTestCases
+    <> applicationTestCases
+    <> supercombinatorTestCases
   where
     simpleTestCases = fmap tupleUnzip2 (zip simpleLabels simpleTestTemplates)
     simpleLabels = fmap (("simple case" <>) . show) [0..]
@@ -117,8 +119,8 @@ simpleTestTemplates
       )
     ]
 
-arithOpTestCases :: [TestCase]
-arithOpTestCases
+arithmeticOperatorTestCases :: [TestCase]
+arithmeticOperatorTestCases
   = [ ( "addition of two nums"
       , "f = 1 + 1"
       , ProgramL
@@ -161,20 +163,72 @@ arithOpTestCases
 constructorTestCases :: [TestCase]
 constructorTestCases
   = [ ( "basic constructor"
-      , "f = Pack{1,0}"
+      , "f = Pack{1,0};g = Pack{2,2}"
       , ProgramL
         [ ( "f"
           , []
           , ELConstructor 1 0
           )
+        , ( "g"
+          , []
+          , ELConstructor 2 2
+          )
         ]
       )
     , ( "constructor with arguments"
-      , "f = Pack{1,1} 5"
+      , "f = Pack{1,1} 5;g = Pack{2,3} f"
       , ProgramL
         [ ( "f"
           , []
           , ELApplication (ELConstructor 1 1) (ELInteger 5)
+          )
+        , ( "g"
+          , []
+          , ELApplication (ELConstructor 2 3) (ELVariable "f")
+          )
+        ]
+      )
+    ]
+
+applicationTestCases :: [TestCase]
+applicationTestCases
+  = [ ( "application of an integer"
+      , "f = g 5"
+      , ProgramL
+        [ ( "f"
+          , []
+          , ELApplication (ELVariable "g") (ELInteger 5)
+          )
+        ]
+      )
+    , ( "application of a variable"
+      , "f = g f"
+      , ProgramL
+        [ ( "f"
+          , []
+          , ELApplication (ELVariable "g") (ELVariable "f")
+          )
+        ]
+      )
+    ]
+
+supercombinatorTestCases :: [TestCase]
+supercombinatorTestCases
+  = [ ( "supercombinator with an argument"
+      , "f x = x"
+      , ProgramL
+        [ ( "f"
+          , ["x"]
+          , ELVariable "x"
+          )
+        ]
+      )
+    , ( "supercombinator with two argument"
+      , "f x y = x y"
+      , ProgramL
+        [ ( "f"
+          , ["x", "y"]
+          , ELApplication (ELVariable "x") (ELVariable "y")
           )
         ]
       )
