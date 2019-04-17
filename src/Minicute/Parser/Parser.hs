@@ -29,27 +29,44 @@ programL = do
   void (hidden eof)
   return program
 
-precedenceTable :: (MonadParser e s m) => m PrecedenceTable
+precedenceTable :: (MonadParser e s m, m ~ Parser) => m PrecedenceTable
 precedenceTable = return defaultPrecedenceTable
 
-supercombinatorL :: (MonadParser e s m) => WithPrecedence m MainSupercombinatorL
+supercombinatorL :: (MonadParser e s m, m ~ Parser) => WithPrecedence m MainSupercombinatorL
 supercombinatorL = (,,) <$> L.identifier <*> (many L.identifier <* L.symbol "=") <*> expressionL
 
-expressionL :: (MonadParser e s m) => WithPrecedence m MainExpressionL
+expressionL :: (MonadParser e s m, m ~ Parser) => WithPrecedence m MainExpressionL
 expressionL
-  = otherExpressionsByPrec
+  = letExpressionL Recursive
+    <|> letExpressionL NonRecursive
+    <|> otherExpressionsByPrec
     <?> "expression"
 
-otherExpressionsByPrec :: (MonadParser e s m) => WithPrecedence m MainExpressionL
+letExpressionL :: (MonadParser e s m, m ~ Parser) => IsRecursive -> WithPrecedence m MainExpressionL
+letExpressionL flag
+  = try (L.symbol keyword *> (ELLet flag <$> sepEndBy1 (try letDefinitionL) (L.symbol ";") <* L.symbol "in" <*> expressionL))
+    <?> parserName
+  where
+    keyword
+      | isRecursive flag = "letrec"
+      | otherwise = "let"
+    parserName
+      | isRecursive flag = "letrec expression"
+      | otherwise = "let expression"
+
+letDefinitionL :: (MonadParser e s m, m ~ Parser) => WithPrecedence m MainLetDefinitionL
+letDefinitionL = (,) <$> L.identifier <* L.symbol "=" <*> expressionL
+
+otherExpressionsByPrec :: (MonadParser e s m, m ~ Parser) => WithPrecedence m MainExpressionL
 otherExpressionsByPrec = ask >>= CombExpr.makeExprParser applicationExpressionL . precedenceTableToOperatorTable
 
-applicationExpressionL :: (MonadParser e s m) => WithPrecedence m MainExpressionL
+applicationExpressionL :: (MonadParser e s m, m ~ Parser) => WithPrecedence m MainExpressionL
 applicationExpressionL
   = makeApplicationChain <$> CombNE.some atomicExpressionL
   where
     makeApplicationChain (aExpr :| aExprs) = foldl' ELApplication aExpr aExprs
 
-atomicExpressionL :: (MonadParser e s m) => WithPrecedence m MainExpressionL
+atomicExpressionL :: (MonadParser e s m, m ~ Parser) => WithPrecedence m MainExpressionL
 atomicExpressionL
   = integerExpression
     <|> constructorExpression
@@ -59,6 +76,8 @@ atomicExpressionL
 integerExpression :: (MonadParser e s m) => m MainExpressionL
 integerExpression = ELInteger <$> L.integer
 
+-- |
+-- Should I check whether identifier is a keyword or not?
 variableExpression :: (MonadParser e s m) => m MainExpressionL
 variableExpression = ELVariable <$> L.identifier
 
