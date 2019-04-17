@@ -3,43 +3,39 @@ module Minicute.Parser.Lexer
   ( betweenRoundBrackets
   , identifier
   , symbol
-  , string
   , integer
   , spacesConsumer
   ) where
 
 import Control.Monad ( void )
 import Data.Functor
+import Minicute.Parser.Types
 import Text.Megaparsec hiding ( State )
 
 import qualified Data.Char as Char
 import qualified Text.Megaparsec.Char as MPC
 import qualified Text.Megaparsec.Char.Lexer as MPCL
 
-betweenRoundBrackets :: (MonadParsec e s m, s ~ String) => m a -> m a
+betweenRoundBrackets :: (MonadParser e s m) => m a -> m a
 betweenRoundBrackets = between (symbol "(") (symbol ")")
 {-# INLINEABLE betweenRoundBrackets #-}
 
-identifier :: (MonadParsec e s m, s ~ String) => m String
+identifier :: (MonadParser e s m) => m String
 identifier = lexeme ((:) <$> identifierFirstChar <*> many identifierRestChar) <?> "identifier"
 
-identifierFirstChar :: (MonadParsec e s m, s ~ String) => m Char
+identifierFirstChar :: (MonadParser e s m) => m Char
 identifierFirstChar = MPC.letterChar <|> MPC.char '_' <?> "alphabet or _"
 {-# INLINEABLE identifierFirstChar #-}
 
-identifierRestChar :: (MonadParsec e s m, s ~ String) => m Char
+identifierRestChar :: (MonadParser e s m) => m Char
 identifierRestChar = MPC.alphaNumChar <|> MPC.char '_' <?> "alphanumeric or _"
 {-# INLINEABLE identifierRestChar #-}
 
-symbol :: (MonadParsec e s m, s ~ String) => String -> m ()
+symbol :: (MonadParser e s m) => String -> m ()
 symbol = void . MPCL.symbol spacesConsumer
 {-# INLINEABLE symbol #-}
 
-string :: (MonadParsec e s m, s ~ String) => String -> m String
-string = lexeme . MPC.string
-{-# INLINEABLE string #-}
-
-integer :: (MonadParsec e s m, s ~ String, Integral a) => m a
+integer :: (MonadParser e s m, Integral a) => m a
 integer = lexeme (integerStartWithZero <|> MPCL.decimal) <?> "integer"
   where
     integerStartWithZero = do
@@ -59,10 +55,10 @@ integer = lexeme (integerStartWithZero <|> MPCL.decimal) <?> "integer"
       = notFollowedBy MPC.alphaNumChar $> 0
         <?> "one of the integer prefixes ('b', 'B', 'o', 'O', 'd', 'D', 'x', 'X')"
 
-lexeme :: (MonadParsec e s m, s ~ String) => m a -> m a
+lexeme :: (MonadParser e s m) => m a -> m a
 lexeme = MPCL.lexeme spacesConsumer
 {-# INLINEABLE lexeme #-}
 
-spacesConsumer :: (MonadParsec e s m, s ~ String) => m ()
+spacesConsumer :: (MonadParser e s m) => m ()
 spacesConsumer = hidden MPC.space
 {-# INLINEABLE spacesConsumer #-}

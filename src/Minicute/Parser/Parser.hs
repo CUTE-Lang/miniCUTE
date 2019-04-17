@@ -1,3 +1,4 @@
+{-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE TypeFamilies #-}
 module Minicute.Parser.Parser
   ( Parser
@@ -6,7 +7,7 @@ module Minicute.Parser.Parser
   , programL
   ) where
 
-import Control.Monad.Reader
+import Control.Monad.Reader ( runReaderT, mapReaderT, ask )
 import Data.List.Extra
 import Data.List.NonEmpty ( NonEmpty( (:|) ) )
 import Data.Functor
@@ -28,51 +29,48 @@ programL = do
   void (hidden eof)
   return program
 
-precedenceTable :: Parser PrecedenceTable
+precedenceTable :: (MonadParser e s m) => m PrecedenceTable
 precedenceTable = return defaultPrecedenceTable
 
-supercombinatorL :: ParserWithPrecedence MainSupercombinatorL
+supercombinatorL :: (MonadParser e s m) => WithPrecedence m MainSupercombinatorL
 supercombinatorL = (,,) <$> L.identifier <*> (many L.identifier <* L.symbol "=") <*> expressionL
 
-expressionL :: ParserWithPrecedence MainExpressionL
+expressionL :: (MonadParser e s m) => WithPrecedence m MainExpressionL
 expressionL
   = otherExpressionsByPrec
     <?> "expression"
 
-otherExpressionsByPrec :: ParserWithPrecedence MainExpressionL
+otherExpressionsByPrec :: (MonadParser e s m) => WithPrecedence m MainExpressionL
 otherExpressionsByPrec = ask >>= CombExpr.makeExprParser applicationExpressionL . precedenceTableToOperatorTable
 
-applicationExpressionL :: ParserWithPrecedence MainExpressionL
+applicationExpressionL :: (MonadParser e s m) => WithPrecedence m MainExpressionL
 applicationExpressionL
   = makeApplicationChain <$> CombNE.some atomicExpressionL
   where
     makeApplicationChain (aExpr :| aExprs) = foldl' ELApplication aExpr aExprs
 
-atomicExpressionL :: ParserWithPrecedence MainExpressionL
+atomicExpressionL :: (MonadParser e s m) => WithPrecedence m MainExpressionL
 atomicExpressionL
   = integerExpression
     <|> constructorExpression
     <|> variableExpression
     <|> mapReaderT L.betweenRoundBrackets expressionL
 
-integerExpression :: (MonadParsec e s m, s ~ String) => m MainExpressionL
+integerExpression :: (MonadParser e s m) => m MainExpressionL
 integerExpression = ELInteger <$> L.integer
 
-variableExpression :: (MonadParsec e s m, s ~ String) => m MainExpressionL
+variableExpression :: (MonadParser e s m) => m MainExpressionL
 variableExpression = ELVariable <$> L.identifier
 
-constructorExpression :: (MonadParsec e s m, s ~ String) => m MainExpressionL
-constructorExpression = L.string "Pack" *> L.string "{" *> (ELConstructor <$> (L.integer <* L.string ",") <*> L.integer) <* L.string "}"
+constructorExpression :: (MonadParser e s m) => m MainExpressionL
+constructorExpression = L.symbol "Pack" *> L.symbol "{" *> (ELConstructor <$> L.integer <* L.symbol "," <*> L.integer) <* L.symbol "}"
 
-precedenceTableToOperatorTable :: PrecedenceTable -> OperatorTable
+precedenceTableToOperatorTable :: (MonadParser e s m) => PrecedenceTable -> OperatorTable m
 precedenceTableToOperatorTable = fmap (fmap precedenceTableEntryToOperator) . groupSortOn (negate . precedence . snd)
 
-type Operator = CombExpr.Operator ParserWithPrecedence MainExpressionL
-type OperatorTable = [[Operator]]
-
-precedenceTableEntryToOperator :: PrecedenceTableEntry -> Operator
-precedenceTableEntryToOperator (op, PInfixN _) = CombExpr.InfixN (lift (L.string op $> ELApplication2 (ELVariable op)))
-precedenceTableEntryToOperator (op, PInfixL _) = CombExpr.InfixL (lift (L.string op $> ELApplication2 (ELVariable op)))
-precedenceTableEntryToOperator (op, PInfixR _) = CombExpr.InfixR (lift (L.string op $> ELApplication2 (ELVariable op)))
-precedenceTableEntryToOperator (op, PPrefix _) = CombExpr.Prefix (lift (L.string op $> ELApplication (ELVariable op)))
-precedenceTableEntryToOperator (op, PPostfix _) = CombExpr.Postfix (lift (L.string op $> ELApplication (ELVariable op)))
+precedenceTableEntryToOperator :: (MonadParser e s m) => PrecedenceTableEntry -> Operator m
+precedenceTableEntryToOperator (op, PInfixN _) = CombExpr.InfixN (L.symbol op $> ELApplication2 (ELVariable op))
+precedenceTableEntryToOperator (op, PInfixL _) = CombExpr.InfixL (L.symbol op $> ELApplication2 (ELVariable op))
+precedenceTableEntryToOperator (op, PInfixR _) = CombExpr.InfixR (L.symbol op $> ELApplication2 (ELVariable op))
+precedenceTableEntryToOperator (op, PPrefix _) = CombExpr.Prefix (L.symbol op $> ELApplication (ELVariable op))
+precedenceTableEntryToOperator (op, PPostfix _) = CombExpr.Postfix (L.symbol op $> ELApplication (ELVariable op))

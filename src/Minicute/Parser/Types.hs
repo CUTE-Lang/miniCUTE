@@ -1,20 +1,34 @@
+{-# LANGUAGE ConstraintKinds #-}
+{-# LANGUAGE TypeFamilies #-}
 module Minicute.Parser.Types
-  ( Parser
-  , ParserWithPrecedence
+  ( MonadParser
+
+  , WithPrecedence
+
+  , Parser
 
   , Precedence( .. )
   , PrecedenceTableEntry
   , PrecedenceTable
   , defaultPrecedenceTable
+
+  , Operator
+  , OperatorTable
   ) where
 
-import Control.Monad.Reader
+import Control.Monad.Reader ( ReaderT )
 import Data.Void
 import Minicute.Parser.Precedence
+import Minicute.Types.Minicute.Program
 import Text.Megaparsec
+
+import qualified Control.Monad.Combinators.Expr as CombExpr
+
+type MonadParser e s m = (MonadParsec e s m, s ~ String)
+
+type WithPrecedence m = ReaderT PrecedenceTable m
 
 type Parser = Parsec Void String
 
--- |
--- 'ParserWithPrecedence' is parser after precedence collecting
-type ParserWithPrecedence = ReaderT PrecedenceTable Parser
+type Operator m = CombExpr.Operator m MainExpressionL
+type OperatorTable m = [[Operator m]]
