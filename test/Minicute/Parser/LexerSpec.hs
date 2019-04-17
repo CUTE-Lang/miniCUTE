@@ -1,5 +1,6 @@
 {-# OPTIONS_GHC -fno-warn-type-defaults #-}
 {-# LANGUAGE BinaryLiterals #-}
+{-# LANGUAGE TypeFamilies #-}
 module Minicute.Parser.LexerSpec
   ( spec
   ) where
@@ -7,8 +8,10 @@ module Minicute.Parser.LexerSpec
 import Test.Hspec
 import Test.Hspec.Megaparsec
 
-import qualified Minicute.Parser.Lexer as L
+import Minicute.Parser.Types ( Parser )
 import Text.Megaparsec
+
+import qualified Minicute.Parser.Lexer as L
 
 -- TODO: Update these tests to use QuickCheck
 spec :: Spec
@@ -93,14 +96,14 @@ spec = do
         (L.identifier, "56_Jo") `failsLeavingInput` "56_Jo"
         (L.identifier, "04_12") `failsLeavingInput` "04_12"
 
-shouldParseInto :: (Show a, Eq a) => (L.Parser a, String) -> a -> String -> IO ()
+shouldParseInto :: (Show a, Eq a) => (Parser a, String) -> a -> String -> IO ()
 shouldParseInto (p, content) value leaving = do
   parse p "" content `shouldParse` value
   runParser' p (initialState content) `succeedsLeaving` leaving
 
-shouldJustParseInto :: (Show a, Eq a) => (L.Parser a, String) -> a -> IO ()
+shouldJustParseInto :: (Show a, Eq a) => (Parser a, String) -> a -> IO ()
 shouldJustParseInto pair value = shouldParseInto pair value ""
 
-failsLeavingInput :: (Show a, Eq a) => (L.Parser a, String) -> String -> IO ()
+failsLeavingInput :: (Show a, Eq a) => (Parser a, String) -> String -> IO ()
 failsLeavingInput (p, content) leaving = do
   runParser' p (initialState content) `failsLeaving` leaving

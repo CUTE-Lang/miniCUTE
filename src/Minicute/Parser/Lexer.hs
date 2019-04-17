@@ -1,70 +1,68 @@
 {-# LANGUAGE TypeFamilies #-}
-module Minicute.Parser.Lexer where
+module Minicute.Parser.Lexer
+  ( betweenRoundBrackets
+  , identifier
+  , symbol
+  , string
+  , integer
+  , spacesConsumer
+  ) where
 
-import Control.Arrow
 import Control.Monad ( void )
-import Data.List
-import Data.Void
-import Text.Megaparsec
+import Data.Functor
+import Text.Megaparsec hiding ( State )
 
 import qualified Data.Char as Char
 import qualified Text.Megaparsec.Char as MPC
 import qualified Text.Megaparsec.Char.Lexer as MPCL
 
-type Parser = Parsec Void String
-
-betweenRoundBrackets :: Parser a -> Parser a
+betweenRoundBrackets :: (MonadParsec e s m, s ~ String) => m a -> m a
 betweenRoundBrackets = between (symbol "(") (symbol ")")
+{-# INLINEABLE betweenRoundBrackets #-}
 
-identifier :: Parser String
-identifier = undefined
+identifier :: (MonadParsec e s m, s ~ String) => m String
+identifier = lexeme ((:) <$> identifierFirstChar <*> many identifierRestChar) <?> "identifier"
 
-symbol :: String -> Parser ()
-symbol s = lexeme . void $ MPC.string s
+identifierFirstChar :: (MonadParsec e s m, s ~ String) => m Char
+identifierFirstChar = MPC.letterChar <|> MPC.char '_' <?> "alphabet or _"
+{-# INLINEABLE identifierFirstChar #-}
 
-integer :: Parser Integer
-integer = prefixedInteger <|> decimal
+identifierRestChar :: (MonadParsec e s m, s ~ String) => m Char
+identifierRestChar = MPC.alphaNumChar <|> MPC.char '_' <?> "alphanumeric or _"
+{-# INLINEABLE identifierRestChar #-}
+
+symbol :: (MonadParsec e s m, s ~ String) => String -> m ()
+symbol = void . MPCL.symbol spacesConsumer
+{-# INLINEABLE symbol #-}
+
+string :: (MonadParsec e s m, s ~ String) => String -> m String
+string = lexeme . MPC.string
+{-# INLINEABLE string #-}
+
+integer :: (MonadParsec e s m, s ~ String, Integral a) => m a
+integer = lexeme (integerStartWithZero <|> MPCL.decimal) <?> "integer"
   where
-    prefixedInteger =
-      do
-        void $ MPC.char '0'
-        b <- Char.toLower <$> oneOf "bBoOdDxX"
-        case b of
-          'b' -> binary
-          'o' -> octal
-          'd' -> decimal
-          'x' -> hexadecimal
-          _ -> fail ""
+    integerStartWithZero = do
+      void . MPC.char $ '0'
+      try prefixedInteger <|> zero
 
-binary :: Parser Integer
-binary = lexeme (binary_ <?> "binary integer")
-  where
-    binary_ :: Parser Integer
-    binary_ = mkNum <$> takeWhile1P Nothing isBinary
+    prefixedInteger = do
+      b <- Char.toLower <$> oneOf "bBoOdDxX"
+      case b of
+        'b' -> MPCL.binary
+        'o' -> MPCL.octal
+        'd' -> MPCL.decimal
+        'x' -> MPCL.hexadecimal
+        _ -> error ("Minicute.Parser.Lexer.integer: unexpected prefix " <> show b)
 
-    mkNum = foldl' step 0
+    zero
+      = notFollowedBy MPC.alphaNumChar $> 0
+        <?> "one of the integer prefixes ('b', 'B', 'o', 'O', 'd', 'D', 'x', 'X')"
 
-    step acc ch = acc * 2 + fromIntegral (Char.digitToInt ch)
-
-    isBinary c = c == '0' || c == '1'
-{-# INLINEABLE binary #-}
-
-decimal :: Parser Integer
-decimal = lexeme MPCL.decimal
-{-# INLINEABLE decimal #-}
-
-octal :: Parser Integer
-octal = lexeme MPCL.octal
-{-# INLINEABLE octal #-}
-
-hexadecimal :: Parser Integer
-hexadecimal = lexeme MPCL.hexadecimal
-{-# INLINEABLE hexadecimal #-}
-
-lexeme :: Parser a -> Parser a
+lexeme :: (MonadParsec e s m, s ~ String) => m a -> m a
 lexeme = MPCL.lexeme spacesConsumer
 {-# INLINEABLE lexeme #-}
 
-spacesConsumer :: Parser ()
+spacesConsumer :: (MonadParsec e s m, s ~ String) => m ()
 spacesConsumer = hidden MPC.space
 {-# INLINEABLE spacesConsumer #-}
