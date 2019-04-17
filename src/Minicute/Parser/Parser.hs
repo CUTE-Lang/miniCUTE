@@ -34,7 +34,12 @@ precedenceTable :: (MonadParser e s m) => m PrecedenceTable
 precedenceTable = return defaultPrecedenceTable
 
 supercombinatorL :: (MonadParser e s m) => WithPrecedence m MainSupercombinatorL
-supercombinatorL = (,,) <$> L.identifier <*> (many L.identifier <* L.symbol "=") <*> expressionL
+supercombinatorL
+  = (,,)
+    <$> L.identifier
+    <*> many L.identifier <* L.symbol "="
+    <*> expressionL
+    <?> "top-level definition"
 
 expressionL :: (MonadParser e s m) => WithPrecedence m MainExpressionL
 expressionL
@@ -46,24 +51,48 @@ expressionL
 
 letExpressionL :: (MonadParser e s m) => IsRecursive -> WithPrecedence m MainExpressionL
 letExpressionL flag
-  = try (L.symbol keyword *> (ELLet flag <$> sepEndBy1 letDefinitionL (L.symbol ";") <* L.symbol "in" <*> expressionL))
-    <?> parserName
+  = try
+    ( ELLet flag
+      <$> Comb.between startingKeyword endingKeyword letDefinitionsL
+      <*> expressionL
+    )
+    <?> nameOfExpression
   where
-    keyword
-      | isRecursive flag = "letrec"
-      | otherwise = "let"
-    parserName
+    startingKeyword
+      | isRecursive flag = L.symbol "letrec"
+      | otherwise = L.symbol "let"
+    endingKeyword = L.symbol "in"
+
+    letDefinitionsL = sepEndBy1 letDefinitionL separator
+
+    nameOfExpression
       | isRecursive flag = "letrec expression"
       | otherwise = "let expression"
 
 letDefinitionL :: (MonadParser e s m) => WithPrecedence m MainLetDefinitionL
-letDefinitionL = (,) <$> L.identifier <* L.symbol "=" <*> expressionL
+letDefinitionL
+  = (,)
+    <$> L.identifier <* L.symbol "="
+    <*> expressionL
+    <?> "let definition"
 
 matchExpressionL :: (MonadParser e s m) => WithPrecedence m MainExpressionL
-matchExpressionL = ELMatch <$> Comb.between (L.symbol "match") (L.symbol "with") expressionL <*> sepEndBy1 matchCaseL (L.symbol ";")
+matchExpressionL
+  = ELMatch
+    <$> Comb.between startingKeyword endingKeyword expressionL
+    <*> sepBy1 matchCaseL separator
+    <?> "match expression"
+  where
+    startingKeyword = L.symbol "match"
+    endingKeyword = L.symbol "with"
 
 matchCaseL :: (MonadParser e s m) => WithPrecedence m MainMatchCaseL
-matchCaseL = (,,) <$> Comb.between (L.symbol "<") (L.symbol ">") L.integer <*> many L.identifier <* L.symbol "->" <*> expressionL
+matchCaseL
+  = (,,)
+    <$> Comb.between (L.symbol "<") (L.symbol ">") L.integer
+    <*> many L.identifier <* L.symbol "->"
+    <*> expressionL
+    <?> "match case"
 
 otherExpressionsByPrec :: (MonadParser e s m) => WithPrecedence m MainExpressionL
 otherExpressionsByPrec = ask >>= CombExpr.makeExprParser applicationExpressionL . precedenceTableToOperatorTable
@@ -82,13 +111,23 @@ atomicExpressionL
     <|> mapReaderT L.betweenRoundBrackets expressionL
 
 integerExpression :: (MonadParser e s m) => m MainExpressionL
-integerExpression = ELInteger <$> L.integer
+integerExpression = ELInteger <$> L.integer <?> "integer expression"
 
 variableExpression :: (MonadParser e s m) => m MainExpressionL
-variableExpression = ELVariable <$> L.identifier
+variableExpression = ELVariable <$> L.identifier <?> "variable identifier"
 
 constructorExpression :: (MonadParser e s m) => m MainExpressionL
-constructorExpression = L.symbol "Pack" *> L.symbol "{" *> (ELConstructor <$> L.integer <* L.symbol "," <*> L.integer) <* L.symbol "}"
+constructorExpression
+  = L.symbol "Pack"
+    *> Comb.between (L.symbol "{") (L.symbol "}")
+    ( ELConstructor
+      <$> L.integer <* L.symbol ","
+      <*> L.integer
+    )
+    <?> "constructor expression"
+
+separator :: (MonadParser e s m) => m ()
+separator = L.symbol ";"
 
 precedenceTableToOperatorTable :: (MonadParser e s m) => PrecedenceTable -> OperatorTable m
 precedenceTableToOperatorTable = fmap (fmap precedenceTableEntryToOperator) . groupSortOn (negate . precedence . snd)
