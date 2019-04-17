@@ -242,7 +242,11 @@ letAndLetrecTestCases
       , ProgramL
         [ ( "f"
           , []
-          , ELLet NonRecursive [("x", ELInteger 5)] (ELVariable "x")
+          , ELLet
+            NonRecursive
+            [ ("x", ELInteger 5)
+            ]
+            (ELVariable "x")
           )
         ]
       )
@@ -251,7 +255,92 @@ letAndLetrecTestCases
       , ProgramL
         [ ( "f"
           , []
-          , ELLet Recursive [("x", ELInteger 5)] (ELVariable "x")
+          , ELLet
+            Recursive
+            [ ("x", ELInteger 5)
+            ]
+            (ELVariable "x")
+          )
+        ]
+      )
+    , ( "let with multiple definitions"
+      , "f = let x = 5; y = 4; in x + y"
+      , ProgramL
+        [ ( "f"
+          , []
+          , ELLet
+            NonRecursive
+            [ ("x", ELInteger 5)
+            , ("y", ELInteger 4)
+            ]
+            (ELApplication2 (ELVariable "+") (ELVariable "x") (ELVariable "y"))
+          )
+        ]
+      )
+    , ( "letrec with multiple definitions"
+      , "f = letrec x = 5; y = x + x; z = x * y; in z"
+      , ProgramL
+        [ ( "f"
+          , []
+          , ELLet
+            Recursive
+            [ ("x", ELInteger 5)
+            , ("y", ELApplication2 (ELVariable "+") (ELVariable "x") (ELVariable "x"))
+            , ("z", ELApplication2 (ELVariable "*") (ELVariable "x") (ELVariable "y"))
+            ]
+            (ELVariable "z")
+          )
+        ]
+      )
+    , ( "let with nested let"
+      , "f = let x = let k = 5; in k; in x"
+      , ProgramL
+        [ ( "f"
+          , []
+          , ELLet
+            NonRecursive
+            [ ("x", ELLet NonRecursive [ ("k", ELInteger 5) ] (ELVariable "k"))
+            ]
+            (ELVariable "x")
+          )
+        ]
+      )
+    , ( "let with nested letrec"
+      , "f = let x = letrec k = 5; in k; in x"
+      , ProgramL
+        [ ( "f"
+          , []
+          , ELLet
+            NonRecursive
+            [ ("x", ELLet Recursive [ ("k", ELInteger 5) ] (ELVariable "k"))
+            ]
+            (ELVariable "x")
+          )
+        ]
+      )
+    , ( "letrec with nested let"
+      , "f = letrec x = let k = 5; in k; in x"
+      , ProgramL
+        [ ( "f"
+          , []
+          , ELLet
+            Recursive
+            [ ("x", ELLet NonRecursive [ ("k", ELInteger 5) ] (ELVariable "k"))
+            ]
+            (ELVariable "x")
+          )
+        ]
+      )
+    , ( "letrec with nested letrec"
+      , "f = letrec x = letrec k = 5; in k; in x"
+      , ProgramL
+        [ ( "f"
+          , []
+          , ELLet
+            Recursive
+            [ ("x", ELLet Recursive [ ("k", ELInteger 5) ] (ELVariable "k"))
+            ]
+            (ELVariable "x")
           )
         ]
       )
