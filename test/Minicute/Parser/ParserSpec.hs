@@ -1,3 +1,4 @@
+{-# OPTIONS_GHC -fno-warn-type-defaults #-}
 module Minicute.Parser.ParserSpec
   ( spec
   ) where
@@ -29,12 +30,15 @@ type TestCase = (TestName, TestContent, TestResult)
 
 testCases :: [TestCase]
 testCases
-  = fmap tupleUnzip2 (zip simpleTestLabels simpleTestCases)
+  = simpleTestCases
+    <> arithOpTestCases
+    <> constructorTestCases
   where
-    simpleTestLabels = fmap (("simple case" ++) . show) [0..]
+    simpleTestCases = fmap tupleUnzip2 (zip simpleLabels simpleTestTemplates)
+    simpleLabels = fmap (("simple case" <>) . show) [0..]
 
-simpleTestCases :: [(TestContent, TestResult)]
-simpleTestCases
+simpleTestTemplates :: [(TestContent, TestResult)]
+simpleTestTemplates
   = [ ( "f = 1"
       , ProgramL
         [ ( "f"
@@ -143,12 +147,34 @@ arithOpTestCases
         [ ( "f"
           , []
           , ELApplication2
-            (ELVariable "*")
+            (ELVariable "+")
             (ELApplication2
               (ELVariable "*")
               (ELInteger 1)
               (ELInteger 2))
             (ELInteger 3)
+          )
+        ]
+      )
+    ]
+
+constructorTestCases :: [TestCase]
+constructorTestCases
+  = [ ( "basic constructor"
+      , "f = Pack{1,0}"
+      , ProgramL
+        [ ( "f"
+          , []
+          , ELConstructor 1 0
+          )
+        ]
+      )
+    , ( "constructor with arguments"
+      , "f = Pack{1,1} 5"
+      , ProgramL
+        [ ( "f"
+          , []
+          , ELApplication (ELConstructor 1 1) (ELInteger 5)
           )
         ]
       )
