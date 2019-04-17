@@ -7,6 +7,7 @@ module Minicute.Data.Fix
 
 import Data.Data
 import Data.Function
+import GHC.Show (appPrec, appPrec1)
 
 newtype Fix2 f a = Fix2 { unFix2 :: f (Fix2 f) a }
 
@@ -16,4 +17,6 @@ instance (Eq (f (Fix2 f) a)) => Eq (Fix2 f a) where
   (==) = (==) `on` unFix2
 
 instance (Show (f (Fix2 f) a)) => Show (Fix2 f a) where
-  showsPrec n x = showParen (n > 10) $ ("Fix2 " <>) . showsPrec 11 (unFix2 x)
+  showsPrec n x
+    = showParen (n > appPrec)
+    $ ("Fix2 " <>) . showsPrec appPrec1 (unFix2 x)
