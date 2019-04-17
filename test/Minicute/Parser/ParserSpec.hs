@@ -37,6 +37,7 @@ testCases
     <> supercombinatorTestCases
     <> letAndLetrecTestCases
     <> matchTestCases
+    <> lambdaTestCases
   where
     simpleTestCases = fmap tupleUnzip2 (zip simpleLabels simpleTestTemplates)
     simpleLabels = fmap (("simple case" <>) . show) [0..]
@@ -385,6 +386,46 @@ matchTestCases
             [ (1, ["x", "y"], ELVariable "x")
             , (2, ["a", "b"], ELVariable "b")
             ]
+          )
+        ]
+      )
+    ]
+
+lambdaTestCases :: [TestCase]
+lambdaTestCases
+  = [ ( "lambda with a single argument"
+      , "f = \\x -> x"
+      , ProgramL
+        [ ( "f"
+          , []
+          , ELLambda
+            ["x"]
+            (ELVariable "x")
+          )
+        ]
+      )
+    , ( "lambda with multiple arguments"
+      , "f = \\x y -> x + y"
+      , ProgramL
+        [ ( "f"
+          , []
+          , ELLambda
+            ["x", "y"]
+            (ELApplication2 (ELVariable "+") (ELVariable "x") (ELVariable "y"))
+          )
+        ]
+      )
+    , ( "lambda with nested lambda"
+      , "f = \\x -> \\y -> x + y"
+      , ProgramL
+        [ ( "f"
+          , []
+          , ELLambda
+            ["x"]
+            ( ELLambda
+              ["y"]
+              (ELApplication2 (ELVariable "+") (ELVariable "x") (ELVariable "y"))
+            )
           )
         ]
       )
