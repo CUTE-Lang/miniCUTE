@@ -239,7 +239,7 @@ supercombinatorTestCases
 letAndLetrecTestCases :: [TestCase]
 letAndLetrecTestCases
   = [ ( "let with a single definition"
-      , "f = let x = 5; in x"
+      , "f = let x = 5 in x"
       , ProgramL
         [ ( "f"
           , []
@@ -252,7 +252,7 @@ letAndLetrecTestCases
         ]
       )
     , ( "letrec with a single definition"
-      , "f = letrec x = 5; in x"
+      , "f = letrec x = 5 in x"
       , ProgramL
         [ ( "f"
           , []
@@ -265,7 +265,7 @@ letAndLetrecTestCases
         ]
       )
     , ( "let with multiple definitions"
-      , "f = let x = 5; y = 4; in x + y"
+      , "f = let x = 5; y = 4 in x + y"
       , ProgramL
         [ ( "f"
           , []
@@ -279,7 +279,7 @@ letAndLetrecTestCases
         ]
       )
     , ( "letrec with multiple definitions"
-      , "f = letrec x = 5; y = x + x; z = x * y; in z"
+      , "f = letrec x = 5; y = x + x; z = x * y in z"
       , ProgramL
         [ ( "f"
           , []
@@ -294,7 +294,7 @@ letAndLetrecTestCases
         ]
       )
     , ( "let with nested let"
-      , "f = let x = let k = 5; in k; in x"
+      , "f = let x = let k = 5; in k in x"
       , ProgramL
         [ ( "f"
           , []
@@ -307,7 +307,7 @@ letAndLetrecTestCases
         ]
       )
     , ( "let with nested letrec"
-      , "f = let x = letrec k = 5; in k; in x"
+      , "f = let x = letrec k = 5 in k; in x"
       , ProgramL
         [ ( "f"
           , []
@@ -320,7 +320,7 @@ letAndLetrecTestCases
         ]
       )
     , ( "letrec with nested let"
-      , "f = letrec x = let k = 5; in k; in x"
+      , "f = letrec x = let k = 5; in k in x"
       , ProgramL
         [ ( "f"
           , []
@@ -333,7 +333,7 @@ letAndLetrecTestCases
         ]
       )
     , ( "letrec with nested letrec"
-      , "f = letrec x = letrec k = 5; in k; in x"
+      , "f = letrec x = letrec k = 5; in k in x"
       , ProgramL
         [ ( "f"
           , []
