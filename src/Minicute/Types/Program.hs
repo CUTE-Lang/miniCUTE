@@ -1,3 +1,4 @@
+{-# OPTIONS_GHC -fno-warn-missing-pattern-synonym-signatures #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE LiberalTypeSynonyms #-}
 {-# LANGUAGE MagicHash #-}
