@@ -35,6 +35,7 @@ testCases
     <> constructorTestCases
     <> applicationTestCases
     <> supercombinatorTestCases
+    <> letAndLetrecTestCases
   where
     simpleTestCases = fmap tupleUnzip2 (zip simpleLabels simpleTestTemplates)
     simpleLabels = fmap (("simple case" <>) . show) [0..]
@@ -229,6 +230,28 @@ supercombinatorTestCases
         [ ( "f"
           , ["x", "y"]
           , ELApplication (ELVariable "x") (ELVariable "y")
+          )
+        ]
+      )
+    ]
+
+letAndLetrecTestCases :: [TestCase]
+letAndLetrecTestCases
+  = [ ( "let with a single definition"
+      , "f = let x = 5; in x"
+      , ProgramL
+        [ ( "f"
+          , []
+          , ELLet NonRecursive [("x", ELInteger 5)] (ELVariable "x")
+          )
+        ]
+      )
+    , ( "letrec with a single definition"
+      , "f = letrec x = 5; in x"
+      , ProgramL
+        [ ( "f"
+          , []
+          , ELLet Recursive [("x", ELInteger 5)] (ELVariable "x")
           )
         ]
       )

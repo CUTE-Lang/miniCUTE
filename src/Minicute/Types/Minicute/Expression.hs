@@ -6,7 +6,11 @@ module Minicute.Types.Minicute.Expression
   ( module Minicute.Data.Fix
 
   , Identifier
+
   , IsRecursive
+  , pattern Recursive
+  , pattern NonRecursive
+
   , MatchCase
   , LetDefinition
 
@@ -40,7 +44,19 @@ import GHC.Show (appPrec, appPrec1)
 import Minicute.Data.Fix
 
 type Identifier = String
-type IsRecursive = Bool
+
+newtype IsRecursive = IsRecursive Bool
+  deriving ( Eq
+           )
+
+pattern Recursive = IsRecursive True
+pattern NonRecursive = IsRecursive False
+{-# COMPLETE Recursive, NonRecursive #-}
+
+instance Show IsRecursive where
+  showsPrec _ Recursive = showString "Recursive"
+  showsPrec _ NonRecursive = showString "NonRecursive"
+
 type MatchCase expr_ a = (Int, [a], expr_ a)
 type LetDefinition expr_ a = (a, expr_ a)
 
