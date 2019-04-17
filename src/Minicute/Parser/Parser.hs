@@ -15,6 +15,7 @@ import Minicute.Parser.Types
 import Minicute.Types.Minicute.Program
 import Text.Megaparsec
 
+import qualified Control.Monad.Combinators as Comb
 import qualified Control.Monad.Combinators.Expr as CombExpr
 import qualified Control.Monad.Combinators.NonEmpty as CombNE
 import qualified Minicute.Parser.Lexer as L
@@ -29,22 +30,23 @@ programL = do
   void (hidden eof)
   return program
 
-precedenceTable :: (MonadParser e s m, m ~ Parser) => m PrecedenceTable
+precedenceTable :: (MonadParser e s m) => m PrecedenceTable
 precedenceTable = return defaultPrecedenceTable
 
-supercombinatorL :: (MonadParser e s m, m ~ Parser) => WithPrecedence m MainSupercombinatorL
+supercombinatorL :: (MonadParser e s m) => WithPrecedence m MainSupercombinatorL
 supercombinatorL = (,,) <$> L.identifier <*> (many L.identifier <* L.symbol "=") <*> expressionL
 
-expressionL :: (MonadParser e s m, m ~ Parser) => WithPrecedence m MainExpressionL
+expressionL :: (MonadParser e s m) => WithPrecedence m MainExpressionL
 expressionL
   = letExpressionL Recursive
     <|> letExpressionL NonRecursive
+    <|> matchExpressionL
     <|> otherExpressionsByPrec
     <?> "expression"
 
-letExpressionL :: (MonadParser e s m, m ~ Parser) => IsRecursive -> WithPrecedence m MainExpressionL
+letExpressionL :: (MonadParser e s m) => IsRecursive -> WithPrecedence m MainExpressionL
 letExpressionL flag
-  = try (L.symbol keyword *> (ELLet flag <$> sepEndBy1 (try letDefinitionL) (L.symbol ";") <* L.symbol "in" <*> expressionL))
+  = try (L.symbol keyword *> (ELLet flag <$> sepEndBy1 letDefinitionL (L.symbol ";") <* L.symbol "in" <*> expressionL))
     <?> parserName
   where
     keyword
@@ -54,19 +56,25 @@ letExpressionL flag
       | isRecursive flag = "letrec expression"
       | otherwise = "let expression"
 
-letDefinitionL :: (MonadParser e s m, m ~ Parser) => WithPrecedence m MainLetDefinitionL
+letDefinitionL :: (MonadParser e s m) => WithPrecedence m MainLetDefinitionL
 letDefinitionL = (,) <$> L.identifier <* L.symbol "=" <*> expressionL
 
-otherExpressionsByPrec :: (MonadParser e s m, m ~ Parser) => WithPrecedence m MainExpressionL
+matchExpressionL :: (MonadParser e s m) => WithPrecedence m MainExpressionL
+matchExpressionL = ELMatch <$> Comb.between (L.symbol "match") (L.symbol "with") expressionL <*> sepEndBy1 matchCaseL (L.symbol ";")
+
+matchCaseL :: (MonadParser e s m) => WithPrecedence m MainMatchCaseL
+matchCaseL = (,,) <$> Comb.between (L.symbol "<") (L.symbol ">") L.integer <*> many L.identifier <* L.symbol "->" <*> expressionL
+
+otherExpressionsByPrec :: (MonadParser e s m) => WithPrecedence m MainExpressionL
 otherExpressionsByPrec = ask >>= CombExpr.makeExprParser applicationExpressionL . precedenceTableToOperatorTable
 
-applicationExpressionL :: (MonadParser e s m, m ~ Parser) => WithPrecedence m MainExpressionL
+applicationExpressionL :: (MonadParser e s m) => WithPrecedence m MainExpressionL
 applicationExpressionL
   = makeApplicationChain <$> CombNE.some atomicExpressionL
   where
     makeApplicationChain (aExpr :| aExprs) = foldl' ELApplication aExpr aExprs
 
-atomicExpressionL :: (MonadParser e s m, m ~ Parser) => WithPrecedence m MainExpressionL
+atomicExpressionL :: (MonadParser e s m) => WithPrecedence m MainExpressionL
 atomicExpressionL
   = integerExpression
     <|> constructorExpression
