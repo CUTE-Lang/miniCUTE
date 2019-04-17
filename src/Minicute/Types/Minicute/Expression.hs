@@ -2,7 +2,7 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE MagicHash #-}
 {-# LANGUAGE PatternSynonyms #-}
-module Minicute.Types.Expression
+module Minicute.Types.Minicute.Expression
   ( module Minicute.Data.Fix
 
   , Identifier

@@ -3,8 +3,8 @@
 {-# LANGUAGE LiberalTypeSynonyms #-}
 {-# LANGUAGE MagicHash #-}
 {-# LANGUAGE PatternSynonyms #-}
-module Minicute.Types.Program
-  ( module Minicute.Types.Expression
+module Minicute.Types.Minicute.Program
+  ( module Minicute.Types.Minicute.Expression
 
   , Supercombinator#
 
@@ -26,7 +26,7 @@ module Minicute.Types.Program
   ) where
 
 import GHC.Show (appPrec, appPrec1)
-import Minicute.Types.Expression
+import Minicute.Types.Minicute.Expression
 
 type Supercombinator# a expr = (Identifier, [a], expr)
 

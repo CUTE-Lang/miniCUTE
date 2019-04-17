@@ -11,7 +11,7 @@ import Data.List.Extra
 import Data.List.NonEmpty ( NonEmpty( (:|) ) )
 import Data.Functor
 import Minicute.Parser.Types
-import Minicute.Types.Program
+import Minicute.Types.Minicute.Program
 import Text.Megaparsec
 
 import qualified Control.Monad.Combinators.Expr as CombExpr

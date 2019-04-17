@@ -8,7 +8,7 @@ import Test.Hspec.Megaparsec
 
 import Control.Monad
 import Minicute.Data.Tuple
-import Minicute.Types.Program
+import Minicute.Types.Minicute.Program
 import Text.Megaparsec
 
 import qualified Minicute.Parser.Parser as P
