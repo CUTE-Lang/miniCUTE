@@ -76,8 +76,6 @@ atomicExpressionL
 integerExpression :: (MonadParser e s m) => m MainExpressionL
 integerExpression = ELInteger <$> L.integer
 
--- |
--- Should I check whether identifier is a keyword or not?
 variableExpression :: (MonadParser e s m) => m MainExpressionL
 variableExpression = ELVariable <$> L.identifier
 

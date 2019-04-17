@@ -20,8 +20,26 @@ betweenRoundBrackets :: (MonadParser e s m) => m a -> m a
 betweenRoundBrackets = between (symbol "(") (symbol ")")
 {-# INLINEABLE betweenRoundBrackets #-}
 
+-- |
+-- I need to check whether identifier is a keyword or not
+-- since I don't want to introduce additional separator for @match ... with@
 identifier :: (MonadParser e s m) => m String
-identifier = lexeme ((:) <$> identifierFirstChar <*> many identifierRestChar) <?> "identifier"
+identifier = try (identifier' >>= checkKeywords) <?> "identifier"
+  where
+    identifier' = lexeme ((:) <$> identifierFirstChar <*> many identifierRestChar)
+
+    checkKeywords i
+      | i `elem` keywords = fail $ "keyword " <> show i <> " cannot be an identifier"
+      | otherwise = return i
+
+keywords :: [String]
+keywords
+  = [ "let"
+    , "letrec"
+    , "in"
+    , "match"
+    , "with"
+    ]
 
 identifierFirstChar :: (MonadParser e s m) => m Char
 identifierFirstChar = MPC.letterChar <|> MPC.char '_' <?> "alphabet or _"
