@@ -1,5 +1,6 @@
 {-# OPTIONS_GHC -fno-warn-missing-pattern-synonym-signatures #-}
 {-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE LiberalTypeSynonyms #-}
 {-# LANGUAGE MagicHash #-}
 {-# LANGUAGE PatternSynonyms #-}
 module Minicute.Types.Minicute.Expression
@@ -7,12 +8,25 @@ module Minicute.Types.Minicute.Expression
 
   , Identifier
 
-  , IsRecursive
+  , IsRecursive( .. )
   , pattern Recursive
   , pattern NonRecursive
 
+  , MatchCase#
+
   , MatchCase
+  , MainMatchCase
+
+  , MatchCaseL
+  , MainMatchCaseL
+
+  , LetDefinition#
+
   , LetDefinition
+  , MainLetDefinition
+
+  , LetDefinitionL
+  , MainLetDefinitionL
 
   , Expression#
   , Expression
@@ -45,7 +59,7 @@ import Minicute.Data.Fix
 
 type Identifier = String
 
-newtype IsRecursive = IsRecursive Bool
+newtype IsRecursive = IsRecursive { isRecursive :: Bool }
   deriving ( Eq
            )
 
@@ -57,16 +71,27 @@ instance Show IsRecursive where
   showsPrec _ Recursive = showString "Recursive"
   showsPrec _ NonRecursive = showString "NonRecursive"
 
-type MatchCase expr_ a = (Int, [a], expr_ a)
-type LetDefinition expr_ a = (a, expr_ a)
+type MatchCase# expr_ a = (Int, [a], expr_ a)
+type MatchCase a = MatchCase# Expression a
+type MainMatchCase = MatchCase Identifier
+
+type MatchCaseL a = MatchCase# ExpressionL a
+type MainMatchCaseL = MatchCaseL Identifier
+
+type LetDefinition# expr_ a = (a, expr_ a)
+type LetDefinition a = LetDefinition# Expression a
+type MainLetDefinition = LetDefinition Identifier
+
+type LetDefinitionL a = LetDefinition# ExpressionL a
+type MainLetDefinitionL = LetDefinitionL Identifier
 
 data Expression# expr_ a
   = EInteger# Integer
   | EConstructor# Int Int
   | EVariable# Identifier
   | EApplication# (expr_ a) (expr_ a)
-  | ELet# IsRecursive [LetDefinition expr_ a] (expr_ a)
-  | EMatch# (expr_ a) [MatchCase expr_ a]
+  | ELet# IsRecursive [LetDefinition# expr_ a] (expr_ a)
+  | EMatch# (expr_ a) [MatchCase# expr_ a]
   deriving ( Eq
            , Show
            )
