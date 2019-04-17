@@ -36,6 +36,7 @@ testCases
     <> applicationTestCases
     <> supercombinatorTestCases
     <> letAndLetrecTestCases
+    <> matchTestCases
   where
     simpleTestCases = fmap tupleUnzip2 (zip simpleLabels simpleTestTemplates)
     simpleLabels = fmap (("simple case" <>) . show) [0..]
@@ -341,6 +342,49 @@ letAndLetrecTestCases
             [ ("x", ELLet Recursive [ ("k", ELInteger 5) ] (ELVariable "k"))
             ]
             (ELVariable "x")
+          )
+        ]
+      )
+    ]
+
+matchTestCases :: [TestCase]
+matchTestCases
+  = [ ( "match with a single match case"
+      , "f = match Pack{1,0} with <1> -> 5"
+      , ProgramL
+        [ ( "f"
+          , []
+          , ELMatch
+            (ELConstructor 1 0)
+            [ (1, [], ELInteger 5)
+            ]
+          )
+        ]
+      )
+    , ( "match with multiple match cases"
+      , "f = match Pack{2,0} with <1> -> 5; <2> -> 3; <4> -> g"
+      , ProgramL
+        [ ( "f"
+          , []
+          , ELMatch
+            (ELConstructor 2 0)
+            [ (1, [], ELInteger 5)
+            , (2, [], ELInteger 3)
+            , (4, [], ELVariable "g")
+            ]
+          )
+        ]
+      )
+    , ( "match with arguments"
+      , "f = match Pack{2,2} 5 4 with <1> x y -> x; <2> a b -> b"
+      , ProgramL
+        [ ( "f"
+          , []
+          , ELMatch
+            (ELApplication2 (ELConstructor 2 2) (ELInteger 5) (ELInteger 4))
+            [ (1, ["x", "y"], ELVariable "x")
+            , (2, ["a", "b"], ELVariable "b")
+            ]
           )
         ]
       )
