@@ -14,6 +14,8 @@ spec :: Spec
 spec = do
   describe "integer lexer" $ do
     describe "when an input is not prefixed" $ do
+      it "parses a zero" $ do
+        (L.integer, "0") `shouldJustParseInto` 0
       it "parses a decimal number with a non-zero start" $ do
         (L.integer, "10") `shouldJustParseInto` 10
       it "fails to parse a decimal number with the zero start and leaves inputs from second character" $ do
@@ -46,7 +48,7 @@ spec = do
         (L.integer, "0x055E") `shouldJustParseInto` 0x55e
 
     describe "when an input has trailing spaces" $ do
-      it "parses successfully" $ do
+      it "parses a integer" $ do
         (L.integer, "10  ") `shouldJustParseInto` 10
         (L.integer, "0b11\n") `shouldJustParseInto` 0b11
         (L.integer, "0o1252\t") `shouldJustParseInto` 0o1252
@@ -61,13 +63,13 @@ spec = do
 
   describe "identifier lexer" $ do
     describe "when an input has alphabets only" $ do
-      it "parses successfully" $ do
+      it "parses an identifier" $ do
         (L.identifier, "abc") `shouldJustParseInto` "abc"
         (L.identifier, "fwehlg") `shouldJustParseInto` "fwehlg"
         (L.identifier, "Qpozmgdpxsc") `shouldJustParseInto` "Qpozmgdpxsc"
 
     describe "when an input has alphanumeric characters starting with an alphabet" $ do
-      it "parses successfully" $ do
+      it "parses an identifier" $ do
         (L.identifier, "abc40ias") `shouldJustParseInto` "abc40ias"
         (L.identifier, "fwehlg120ad") `shouldJustParseInto` "fwehlg120ad"
         (L.identifier, "Gew129g01f") `shouldJustParseInto` "Gew129g01f"
@@ -79,7 +81,7 @@ spec = do
         (L.identifier, "0Pq") `failsLeavingInput` "0Pq"
 
     describe "when an input has alphanumeric characters and an _ starting with an alphabet or an _" $ do
-      it "parses successfully" $ do
+      it "parses an identifier" $ do
         (L.identifier, "abc_13_") `shouldJustParseInto` "abc_13_"
         (L.identifier, "_Jo") `shouldJustParseInto` "_Jo"
         (L.identifier, "_0Pq") `shouldJustParseInto` "_0Pq"
@@ -101,6 +103,3 @@ shouldJustParseInto pair value = shouldParseInto pair value ""
 failsLeavingInput :: (Show a, Eq a) => (L.Parser a, String) -> String -> IO ()
 failsLeavingInput (p, content) leaving = do
   runParser' p (initialState content) `failsLeaving` leaving
-
-andLeaving :: (String -> IO ()) -> String -> IO ()
-andLeaving = id
