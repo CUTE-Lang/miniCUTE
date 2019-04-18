@@ -46,10 +46,14 @@ library:
   ### Common fields ###
   source-dirs:
     - src
+  ghc-options:
+    - -Wall
   dependencies:
     - base >= 4.12 && < 5
+    - extra >=  1.6 && < 2
+    - mtl >= 2.2 && < 3
+    - megaparsec >= 7.0 && < 8
     - parser-combinators
-    - megaparsec >= 7.0 && < 7.1
 
 # internal-libraries:
 
@@ -63,7 +67,10 @@ executables:
     ### Common fields ###
     source-dirs:
       - app
-    ghc-options:                    -threaded -rtsopts -with-rtsopts=-N
+    ghc-options:
+      - -threaded
+      - -rtsopts
+      - -with-rtsopts=-N
     dependencies:
       - base
       - minicute
@@ -80,12 +87,16 @@ tests:
     ### Common fields ###
     source-dirs:
       - test
-    ghc-options:                    -threaded -rtsopts -with-rtsopts=-N
+    ghc-options:
+      - -threaded
+      - -rtsopts
+      - -with-rtsopts=-N
     dependencies:
       - base
       - megaparsec
       - minicute
       - hspec
+      - hspec-megaparsec
 
   hlint:
     ### Test fields ###
@@ -96,7 +107,10 @@ tests:
     ### Common fields ###
     source-dirs:
       - hlint
-    ghc-options:                    -threaded -rtsopts -with-rtsopts=-N
+    ghc-options:
+      - -threaded
+      - -rtsopts
+      - -with-rtsopts=-N
     dependencies:
       - base
       - hlint
@@ -111,7 +125,10 @@ benchmarks:
     ### Common fields ###
     source-dirs:
       - bench
-    ghc-options:                    -threaded -rtsopts -with-rtsopts=-N
+    ghc-options:
+      - -threaded
+      - -rtsopts
+      - -with-rtsopts=-N
     dependencies:
       - base
       - minicute
