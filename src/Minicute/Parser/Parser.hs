@@ -133,7 +133,7 @@ constructorExpression
     )
     <?> "constructor expression"
   where
-    startingSymbols = L.symbol "Pack" *> L.symbol "{"
+    startingSymbols = L.symbol "#C#" *> L.symbol "{"
     endingSymbols = L.symbol "}"
 
 separator :: (MonadParser e s m) => m ()
