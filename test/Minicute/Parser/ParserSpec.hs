@@ -166,7 +166,7 @@ arithmeticOperatorTestCases
 constructorTestCases :: [TestCase]
 constructorTestCases
   = [ ( "basic constructor"
-      , "f = Pack{1,0};g = Pack{2,2}"
+      , "f = Pack{1;0};g = Pack{2;2}"
       , ProgramL
         [ ( "f"
           , []
@@ -179,7 +179,7 @@ constructorTestCases
         ]
       )
     , ( "constructor with arguments"
-      , "f = Pack{1,1} 5;g = Pack{2,3} f"
+      , "f = Pack{1;1} 5;g = Pack{2;3} f"
       , ProgramL
         [ ( "f"
           , []
@@ -351,7 +351,7 @@ letAndLetrecTestCases
 matchTestCases :: [TestCase]
 matchTestCases
   = [ ( "match with a single match case"
-      , "f = match Pack{1,0} with <1> -> 5"
+      , "f = match Pack{1;0} with <1> -> 5"
       , ProgramL
         [ ( "f"
           , []
@@ -363,7 +363,7 @@ matchTestCases
         ]
       )
     , ( "match with multiple match cases"
-      , "f = match Pack{2,0} with <1> -> 5; <2> -> 3; <4> -> g"
+      , "f = match Pack{2;0} with <1> -> 5; <2> -> 3; <4> -> g"
       , ProgramL
         [ ( "f"
           , []
@@ -377,7 +377,7 @@ matchTestCases
         ]
       )
     , ( "match with arguments"
-      , "f = match Pack{2,2} 5 4 with <1> x y -> x; <2> a b -> b"
+      , "f = match Pack{2;2} 5 4 with <1> x y -> x; <2> a b -> b"
       , ProgramL
         [ ( "f"
           , []

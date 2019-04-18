@@ -128,7 +128,7 @@ constructorExpression :: (MonadParser e s m) => m MainExpressionL
 constructorExpression
   = Comb.between startingSymbols endingSymbols
     ( ELConstructor
-      <$> L.integer <* L.symbol ","
+      <$> L.integer <* separator
       <*> L.integer
     )
     <?> "constructor expression"
