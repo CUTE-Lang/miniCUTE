@@ -8,7 +8,6 @@ module Minicute.Parser.Lexer
   ) where
 
 import Control.Monad ( void )
-import Data.Functor
 import Minicute.Parser.Types
 import Text.Megaparsec hiding ( State )
 
@@ -27,10 +26,12 @@ identifier :: (MonadParser e s m) => m String
 identifier = try (identifier' >>= checkKeywords) <?> "identifier"
   where
     identifier' = lexeme ((:) <$> identifierFirstChar <*> many identifierRestChar)
+    {-# INLINEABLE identifier' #-}
 
     checkKeywords i
       | i `elem` keywords = fail $ "keyword " <> show i <> " cannot be an identifier"
       | otherwise = return i
+    {-# INLINEABLE checkKeywords #-}
 
 keywords :: [String]
 keywords
@@ -54,11 +55,19 @@ symbol = void . MPCL.symbol spacesConsumer
 {-# INLINEABLE symbol #-}
 
 integer :: (MonadParser e s m, Integral a) => m a
-integer = lexeme (integerStartWithZero <|> MPCL.decimal) <?> "integer"
+integer
+  = lexeme
+    ( try
+      ( (integerStartWithZero <|> MPCL.decimal)
+        <* notFollowedBy MPC.alphaNumChar
+      )
+    )
+    <?> "integer"
   where
     integerStartWithZero = do
       void . MPC.char $ '0'
-      try prefixedInteger <|> zero
+      prefixedInteger <|> zero
+    {-# INLINEABLE integerStartWithZero #-}
 
     prefixedInteger = do
       b <- Char.toLower <$> oneOf "bBoOdDxX"
@@ -70,8 +79,9 @@ integer = lexeme (integerStartWithZero <|> MPCL.decimal) <?> "integer"
         _ -> error ("Minicute.Parser.Lexer.integer: unexpected prefix " <> show b)
 
     zero
-      = notFollowedBy MPC.alphaNumChar $> 0
+      = return 0
         <?> "one of the integer prefixes ('b', 'B', 'o', 'O', 'd', 'D', 'x', 'X')"
+    {-# INLINEABLE zero #-}
 
 lexeme :: (MonadParser e s m) => m a -> m a
 lexeme = MPCL.lexeme spacesConsumer
