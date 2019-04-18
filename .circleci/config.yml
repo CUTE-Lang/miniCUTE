@@ -24,10 +24,14 @@ commands:
       - stack-test-all
       - stack-build-all
 
+executors:
+  stack-minimal:
+    docker:
+      - image: fpco/stack-build-small:lts-13.17
+
 jobs:
   build:
-    docker:
-      - image: fpco/stack-build:lts-13.17
+    executor: stack-minimal
     steps:
       - checkout
       - restore_cache:
