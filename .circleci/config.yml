@@ -1,0 +1,45 @@
+version: 2.1
+
+commands:
+  stack-setup:
+    description: "Setup haskell tool stack."
+    steps:
+      - run: stack setup -j2
+  stack-lint-all:
+    description: "Lint every codes in this repo with haskell tool stack."
+    steps:
+      - run: stack test :hlint -j2
+  stack-test-all:
+    description: "Test everything related with this repo with haskell tool stack."
+    steps:
+      - run: stack test :test -j2
+  stack-build-all:
+    description: "Build everything related with this repo with haskell tool stack."
+    steps:
+      - run: stack build -j2
+  stack-verify-all:
+    description: "Verify everything related with this repo with haskell tool stack."
+    steps:
+      - stack-lint-all
+      - stack-test-all
+      - stack-build-all
+
+jobs:
+  build:
+    docker:
+      - image: fpco/stack-build:lts
+    steps:
+      - checkout
+      - restore_cache:
+          # Read about caching dependencies: https://circleci.com/docs/2.0/caching/
+          name: Restore Cached Dependencies
+          keys:
+            - cci-demo-haskell-v1-{{ checksum "package.yaml" }}-{{ checksum "stack.yaml" }}
+      - stack-setup
+      - stack-verify-all
+      - save_cache:
+          name: Cache Dependencies
+          key: cci-demo-haskell-v1-{{ checksum "package.yaml" }}-{{ checksum "stack.yaml" }}
+          paths:
+            - "/root/.stack"
+            - ".stack-work"
