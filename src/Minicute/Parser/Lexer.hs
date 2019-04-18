@@ -57,10 +57,8 @@ symbol = void . MPCL.symbol spacesConsumer
 integer :: (MonadParser e s m, Integral a) => m a
 integer
   = lexeme
-    ( try
-      ( (integerStartWithZero <|> MPCL.decimal)
-        <* notFollowedBy MPC.alphaNumChar
-      )
+    ( (integerStartWithZero <|> MPCL.decimal)
+      <* endOfInteger
     )
     <?> "integer"
   where
@@ -81,6 +79,10 @@ integer
     zero
       = return 0
         <?> "one of the integer prefixes ('b', 'B', 'o', 'O', 'd', 'D', 'x', 'X')"
+
+    endOfInteger
+      = notFollowedBy MPC.alphaNumChar
+        <?> "non-alphanumeric"
     {-# INLINEABLE zero #-}
 
 lexeme :: (MonadParser e s m) => m a -> m a
