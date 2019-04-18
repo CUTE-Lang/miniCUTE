@@ -46,6 +46,7 @@ expressionL
   = letExpressionL Recursive
     <|> letExpressionL NonRecursive
     <|> matchExpressionL
+    <|> lambdaExpressionL
     <|> otherExpressionsByPrec
     <?> "expression"
 
@@ -93,6 +94,16 @@ matchCaseL
     <*> many L.identifier <* L.symbol "->"
     <*> expressionL
     <?> "match case"
+
+lambdaExpressionL :: (MonadParser e s m) => WithPrecedence m MainExpressionL
+lambdaExpressionL
+  = L.symbol "\\"
+    *>
+    ( ELLambda
+      <$> many L.identifier <* L.symbol "->"
+      <*> expressionL
+    )
+    <?> "lambda expression"
 
 otherExpressionsByPrec :: (MonadParser e s m) => WithPrecedence m MainExpressionL
 otherExpressionsByPrec = ask >>= CombExpr.makeExprParser applicationExpressionL . precedenceTableToOperatorTable
