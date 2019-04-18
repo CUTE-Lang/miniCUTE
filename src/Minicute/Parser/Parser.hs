@@ -97,12 +97,9 @@ matchCaseL
 
 lambdaExpressionL :: (MonadParser e s m) => WithPrecedence m MainExpressionL
 lambdaExpressionL
-  = L.symbol "\\"
-    *>
-    ( ELLambda
-      <$> many L.identifier <* L.symbol "->"
-      <*> expressionL
-    )
+  = ELLambda
+    <$> Comb.between (L.symbol "\\") (L.symbol "->") (many L.identifier)
+    <*> expressionL
     <?> "lambda expression"
 
 otherExpressionsByPrec :: (MonadParser e s m) => WithPrecedence m MainExpressionL
@@ -129,13 +126,15 @@ variableExpression = ELVariable <$> L.identifier <?> "variable identifier"
 
 constructorExpression :: (MonadParser e s m) => m MainExpressionL
 constructorExpression
-  = L.symbol "Pack"
-    *> Comb.between (L.symbol "{") (L.symbol "}")
+  = Comb.between startingSymbols endingSymbols
     ( ELConstructor
       <$> L.integer <* L.symbol ","
       <*> L.integer
     )
     <?> "constructor expression"
+  where
+    startingSymbols = L.symbol "Pack" *> L.symbol "{"
+    endingSymbols = L.symbol "}"
 
 separator :: (MonadParser e s m) => m ()
 separator = L.symbol ";"
