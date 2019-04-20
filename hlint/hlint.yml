@@ -5,7 +5,7 @@
 - ignore:
     name: Nothing but yaml alias node definitions
     test_modules: &test_modules
-      - Minicute.Interpreter.EvaluatorSpec
+      - Minicute.PrettyPrintableSpec
       - Minicute.Parser.LexerSpec
       - Minicute.Parser.ParserSpec
 
