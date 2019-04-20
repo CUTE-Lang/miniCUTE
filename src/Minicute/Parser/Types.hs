@@ -24,7 +24,7 @@ import Text.Megaparsec
 
 import qualified Control.Monad.Combinators.Expr as CombExpr
 
-type MonadParser e s m = (MonadParsec e s m, s ~ String)
+type MonadParser e s m = (MonadParsec e s m, ShowErrorComponent e, s ~ String)
 
 type WithPrecedence m = ReaderT PrecedenceTable m
 

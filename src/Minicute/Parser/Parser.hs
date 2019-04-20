@@ -27,21 +27,20 @@ programL = do
   pt <- precedenceTable
   setParserState ps
   program <- ProgramL <$> runReaderT (sepEndBy supercombinatorL (L.symbol ";")) pt
-  void (hidden eof)
+  void eof
   return program
 
-precedenceTable :: (MonadParser e s m) => m PrecedenceTable
+precedenceTable :: (MonadParser e s m, m ~ Parser) => m PrecedenceTable
 precedenceTable = return defaultPrecedenceTable
 
-supercombinatorL :: (MonadParser e s m) => WithPrecedence m MainSupercombinatorL
+supercombinatorL :: (MonadParser e s m, m ~ Parser) => WithPrecedence m MainSupercombinatorL
 supercombinatorL
   = (,,)
     <$> L.identifier
     <*> many L.identifier <* L.symbol "="
     <*> expressionL
-    <?> "top-level definition"
 
-expressionL :: (MonadParser e s m) => WithPrecedence m MainExpressionL
+expressionL :: (MonadParser e s m, m ~ Parser) => WithPrecedence m MainExpressionL
 expressionL
   = letExpressionL Recursive
     <|> letExpressionL NonRecursive
@@ -50,7 +49,7 @@ expressionL
     <|> otherExpressionsByPrec
     <?> "expression"
 
-letExpressionL :: (MonadParser e s m) => IsRecursive -> WithPrecedence m MainExpressionL
+letExpressionL :: (MonadParser e s m, m ~ Parser) => IsRecursive -> WithPrecedence m MainExpressionL
 letExpressionL flag
   = try
     ( ELLet flag
@@ -70,24 +69,26 @@ letExpressionL flag
       | isRecursive flag = "letrec expression"
       | otherwise = "let expression"
 
-letDefinitionL :: (MonadParser e s m) => WithPrecedence m MainLetDefinitionL
+letDefinitionL :: (MonadParser e s m, m ~ Parser) => WithPrecedence m MainLetDefinitionL
 letDefinitionL
   = (,)
     <$> L.identifier <* L.symbol "="
     <*> expressionL
     <?> "let definition"
 
-matchExpressionL :: (MonadParser e s m) => WithPrecedence m MainExpressionL
+matchExpressionL :: (MonadParser e s m, m ~ Parser) => WithPrecedence m MainExpressionL
 matchExpressionL
-  = ELMatch
-    <$> Comb.between startingKeyword endingKeyword expressionL
-    <*> sepBy1 matchCaseL separator
+  = try
+    ( ELMatch
+      <$> Comb.between startingKeyword endingKeyword expressionL
+      <*> sepBy1 matchCaseL separator
+    )
     <?> "match expression"
   where
     startingKeyword = L.symbol "match"
     endingKeyword = L.symbol "with"
 
-matchCaseL :: (MonadParser e s m) => WithPrecedence m MainMatchCaseL
+matchCaseL :: (MonadParser e s m, m ~ Parser) => WithPrecedence m MainMatchCaseL
 matchCaseL
   = (,,)
     <$> Comb.between (L.symbol "<") (L.symbol ">") L.integer
@@ -95,34 +96,34 @@ matchCaseL
     <*> expressionL
     <?> "match case"
 
-lambdaExpressionL :: (MonadParser e s m) => WithPrecedence m MainExpressionL
+lambdaExpressionL :: (MonadParser e s m, m ~ Parser) => WithPrecedence m MainExpressionL
 lambdaExpressionL
   = ELLambda
     <$> Comb.between (L.symbol "\\") (L.symbol "->") (many L.identifier)
     <*> expressionL
     <?> "lambda expression"
 
-otherExpressionsByPrec :: (MonadParser e s m) => WithPrecedence m MainExpressionL
+otherExpressionsByPrec :: (MonadParser e s m, m ~ Parser) => WithPrecedence m MainExpressionL
 otherExpressionsByPrec = ask >>= CombExpr.makeExprParser applicationExpressionL . precedenceTableToOperatorTable
 
-applicationExpressionL :: (MonadParser e s m) => WithPrecedence m MainExpressionL
+applicationExpressionL :: (MonadParser e s m, m ~ Parser) => WithPrecedence m MainExpressionL
 applicationExpressionL
   = makeApplicationChain <$> CombNE.some atomicExpressionL
   where
     makeApplicationChain (aExpr :| aExprs) = foldl' ELApplication aExpr aExprs
 
-atomicExpressionL :: (MonadParser e s m) => WithPrecedence m MainExpressionL
+atomicExpressionL :: (MonadParser e s m, m ~ Parser) => WithPrecedence m MainExpressionL
 atomicExpressionL
   = integerExpression
-    <|> constructorExpression
     <|> variableExpression
-    <|> mapReaderT L.betweenRoundBrackets expressionL
+    <|> constructorExpression
+    <|> (mapReaderT L.betweenRoundBrackets expressionL <?> "expression with parentheses")
 
 integerExpression :: (MonadParser e s m) => m MainExpressionL
-integerExpression = ELInteger <$> L.integer <?> "integer expression"
+integerExpression = ELInteger <$> L.integer <?> "integer"
 
 variableExpression :: (MonadParser e s m) => m MainExpressionL
-variableExpression = ELVariable <$> L.identifier <?> "variable identifier"
+variableExpression = ELVariable <$> L.identifier <?> "variable"
 
 constructorExpression :: (MonadParser e s m) => m MainExpressionL
 constructorExpression
@@ -131,9 +132,9 @@ constructorExpression
       <$> L.integer <* separator
       <*> L.integer
     )
-    <?> "constructor expression"
+    <?> "constructor"
   where
-    startingSymbols = L.symbol "#C#" *> L.symbol "{"
+    startingSymbols = L.symbol "$C" *> L.symbol "{"
     endingSymbols = L.symbol "}"
 
 separator :: (MonadParser e s m) => m ()
