@@ -1,27 +1,40 @@
 module Minicute.Data.PrintSequence where
 
+import Data.List
+
 data PrintSequence
+  = PrintNothing
+  | PrintNewline
+  | PrintString String
+  | PrintAppend PrintSequence PrintSequence
 
 toString :: PrintSequence -> String
-toString = undefined
+toString ps = concat (flattenPrintSequence [ps])
+  where
+    flattenPrintSequence :: [PrintSequence] -> [String]
+    flattenPrintSequence [] = []
+    flattenPrintSequence (PrintNothing : pss) = flattenPrintSequence pss
+    flattenPrintSequence (PrintNewline : pss) = "\n" : flattenPrintSequence pss
+    flattenPrintSequence (PrintString s : pss) = s : flattenPrintSequence pss
+    flattenPrintSequence (PrintAppend ps1 ps2 : pss) = flattenPrintSequence (ps1 : ps2 : pss)
 
 printNothing :: PrintSequence
-printNothing = undefined
+printNothing = PrintNothing
 
 printNewline :: PrintSequence
-printNewline = undefined
+printNewline = PrintNewline
 
 printString :: String -> PrintSequence
-printString = undefined
+printString = PrintString
 
-printIntegral :: (Integral a) => a -> PrintSequence
-printIntegral = undefined
+printIntegral :: (Integral a, Show a) => a -> PrintSequence
+printIntegral = PrintString . show
 
 printAppend :: PrintSequence -> PrintSequence -> PrintSequence
-printAppend = undefined
+printAppend = PrintAppend
 
 printConcat :: [PrintSequence] -> PrintSequence
-printConcat = undefined
+printConcat = foldl' PrintAppend PrintNothing
 
-printInterleave :: PrintSequence -> [PrintSequence] -> PrintSequence
-printInterleave = undefined
+printIntersperse :: PrintSequence -> [PrintSequence] -> PrintSequence
+printIntersperse = (printConcat .) . intersperse

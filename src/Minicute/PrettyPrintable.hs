@@ -14,16 +14,18 @@ class PrettyPrintable a where
   prettyPrint :: a -> PrintSequence
 
 prettyPrintList :: (PrettyPrintable a) => PrintSequence -> [a] -> PrintSequence
-prettyPrintList sep = printInterleave sep . fmap prettyPrint
+prettyPrintList sep = printIntersperse sep . fmap prettyPrint
 
 instance (PrettyPrintable a, PrettyPrintable expr) => PrettyPrintable (Program# a expr) where
-  prettyPrint (Program# scs) = prettyPrintList printNewline scs
+  prettyPrint (Program# scs) = prettyPrintList prettyPrintSeparatorWithNewline scs
 
 instance (PrettyPrintable a, PrettyPrintable expr) => PrettyPrintable (Supercombinator# a expr) where
   prettyPrint (scId, argBinders, expr)
     = printConcat
       [ prettyPrint scId
-      , printString " "
+      , if null argBinders
+        then printNothing
+        else printString " "
       , prettyPrintList prettyPrintSpace argBinders
       , printString " = "
       , prettyPrint expr
@@ -90,6 +92,9 @@ instance (PrettyPrintable a, PrettyPrintable (expr_ a)) => PrettyPrintable (Matc
       [ printString "<"
       , printIntegral tag
       , printString ">"
+      , if null argBinders
+        then printNothing
+        else printString " "
       , prettyPrintList prettyPrintSpace argBinders
       , printString " -> "
       , prettyPrint bodyExpr
