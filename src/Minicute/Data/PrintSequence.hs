@@ -38,3 +38,8 @@ printConcat = foldl' PrintAppend PrintNothing
 
 printIntersperse :: PrintSequence -> [PrintSequence] -> PrintSequence
 printIntersperse = (printConcat .) . intersperse
+
+printConditionalParentheses :: Bool -> PrintSequence -> PrintSequence
+printConditionalParentheses withParenthesis ps
+  | withParenthesis = printString "(" `printAppend` ps `printAppend` printString ")"
+  | otherwise = ps
