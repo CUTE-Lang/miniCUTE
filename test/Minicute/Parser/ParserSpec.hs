@@ -1,4 +1,5 @@
 {-# OPTIONS_GHC -fno-warn-type-defaults #-}
+{-# LANGUAGE QuasiQuotes #-}
 module Minicute.Parser.ParserSpec
   ( spec
   ) where
@@ -12,6 +13,7 @@ import Data.Void
 import Minicute.Data.Tuple ( tupleUnzip2 )
 import Minicute.Types.Minicute.Program
 import Text.Megaparsec
+import Text.InterpolatedString.QM
 
 import qualified Minicute.Parser.Parser as P
 
@@ -52,14 +54,16 @@ testCases
 
 simpleTestTemplates :: [(TestContent, TestResult)]
 simpleTestTemplates
-  = [ ( ""
+  = [ ( [qnb||]
       , TestSuccess
         ( ProgramL
           [
           ]
         )
       )
-    , ( "f = 1"
+    , ( [qnb|
+            f = 1
+        |]
       , TestSuccess
         ( ProgramL
           [ ( "f"
@@ -69,7 +73,9 @@ simpleTestTemplates
           ]
         )
       )
-    , ( "f = 1;"
+    , ( [qnb|
+            f = 1;
+        |]
       , TestSuccess
         ( ProgramL
           [ ( "f"
@@ -79,7 +85,9 @@ simpleTestTemplates
           ]
         )
       )
-    , ( "f=1;"
+    , ( [qnb|
+            f=1;
+        |]
       , TestSuccess
         ( ProgramL
           [ ( "f"
@@ -89,7 +97,9 @@ simpleTestTemplates
           ]
         )
       )
-    , ( " f= 1;"
+    , ( [qnb|
+            f= 1;
+        |]
       , TestSuccess
         ( ProgramL
           [ ( "f"
@@ -99,7 +109,9 @@ simpleTestTemplates
           ]
         )
       )
-    , ( " f= 1 ;  "
+    , ( [qnb|
+            f= 1 ;
+        |]
       , TestSuccess
         ( ProgramL
           [ ( "f"
@@ -109,7 +121,10 @@ simpleTestTemplates
           ]
         )
       )
-    , ( "f = 1;\ng = 2"
+    , ( [qnb|
+            f = 1;
+          g = 2
+           |]
       , TestSuccess
         ( ProgramL
           [ ( "f"
@@ -123,7 +138,10 @@ simpleTestTemplates
           ]
         )
       )
-    , ( "f = 1  ;  \n g=2 ;"
+    , ( [qnb|
+            f = 1  ;
+          g=2 ;
+           |]
       , TestSuccess
         ( ProgramL
           [ ( "f"
@@ -137,7 +155,10 @@ simpleTestTemplates
           ]
         )
       )
-    , ( "f = g;\ng = 2"
+    , ( [qnb|
+            f = g;
+          g = 2
+           |]
       , TestSuccess
         ( ProgramL
           [ ( "f"
@@ -151,7 +172,9 @@ simpleTestTemplates
           ]
         )
       )
-    , ( "matchx = matchx"
+    , ( [qnb|
+            matchx = matchx
+        |]
       , TestSuccess
         ( ProgramL
           [ ( "matchx"
@@ -161,23 +184,33 @@ simpleTestTemplates
           ]
         )
       )
-    , ( "1f = 2"
+    , ( [qnb|
+            1f = 2
+        |]
       , TestFail
         (err 0 (utok '1' <> elabel "identifier" <> eeof))
       )
-    , ( "f;"
+    , ( [qnb|
+            f;
+        |]
       , TestFail
         (err 1 (utok ';' <> etok '=' <> elabel "alphanumeric character" <> etok '_' <> elabel "identifier"))
       )
-    , ( "f =;"
+    , ( [qnb|
+            f =;
+        |]
       , TestFail
         (err 3 (utok ';' <> elabel "expression"))
       )
-    , ( "f! = 5;"
+    , ( [qnb|
+            f! = 5;
+        |]
       , TestFail
         (err 1 (utok '!' <> etok '=' <> elabel "alphanumeric character" <> etok '_' <> elabel "identifier"))
       )
-    , ( "f = 5;;"
+    , ( [qnb|
+            f = 5;;
+        |]
       , TestFail
         (err 6 (utok ';' <> elabel "identifier" <> eeof))
       )
@@ -186,7 +219,9 @@ simpleTestTemplates
 arithmeticOperatorTestCases :: [TestCase]
 arithmeticOperatorTestCases
   = [ ( "addition of two numbers"
-      , "f = 1 + 1"
+      , [qnb|
+            f = 1 + 1
+        |]
       , TestSuccess
         ( ProgramL
           [ ( "f"
@@ -197,7 +232,10 @@ arithmeticOperatorTestCases
         )
       )
     , ( "addition of a number and a variable"
-      , "f = 1 * g;\ng = 3"
+      , [qnb|
+            f = 1 * g;
+            g = 3
+        |]
       , TestSuccess
         ( ProgramL
           [ ( "f"
@@ -212,7 +250,9 @@ arithmeticOperatorTestCases
         )
       )
     , ( "multiple addition of numbers"
-      , "f = 1 + (3 + 4)"
+      , [qnb|
+            f = 1 + (3 + 4)
+        |]
       , TestSuccess
         ( ProgramL
           [ ( "f"
@@ -226,7 +266,9 @@ arithmeticOperatorTestCases
         )
       )
     , ( "operator association of -"
-      , "f = 3 - 2 - 1"
+      , [qnb|
+            f = 3 - 2 - 1
+        |]
       , TestSuccess
         ( ProgramL
           [ ( "f"
@@ -243,7 +285,9 @@ arithmeticOperatorTestCases
         )
       )
     , ( "operator precedence of + and *"
-      , "f = 1 * 2 + 3"
+      , [qnb|
+            f = 1 * 2 + 3
+        |]
       , TestSuccess
         ( ProgramL
           [ ( "f"
@@ -260,12 +304,16 @@ arithmeticOperatorTestCases
         )
       )
     , ( "left partial application of arithmetic operator"
-      , "f = 2 +"
+      , [qnb|
+            f = 2 +
+        |]
       , TestFail
         (err 7 (ueof <> elabel "expression with parentheses" <> elabel "constructor" <> elabel "integer" <> elabel "variable"))
       )
     , ( "right partial application of arithmetic operator"
-      , "f = + 2"
+      , [qnb|
+            f = + 2
+        |]
       , TestFail
         (err 4 (utoks "+ 2" <> elabel "expression"))
       )
@@ -274,7 +322,10 @@ arithmeticOperatorTestCases
 constructorTestCases :: [TestCase]
 constructorTestCases
   = [ ( "basic constructor"
-      , "f = $C{1;0};g = $C{2;2}"
+      , [qnb|
+            f = $C{1;0};
+            g = $C{2;2}
+        |]
       , TestSuccess
         ( ProgramL
           [ ( "f"
@@ -289,7 +340,10 @@ constructorTestCases
         )
       )
     , ( "constructor with arguments"
-      , "f = $C{1;1} 5;g = $C{2;3} f"
+      , [qnb|
+            f = $C{1;1} 5;
+            g = $C{2;3} f
+        |]
       , TestSuccess
         ( ProgramL
           [ ( "f"
@@ -304,17 +358,23 @@ constructorTestCases
         )
       )
     , ( "constructor without arity"
-      , "f = $C{1};"
+      , [qnb|
+            f = $C{1};
+        |]
       , TestFail
         (err 8 (utok '}' <> etok ';' <> elabel "decimal digit"))
       )
     , ( "constructor without tag"
-      , "f = $C{;1};"
+      , [qnb|
+            f = $C{;1};
+        |]
       , TestFail
         (err 7 (utok ';' <> elabel "integer"))
       )
     , ( "wrong tokens for constructor"
-      , "f = $Co{1;1};"
+      , [qnb|
+            f = $Co{1;1};
+        |]
       , TestFail
         (err 6 (utok 'o' <> etok '{'))
       )
@@ -323,7 +383,9 @@ constructorTestCases
 applicationTestCases :: [TestCase]
 applicationTestCases
   = [ ( "application of an integer"
-      , "f = g 5"
+      , [qnb|
+            f = g 5
+        |]
       , TestSuccess
         ( ProgramL
           [ ( "f"
@@ -334,7 +396,9 @@ applicationTestCases
         )
       )
     , ( "application of a variable"
-      , "f = g f"
+      , [qnb|
+            f = g f
+        |]
       , TestSuccess
         ( ProgramL
           [ ( "f"
@@ -349,7 +413,9 @@ applicationTestCases
 supercombinatorTestCases :: [TestCase]
 supercombinatorTestCases
   = [ ( "supercombinator with an argument"
-      , "f x = x"
+      , [qnb|
+            f x = x
+        |]
       , TestSuccess
         ( ProgramL
           [ ( "f"
@@ -360,7 +426,9 @@ supercombinatorTestCases
         )
       )
     , ( "supercombinator with two argument"
-      , "f x y = x y"
+      , [qnb|
+            f x y = x y
+        |]
       , TestSuccess
         ( ProgramL
           [ ( "f"
@@ -371,12 +439,16 @@ supercombinatorTestCases
         )
       )
     , ( "supercombinator with a number"
-      , "f 5 = x"
+      , [qnb|
+            f 5 = x
+        |]
       , TestFail
         (err 2 (utok '5' <> elabel "identifier" <> etok '='))
       )
     , ( "supercombinator with an illegal argument"
-      , "f $x = $x"
+      , [qnb|
+            f $x = $x
+        |]
       , TestFail
         (err 2 (utok '$' <> elabel "identifier" <> etok '='))
       )
@@ -385,7 +457,9 @@ supercombinatorTestCases
 letAndLetrecTestCases :: [TestCase]
 letAndLetrecTestCases
   = [ ( "let with a single definition"
-      , "f = let x = 5 in x"
+      , [qnb|
+            f = let x = 5 in x
+        |]
       , TestSuccess
         ( ProgramL
           [ ( "f"
@@ -400,7 +474,11 @@ letAndLetrecTestCases
         )
       )
     , ( "letrec with a single definition"
-      , "f = letrec x = 5 in x"
+      , [qnb|
+            f = letrec
+                  x = 5
+                in x
+        |]
       , TestSuccess
         ( ProgramL
           [ ( "f"
@@ -415,7 +493,12 @@ letAndLetrecTestCases
         )
       )
     , ( "let with multiple definitions"
-      , "f = let x = 5; y = 4 in x + y"
+      , [qnb|
+            f = let
+                  x = 5;
+                  y = 4
+                in x + y
+        |]
       , TestSuccess
         ( ProgramL
           [ ( "f"
@@ -431,7 +514,13 @@ letAndLetrecTestCases
         )
       )
     , ( "letrec with multiple definitions"
-      , "f = letrec x = 5; y = x + x; z = x * y in z"
+      , [qnb|
+            f = letrec
+                  x = 5;
+                  y = x + x;
+                  z = x * y
+                in z
+        |]
       , TestSuccess
         ( ProgramL
           [ ( "f"
@@ -448,7 +537,13 @@ letAndLetrecTestCases
         )
       )
     , ( "let with nested let"
-      , "f = let x = let k = 5; in k in x"
+      , [qnb|
+            f = let
+                  x = let
+                        k = 5;
+                      in k
+                in x
+        |]
       , TestSuccess
         ( ProgramL
           [ ( "f"
@@ -463,7 +558,9 @@ letAndLetrecTestCases
         )
       )
     , ( "let with nested letrec"
-      , "f = let x = letrec k = 5 in k; in x"
+      , [qnb|
+            f = let x = letrec k = 5 in k; in x
+        |]
       , TestSuccess
         ( ProgramL
           [ ( "f"
@@ -478,7 +575,9 @@ letAndLetrecTestCases
         )
       )
     , ( "letrec with nested let"
-      , "f = letrec x = let k = 5; in k in x"
+      , [qnb|
+            f = letrec x = let k = 5; in k in x
+        |]
       , TestSuccess
         ( ProgramL
           [ ( "f"
@@ -493,7 +592,13 @@ letAndLetrecTestCases
         )
       )
     , ( "letrec with nested letrec"
-      , "f = letrec x = letrec k = 5; in k in x"
+      , [qnb|
+            f = letrec
+                  x = letrec
+                        k = 5;
+                      in k
+                in x
+        |]
       , TestSuccess
         ( ProgramL
           [ ( "f"
@@ -508,7 +613,9 @@ letAndLetrecTestCases
         )
       )
     , ( "let with zero definitions"
-      , "f = let in 5"
+      , [qnb|
+            f = let in 5
+        |]
       , TestFail
         (errFancy 8 (fancy (ErrorFail "keyword \"in\" cannot be an identifier")))
       )
@@ -517,7 +624,9 @@ letAndLetrecTestCases
 matchTestCases :: [TestCase]
 matchTestCases
   = [ ( "match with a single match case"
-      , "f = match $C{1;0} with <1> -> 5"
+      , [qnb|
+            f = match $C{1;0} with <1> -> 5
+        |]
       , TestSuccess
         ( ProgramL
           [ ( "f"
@@ -531,7 +640,12 @@ matchTestCases
         )
       )
     , ( "match with multiple match cases"
-      , "f = match $C{2;0} with <1> -> 5; <2> -> 3; <4> -> g"
+      , [qnb|
+            f = match $C{2;0} with
+                  <1> -> 5;
+                  <2> -> 3;
+                  <4> -> g
+        |]
       , TestSuccess
         ( ProgramL
           [ ( "f"
@@ -547,7 +661,11 @@ matchTestCases
         )
       )
     , ( "match with arguments"
-      , "f = match $C{2;2} 5 4 with <1> x y -> x; <2> a b -> b"
+      , [qnb|
+            f = match $C{2;2} 5 4 with
+                  <1> x y -> x;
+                  <2> a b -> b
+        |]
       , TestSuccess
         ( ProgramL
           [ ( "f"
@@ -566,7 +684,9 @@ matchTestCases
 lambdaTestCases :: [TestCase]
 lambdaTestCases
   = [ ( "lambda with a single argument"
-      , "f = \\x -> x"
+      , [qnb|
+            f = \x -> x
+        |]
       , TestSuccess
         ( ProgramL
           [ ( "f"
@@ -579,7 +699,9 @@ lambdaTestCases
         )
       )
     , ( "lambda with multiple arguments"
-      , "f = \\x y -> x + y"
+      , [qnb|
+            f = \x y -> x + y
+        |]
       , TestSuccess
         ( ProgramL
           [ ( "f"
@@ -592,7 +714,9 @@ lambdaTestCases
         )
       )
     , ( "lambda with nested lambda"
-      , "f = \\x -> \\y -> x + y"
+      , [qnb|
+            f = \x -> \y -> x + y
+        |]
       , TestSuccess
         ( ProgramL
           [ ( "f"
@@ -608,7 +732,9 @@ lambdaTestCases
         )
       )
     , ( "immidiate application of lambda"
-      , "f = (\\x -> x) 5"
+      , [qnb|
+            f = (\x -> x) 5
+        |]
       , TestSuccess
         ( ProgramL
           [ ( "f"
@@ -628,12 +754,16 @@ lambdaTestCases
 complexTestCases :: [TestCase]
 complexTestCases
   = [ ( "direct right application of let expression"
-      , "f = 5 + let k = 5 in k"
+      , [qnb|
+            f = 5 + let k = 5 in k
+        |]
       , TestFail
         (errFancy 8 (fancy (ErrorFail "keyword \"let\" cannot be an identifier")))
       )
     , ( "direct right application of match expression"
-      , "f = 5 + match $C{1,0} with <1> -> 5"
+      , [qnb|
+            f = 5 + match $C{1,0} with <1> -> 5
+        |]
       , TestFail
         (errFancy 8 (fancy (ErrorFail "keyword \"match\" cannot be an identifier")))
       )

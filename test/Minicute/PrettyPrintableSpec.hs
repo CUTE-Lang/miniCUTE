@@ -1,3 +1,4 @@
+{-# LANGUAGE QuasiQuotes #-}
 module Minicute.PrettyPrintableSpec
   ( spec
   ) where
@@ -9,6 +10,7 @@ import Control.Monad
 import Data.Either
 import Minicute.Types.Minicute.Program
 import Text.Megaparsec
+import Text.InterpolatedString.QM
 
 import qualified Minicute.Data.PrintSequence as PS
 import qualified Minicute.PrettyPrintable as PP
@@ -21,7 +23,7 @@ spec = do
 
 programLTest :: TestName -> TestContent -> SpecWith (Arg Expectation)
 programLTest name programString = do
-  describe ("with" <> name) $ do
+  describe ("with " <> name) $ do
     it "prints re-parsable text" $ do
       program <- parseProgramL programString
       parse P.programL "" (PS.toString (PP.prettyPrint program)) `shouldParse` program
@@ -43,30 +45,53 @@ type TestCase = (TestName, TestContent)
 testCases :: [TestCase]
 testCases
   = [ ( "empty program"
-      , ""
+      , [qnb||]
       )
     , ( "simple program"
-      , "f = 5"
+      , [qnb|
+             f = 5
+        |]
       )
     , ( "program with multiple top-level definitions"
-      , "f = g;\ng = 5"
+      , [qnb|
+             f = 5;
+             g = 5
+        |]
       )
     , ( "program with top-level definitions with arguments"
-      , "f x = g x 5;\ng x y = x y"
+      , [qnb|
+             f x = g x 5;
+             g x y = x y
+        |]
       )
     , ( "program with arithmetic operators"
-      , "f = 5 + 4"
+      , [qnb|
+             f = 5 + 4
+        |]
       )
     , ( "program with multiple arithmetic operators0"
-      , "f = 5 + 4 * 5"
+      , [qnb|
+             f = 5 + 4 * 5
+        |]
       )
     , ( "program with multiple arithmetic operators1"
-      , "f = (5 + 4) * 5"
+      , [qnb|
+             f = (5 + 4) * 5
+        |]
       )
     , ( "program with multiple arithmetic operators2"
-      , "f = 5 - 4 - 3"
+      , [qnb|
+             f = 5 - 4 - 3
+        |]
       )
     , ( "program with multiple arithmetic operators3"
-      , "f = 5 - (4 - 3)"
+      , [qnb|
+             f = 5 - (4 - 3)
+        |]
+      )
+    , ( "program with let"
+      , [qnb|
+             f = let x = 5 in x
+        |]
       )
     ]
