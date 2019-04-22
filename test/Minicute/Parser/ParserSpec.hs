@@ -376,7 +376,14 @@ constructorTestCases
             f = $Co{1;1};
         |]
       , TestFail
-        (err 6 (utok 'o' <> etok '{'))
+        (err 6 (utok 'o'))
+      )
+    , ( "wrong tokens for constructor"
+      , [qnb|
+            f = $C{1,1};
+        |]
+      , TestFail
+        (err 8 (utok ',' <> etok ';' <> elabel "decimal digit"))
       )
     ]
 
@@ -407,6 +414,13 @@ applicationTestCases
             )
           ]
         )
+      )
+    , ( "application of wrong expression"
+      , [qnb|
+            f = g []
+        |]
+      , TestFail
+        (err 6 (utok '[' <> etok ';' <> elabel "binary operator" <> elabel "constructor" <> elabel "integer" <> elabel "variable" <> elabel "expression with parentheses" <> eeof))
       )
     ]
 
@@ -617,7 +631,14 @@ letAndLetrecTestCases
             f = let in 5
         |]
       , TestFail
-        (errFancy 8 (fancy (ErrorFail "keyword \"in\" cannot be an identifier")))
+        (errFancy 8 (fancy (ErrorFail "let expression should include at least one definition")))
+      )
+    , ( "let without in"
+      , [qnb|
+            f = let x = 5
+        |]
+      , TestFail
+        (err 13 (ueof <> etok ';' <> etoks "in" <> elabel "decimal digit" <> elabel "binary operator" <> elabel "constructor" <> elabel "integer" <> elabel "variable" <> elabel "expression with parentheses"))
       )
     ]
 
@@ -678,6 +699,13 @@ matchTestCases
             )
           ]
         )
+      )
+    , ( "match without a case"
+      , [qnb|
+            f = match $C{2;0} with
+        |]
+      , TestFail
+        (errFancy 22 (fancy (ErrorFail "match expression should include at least one case")))
       )
     ]
 
@@ -749,11 +777,50 @@ lambdaTestCases
           ]
         )
       )
+    , ( "lambda without body"
+      , [qnb|
+            f = \x ->
+        |]
+      , TestFail
+        (err 9 (ueof <> elabel "expression"))
+      )
     ]
 
 complexTestCases :: [TestCase]
 complexTestCases
-  = [ ( "direct right application of let expression"
+  = [ ( "indirect right application of let expression"
+      , [qnb|
+            f = 5 + (let k = 5 in k)
+        |]
+      , TestSuccess
+        ( ProgramL
+          [ ( "f"
+            , []
+            , ELApplication2
+              (ELVariable "+")
+              (ELInteger 5)
+              (ELLet NonRecursive [("k", ELInteger 5)] (ELVariable "k"))
+            )
+          ]
+        )
+      )
+    , ( "indirect right application of match expression"
+      , [qnb|
+            f = 5 + (match $C{1;0} with <1> -> 5)
+        |]
+      , TestSuccess
+        ( ProgramL
+          [ ( "f"
+            , []
+            , ELApplication2
+              (ELVariable "+")
+              (ELInteger 5)
+              (ELMatch (ELConstructor 1 0) [(1, [], ELInteger 5)])
+            )
+          ]
+        )
+      )
+    , ( "direct right application of let expression"
       , [qnb|
             f = 5 + let k = 5 in k
         |]
@@ -762,7 +829,7 @@ complexTestCases
       )
     , ( "direct right application of match expression"
       , [qnb|
-            f = 5 + match $C{1,0} with <1> -> 5
+            f = 5 + match $C{1;0} with <1> -> 5
         |]
       , TestFail
         (errFancy 8 (fancy (ErrorFail "keyword \"match\" cannot be an identifier")))
