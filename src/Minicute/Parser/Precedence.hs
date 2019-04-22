@@ -13,6 +13,12 @@ data Precedence
 type PrecedenceTableEntry = (String, Precedence)
 type PrecedenceTable = [PrecedenceTableEntry]
 
+isInfix :: Precedence -> Bool
+isInfix (PInfixN _) = True
+isInfix (PInfixL _) = True
+isInfix (PInfixR _) = True
+isInfix _ = False
+
 defaultPrecedenceTable :: PrecedenceTable
 defaultPrecedenceTable
   = [ (">=", PInfixL 10)
@@ -26,3 +32,9 @@ defaultPrecedenceTable
     , ("*", PInfixL 50)
     , ("/", PInfixL 50)
     ]
+
+applicationPrecedence :: Int
+applicationPrecedence = 100
+
+applicationPrecedence1 :: Int
+applicationPrecedence1 = 101

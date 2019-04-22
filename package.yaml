@@ -49,7 +49,7 @@ library:
   ghc-options:
     - -Wall
   dependencies:
-    - extra >=  1.6 && < 2
+    - extra >= 1.6 && < 2
     - mtl >= 2.2 && < 3
     - megaparsec >= 7.0 && < 8
     - parser-combinators
@@ -90,8 +90,11 @@ tests:
       - -rtsopts
       - -with-rtsopts=-N
     dependencies:
+      - extra
       - megaparsec
       - minicute
+      - template-haskell
+
       - hspec
       - hspec-megaparsec
 

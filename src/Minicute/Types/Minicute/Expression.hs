@@ -12,14 +12,6 @@ module Minicute.Types.Minicute.Expression
   , pattern Recursive
   , pattern NonRecursive
 
-  , MatchCase#
-
-  , MatchCase
-  , MainMatchCase
-
-  , MatchCaseL
-  , MainMatchCaseL
-
   , LetDefinition#
 
   , LetDefinition
@@ -28,7 +20,16 @@ module Minicute.Types.Minicute.Expression
   , LetDefinitionL
   , MainLetDefinitionL
 
-  , Expression#
+  , MatchCase#
+
+  , MatchCase
+  , MainMatchCase
+
+  , MatchCaseL
+  , MainMatchCaseL
+
+  , Expression#( .. )
+
   , Expression
   , MainExpression
   , pattern EInteger
@@ -40,7 +41,8 @@ module Minicute.Types.Minicute.Expression
   , pattern ELet
   , pattern EMatch
 
-  , ExpressionL#
+  , ExpressionL#( .. )
+
   , ExpressionL
   , MainExpressionL
   , pattern ELInteger
@@ -54,7 +56,7 @@ module Minicute.Types.Minicute.Expression
   , pattern ELLambda
   ) where
 
-import GHC.Show (appPrec, appPrec1)
+import GHC.Show ( appPrec, appPrec1 )
 import Minicute.Data.Fix
 
 type Identifier = String
@@ -71,19 +73,19 @@ instance Show IsRecursive where
   showsPrec _ Recursive = showString "Recursive"
   showsPrec _ NonRecursive = showString "NonRecursive"
 
-type MatchCase# expr_ a = (Int, [a], expr_ a)
-type MatchCase a = MatchCase# Expression a
-type MainMatchCase = MatchCase Identifier
-
-type MatchCaseL a = MatchCase# ExpressionL a
-type MainMatchCaseL = MatchCaseL Identifier
-
 type LetDefinition# expr_ a = (a, expr_ a)
 type LetDefinition a = LetDefinition# Expression a
 type MainLetDefinition = LetDefinition Identifier
 
 type LetDefinitionL a = LetDefinition# ExpressionL a
 type MainLetDefinitionL = LetDefinitionL Identifier
+
+type MatchCase# expr_ a = (Int, [a], expr_ a)
+type MatchCase a = MatchCase# Expression a
+type MainMatchCase = MatchCase Identifier
+
+type MatchCaseL a = MatchCase# ExpressionL a
+type MainMatchCaseL = MatchCaseL Identifier
 
 data Expression# expr_ a
   = EInteger# Integer
@@ -104,7 +106,7 @@ pattern EVariable v = Fix2 (EVariable# v)
 pattern EApplication e1 e2 = Fix2 (EApplication# e1 e2)
 pattern EApplication2 e1 e2 e3 = EApplication (EApplication e1 e2) e3
 pattern EApplication3 e1 e2 e3 e4 = EApplication (EApplication2 e1 e2 e3) e4
-pattern ELet ir lds e = Fix2 (ELet# ir lds e)
+pattern ELet flag lds e = Fix2 (ELet# flag lds e)
 pattern EMatch e mcs = Fix2 (EMatch# e mcs)
 {-# COMPLETE EInteger, EConstructor, EVariable, EApplication, ELet, EMatch #-}
 
@@ -121,9 +123,9 @@ instance {-# OVERLAPS #-} (Show a) => Show (Expression a) where
   showsPrec p (EApplication e1 e2)
     = showParen (p > appPrec)
       $ showString "EApplication " . showsPrec appPrec1 e1 . showString " " . showsPrec appPrec1 e2
-  showsPrec p (ELet ir lds e)
+  showsPrec p (ELet flag lds e)
     = showParen (p > appPrec)
-      $ showString "ELet " . showsPrec appPrec1 ir . showString " " . showsPrec appPrec1 lds . showString " " . showsPrec appPrec1 e
+      $ showString "ELet " . showsPrec appPrec1 flag . showString " " . showsPrec appPrec1 lds . showString " " . showsPrec appPrec1 e
   showsPrec p (EMatch e mcs)
     = showParen (p > appPrec)
       $ showString "EMatch " . showsPrec appPrec1 e . showString " " . showsPrec appPrec1 mcs
@@ -143,7 +145,7 @@ pattern ELVariable v = Fix2 (ELExpression# (EVariable# v))
 pattern ELApplication e1 e2 = Fix2 (ELExpression# (EApplication# e1 e2))
 pattern ELApplication2 e1 e2 e3 = ELApplication (ELApplication e1 e2) e3
 pattern ELApplication3 e1 e2 e3 e4 = ELApplication (ELApplication2 e1 e2 e3) e4
-pattern ELLet ir lds e = Fix2 (ELExpression# (ELet# ir lds e))
+pattern ELLet flag lds e = Fix2 (ELExpression# (ELet# flag lds e))
 pattern ELMatch e mcs = Fix2 (ELExpression# (EMatch# e mcs))
 pattern ELLambda as e = Fix2 (ELLambda# as e)
 {-# COMPLETE ELInteger, ELConstructor, ELVariable, ELApplication, ELLet, ELMatch, ELLambda #-}
@@ -161,9 +163,9 @@ instance {-# OVERLAPS #-} (Show a) => Show (ExpressionL a) where
   showsPrec p (ELApplication e1 e2)
     = showParen (p > appPrec)
       $ showString "ELApplication " . showsPrec appPrec1 e1 . showString " " . showsPrec appPrec1 e2
-  showsPrec p (ELLet ir lds e)
+  showsPrec p (ELLet flag lds e)
     = showParen (p > appPrec)
-      $ showString "ELLet " . showsPrec appPrec1 ir . showString " " . showsPrec appPrec1 lds . showString " " . showsPrec appPrec1 e
+      $ showString "ELLet " . showsPrec appPrec1 flag . showString " " . showsPrec appPrec1 lds . showString " " . showsPrec appPrec1 e
   showsPrec p (ELMatch e mcs)
     = showParen (p > appPrec)
       $ showString "ELMatch " . showsPrec appPrec1 e . showString " " . showsPrec appPrec1 mcs

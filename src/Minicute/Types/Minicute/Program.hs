@@ -14,7 +14,7 @@ module Minicute.Types.Minicute.Program
   , SupercombinatorL
   , MainSupercombinatorL
 
-  , Program#
+  , Program#( .. )
 
   , Program
   , MainProgram
@@ -25,7 +25,7 @@ module Minicute.Types.Minicute.Program
   , pattern ProgramL
   ) where
 
-import GHC.Show (appPrec, appPrec1)
+import GHC.Show ( appPrec, appPrec1 )
 import Minicute.Types.Minicute.Expression
 
 type Supercombinator# a expr = (Identifier, [a], expr)

@@ -22,7 +22,7 @@ spec = do
         (L.integer, "0") `shouldJustParseInto` 0
       it "parses a decimal number with a non-zero start" $ do
         (L.integer, "10") `shouldJustParseInto` 10
-      it "fails to parse a decimal number with the zero start and leaves inputs from second character" $ do
+      it "fails to parse a decimal number with the zero start and leaves from the problematic character" $ do
         (L.integer, "010") `failsLeavingInput` "10"
 
     describe "when an input is prefixed" $ do
@@ -64,6 +64,14 @@ spec = do
         (L.integer, "\t12") `failsLeavingInput` "\t12"
         (L.integer, "\n0b101") `failsLeavingInput` "\n0b101"
         (L.integer, " 0xfcab242") `failsLeavingInput` " 0xfcab242"
+
+    describe "when an input has trailing alphabets" $ do
+      it "fails to parse and leaves from the problematic character" $ do
+        (L.integer, "0k") `failsLeavingInput` "k"
+        (L.integer, "50a") `failsLeavingInput` "a"
+        (L.integer, "204bjl") `failsLeavingInput` "bjl"
+        (L.integer, "0b1101pqw") `failsLeavingInput` "pqw"
+        (L.integer, "0X202PG") `failsLeavingInput` "PG"
 
   describe "identifier lexer" $ do
     describe "when an input has alphabets only" $ do

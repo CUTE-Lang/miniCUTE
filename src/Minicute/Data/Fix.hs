@@ -8,7 +8,7 @@ module Minicute.Data.Fix
 
 import Data.Data
 import Data.Function
-import GHC.Show (appPrec, appPrec1)
+import GHC.Show ( appPrec, appPrec1 )
 
 newtype Fix f = Fix { unFix :: f (Fix f) }
 
