@@ -91,7 +91,35 @@ testCases
       )
     , ( "program with let"
       , [qqMini|
-               f = let x = 5 in x
+               f = let
+                     x = 5
+                   in
+                     x
+        |]
+      )
+    , ( "program with match"
+      , [qqMini|
+               f = match x with
+                     <1> -> 1;
+                     <2> -> 2
+        |]
+      )
+    , ( "program with lambda"
+      , [qqMini|
+               f = \x ->
+                     x + 4
+        |]
+      )
+    , ( "program with an application with lambda"
+      , [qqMini|
+               f = g (\x ->
+                        x + 4)
+        |]
+      )
+    , ( "program with an application for lambda"
+      , [qqMini|
+               f = (\x ->
+                      x + 4) (5 * 3)
         |]
       )
     ]
