@@ -5,12 +5,12 @@ module Minicute.PrettyPrintableSpec
 
 import Test.Hspec
 import Test.Hspec.Megaparsec
+import Test.Minicute.Utils
 
 import Control.Monad
 import Data.Either
 import Minicute.Types.Minicute.Program
 import Text.Megaparsec
-import Text.InterpolatedString.QM
 
 import qualified Minicute.Data.PrintSequence as PS
 import qualified Minicute.PrettyPrintable as PP
@@ -45,53 +45,53 @@ type TestCase = (TestName, TestContent)
 testCases :: [TestCase]
 testCases
   = [ ( "empty program"
-      , [qnb||]
+      , [qqMini||]
       )
     , ( "simple program"
-      , [qnb|
-             f = 5
+      , [qqMini|
+               f = 5
         |]
       )
     , ( "program with multiple top-level definitions"
-      , [qnb|
-             f = 5;
-             g = 5
+      , [qqMini|
+               f = 5;
+               g = 5
         |]
       )
     , ( "program with top-level definitions with arguments"
-      , [qnb|
-             f x = g x 5;
-             g x y = x y
+      , [qqMini|
+               f x = g x 5;
+               g x y = x y
         |]
       )
     , ( "program with arithmetic operators"
-      , [qnb|
-             f = 5 + 4
+      , [qqMini|
+               f = 5 + 4
         |]
       )
     , ( "program with multiple arithmetic operators0"
-      , [qnb|
-             f = 5 + 4 * 5
+      , [qqMini|
+               f = 5 + 4 * 5
         |]
       )
     , ( "program with multiple arithmetic operators1"
-      , [qnb|
-             f = (5 + 4) * 5
+      , [qqMini|
+               f = (5 + 4) * 5
         |]
       )
     , ( "program with multiple arithmetic operators2"
-      , [qnb|
-             f = 5 - 4 - 3
+      , [qqMini|
+               f = 5 - 4 - 3
         |]
       )
     , ( "program with multiple arithmetic operators3"
-      , [qnb|
-             f = 5 - (4 - 3)
+      , [qqMini|
+               f = 5 - (4 - 3)
         |]
       )
     , ( "program with let"
-      , [qnb|
-             f = let x = 5 in x
+      , [qqMini|
+               f = let x = 5 in x
         |]
       )
     ]

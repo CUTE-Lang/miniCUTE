@@ -93,7 +93,7 @@ tests:
       - extra
       - megaparsec
       - minicute
-      - qm-interpolated-string
+      - template-haskell
 
       - hspec
       - hspec-megaparsec
