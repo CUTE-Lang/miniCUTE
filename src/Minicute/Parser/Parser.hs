@@ -51,19 +51,21 @@ expressionL
 
 letExpressionL :: (MonadParser e s m, m ~ Parser) => IsRecursive -> WithPrecedence m MainExpressionL
 letExpressionL flag
-  = try
-    ( ELLet flag
-      <$> Comb.between startingKeyword endingKeyword letDefinitionsL
-      <*> expressionL
-    )
+  = ELLet flag
+    <$> Comb.between startingKeyword endingKeyword letDefinitionsL
+    <*> expressionL
     <?> nameOfExpression
   where
-    startingKeyword
-      | isRecursive flag = L.symbol "letrec"
-      | otherwise = L.symbol "let"
-    endingKeyword = L.symbol "in"
+    letDefinitionsL
+      = (notFollowedBy endingKeyword <|> zeroLetDefinitionError)
+        *> sepEndBy1 letDefinitionL separator
 
-    letDefinitionsL = sepEndBy1 letDefinitionL separator
+    startingKeyword
+      | isRecursive flag = try (L.keyword "letrec")
+      | otherwise = try (L.keyword "let")
+    endingKeyword = L.keyword "in"
+
+    zeroLetDefinitionError = fail (nameOfExpression <> " should include at least one definition")
 
     nameOfExpression
       | isRecursive flag = "letrec expression"
@@ -78,15 +80,19 @@ letDefinitionL
 
 matchExpressionL :: (MonadParser e s m, m ~ Parser) => WithPrecedence m MainExpressionL
 matchExpressionL
-  = try
-    ( ELMatch
-      <$> Comb.between startingKeyword endingKeyword expressionL
-      <*> sepBy1 matchCaseL separator
-    )
+  = ELMatch
+    <$> Comb.between startingKeyword endingKeyword expressionL
+    <*> matchCasesL
     <?> "match expression"
   where
-    startingKeyword = L.symbol "match"
-    endingKeyword = L.symbol "with"
+    matchCasesL
+      = (notFollowedBy (separator <|> eof) <|> zeroMatchCaseError)
+        *> sepBy1 matchCaseL separator
+
+    startingKeyword = try (L.keyword "match")
+    endingKeyword = L.keyword "with"
+
+    zeroMatchCaseError = fail "match expression should include at least one case"
 
 matchCaseL :: (MonadParser e s m, m ~ Parser) => WithPrecedence m MainMatchCaseL
 matchCaseL
@@ -134,7 +140,7 @@ constructorExpression
     )
     <?> "constructor"
   where
-    startingSymbols = L.symbol "$C" *> L.symbol "{"
+    startingSymbols = L.keyword "$C" *> L.symbol "{"
     endingSymbols = L.symbol "}"
 
 separator :: (MonadParser e s m) => m ()
@@ -144,8 +150,8 @@ precedenceTableToOperatorTable :: (MonadParser e s m) => PrecedenceTable -> Oper
 precedenceTableToOperatorTable = fmap (fmap precedenceTableEntryToOperator) . groupSortOn (negate . precedence . snd)
 
 precedenceTableEntryToOperator :: (MonadParser e s m) => PrecedenceTableEntry -> Operator m
-precedenceTableEntryToOperator (op, PInfixN _) = CombExpr.InfixN (L.symbol op $> ELApplication2 (ELVariable op))
-precedenceTableEntryToOperator (op, PInfixL _) = CombExpr.InfixL (L.symbol op $> ELApplication2 (ELVariable op))
-precedenceTableEntryToOperator (op, PInfixR _) = CombExpr.InfixR (L.symbol op $> ELApplication2 (ELVariable op))
-precedenceTableEntryToOperator (op, PPrefix _) = CombExpr.Prefix (L.symbol op $> ELApplication (ELVariable op))
-precedenceTableEntryToOperator (op, PPostfix _) = CombExpr.Postfix (L.symbol op $> ELApplication (ELVariable op))
+precedenceTableEntryToOperator (op, PInfixN _) = CombExpr.InfixN ((L.symbol op <?> "binary operator") $> ELApplication2 (ELVariable op))
+precedenceTableEntryToOperator (op, PInfixL _) = CombExpr.InfixL ((L.symbol op <?> "binary operator") $> ELApplication2 (ELVariable op))
+precedenceTableEntryToOperator (op, PInfixR _) = CombExpr.InfixR ((L.symbol op <?> "binary operator") $> ELApplication2 (ELVariable op))
+precedenceTableEntryToOperator (op, PPrefix _) = CombExpr.Prefix ((L.symbol op <?> "binary operator") $> ELApplication (ELVariable op))
+precedenceTableEntryToOperator (op, PPostfix _) = CombExpr.Postfix ((L.symbol op <?> "binary operator") $> ELApplication (ELVariable op))

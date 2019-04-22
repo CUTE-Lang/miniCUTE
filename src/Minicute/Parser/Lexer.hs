@@ -4,6 +4,7 @@
 module Minicute.Parser.Lexer
   ( betweenRoundBrackets
   , identifier
+  , keyword
   , symbol
   , integer
   , spacesConsumer
@@ -50,6 +51,11 @@ identifierFirstChar = MPT.letterChar <|> MPT.char '_'
 identifierRestChar :: (MonadParser e s m) => m (Token s)
 identifierRestChar = MPT.alphaNumChar <|> MPT.char '_'
 {-# INLINEABLE identifierRestChar #-}
+
+keyword :: (MonadParser e s m) => Tokens s -> m (Tokens s)
+keyword k
+  | k `elem` keywordList = lexeme (chunk k <* notFollowedBy identifierRestChar)
+  | otherwise = error (k <> " is not a keyword")
 
 keywordList :: [String]
 keywordList
