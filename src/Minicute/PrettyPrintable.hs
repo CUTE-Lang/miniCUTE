@@ -39,7 +39,7 @@ instance (PrettyPrintable a, PrettyPrintable expr) => PrettyPrintable (Supercomb
 instance (PrettyPrintable a) => PrettyPrintable (ExpressionL a) where
   prettyPrintPrec prec (ELApplication2 (ELVariable op) e1 e2)
     | op `elem` fmap fst binaryPrecedenceTable
-    = printConditionalParentheses (prec > opPrec) $ printConcat
+    = printConditionalParentheses (prec > opPrec) . printIndented $ printConcat
       [ prettyPrintPrec leftPrec e1
       , printString " "
       , prettyPrint op
@@ -60,21 +60,26 @@ instance (PrettyPrintable a) => PrettyPrintable (ExpressionL a) where
 instance (PrettyPrintable a, PrettyPrintable (expr_ a)) => PrettyPrintable (ExpressionL# expr_ a) where
   prettyPrintPrec prec (ELExpression# expr#) = prettyPrintPrec prec expr#
   prettyPrintPrec prec (ELLambda# argBinders bodyExpr)
-    = printConditionalParentheses (prec > 0) $ printConcat
+    = printConditionalParentheses (prec > 0) . printIndented $ printConcat
       [ printString "\\"
       , prettyPrintList prettyPrintSpace argBinders
+      , printString " ->"
+
+      , printNewline
+
+      , printString "  "
       , prettyPrint bodyExpr
       ]
 
 instance (PrettyPrintable a) => PrettyPrintable (Expression a) where
   prettyPrintPrec prec (EApplication2 (EVariable op) e1 e2)
     | op `elem` fmap fst binaryPrecedenceTable
-    = printConditionalParentheses (prec > opPrec) $ printConcat
+    = printConditionalParentheses (prec > opPrec) . printIndented $ printConcat
       [ prettyPrintPrec leftPrec e1
       , printString " "
-      , prettyPrint op
+      , printIndented (prettyPrint op)
       , printString " "
-      , prettyPrintPrec rightPrec e2
+      , printIndented (prettyPrintPrec rightPrec e2)
       ]
     where
       (leftPrec, opPrec, rightPrec)
@@ -99,17 +104,27 @@ instance (PrettyPrintable a, PrettyPrintable (expr_ a)) => PrettyPrintable (Expr
       ]
   prettyPrintPrec _ (EVariable# vId) = prettyPrint vId
   prettyPrintPrec prec (EApplication# e1 e2)
-    = printConditionalParentheses (prec > applicationPrecedence) $ printConcat
+    = printConditionalParentheses (prec > applicationPrecedence) . printIndented $ printConcat
       [ prettyPrintPrec applicationPrecedence e1
       , printString " "
       , prettyPrintPrec applicationPrecedence1 e2
       ]
   prettyPrintPrec prec (ELet# flag letDefs e)
-    = printConditionalParentheses (prec > 0) $ printConcat
+    = printConditionalParentheses (prec > 0) . printIndented $ printConcat
       [ printString keyword
-      , printString " "
-      , prettyPrintList prettyPrintSeparator letDefs
-      , printString " in "
+
+      , printNewline
+
+      , printString "  "
+      , printIndented (prettyPrintList prettyPrintSeparator letDefs)
+
+      , printNewline
+
+      , printString "in"
+
+      , printNewline
+
+      , printString "  "
       , prettyPrint e
       ]
     where
@@ -117,14 +132,15 @@ instance (PrettyPrintable a, PrettyPrintable (expr_ a)) => PrettyPrintable (Expr
         | isRecursive flag = "letrec"
         | otherwise = "let"
   prettyPrintPrec prec (EMatch# e matchCases)
-    = printConditionalParentheses (prec > 0) $ printConcat
+    = printConditionalParentheses (prec > 0) . printIndented $ printConcat
       [ printString "match "
       , prettyPrint e
-      , printString " in"
+      , printString " with"
 
       , printNewline
 
-      , prettyPrintList prettyPrintSeparatorWithNewline matchCases
+      , printString "  "
+      , printIndented (prettyPrintList prettyPrintSeparatorWithNewline matchCases)
       ]
 
 instance (PrettyPrintable a, PrettyPrintable (expr_ a)) => PrettyPrintable (MatchCase# expr_ a) where
