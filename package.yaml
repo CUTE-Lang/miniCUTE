@@ -51,6 +51,7 @@ library:
   dependencies:
     - containers >= 0.6 && < 0.7
     - extra >= 1.6 && < 2
+    - lens >= 4.17 && < 5
     - mtl >= 2.2 && < 3
     - megaparsec >= 7.0 && < 8
     - parser-combinators
