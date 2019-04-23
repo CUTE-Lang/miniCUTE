@@ -105,7 +105,7 @@ matchCaseL
 lambdaExpressionL :: (MonadParser e s m, m ~ Parser) => WithPrecedence m MainExpressionL
 lambdaExpressionL
   = ELLambda
-    <$> Comb.between (L.symbol "\\") (L.symbol "->") (many L.identifier)
+    <$> Comb.between (L.symbol "\\") (L.symbol "->") (some L.identifier)
     <*> expressionL
     <?> "lambda expression"
 
