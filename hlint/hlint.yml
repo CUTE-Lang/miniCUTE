@@ -24,3 +24,61 @@
 - ignore:
     name: Redundant do
     within: *test_modules
+
+# custom rules
+- group:
+    name: pretty-printer
+    enabled: true
+    imports:
+    - package base
+    rules:
+    - warn: {lhs: "printIntersperse a (fmap prettyPrint b)", rhs: "prettyPrintList a b"}
+    - warn: {lhs: "(a `printAppend` b) `printAppend` c", rhs: "a `printAppend` (b `printAppend` c)"}
+    - warn: {lhs: "a `printAppend` printConcat x", rhs: "printConcat (a : x)"}
+    - warn: {lhs: "a `printAppend` b `printAppend` c `printAppend` d", rhs: "printConcat [a, b, c, d]"}
+    - warn: {lhs: "printString (show a)", rhs: "printShowable a"}
+
+- group:
+    name: parser-combinators
+    enabled: true
+    imports:
+    - package base
+    - package parser-combinators
+    rules:
+    - warn: {lhs: "a *> b <* c", rhs: "Control.Monad.Combinators.between a c b"}
+    - warn: {lhs: "a <|> pure b", rhs: "option a b"}
+    - warn: {lhs: "a <|> return b", rhs: "option a b"}
+    - warn: {lhs: "a <|> choice x", rhs: "choice (a : x)"}
+    - warn: {lhs: "a <|> b <|> c", rhs: "choice [a, b, c]"}
+
+    - warn: {lhs: "(:) <$> a <*> Control.Monad.Combinators.many a", rhs: "Control.Monad.Combinators.some a"}
+    - warn: {lhs: "(:) <$> a <* b <*> Control.Monad.Combinators.endBy a b", rhs: "Control.Monad.Combinators.endBy1 a b"}
+    - warn: {lhs: "(:) <$> a <*> Control.Monad.Combinators.manyTill a b", rhs: "Control.Monad.Combinators.someTill a b"}
+
+    - warn: {lhs: "void (Control.Monad.Combinators.many a)", rhs: "Control.Monad.Combinators.skipMany a"}
+    - warn: {lhs: "void (Control.Monad.Combinators.some a)", rhs: "Control.Monad.Combinators.skipSome a"}
+    - warn: {lhs: "void (Control.Monad.Combinators.count i a)", rhs: "Control.Monad.Combinators.skipCount i a"}
+    - warn: {lhs: "void (Control.Monad.Combinators.manyTill a b)", rhs: "Control.Monad.Combinators.skipManyTill a b"}
+    - warn: {lhs: "void (Control.Monad.Combinators.someTill a b)", rhs: "Control.Monad.Combinators.skipSomeTill a b"}
+
+    - warn: {lhs: "(:|) <$> a <*> Control.Monad.Combinators.many a", rhs: "Control.Monad.Combinators.NonEmpty.some a"}
+    - warn: {lhs: "(:|) <$> a <* b <*> Control.Monad.Combinators.endBy a b", rhs: "Control.Monad.Combinators.NonEmpty.endBy1 a b"}
+    - warn: {lhs: "(:|) <$> a <*> Control.Monad.Combinators.manyTill a b", rhs: "Control.Monad.Combinators.NonEmpty.someTill a b"}
+
+- group:
+    name: megaparsec
+    enabled: true
+    imports:
+    - package base
+    - package megaparsec
+    rules:
+    - warn: {lhs: "oneOf [a]", rhs: "single a"}
+    - warn: {lhs: "oneOf [a, b]", rhs: "satisfy (\\x -> x == a || x == b)"}
+    - warn: {lhs: "noneOf [a]", rhs: "anySingleBut a"}
+    - warn: {lhs: "noneOf [a, b]", rhs: "satisfy (\\x -> x /= a && x /= b)"}
+
+- modules:
+  - {name: ["Control.Monad.Combinators"], as: "Comb"}
+  - {name: ["Control.Monad.Combinators.Expr"], as: "CombExpr"}
+  - {name: ["Minicute.Parser.Lexer"], as: "L"}
+  - {name: ["Minicute.Parser.Parser"], as: "P"}

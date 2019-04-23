@@ -9,7 +9,6 @@ module Minicute.Parser.Parser
 
 import Control.Monad.Reader ( runReaderT, mapReaderT, ask )
 import Data.List.Extra
-import Data.List.NonEmpty ( NonEmpty( (:|) ) )
 import Data.Functor
 import Minicute.Parser.Types
 import Minicute.Types.Minicute.Program
@@ -17,7 +16,6 @@ import Text.Megaparsec
 
 import qualified Control.Monad.Combinators as Comb
 import qualified Control.Monad.Combinators.Expr as CombExpr
-import qualified Control.Monad.Combinators.NonEmpty as CombNE
 import qualified Minicute.Parser.Lexer as L
 
 programL :: Parser MainProgramL
@@ -42,17 +40,19 @@ supercombinatorL
 
 expressionL :: (MonadParser e s m, m ~ Parser) => WithPrecedence m MainExpressionL
 expressionL
-  = letExpressionL Recursive
-    <|> letExpressionL NonRecursive
-    <|> matchExpressionL
-    <|> lambdaExpressionL
-    <|> otherExpressionsByPrec
+  = choice
+    [ letExpressionL Recursive
+    , letExpressionL NonRecursive
+    , matchExpressionL
+    , lambdaExpressionL
+    , otherExpressionsByPrec
+    ]
     <?> "expression"
 
 letExpressionL :: (MonadParser e s m, m ~ Parser) => IsRecursive -> WithPrecedence m MainExpressionL
 letExpressionL flag
   = ELLet flag
-    <$> Comb.between startingKeyword endingKeyword letDefinitionsL
+    <$> Comb.between (try startingKeyword) endingKeyword letDefinitionsL
     <*> expressionL
     <?> nameOfExpression
   where
@@ -61,8 +61,8 @@ letExpressionL flag
         *> sepEndBy1 letDefinitionL separator
 
     startingKeyword
-      | isRecursive flag = try (L.keyword "letrec")
-      | otherwise = try (L.keyword "let")
+      | isRecursive flag = L.keyword "letrec"
+      | otherwise = L.keyword "let"
     endingKeyword = L.keyword "in"
 
     zeroLetDefinitionError = fail (nameOfExpression <> " should include at least one definition")
@@ -81,7 +81,7 @@ letDefinitionL
 matchExpressionL :: (MonadParser e s m, m ~ Parser) => WithPrecedence m MainExpressionL
 matchExpressionL
   = ELMatch
-    <$> Comb.between startingKeyword endingKeyword expressionL
+    <$> Comb.between (try startingKeyword) endingKeyword expressionL
     <*> matchCasesL
     <?> "match expression"
   where
@@ -89,7 +89,7 @@ matchExpressionL
       = (notFollowedBy (separator <|> eof) <|> zeroMatchCaseError)
         *> sepBy1 matchCaseL separator
 
-    startingKeyword = try (L.keyword "match")
+    startingKeyword = L.keyword "match"
     endingKeyword = L.keyword "with"
 
     zeroMatchCaseError = fail "match expression should include at least one case"
@@ -114,16 +114,16 @@ otherExpressionsByPrec = ask >>= CombExpr.makeExprParser applicationExpressionL 
 
 applicationExpressionL :: (MonadParser e s m, m ~ Parser) => WithPrecedence m MainExpressionL
 applicationExpressionL
-  = makeApplicationChain <$> CombNE.some atomicExpressionL
-  where
-    makeApplicationChain (aExpr :| aExprs) = foldl' ELApplication aExpr aExprs
+  = foldl' ELApplication <$> atomicExpressionL <*> many atomicExpressionL
 
 atomicExpressionL :: (MonadParser e s m, m ~ Parser) => WithPrecedence m MainExpressionL
 atomicExpressionL
-  = integerExpression
-    <|> variableExpression
-    <|> constructorExpression
-    <|> (mapReaderT L.betweenRoundBrackets expressionL <?> "expression with parentheses")
+  = choice
+    [ integerExpression
+    , variableExpression
+    , constructorExpression
+    , mapReaderT L.betweenRoundBrackets expressionL <?> "expression with parentheses"
+    ]
 
 integerExpression :: (MonadParser e s m) => m MainExpressionL
 integerExpression = ELInteger <$> L.integer <?> "integer"
@@ -131,6 +131,9 @@ integerExpression = ELInteger <$> L.integer <?> "integer"
 variableExpression :: (MonadParser e s m) => m MainExpressionL
 variableExpression = ELVariable <$> L.identifier <?> "variable"
 
+-- |
+-- The 'startingSymbols' do not use `try` because
+-- the keyword starts with a character that is illegal for identifiers.
 constructorExpression :: (MonadParser e s m) => m MainExpressionL
 constructorExpression
   = Comb.between startingSymbols endingSymbols
