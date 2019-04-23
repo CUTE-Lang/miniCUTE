@@ -36,6 +36,38 @@ instance (PrettyPrintable a, PrettyPrintable expr) => PrettyPrintable (Supercomb
       , prettyPrint expr
       ]
 
+instance (PrettyPrintable ann, PrettyPrintable a) => PrettyPrintable (AnnotatedExpressionL ann a) where
+  prettyPrint (AELApplication2 ann2 ann1 (AELVariable annOp op) e1 e2)
+    | op `elem` fmap fst binaryPrecedenceTable
+    = printAnnotated [ann2, ann1, annOp] (prettyPrintBinaryExpressionPrec 0 op e1 e2)
+  prettyPrint expr
+    = case expr of
+        Fix2 expr# -> prettyPrint expr#
+
+instance (PrettyPrintable ann, PrettyPrintable a, PrettyPrintable (expr_ a)) => PrettyPrintable (AnnotatedExpressionL# ann expr_ a) where
+  prettyPrint (AnnotatedExpressionL# (ann, expr)) = printAnnotated [ann] (prettyPrint expr)
+
+instance (PrettyPrintable ann, PrettyPrintable a) => PrettyPrintable (AnnotatedExpression ann a) where
+  prettyPrint (AEApplication2 ann2 ann1 (AEVariable annOp op) e1 e2)
+    | op `elem` fmap fst binaryPrecedenceTable
+    = printAnnotated [ann2, ann1, annOp] (prettyPrintBinaryExpressionPrec 0 op e1 e2)
+  prettyPrint expr
+    = case expr of
+        Fix2 expr# -> prettyPrint expr#
+
+instance (PrettyPrintable ann, PrettyPrintable a, PrettyPrintable (expr_ a)) => PrettyPrintable (AnnotatedExpression# ann expr_ a) where
+  prettyPrint (AnnotatedExpression# (ann, expr)) = printAnnotated [ann] (prettyPrint expr)
+
+printAnnotated :: (PrettyPrintable ann) => [ann] -> PrintSequence -> PrintSequence
+printAnnotated anns exprSeq
+  = printConcat
+    [ printString "("
+    , prettyPrintList prettyPrintSeparator anns
+    , printString ", "
+    , exprSeq
+    , printString ")"
+    ]
+
 instance (PrettyPrintable a) => PrettyPrintable (ExpressionL a) where
   prettyPrintPrec prec (ELApplication2 (ELVariable op) e1 e2)
     | op `elem` fmap fst binaryPrecedenceTable

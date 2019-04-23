@@ -23,6 +23,9 @@ module Minicute.Types.Minicute.Expression
   , LetDefinitionL
   , MainLetDefinitionL
 
+  , getLetDefinitionBinder
+  , getLetDefinitionBody
+
 
   , MatchCase#
 
@@ -31,6 +34,10 @@ module Minicute.Types.Minicute.Expression
 
   , MatchCaseL
   , MainMatchCaseL
+
+  , getMatchCaseTag
+  , getMatchCaseArguments
+  , getMatchCaseBody
 
 
   , Expression#( .. )
@@ -60,6 +67,39 @@ module Minicute.Types.Minicute.Expression
   , pattern ELLet
   , pattern ELMatch
   , pattern ELLambda
+
+
+  , AnnotatedExpression#( .. )
+
+  , AnnotatedExpression
+  , pattern AnnotatedExpression
+  , pattern AEInteger
+  , pattern AEConstructor
+  , pattern AEVariable
+  , pattern AEApplication
+  , pattern AEApplication2
+  , pattern AEApplication3
+  , pattern AELet
+  , pattern AEMatch
+
+  , getAnnotation
+
+
+  , AnnotatedExpressionL#( .. )
+
+  , AnnotatedExpressionL
+  , pattern AnnotatedExpressionL
+  , pattern AELInteger
+  , pattern AELConstructor
+  , pattern AELVariable
+  , pattern AELApplication
+  , pattern AELApplication2
+  , pattern AELApplication3
+  , pattern AELLet
+  , pattern AELMatch
+  , pattern AELLambda
+
+  , getAnnotationL
   ) where
 
 import GHC.Show ( appPrec, appPrec1 )
@@ -87,6 +127,12 @@ type MainLetDefinition = LetDefinition Identifier
 type LetDefinitionL a = LetDefinition# ExpressionL a
 type MainLetDefinitionL = LetDefinitionL Identifier
 
+getLetDefinitionBinder :: LetDefinition# expr_ a -> a
+getLetDefinitionBinder (binder, _) = binder
+
+getLetDefinitionBody :: LetDefinition# expr_ a -> expr_ a
+getLetDefinitionBody (_, body) = body
+
 
 type MatchCase# expr_ a = (Int, [a], expr_ a)
 type MatchCase a = MatchCase# Expression a
@@ -94,6 +140,15 @@ type MainMatchCase = MatchCase Identifier
 
 type MatchCaseL a = MatchCase# ExpressionL a
 type MainMatchCaseL = MatchCaseL Identifier
+
+getMatchCaseTag :: MatchCase# expr_ a -> Int
+getMatchCaseTag (tag, _, _) = tag
+
+getMatchCaseArguments :: MatchCase# expr_ a -> [a]
+getMatchCaseArguments (_, args, _) = args
+
+getMatchCaseBody :: MatchCase# expr_ a -> expr_ a
+getMatchCaseBody (_, _, body) = body
 
 
 data Expression# expr_ a
@@ -182,3 +237,93 @@ instance {-# OVERLAPS #-} (Show a) => Show (ExpressionL a) where
   showsPrec p (ELLambda as e)
     = showParen (p > appPrec)
       $ showString "ELLambda " . showsPrec appPrec1 as . showString " " . showsPrec appPrec1 e
+
+
+newtype AnnotatedExpression# ann expr_ a
+  = AnnotatedExpression# (ann, Expression# expr_ a)
+  deriving ( Eq
+           , Show
+           )
+
+type AnnotatedExpression ann a = Fix2 (AnnotatedExpression# ann) a
+pattern AnnotatedExpression ann expr = Fix2 (AnnotatedExpression# (ann, expr))
+{-# COMPLETE AnnotatedExpression #-}
+pattern AEInteger ann n = Fix2 (AnnotatedExpression# (ann, EInteger# n))
+pattern AEConstructor ann tag args = Fix2 (AnnotatedExpression# (ann, EConstructor# tag args))
+pattern AEVariable ann v = Fix2 (AnnotatedExpression# (ann, EVariable# v))
+pattern AEApplication ann e1 e2 = Fix2 (AnnotatedExpression# (ann, EApplication# e1 e2))
+pattern AEApplication2 ann2 ann1 e1 e2 e3 = AEApplication ann2 (AEApplication ann1 e1 e2) e3
+pattern AEApplication3 ann3 ann2 ann1 e1 e2 e3 e4 = AEApplication ann3 (AEApplication2 ann2 ann1 e1 e2 e3) e4
+pattern AELet ann flag lds e = Fix2 (AnnotatedExpression# (ann, ELet# flag lds e))
+pattern AEMatch ann e mcs = Fix2 (AnnotatedExpression# (ann, EMatch# e mcs))
+{-# COMPLETE AEInteger, AEConstructor, AEVariable, AEApplication, AELet, AEMatch #-}
+
+instance {-# OVERLAPS #-} (Show ann, Show a) => Show (AnnotatedExpression ann a) where
+  showsPrec p (AEInteger ann n)
+    = showParen (p > appPrec)
+      $ showString "AEInteger " . showsPrec appPrec1 ann . showString " " . showsPrec appPrec1 n
+  showsPrec p (AEConstructor ann tag args)
+    = showParen (p > appPrec)
+      $ showString "AEConstructor " . showsPrec appPrec1 ann . showString " " . showsPrec appPrec1 tag . showString " " . showsPrec appPrec1 args
+  showsPrec p (AEVariable ann v)
+    = showParen (p > appPrec)
+      $ showString "AEVariable " . showsPrec appPrec1 ann . showString " " . showsPrec appPrec1 v
+  showsPrec p (AEApplication ann e1 e2)
+    = showParen (p > appPrec)
+      $ showString "AEApplication " . showsPrec appPrec1 ann . showString " " . showsPrec appPrec1 e1 . showString " " . showsPrec appPrec1 e2
+  showsPrec p (AELet ann flag lds e)
+    = showParen (p > appPrec)
+      $ showString "AELet " . showsPrec appPrec1 ann . showString " " . showsPrec appPrec1 flag . showString " " . showsPrec appPrec1 lds . showString " " . showsPrec appPrec1 e
+  showsPrec p (AEMatch ann e mcs)
+    = showParen (p > appPrec)
+      $ showString "AEMatch " . showsPrec appPrec1 ann . showString " " . showsPrec appPrec1 e . showString " " . showsPrec appPrec1 mcs
+
+getAnnotation :: AnnotatedExpression ann a -> ann
+getAnnotation (AnnotatedExpression ann _) = ann
+
+
+newtype AnnotatedExpressionL# ann expr_ a
+  = AnnotatedExpressionL# (ann, ExpressionL# expr_ a)
+  deriving ( Eq
+           , Show
+           )
+
+type AnnotatedExpressionL ann a = Fix2 (AnnotatedExpressionL# ann) a
+pattern AnnotatedExpressionL ann expr = Fix2 (AnnotatedExpressionL# (ann, expr))
+{-# COMPLETE AnnotatedExpressionL #-}
+pattern AELInteger ann n = Fix2 (AnnotatedExpressionL# (ann, ELExpression# (EInteger# n)))
+pattern AELConstructor ann tag args = Fix2 (AnnotatedExpressionL# (ann, ELExpression# (EConstructor# tag args)))
+pattern AELVariable ann v = Fix2 (AnnotatedExpressionL# (ann, ELExpression# (EVariable# v)))
+pattern AELApplication ann e1 e2 = Fix2 (AnnotatedExpressionL# (ann, ELExpression# (EApplication# e1 e2)))
+pattern AELApplication2 ann2 ann1 e1 e2 e3 = AELApplication ann2 (AELApplication ann1 e1 e2) e3
+pattern AELApplication3 ann3 ann2 ann1 e1 e2 e3 e4 = AELApplication ann3 (AELApplication2 ann2 ann1 e1 e2 e3) e4
+pattern AELLet ann flag lds e = Fix2 (AnnotatedExpressionL# (ann, ELExpression# (ELet# flag lds e)))
+pattern AELMatch ann e mcs = Fix2 (AnnotatedExpressionL# (ann, ELExpression# (EMatch# e mcs)))
+pattern AELLambda ann as e = Fix2 (AnnotatedExpressionL# (ann, ELLambda# as e))
+{-# COMPLETE AELInteger, AELConstructor, AELVariable, AELApplication, AELLet, AELMatch, AELLambda #-}
+
+instance {-# OVERLAPS #-} (Show ann, Show a) => Show (AnnotatedExpressionL ann a) where
+  showsPrec p (AELInteger ann n)
+    = showParen (p > appPrec)
+      $ showString "AELInteger " . showsPrec appPrec1 ann . showString " " . showsPrec appPrec1 n
+  showsPrec p (AELConstructor ann tag args)
+    = showParen (p > appPrec)
+      $ showString "AELConstructor " . showsPrec appPrec1 ann . showString " " . showsPrec appPrec1 tag . showString " " . showsPrec appPrec1 args
+  showsPrec p (AELVariable ann v)
+    = showParen (p > appPrec)
+      $ showString "AELVariable " . showsPrec appPrec1 ann . showString " " . showsPrec appPrec1 v
+  showsPrec p (AELApplication ann e1 e2)
+    = showParen (p > appPrec)
+      $ showString "AELApplication " . showsPrec appPrec1 ann . showString " " . showsPrec appPrec1 e1 . showString " " . showsPrec appPrec1 e2
+  showsPrec p (AELLet ann flag lds e)
+    = showParen (p > appPrec)
+      $ showString "AELLet " . showsPrec appPrec1 ann . showString " " . showsPrec appPrec1 flag . showString " " . showsPrec appPrec1 lds . showString " " . showsPrec appPrec1 e
+  showsPrec p (AELMatch ann e mcs)
+    = showParen (p > appPrec)
+      $ showString "AELMatch " . showsPrec appPrec1 ann . showString " " . showsPrec appPrec1 e . showString " " . showsPrec appPrec1 mcs
+  showsPrec p (AELLambda ann as e)
+    = showParen (p > appPrec)
+      $ showString "AELLambda " . showsPrec appPrec1 ann . showString " " . showsPrec appPrec1 as . showString " " . showsPrec appPrec1 e
+
+getAnnotationL :: AnnotatedExpressionL ann a -> ann
+getAnnotationL (AnnotatedExpressionL ann _) = ann
