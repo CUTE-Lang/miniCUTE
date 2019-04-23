@@ -4,6 +4,7 @@ import Control.Monad ( liftM2 )
 import Minicute.Data.PrintSequence ( toString )
 import Minicute.Parser.Parser ( programL )
 import Minicute.PrettyPrintable ( prettyPrint )
+import Minicute.Transpiler.FreeVariables ( getFreeVariablesL )
 import System.Environment
 import System.IO
 import Text.Megaparsec ( errorBundlePretty, parse )
@@ -22,11 +23,16 @@ compile handle = do
   content <- unlines <$> whileM (hIsEOF handle) (hGetLine handle)
   putChar '\n'
   case parse programL "" content of
-    Right expr -> do
-      putStrLn "outputs by show:"
-      print expr
-      putStrLn "outputs by pretty printing:"
-      putStrLn (toString (prettyPrint expr))
+    Right program -> do
+      putStrLn "program by show:"
+      print program
+      putStrLn "program by pretty printing:"
+      putStrLn (toString (prettyPrint program))
+      let annotatedProgram = getFreeVariablesL program
+      putStrLn "annotated program by show:"
+      print annotatedProgram
+      putStrLn "annotated program by pretty printing:"
+      putStrLn (toString (prettyPrint annotatedProgram))
     Left err -> do
       putStrLn "error:"
       putStrLn (errorBundlePretty err)
