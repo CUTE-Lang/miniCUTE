@@ -6,11 +6,14 @@
 module Minicute.Types.Minicute.Expression
   ( module Minicute.Data.Fix
 
+
   , Identifier
+
 
   , IsRecursive( .. )
   , pattern Recursive
   , pattern NonRecursive
+
 
   , LetDefinition#
 
@@ -20,6 +23,7 @@ module Minicute.Types.Minicute.Expression
   , LetDefinitionL
   , MainLetDefinitionL
 
+
   , MatchCase#
 
   , MatchCase
@@ -27,6 +31,7 @@ module Minicute.Types.Minicute.Expression
 
   , MatchCaseL
   , MainMatchCaseL
+
 
   , Expression#( .. )
 
@@ -40,6 +45,7 @@ module Minicute.Types.Minicute.Expression
   , pattern EApplication3
   , pattern ELet
   , pattern EMatch
+
 
   , ExpressionL#( .. )
 
@@ -61,10 +67,10 @@ import Minicute.Data.Fix
 
 type Identifier = String
 
+
 newtype IsRecursive = IsRecursive { isRecursive :: Bool }
   deriving ( Eq
            )
-
 pattern Recursive = IsRecursive True
 pattern NonRecursive = IsRecursive False
 {-# COMPLETE Recursive, NonRecursive #-}
@@ -73,6 +79,7 @@ instance Show IsRecursive where
   showsPrec _ Recursive = showString "Recursive"
   showsPrec _ NonRecursive = showString "NonRecursive"
 
+
 type LetDefinition# expr_ a = (a, expr_ a)
 type LetDefinition a = LetDefinition# Expression a
 type MainLetDefinition = LetDefinition Identifier
@@ -80,12 +87,14 @@ type MainLetDefinition = LetDefinition Identifier
 type LetDefinitionL a = LetDefinition# ExpressionL a
 type MainLetDefinitionL = LetDefinitionL Identifier
 
+
 type MatchCase# expr_ a = (Int, [a], expr_ a)
 type MatchCase a = MatchCase# Expression a
 type MainMatchCase = MatchCase Identifier
 
 type MatchCaseL a = MatchCase# ExpressionL a
 type MainMatchCaseL = MatchCaseL Identifier
+
 
 data Expression# expr_ a
   = EInteger# Integer
@@ -97,9 +106,9 @@ data Expression# expr_ a
   deriving ( Eq
            , Show
            )
+
 type Expression a = Fix2 Expression# a
 type MainExpression = Expression Identifier
-
 pattern EInteger n = Fix2 (EInteger# n)
 pattern EConstructor tag args = Fix2 (EConstructor# tag args)
 pattern EVariable v = Fix2 (EVariable# v)
@@ -130,15 +139,16 @@ instance {-# OVERLAPS #-} (Show a) => Show (Expression a) where
     = showParen (p > appPrec)
       $ showString "EMatch " . showsPrec appPrec1 e . showString " " . showsPrec appPrec1 mcs
 
+
 data ExpressionL# expr_ a
   = ELExpression# (Expression# expr_ a)
   | ELLambda# [a] (expr_ a)
   deriving ( Eq
            , Show
            )
+
 type ExpressionL a = Fix2 ExpressionL# a
 type MainExpressionL = ExpressionL Identifier
-
 pattern ELInteger n = Fix2 (ELExpression# (EInteger# n))
 pattern ELConstructor tag args = Fix2 (ELExpression# (EConstructor# tag args))
 pattern ELVariable v = Fix2 (ELExpression# (EVariable# v))

@@ -14,11 +14,13 @@ module Minicute.Types.Minicute.Program
   , SupercombinatorL
   , MainSupercombinatorL
 
+
   , Program#( .. )
 
   , Program
   , MainProgram
   , pattern Program
+
 
   , ProgramL
   , MainProgramL
@@ -36,14 +38,15 @@ type MainSupercombinator = Supercombinator Identifier
 type SupercombinatorL a = Supercombinator# a (ExpressionL a)
 type MainSupercombinatorL = SupercombinatorL Identifier
 
+
 newtype Program# a expr
   = Program# [Supercombinator# a expr]
   deriving ( Eq
            , Show
            )
+
 type Program a = Program# a (Expression a)
 type MainProgram = Program Identifier
-
 pattern Program sc = Program# sc
 {-# COMPLETE Program #-}
 
@@ -52,9 +55,9 @@ instance {-# OVERLAPS #-} (Show a) => Show (Program a) where
     = showParen (p > appPrec)
     $ showString "Program " . showsPrec appPrec1 sc
 
+
 type ProgramL a = Program# a (ExpressionL a)
 type MainProgramL = ProgramL Identifier
-
 pattern ProgramL sc = Program# sc
 {-# COMPLETE ProgramL #-}
 
