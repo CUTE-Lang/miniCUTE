@@ -71,6 +71,8 @@ executables:
       - -rtsopts
       - -with-rtsopts=-N
     dependencies:
+      ## Remove this megaparsec dependence if possible
+      - megaparsec
       - minicute
 
 # executable:
