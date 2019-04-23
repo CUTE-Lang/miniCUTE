@@ -1,4 +1,4 @@
-module Minicute.Parser.Precedence where
+module Minicute.Types.Minicute.Precedence where
 
 data Precedence
   = PInfixN { precedence :: Int }
@@ -19,6 +19,9 @@ isInfix (PInfixL _) = True
 isInfix (PInfixR _) = True
 isInfix _ = False
 
+-- |
+-- All precedences should be smaller than 'applicationPrecedence'.
+-- Where do I need to check this condition?
 defaultPrecedenceTable :: PrecedenceTable
 defaultPrecedenceTable
   = [ (">=", PInfixL 10)

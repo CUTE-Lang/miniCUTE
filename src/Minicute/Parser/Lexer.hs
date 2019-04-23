@@ -45,11 +45,11 @@ identifier = try identifier' <?> "identifier"
     {-# INLINEABLE checkKeywords #-}
 
 identifierFirstChar :: (MonadParser e s m) => m (Token s)
-identifierFirstChar = MPT.letterChar <|> MPT.char '_'
+identifierFirstChar = MPT.letterChar <|> single '_'
 {-# INLINEABLE identifierFirstChar #-}
 
 identifierRestChar :: (MonadParser e s m) => m (Token s)
-identifierRestChar = MPT.alphaNumChar <|> MPT.char '_'
+identifierRestChar = MPT.alphaNumChar <|> single '_'
 {-# INLINEABLE identifierRestChar #-}
 
 keyword :: (MonadParser e s m) => Tokens s -> m (Tokens s)
@@ -80,12 +80,12 @@ integer
     <?> "integer"
   where
     integerStartWithZero
-      = MPT.char '0'
+      = single '0'
         *> (prefixedInteger <|> zero)
     {-# INLINEABLE integerStartWithZero #-}
 
     prefixedInteger = do
-      b <- Char.toLower <$> oneOf ['b', 'B', 'o', 'O', 'd', 'D', 'x', 'X']
+      b <- Char.toLower <$> satisfy ((`elem` ['b', 'o', 'd', 'x']) . Char.toLower)
       case b of
         'b' -> binary
         'o' -> octal

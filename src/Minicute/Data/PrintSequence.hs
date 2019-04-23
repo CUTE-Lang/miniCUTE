@@ -9,7 +9,7 @@ module Minicute.Data.PrintSequence
   , printIndented
   , printAppend
 
-  , printIntegral
+  , printShowable
   , printConcat
   , printIntersperse
   , printConditionalParentheses
@@ -40,10 +40,12 @@ printIndented :: PrintSequence -> PrintSequence
 printIndented = PrintIndented
 
 printAppend :: PrintSequence -> PrintSequence -> PrintSequence
-printAppend = PrintAppend
+printAppend PrintNothing s2 = s2
+printAppend s1 s2 = s1 `PrintAppend` s2
+infixr 9 `printAppend`
 
-printIntegral :: (Integral a, Show a) => a -> PrintSequence
-printIntegral = printString . show
+printShowable :: (Show a) => a -> PrintSequence
+printShowable = printString . show
 
 printConcat :: [PrintSequence] -> PrintSequence
 printConcat = foldl' printAppend PrintNothing
@@ -60,8 +62,8 @@ flatten :: FlattenGlobalState -> [(PrintSequence, FlattenLocalState)] -> [String
 flatten _ [] = []
 flatten fgs ((PrintNothing, _) : pss) = flatten fgs pss
 flatten _ ((PrintNewline, fls) : pss) = flsCreateNewline fls : flatten (flsToFgs fls) pss
-flatten fgs ((PrintString s, _) : pss) = s : flatten (fgsUpdateColumn fgs s) pss
-flatten fgs ((PrintIndented s, _) : pss) = flatten fgs ((s, fgsToFls fgs) : pss)
+flatten fgs ((PrintString str, _) : pss) = str : flatten (fgsUpdateColumn fgs str) pss
+flatten fgs ((PrintIndented ps, _) : pss) = flatten fgs ((ps, fgsToFls fgs) : pss)
 flatten fgs ((PrintAppend ps1 ps2, fls) : pss) = flatten fgs ((ps1, fls) : (ps2, fls) : pss)
 
 type FlattenGlobalState = Int -- ^ Current column
@@ -70,7 +72,7 @@ initialFgs :: FlattenGlobalState
 initialFgs = 0
 
 fgsUpdateColumn :: FlattenGlobalState -> String -> FlattenGlobalState
-fgsUpdateColumn col s = col + length s
+fgsUpdateColumn fgs s = fgs + length s
 
 type FlattenLocalState = Int -- ^ Indentation for specific sequence
 

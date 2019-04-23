@@ -784,6 +784,13 @@ lambdaTestCases
       , TestFail
         (err 9 (ueof <> elabel "expression"))
       )
+    , ( "lambda without arguments"
+      , [qqMini|
+               f = \ -> 5
+        |]
+      , TestFail
+        (err 6 (utok '-' <> elabel "identifier"))
+      )
     ]
 
 complexTestCases :: [TestCase]
