@@ -181,11 +181,11 @@ instance (PrettyPrintable a, PrettyPrintable (expr_ a)) => PrettyPrintable (Matc
       ]
 
 instance (PrettyPrintable a, PrettyPrintable (expr_ a)) => PrettyPrintable (LetDefinition# expr_ a) where
-  prettyPrint (binder, bodyE)
+  prettyPrint (binder, bodyExpr)
     = printConcat
       [ prettyPrint binder
       , printString " = "
-      , prettyPrint bodyE
+      , prettyPrint bodyExpr
       ]
 
 instance PrettyPrintable Identifier where
