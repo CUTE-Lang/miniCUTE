@@ -1,4 +1,4 @@
-module Minicute.Parser.Precedence where
+module Minicute.Types.Minicute.Precedence where
 
 data Precedence
   = PInfixN { precedence :: Int }

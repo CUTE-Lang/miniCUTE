@@ -7,7 +7,7 @@ module Minicute.PrettyPrintable
 
 import Minicute.Data.Fix
 import Minicute.Data.PrintSequence
-import Minicute.Parser.Precedence
+import Minicute.Types.Minicute.Precedence
 import Minicute.Types.Minicute.Expression
 import Minicute.Types.Minicute.Program
 
