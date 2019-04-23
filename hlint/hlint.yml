@@ -80,5 +80,6 @@
 - modules:
   - {name: ["Control.Monad.Combinators"], as: "Comb"}
   - {name: ["Control.Monad.Combinators.Expr"], as: "CombExpr"}
+  - {name: ["Data.Set"], as: "Set"}
   - {name: ["Minicute.Parser.Lexer"], as: "L"}
   - {name: ["Minicute.Parser.Parser"], as: "P"}

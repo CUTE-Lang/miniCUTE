@@ -49,6 +49,7 @@ library:
   ghc-options:
     - -Wall
   dependencies:
+    - containers >= 0.6 && < 0.7
     - extra >= 1.6 && < 2
     - mtl >= 2.2 && < 3
     - megaparsec >= 7.0 && < 8

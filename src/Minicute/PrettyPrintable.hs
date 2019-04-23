@@ -11,12 +11,22 @@ import Minicute.Types.Minicute.Precedence
 import Minicute.Types.Minicute.Expression
 import Minicute.Types.Minicute.Program
 
+import qualified Data.Set as Set
+
 class PrettyPrintable a where
   {-# MINIMAL (prettyPrint | prettyPrintPrec) #-}
   prettyPrint :: a -> PrintSequence
   prettyPrint = prettyPrintPrec 0
   prettyPrintPrec :: Int -> a -> PrintSequence
   prettyPrintPrec _ = prettyPrint
+
+instance (PrettyPrintable a) => PrettyPrintable (Set.Set a) where
+  prettyPrint set
+    = printConcat
+      [ printString "{{"
+      , prettyPrintList (printString ", ") (Set.toList set)
+      , printString "}}"
+      ]
 
 prettyPrintList :: (PrettyPrintable a) => PrintSequence -> [a] -> PrintSequence
 prettyPrintList sep = printIntersperse sep . fmap prettyPrint
