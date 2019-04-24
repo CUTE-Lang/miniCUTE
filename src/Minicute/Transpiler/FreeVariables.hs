@@ -71,10 +71,11 @@ getFVsEL env (ELMatch expr matchCases)
     fvsInExpr' = getAnnotationL expr'
 
     matchCases' = uncurry (set _3) <$> zip matchCasesBody' matchCases
-    matchCasesBody' = getFVsEL env . getMatchCaseBody <$> matchCases
+    matchCasesBody' = (\(args, body) -> getFVsEL (Set.union env args) body) <$> zip matchCaseArgumentSets matchCaseBodies
     expr' = getFVsEL env expr
 
-    matchCaseArgumentSets = fmap (Set.fromList . getMatchCaseArguments) matchCases
+    matchCaseBodies = getMatchCaseBody <$> matchCases
+    matchCaseArgumentSets = Set.fromList . getMatchCaseArguments <$> matchCases
 getFVsEL env (ELLambda args bodyExpr)
   = AELLambda fvs args bodyExpr'
   where
