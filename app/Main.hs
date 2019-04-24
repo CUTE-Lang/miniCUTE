@@ -1,6 +1,5 @@
 module Main where
 
-import Control.Monad ( liftM2 )
 import Minicute.Data.PrintSequence ( toString )
 import Minicute.Parser.Parser ( programL )
 import Minicute.PrettyPrintable ( prettyPrint )
@@ -20,7 +19,7 @@ main = do
 compile :: Handle -> IO ()
 compile handle = do
   putStrLn "inputs:"
-  content <- unlines <$> whileM (hIsEOF handle) (hGetLine handle)
+  content <- hGetContents handle -- unlines <$> whileM (hIsEOF handle) (hGetLine handle)
   putChar '\n'
   case parse programL "" content of
     Right program -> do
@@ -36,15 +35,6 @@ compile handle = do
     Left err -> do
       putStrLn "error:"
       putStrLn (errorBundlePretty err)
-
-whileM :: (Monad m) => m Bool -> m a -> m [a]
-whileM cond act = go
-  where
-    go = do
-      b <- cond
-      if b
-      then return []
-      else liftM2 (:) act go
 
 usage :: IO ()
 usage = putStrLn "Usage: minicute [file]"
