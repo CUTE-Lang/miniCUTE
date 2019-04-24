@@ -1,9 +1,11 @@
-## Integer operations
+# Current Target
 
-## String operations
+1. Compiler to Parellel G-Machine.
+   - Including integer operations only.
+2. C or C++ Impl. of Parellel G-Machine.
+   - Including integer operations only.
 
-## Top-level bindings
+# Afterward
 
-## Function operations
-
-## Module definition/import
+- Add floating point operations
+- Add character operations
