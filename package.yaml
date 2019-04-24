@@ -94,6 +94,7 @@ tests:
       - -rtsopts
       - -with-rtsopts=-N
     dependencies:
+      - containers
       - extra
       - megaparsec
       - minicute
