@@ -14,13 +14,13 @@ import qualified Data.Set as Set
 
 spec :: Spec
 spec = do
-  describe "getFreeVariablesL" $ do
-    forM_ testCases (uncurry3 getFreeVariablesLTest)
+  describe "formFreeVariablesL" $ do
+    forM_ testCases (uncurry3 formFreeVariablesLTest)
 
-getFreeVariablesLTest :: TestName -> TestBeforeContent -> TestAfterContent -> SpecWith (Arg Expectation)
-getFreeVariablesLTest name beforeContent afterContent = do
+formFreeVariablesLTest :: TestName -> TestBeforeContent -> TestAfterContent -> SpecWith (Arg Expectation)
+formFreeVariablesLTest name beforeContent afterContent = do
   it ("finds free variables for expressions in " <> name) $ do
-    getFreeVariablesL beforeContent `shouldBe` afterContent
+    formFreeVariablesL beforeContent `shouldBe` afterContent
 
 type TestName = String
 type TestBeforeContent = MainProgramL

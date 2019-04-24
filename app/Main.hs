@@ -3,7 +3,7 @@ module Main where
 import Minicute.Data.PrintSequence ( toString )
 import Minicute.Parser.Parser ( programL )
 import Minicute.PrettyPrintable ( prettyPrint )
-import Minicute.Transpiler.FreeVariables ( getFreeVariablesL )
+import Minicute.Transpiler.FreeVariables ( formFreeVariablesL )
 import System.Environment
 import System.IO
 import Text.Megaparsec ( errorBundlePretty, parse )
@@ -27,7 +27,7 @@ compile handle = do
       print program
       putStrLn "program by pretty printing:"
       putStrLn (toString (prettyPrint program))
-      let annotatedProgram = getFreeVariablesL program
+      let annotatedProgram = formFreeVariablesL program
       putStrLn "annotated program by show:"
       print annotatedProgram
       putStrLn "annotated program by pretty printing:"

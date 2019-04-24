@@ -2,7 +2,7 @@ module Minicute.Transpiler.FreeVariables
   ( ProgramLWithFreeVariable
   , ExpressionLWithFreeVariable
   , FreeVariables
-  , getFreeVariablesL
+  , formFreeVariablesL
   ) where
 
 import Control.Lens.Setter
@@ -19,10 +19,10 @@ type ExpressionLWithFreeVariable a = AnnotatedExpressionL FreeVariables a
 -- annotated expression
 type FreeVariables = Set.Set Identifier
 
-getFreeVariablesL :: MainProgramL -> ProgramLWithFreeVariable Identifier
-getFreeVariablesL (ProgramL scs)
+formFreeVariablesL :: MainProgramL -> ProgramLWithFreeVariable Identifier
+formFreeVariablesL (ProgramL scs)
   = AnnotatedProgramL
-    [ (binder, args, getFVsEL (Set.fromList args) body)
+    [ (binder, args, formFVsEL (Set.fromList args) body)
     | (binder, args, body) <- scs
     ]
 
@@ -30,18 +30,20 @@ getFreeVariablesL (ProgramL scs)
 -- Set of identifiers those are candidates of free variables
 type FVELEnvironment = Set.Set Identifier
 
-getFVsEL :: FVELEnvironment -> MainExpressionL -> ExpressionLWithFreeVariable Identifier
-getFVsEL _ (ELInteger n) = AELInteger Set.empty n
-getFVsEL _ (ELConstructor tag arity) = AELConstructor Set.empty tag arity
-getFVsEL env (ELVariable v)
-  | Set.member v env = AELVariable (Set.singleton v) v
-  | otherwise = AELVariable Set.empty v
-getFVsEL env (ELApplication expr1 expr2)
+formFVsEL :: FVELEnvironment -> MainExpressionL -> ExpressionLWithFreeVariable Identifier
+formFVsEL _ (ELInteger n) = AELInteger Set.empty n
+formFVsEL _ (ELConstructor tag arity) = AELConstructor Set.empty tag arity
+formFVsEL env (ELVariable v) = AELVariable fvs v
+  where
+    fvs
+      | Set.member v env = Set.singleton v
+      | otherwise = Set.empty
+formFVsEL env (ELApplication expr1 expr2)
   = AELApplication (Set.union (getAnnotationL expr1') (getAnnotationL expr2')) expr1' expr2'
   where
-    expr2' = getFVsEL env expr2
-    expr1' = getFVsEL env expr1
-getFVsEL env (ELLet flag letDefs bodyExpr)
+    expr2' = formFVsEL env expr2
+    expr1' = formFVsEL env expr1
+formFVsEL env (ELLet flag letDefs bodyExpr)
   = AELLet fvs flag letDefs' bodyExpr'
   where
     fvs = Set.union fvsInLetDefs' fvsInBodyExpr'
@@ -52,8 +54,8 @@ getFVsEL env (ELLet flag letDefs bodyExpr)
     fvsInLetDefBodies' = Set.unions (getAnnotationL <$> letDefBodies')
 
     letDefs' = zip letBinders letDefBodies'
-    letDefBodies' = getFVsEL letDefEnv . getLetDefinitionBody <$> letDefs
-    bodyExpr' = getFVsEL bodyEnv bodyExpr
+    letDefBodies' = formFVsEL letDefEnv . getLetDefinitionBody <$> letDefs
+    bodyExpr' = formFVsEL bodyEnv bodyExpr
 
     letDefEnv
       | isRecursive flag = bodyEnv
@@ -62,7 +64,7 @@ getFVsEL env (ELLet flag letDefs bodyExpr)
 
     letBinderSet = Set.fromList letBinders
     letBinders = fmap getLetDefinitionBinder letDefs
-getFVsEL env (ELMatch expr matchCases)
+formFVsEL env (ELMatch expr matchCases)
   = AELMatch fvs expr' matchCases'
   where
     fvs = Set.union (Set.unions fvssInMatchCases') fvsInExpr'
@@ -71,18 +73,18 @@ getFVsEL env (ELMatch expr matchCases)
     fvsInExpr' = getAnnotationL expr'
 
     matchCases' = uncurry (set _3) <$> zip matchCasesBody' matchCases
-    matchCasesBody' = (\(args, body) -> getFVsEL (Set.union env args) body) <$> zip matchCaseArgumentSets matchCaseBodies
-    expr' = getFVsEL env expr
+    matchCasesBody' = (\(args, body) -> formFVsEL (Set.union env args) body) <$> zip matchCaseArgumentSets matchCaseBodies
+    expr' = formFVsEL env expr
 
     matchCaseBodies = getMatchCaseBody <$> matchCases
     matchCaseArgumentSets = Set.fromList . getMatchCaseArguments <$> matchCases
-getFVsEL env (ELLambda args bodyExpr)
+formFVsEL env (ELLambda args bodyExpr)
   = AELLambda fvs args bodyExpr'
   where
     fvs = Set.difference fvsInBodyExpr argSet
     fvsInBodyExpr = getAnnotationL bodyExpr'
 
-    bodyExpr' = getFVsEL (argSet <> env) bodyExpr
+    bodyExpr' = formFVsEL (argSet <> env) bodyExpr
 
     argSet = Set.fromList args
 
