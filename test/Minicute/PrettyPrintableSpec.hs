@@ -1,3 +1,4 @@
+{- HLINT ignore "Redundant do" -}
 {-# LANGUAGE QuasiQuotes #-}
 module Minicute.PrettyPrintableSpec
   ( spec

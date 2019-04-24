@@ -1,14 +1,6 @@
 # For more information about this file, see
 # https://github.com/ndmitchell/hlint/blob/master/data/hlint.yaml
 
-# YAML alias node definition
-- ignore:
-    name: Nothing but yaml alias node definitions
-    test_modules: &test_modules
-      - Minicute.PrettyPrintableSpec
-      - Minicute.Parser.LexerSpec
-      - Minicute.Parser.ParserSpec
-
 # enabled rules
 - group:
     name: generalise
@@ -16,14 +8,6 @@
 - group:
     name: generalise-for-conciseness
     enabled: true
-
-# ignored rules
-- ignore:
-    name: Use head
-    within: *test_modules
-- ignore:
-    name: Redundant do
-    within: *test_modules
 
 # custom rules
 - group:
