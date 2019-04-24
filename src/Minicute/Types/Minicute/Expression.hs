@@ -23,8 +23,8 @@ module Minicute.Types.Minicute.Expression
   , LetDefinitionL
   , MainLetDefinitionL
 
-  , getLetDefinitionBinder
-  , getLetDefinitionBody
+  , letDefinitionBinder
+  , letDefinitionBody
 
 
   , MatchCase#
@@ -35,9 +35,9 @@ module Minicute.Types.Minicute.Expression
   , MatchCaseL
   , MainMatchCaseL
 
-  , getMatchCaseTag
-  , getMatchCaseArguments
-  , getMatchCaseBody
+  , matchCaseTag
+  , matchCaseArguments
+  , matchCaseBody
 
 
   , Expression#( .. )
@@ -82,7 +82,7 @@ module Minicute.Types.Minicute.Expression
   , pattern AELet
   , pattern AEMatch
 
-  , getAnnotation
+  , annotation
 
 
   , AnnotatedExpressionL#( .. )
@@ -99,9 +99,10 @@ module Minicute.Types.Minicute.Expression
   , pattern AELMatch
   , pattern AELLambda
 
-  , getAnnotationL
+  , annotationL
   ) where
 
+import Control.Lens
 import GHC.Show ( appPrec, appPrec1 )
 import Minicute.Data.Fix
 
@@ -127,11 +128,11 @@ type MainLetDefinition = LetDefinition Identifier
 type LetDefinitionL a = LetDefinition# ExpressionL a
 type MainLetDefinitionL = LetDefinitionL Identifier
 
-getLetDefinitionBinder :: LetDefinition# expr_ a -> a
-getLetDefinitionBinder (binder, _) = binder
+letDefinitionBinder :: Lens' (LetDefinition# expr_ a) a
+letDefinitionBinder = _1
 
-getLetDefinitionBody :: LetDefinition# expr_ a -> expr_ a
-getLetDefinitionBody (_, body) = body
+letDefinitionBody :: Lens (LetDefinition# expr_ a) (LetDefinition# expr_' a) (expr_ a) (expr_' a)
+letDefinitionBody = _2
 
 
 type MatchCase# expr_ a = (Int, [a], expr_ a)
@@ -141,14 +142,14 @@ type MainMatchCase = MatchCase Identifier
 type MatchCaseL a = MatchCase# ExpressionL a
 type MainMatchCaseL = MatchCaseL Identifier
 
-getMatchCaseTag :: MatchCase# expr_ a -> Int
-getMatchCaseTag (tag, _, _) = tag
+matchCaseTag :: Lens' (MatchCase# expr_ a) Int
+matchCaseTag = _1
 
-getMatchCaseArguments :: MatchCase# expr_ a -> [a]
-getMatchCaseArguments (_, args, _) = args
+matchCaseArguments :: Lens' (MatchCase# expr_ a) [a]
+matchCaseArguments = _2
 
-getMatchCaseBody :: MatchCase# expr_ a -> expr_ a
-getMatchCaseBody (_, _, body) = body
+matchCaseBody :: Lens (MatchCase# expr_ a) (MatchCase# expr_' a) (expr_ a) (expr_' a)
+matchCaseBody = _3
 
 
 data Expression# expr_ a
@@ -278,8 +279,11 @@ instance {-# OVERLAPS #-} (Show ann, Show a) => Show (AnnotatedExpression ann a)
     = showParen (p > appPrec)
       $ showString "AEMatch " . showsPrec appPrec1 ann . showString " " . showsPrec appPrec1 e . showString " " . showsPrec appPrec1 mcs
 
-getAnnotation :: AnnotatedExpression ann a -> ann
-getAnnotation (AnnotatedExpression ann _) = ann
+annotation :: Lens' (AnnotatedExpression ann a) ann
+annotation = lens getter setter
+  where
+    getter (AnnotatedExpression ann _) = ann
+    setter (AnnotatedExpression _ expr) ann = AnnotatedExpression ann expr
 
 
 newtype AnnotatedExpressionL# ann expr_ a
@@ -325,5 +329,8 @@ instance {-# OVERLAPS #-} (Show ann, Show a) => Show (AnnotatedExpressionL ann a
     = showParen (p > appPrec)
       $ showString "AELLambda " . showsPrec appPrec1 ann . showString " " . showsPrec appPrec1 as . showString " " . showsPrec appPrec1 e
 
-getAnnotationL :: AnnotatedExpressionL ann a -> ann
-getAnnotationL (AnnotatedExpressionL ann _) = ann
+annotationL :: Lens' (AnnotatedExpressionL ann a) ann
+annotationL = lens getter setter
+  where
+    getter (AnnotatedExpressionL ann _) = ann
+    setter (AnnotatedExpressionL _ expr) ann = AnnotatedExpressionL ann expr

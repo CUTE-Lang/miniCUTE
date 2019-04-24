@@ -5,6 +5,7 @@ module Minicute.Transpiler.FreeVariables
   , formFreeVariablesL
   ) where
 
+import Control.Lens.Getter
 import Control.Lens.Setter
 import Control.Lens.Tuple
 import Minicute.Types.Minicute.Program
@@ -39,52 +40,53 @@ formFVsEL env (ELVariable v) = AELVariable fvs v
       | Set.member v env = Set.singleton v
       | otherwise = Set.empty
 formFVsEL env (ELApplication expr1 expr2)
-  = AELApplication (Set.union (getAnnotationL expr1') (getAnnotationL expr2')) expr1' expr2'
+  = AELApplication (getFVOfE expr1' <> getFVOfE expr2') expr1' expr2'
   where
     expr2' = formFVsEL env expr2
     expr1' = formFVsEL env expr1
-formFVsEL env (ELLet flag letDefs bodyExpr)
-  = AELLet fvs flag letDefs' bodyExpr'
+formFVsEL env (ELLet flag lDefs expr)
+  = AELLet fvs flag lDefs' expr'
   where
-    fvs = Set.union fvsInLetDefs' fvsInBodyExpr'
-    fvsInBodyExpr' = Set.difference (getAnnotationL bodyExpr') letBinderSet
-    fvsInLetDefs'
-      | isRecursive flag = Set.difference fvsInLetDefBodies' letBinderSet
-      | otherwise = fvsInLetDefBodies'
-    fvsInLetDefBodies' = Set.unions (getAnnotationL <$> letDefBodies')
+    fvs = fvsInLDefs' <> fvsInExpr'
+    fvsInExpr' = getFVOfE expr' Set.\\ lDefBinderSet
+    fvsInLDefs'
+      | isRecursive flag = fvsInLDefBodies' Set.\\ lDefBinderSet
+      | otherwise = fvsInLDefBodies'
+    fvsInLDefBodies' = mconcat (getFVOfE <$> lDefBodies')
 
-    letDefs' = zip letBinders letDefBodies'
-    letDefBodies' = formFVsEL letDefEnv . getLetDefinitionBody <$> letDefs
-    bodyExpr' = formFVsEL bodyEnv bodyExpr
+    lDefs' = zip lDefBinders lDefBodies'
+    lDefBodies' = formFVsEL lDefEnv . view letDefinitionBody <$> lDefs
+    expr' = formFVsEL env' expr
 
-    letDefEnv
-      | isRecursive flag = bodyEnv
+    env' = lDefBinderSet <> env
+    lDefEnv
+      | isRecursive flag = env'
       | otherwise = env
-    bodyEnv = letBinderSet <> env
 
-    letBinderSet = Set.fromList letBinders
-    letBinders = fmap getLetDefinitionBinder letDefs
-formFVsEL env (ELMatch expr matchCases)
-  = AELMatch fvs expr' matchCases'
+    lDefBinderSet = Set.fromList lDefBinders
+    lDefBinders = view letDefinitionBinder <$> lDefs
+formFVsEL env (ELMatch expr mCases)
+  = AELMatch fvs expr' mCases'
   where
-    fvs = Set.union (Set.unions fvssInMatchCases') fvsInExpr'
-    fvssInMatchCases' = uncurry Set.difference <$> zip fvssInMatchCaseBodies' matchCaseArgumentSets
-    fvssInMatchCaseBodies' = fmap getAnnotationL matchCasesBody'
-    fvsInExpr' = getAnnotationL expr'
+    fvs = mconcat fvssInMCases' <> getFVOfE expr'
+    fvssInMCases' = zipWith (Set.\\) fvssInMCaseBodies' mCaseArgumentSets
+    fvssInMCaseBodies' = getFVOfE <$> mCaseBodies'
 
-    matchCases' = uncurry (set _3) <$> zip matchCasesBody' matchCases
-    matchCasesBody' = (\(args, body) -> formFVsEL (Set.union env args) body) <$> zip matchCaseArgumentSets matchCaseBodies
+    mCases' = zipWith (set _3) mCaseBodies' mCases
+    mCaseBodies' = zipWith formFVsEL ((<> env) <$> mCaseArgumentSets) mCaseBodies
     expr' = formFVsEL env expr
 
-    matchCaseBodies = getMatchCaseBody <$> matchCases
-    matchCaseArgumentSets = Set.fromList . getMatchCaseArguments <$> matchCases
-formFVsEL env (ELLambda args bodyExpr)
-  = AELLambda fvs args bodyExpr'
+    mCaseBodies = view matchCaseBody <$> mCases
+    mCaseArgumentSets = Set.fromList . view matchCaseArguments <$> mCases
+formFVsEL env (ELLambda args expr)
+  = AELLambda fvs args expr'
   where
-    fvs = Set.difference fvsInBodyExpr argSet
-    fvsInBodyExpr = getAnnotationL bodyExpr'
+    fvs = fvsInExpr' Set.\\ argSet
+    fvsInExpr' = getFVOfE expr'
 
-    bodyExpr' = formFVsEL (argSet <> env) bodyExpr
+    expr' = formFVsEL (argSet <> env) expr
 
     argSet = Set.fromList args
 
+getFVOfE :: ExpressionLWithFreeVariable Identifier -> FreeVariables
+getFVOfE = view annotationL

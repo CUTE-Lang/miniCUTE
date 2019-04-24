@@ -18,9 +18,9 @@ module Minicute.Types.Minicute.Program
 
   , AnnotatedSupercombinatorL
 
-  , mapSupercombinatorBinder
-  , mapSupercombinatorArguments
-  , mapSupercombinatorBody
+  , supercombinatorBinder
+  , supercombinatorArguments
+  , supercombinatorBody
 
 
   , Program#( .. )
@@ -43,6 +43,7 @@ module Minicute.Types.Minicute.Program
   , pattern AnnotatedProgramL
   ) where
 
+import Control.Lens
 import GHC.Show ( appPrec, appPrec1 )
 import Minicute.Types.Minicute.Expression
 
@@ -58,14 +59,14 @@ type AnnotatedSupercombinator ann a = Supercombinator# a (AnnotatedExpression an
 
 type AnnotatedSupercombinatorL ann a = Supercombinator# a (AnnotatedExpressionL ann a)
 
-mapSupercombinatorBinder :: (Identifier -> Identifier) -> Supercombinator# a expr -> Supercombinator# a expr
-mapSupercombinatorBinder f (binder, args, body) = (f binder, args, body)
+supercombinatorBinder :: Lens' (Supercombinator# a expr) Identifier
+supercombinatorBinder = _1
 
-mapSupercombinatorArguments :: ([a] -> [a]) -> Supercombinator# a expr -> Supercombinator# a expr
-mapSupercombinatorArguments f (binder, args, body) = (binder, f args, body)
+supercombinatorArguments :: Lens' (Supercombinator# a expr) [a]
+supercombinatorArguments = _2
 
-mapSupercombinatorBody :: (expr1 -> expr2) -> Supercombinator# a expr1 -> Supercombinator# a expr2
-mapSupercombinatorBody f (binder, args, body) = (binder, args, f body)
+supercombinatorBody :: Lens (Supercombinator# a expr1) (Supercombinator# a expr2) expr1 expr2
+supercombinatorBody = _3
 
 
 newtype Program# a expr

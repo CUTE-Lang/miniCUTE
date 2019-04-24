@@ -150,7 +150,7 @@ separator :: (MonadParser e s m) => m ()
 separator = L.symbol ";"
 
 createOperatorTable :: (MonadParser e s m) => PrecedenceTable -> [[CombExpr.Operator m MainExpressionL]]
-createOperatorTable = fmap (fmap createOperator) . groupSortOn (negate . precedence . snd)
+createOperatorTable = (fmap . fmap) createOperator . groupSortOn (negate . precedence . snd)
 
 createOperator :: (MonadParser e s m) => PrecedenceTableEntry -> CombExpr.Operator m MainExpressionL
 createOperator (op, PInfixN _) = CombExpr.InfixN ((L.symbol op <?> "binary operator") $> ELApplication2 (ELVariable op))
