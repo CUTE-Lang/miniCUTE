@@ -1,4 +1,9 @@
+{-# LANGUAGE DeriveDataTypeable #-}
+{-# LANGUAGE DeriveGeneric #-}
 module Minicute.Types.Minicute.Precedence where
+
+import Data.Data
+import GHC.Generics
 
 data Precedence
   = PInfixN { precedence :: Int }
@@ -6,8 +11,13 @@ data Precedence
   | PInfixR { precedence :: Int }
   | PPrefix { precedence :: Int }
   | PPostfix { precedence :: Int }
-  deriving ( Eq
+  deriving ( Generic
+           , Typeable
+           , Data
+           , Eq
+           , Ord
            , Show
+           , Read
            )
 
 type PrecedenceTableEntry = (String, Precedence)
@@ -18,6 +28,7 @@ isInfix (PInfixN _) = True
 isInfix (PInfixL _) = True
 isInfix (PInfixR _) = True
 isInfix _ = False
+{-# INLINEABLE isInfix #-}
 
 -- |
 -- All precedences should be smaller than 'applicationPrecedence'.
@@ -38,6 +49,8 @@ defaultPrecedenceTable
 
 applicationPrecedence :: Int
 applicationPrecedence = 100
+{-# INLINEABLE applicationPrecedence #-}
 
 applicationPrecedence1 :: Int
 applicationPrecedence1 = 101
+{-# INLINEABLE applicationPrecedence1 #-}

@@ -49,7 +49,9 @@ library:
   ghc-options:
     - -Wall
   dependencies:
+    - containers >= 0.6 && < 0.7
     - extra >= 1.6 && < 2
+    - lens >= 4.17 && < 5
     - mtl >= 2.2 && < 3
     - megaparsec >= 7.0 && < 8
     - parser-combinators
@@ -71,6 +73,8 @@ executables:
       - -rtsopts
       - -with-rtsopts=-N
     dependencies:
+      ## Remove this 'megaparsec' dependence if possible
+      - megaparsec
       - minicute
 
 # executable:
@@ -90,6 +94,7 @@ tests:
       - -rtsopts
       - -with-rtsopts=-N
     dependencies:
+      - containers
       - extra
       - megaparsec
       - minicute

@@ -11,6 +11,8 @@ import Minicute.Types.Minicute.Precedence
 import Minicute.Types.Minicute.Expression
 import Minicute.Types.Minicute.Program
 
+import qualified Data.Set as Set
+
 class PrettyPrintable a where
   {-# MINIMAL (prettyPrint | prettyPrintPrec) #-}
   prettyPrint :: a -> PrintSequence
@@ -18,8 +20,17 @@ class PrettyPrintable a where
   prettyPrintPrec :: Int -> a -> PrintSequence
   prettyPrintPrec _ = prettyPrint
 
+instance (PrettyPrintable a) => PrettyPrintable (Set.Set a) where
+  prettyPrint set
+    = printConcat
+      [ printString "{{"
+      , prettyPrintList (printString ", ") (Set.toList set)
+      , printString "}}"
+      ]
+
 prettyPrintList :: (PrettyPrintable a) => PrintSequence -> [a] -> PrintSequence
 prettyPrintList sep = printIntersperse sep . fmap prettyPrint
+{-# INLINEABLE prettyPrintList #-}
 
 instance (PrettyPrintable a, PrettyPrintable expr) => PrettyPrintable (Program# a expr) where
   prettyPrint (Program# scs) = prettyPrintList prettyPrintSeparatorWithNewline scs
@@ -36,13 +47,40 @@ instance (PrettyPrintable a, PrettyPrintable expr) => PrettyPrintable (Supercomb
       , prettyPrint expr
       ]
 
+instance (PrettyPrintable ann, PrettyPrintable a) => PrettyPrintable (AnnotatedExpressionL ann a) where
+  prettyPrint (AELApplication2 ann2 ann1 (AELVariable annOp op) e1 e2)
+    | op `elem` fmap fst binaryPrecedenceTable
+    = printAnnotated [ann2, ann1, annOp] (prettyPrintBinaryExpressionPrec 0 op e1 e2)
+  prettyPrint expr = prettyPrint (unFix2 expr)
+
+instance (PrettyPrintable ann, PrettyPrintable a, PrettyPrintable (expr_ a)) => PrettyPrintable (AnnotatedExpressionL# ann expr_ a) where
+  prettyPrint (AnnotatedExpressionL# (ann, expr)) = printAnnotated [ann] (prettyPrint expr)
+
+instance (PrettyPrintable ann, PrettyPrintable a) => PrettyPrintable (AnnotatedExpression ann a) where
+  prettyPrint (AEApplication2 ann2 ann1 (AEVariable annOp op) e1 e2)
+    | op `elem` fmap fst binaryPrecedenceTable
+    = printAnnotated [ann2, ann1, annOp] (prettyPrintBinaryExpressionPrec 0 op e1 e2)
+  prettyPrint expr = prettyPrint (unFix2 expr)
+
+instance (PrettyPrintable ann, PrettyPrintable a, PrettyPrintable (expr_ a)) => PrettyPrintable (AnnotatedExpression# ann expr_ a) where
+  prettyPrint (AnnotatedExpression# (ann, expr)) = printAnnotated [ann] (prettyPrint expr)
+
+printAnnotated :: (PrettyPrintable ann) => [ann] -> PrintSequence -> PrintSequence
+printAnnotated anns exprSeq
+  = printConcat
+    [ printString "("
+    , prettyPrintList prettyPrintSeparator anns
+    , printString ", "
+    , exprSeq
+    , printString ")"
+    ]
+{-# INLINEABLE printAnnotated #-}
+
 instance (PrettyPrintable a) => PrettyPrintable (ExpressionL a) where
   prettyPrintPrec prec (ELApplication2 (ELVariable op) e1 e2)
     | op `elem` fmap fst binaryPrecedenceTable
     = prettyPrintBinaryExpressionPrec prec op e1 e2
-  prettyPrintPrec prec expr
-    = case expr of
-        Fix2 expr# -> prettyPrintPrec prec expr#
+  prettyPrintPrec prec expr = prettyPrintPrec prec (unFix2 expr)
 
 instance (PrettyPrintable a, PrettyPrintable (expr_ a)) => PrettyPrintable (ExpressionL# expr_ a) where
   prettyPrintPrec prec (ELExpression# expr#) = prettyPrintPrec prec expr#
@@ -62,9 +100,7 @@ instance (PrettyPrintable a) => PrettyPrintable (Expression a) where
   prettyPrintPrec prec (EApplication2 (EVariable op) e1 e2)
     | op `elem` fmap fst binaryPrecedenceTable
     = prettyPrintBinaryExpressionPrec prec op e1 e2
-  prettyPrintPrec prec expr
-    = case expr of
-        Fix2 expr# -> prettyPrintPrec prec expr#
+  prettyPrintPrec prec expr = prettyPrintPrec prec (unFix2 expr)
 
 prettyPrintBinaryExpressionPrec :: (PrettyPrintable a, PrettyPrintable (expr_ a)) => Int -> Identifier -> expr_ a -> expr_ a -> PrintSequence
 prettyPrintBinaryExpressionPrec prec op e1 e2
@@ -82,6 +118,7 @@ prettyPrintBinaryExpressionPrec prec op e1 e2
           Just (PInfixL p) -> (p, p, p + 1)
           Just (PInfixR p) -> (p + 1, p, p)
           _ -> (applicationPrecedence1, applicationPrecedence, applicationPrecedence1)
+{-# INLINEABLE prettyPrintBinaryExpressionPrec #-}
 
 instance (PrettyPrintable a, PrettyPrintable (expr_ a)) => PrettyPrintable (Expression# expr_ a) where
   prettyPrintPrec _ (EInteger# int#) = printShowable int#
@@ -149,11 +186,11 @@ instance (PrettyPrintable a, PrettyPrintable (expr_ a)) => PrettyPrintable (Matc
       ]
 
 instance (PrettyPrintable a, PrettyPrintable (expr_ a)) => PrettyPrintable (LetDefinition# expr_ a) where
-  prettyPrint (binder, bodyE)
+  prettyPrint (binder, bodyExpr)
     = printConcat
       [ prettyPrint binder
       , printString " = "
-      , prettyPrint bodyE
+      , prettyPrint bodyExpr
       ]
 
 instance PrettyPrintable Identifier where
@@ -161,15 +198,20 @@ instance PrettyPrintable Identifier where
 
 binaryPrecedenceTable :: PrecedenceTable
 binaryPrecedenceTable = filter (isInfix . snd) defaultPrecedenceTable
+{-# INLINEABLE binaryPrecedenceTable #-}
 
 prettyPrintSeparatorWithNewline :: PrintSequence
 prettyPrintSeparatorWithNewline = printString ";" `printAppend` printNewline
+{-# INLINEABLE prettyPrintSeparatorWithNewline #-}
 
 prettyPrintSeparator :: PrintSequence
 prettyPrintSeparator = printString ";"
+{-# INLINEABLE prettyPrintSeparator #-}
 
 prettyPrintSpace :: PrintSequence
 prettyPrintSpace = printString " "
+{-# INLINEABLE prettyPrintSpace #-}
 
 prettyPrintDoubleSpace :: PrintSequence
 prettyPrintDoubleSpace = printString "  "
+{-# INLINEABLE prettyPrintDoubleSpace #-}

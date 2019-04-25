@@ -5,6 +5,7 @@ import Data.List
 import Data.List.Extra
 import Language.Haskell.TH
 import Language.Haskell.TH.Quote
+import Minicute.Data.String
 
 qqMini :: QuasiQuoter
 qqMini
@@ -29,9 +30,3 @@ qqMiniExp = return . LitE . StringL . updateString . toUnix
       where
         indentedLs = fmap (drop indent) ls
         indent = minimum . fmap (length . takeWhile isSpace) $ ls
-
-toUnix :: String -> String
-toUnix ('\r' : '\n' : cs) = '\n' : toUnix cs
-toUnix ('\r' : cs) = '\n' : toUnix cs
-toUnix (c : cs) = c : toUnix cs
-toUnix [] = []
