@@ -55,14 +55,14 @@ testCases
 
 simpleTestTemplates :: [(TestContent, TestResult)]
 simpleTestTemplates
-  = [ ( [qqMini||]
+  = [ ( [qqCode||]
       , TestSuccess
         ( ProgramL
           [
           ]
         )
       )
-    , ( [qqMini|
+    , ( [qqCode|
                f = 1
         |]
       , TestSuccess
@@ -74,7 +74,7 @@ simpleTestTemplates
           ]
         )
       )
-    , ( [qqMini|
+    , ( [qqCode|
                f = 1;
         |]
       , TestSuccess
@@ -86,7 +86,7 @@ simpleTestTemplates
           ]
         )
       )
-    , ( [qqMini|
+    , ( [qqCode|
                f=1;
         |]
       , TestSuccess
@@ -98,7 +98,7 @@ simpleTestTemplates
           ]
         )
       )
-    , ( [qqMini|
+    , ( [qqCode|
                f= 1;
         |]
       , TestSuccess
@@ -110,7 +110,7 @@ simpleTestTemplates
           ]
         )
       )
-    , ( [qqMini|
+    , ( [qqCode|
                f= 1 ;
         |]
       , TestSuccess
@@ -122,7 +122,7 @@ simpleTestTemplates
           ]
         )
       )
-    , ( [qqMini|
+    , ( [qqCode|
                f = 1;
           g = 2
            |]
@@ -139,7 +139,7 @@ simpleTestTemplates
           ]
         )
       )
-    , ( [qqMini|
+    , ( [qqCode|
                f = 1  ;
           g=2 ;
            |]
@@ -156,7 +156,7 @@ simpleTestTemplates
           ]
         )
       )
-    , ( [qqMini|
+    , ( [qqCode|
                f = g;
           g = 2
            |]
@@ -173,7 +173,7 @@ simpleTestTemplates
           ]
         )
       )
-    , ( [qqMini|
+    , ( [qqCode|
                matchx = matchx
         |]
       , TestSuccess
@@ -185,31 +185,31 @@ simpleTestTemplates
           ]
         )
       )
-    , ( [qqMini|
+    , ( [qqCode|
                1f = 2
         |]
       , TestFail
         (err 0 (utok '1' <> elabel "identifier" <> eeof))
       )
-    , ( [qqMini|
+    , ( [qqCode|
                f;
         |]
       , TestFail
         (err 1 (utok ';' <> etok '=' <> elabel "alphanumeric character" <> etok '_' <> elabel "identifier"))
       )
-    , ( [qqMini|
+    , ( [qqCode|
                f =;
         |]
       , TestFail
         (err 3 (utok ';' <> elabel "expression"))
       )
-    , ( [qqMini|
+    , ( [qqCode|
                f! = 5;
         |]
       , TestFail
         (err 1 (utok '!' <> etok '=' <> elabel "alphanumeric character" <> etok '_' <> elabel "identifier"))
       )
-    , ( [qqMini|
+    , ( [qqCode|
                f = 5;;
         |]
       , TestFail
@@ -220,7 +220,7 @@ simpleTestTemplates
 arithmeticOperatorTestCases :: [TestCase]
 arithmeticOperatorTestCases
   = [ ( "addition of two numbers"
-      , [qqMini|
+      , [qqCode|
                f = 1 + 1
         |]
       , TestSuccess
@@ -233,7 +233,7 @@ arithmeticOperatorTestCases
         )
       )
     , ( "addition of a number and a variable"
-      , [qqMini|
+      , [qqCode|
                f = 1 * g;
                g = 3
         |]
@@ -251,7 +251,7 @@ arithmeticOperatorTestCases
         )
       )
     , ( "multiple addition of numbers"
-      , [qqMini|
+      , [qqCode|
                f = 1 + (3 + 4)
         |]
       , TestSuccess
@@ -267,7 +267,7 @@ arithmeticOperatorTestCases
         )
       )
     , ( "operator association of -"
-      , [qqMini|
+      , [qqCode|
                f = 3 - 2 - 1
         |]
       , TestSuccess
@@ -286,7 +286,7 @@ arithmeticOperatorTestCases
         )
       )
     , ( "operator precedence of + and *"
-      , [qqMini|
+      , [qqCode|
                f = 1 * 2 + 3
         |]
       , TestSuccess
@@ -305,14 +305,14 @@ arithmeticOperatorTestCases
         )
       )
     , ( "left partial application of arithmetic operator"
-      , [qqMini|
+      , [qqCode|
                f = 2 +
         |]
       , TestFail
         (err 7 (ueof <> elabel "expression with parentheses" <> elabel "constructor" <> elabel "integer" <> elabel "variable"))
       )
     , ( "right partial application of arithmetic operator"
-      , [qqMini|
+      , [qqCode|
                f = + 2
         |]
       , TestFail
@@ -323,7 +323,7 @@ arithmeticOperatorTestCases
 constructorTestCases :: [TestCase]
 constructorTestCases
   = [ ( "basic constructor"
-      , [qqMini|
+      , [qqCode|
                f = $C{1;0};
                g = $C{2;2}
         |]
@@ -341,7 +341,7 @@ constructorTestCases
         )
       )
     , ( "constructor with arguments"
-      , [qqMini|
+      , [qqCode|
                f = $C{1;1} 5;
                g = $C{2;3} f
         |]
@@ -359,28 +359,28 @@ constructorTestCases
         )
       )
     , ( "constructor without arity"
-      , [qqMini|
+      , [qqCode|
                f = $C{1};
         |]
       , TestFail
         (err 8 (utok '}' <> etok ';' <> elabel "decimal digit"))
       )
     , ( "constructor without tag"
-      , [qqMini|
+      , [qqCode|
                f = $C{;1};
         |]
       , TestFail
         (err 7 (utok ';' <> elabel "integer"))
       )
     , ( "wrong tokens for constructor"
-      , [qqMini|
+      , [qqCode|
                f = $Co{1;1};
         |]
       , TestFail
         (err 6 (utok 'o'))
       )
     , ( "wrong tokens for constructor"
-      , [qqMini|
+      , [qqCode|
                f = $C{1,1};
         |]
       , TestFail
@@ -391,7 +391,7 @@ constructorTestCases
 applicationTestCases :: [TestCase]
 applicationTestCases
   = [ ( "application of an integer"
-      , [qqMini|
+      , [qqCode|
                f = g 5
         |]
       , TestSuccess
@@ -404,7 +404,7 @@ applicationTestCases
         )
       )
     , ( "application of a variable"
-      , [qqMini|
+      , [qqCode|
                f = g f
         |]
       , TestSuccess
@@ -417,7 +417,7 @@ applicationTestCases
         )
       )
     , ( "application of wrong expression"
-      , [qqMini|
+      , [qqCode|
                f = g []
         |]
       , TestFail
@@ -428,7 +428,7 @@ applicationTestCases
 supercombinatorTestCases :: [TestCase]
 supercombinatorTestCases
   = [ ( "supercombinator with an argument"
-      , [qqMini|
+      , [qqCode|
                f x = x
         |]
       , TestSuccess
@@ -441,7 +441,7 @@ supercombinatorTestCases
         )
       )
     , ( "supercombinator with two argument"
-      , [qqMini|
+      , [qqCode|
                f x y = x y
         |]
       , TestSuccess
@@ -454,14 +454,14 @@ supercombinatorTestCases
         )
       )
     , ( "supercombinator with a number"
-      , [qqMini|
+      , [qqCode|
                f 5 = x
         |]
       , TestFail
         (err 2 (utok '5' <> elabel "identifier" <> etok '='))
       )
     , ( "supercombinator with an illegal argument"
-      , [qqMini|
+      , [qqCode|
                f $x = $x
         |]
       , TestFail
@@ -472,7 +472,7 @@ supercombinatorTestCases
 letAndLetrecTestCases :: [TestCase]
 letAndLetrecTestCases
   = [ ( "let with a single definition"
-      , [qqMini|
+      , [qqCode|
                f = let x = 5 in x
         |]
       , TestSuccess
@@ -489,7 +489,7 @@ letAndLetrecTestCases
         )
       )
     , ( "letrec with a single definition"
-      , [qqMini|
+      , [qqCode|
                f = letrec
                   x = 5
                 in x
@@ -508,7 +508,7 @@ letAndLetrecTestCases
         )
       )
     , ( "let with multiple definitions"
-      , [qqMini|
+      , [qqCode|
                f = let
                      x = 5;
                      y = 4
@@ -529,7 +529,7 @@ letAndLetrecTestCases
         )
       )
     , ( "letrec with multiple definitions"
-      , [qqMini|
+      , [qqCode|
                f = letrec
                      x = 5;
                      y = x + x;
@@ -552,7 +552,7 @@ letAndLetrecTestCases
         )
       )
     , ( "let with nested let"
-      , [qqMini|
+      , [qqCode|
                f = let
                      x = let
                            k = 5;
@@ -573,7 +573,7 @@ letAndLetrecTestCases
         )
       )
     , ( "let with nested letrec"
-      , [qqMini|
+      , [qqCode|
                f = let x = letrec k = 5 in k; in x
         |]
       , TestSuccess
@@ -590,7 +590,7 @@ letAndLetrecTestCases
         )
       )
     , ( "letrec with nested let"
-      , [qqMini|
+      , [qqCode|
                f = letrec x = let k = 5; in k in x
         |]
       , TestSuccess
@@ -607,7 +607,7 @@ letAndLetrecTestCases
         )
       )
     , ( "letrec with nested letrec"
-      , [qqMini|
+      , [qqCode|
                f = letrec
                      x = letrec
                            k = 5;
@@ -628,14 +628,14 @@ letAndLetrecTestCases
         )
       )
     , ( "let with zero definitions"
-      , [qqMini|
+      , [qqCode|
                f = let in 5
         |]
       , TestFail
         (errFancy 8 (fancy (ErrorFail "let expression should include at least one definition")))
       )
     , ( "let without in"
-      , [qqMini|
+      , [qqCode|
                f = let x = 5
         |]
       , TestFail
@@ -646,7 +646,7 @@ letAndLetrecTestCases
 matchTestCases :: [TestCase]
 matchTestCases
   = [ ( "match with a single match case"
-      , [qqMini|
+      , [qqCode|
                f = match $C{1;0} with <1> -> 5
         |]
       , TestSuccess
@@ -662,7 +662,7 @@ matchTestCases
         )
       )
     , ( "match with multiple match cases"
-      , [qqMini|
+      , [qqCode|
                f = match $C{2;0} with
                      <1> -> 5;
                      <2> -> 3;
@@ -683,7 +683,7 @@ matchTestCases
         )
       )
     , ( "match with arguments"
-      , [qqMini|
+      , [qqCode|
                f = match $C{2;2} 5 4 with
                      <1> x y -> x;
                      <2> a b -> b
@@ -702,7 +702,7 @@ matchTestCases
         )
       )
     , ( "match without a case"
-      , [qqMini|
+      , [qqCode|
                f = match $C{2;0} with
         |]
       , TestFail
@@ -713,7 +713,7 @@ matchTestCases
 lambdaTestCases :: [TestCase]
 lambdaTestCases
   = [ ( "lambda with a single argument"
-      , [qqMini|
+      , [qqCode|
                f = \x -> x
         |]
       , TestSuccess
@@ -728,7 +728,7 @@ lambdaTestCases
         )
       )
     , ( "lambda with multiple arguments"
-      , [qqMini|
+      , [qqCode|
                f = \x y -> x + y
         |]
       , TestSuccess
@@ -743,7 +743,7 @@ lambdaTestCases
         )
       )
     , ( "lambda with nested lambda"
-      , [qqMini|
+      , [qqCode|
                f = \x -> \y -> x + y
         |]
       , TestSuccess
@@ -761,7 +761,7 @@ lambdaTestCases
         )
       )
     , ( "immidiate application of lambda"
-      , [qqMini|
+      , [qqCode|
                f = (\x -> x) 5
         |]
       , TestSuccess
@@ -779,14 +779,14 @@ lambdaTestCases
         )
       )
     , ( "lambda without body"
-      , [qqMini|
+      , [qqCode|
                f = \x ->
         |]
       , TestFail
         (err 9 (ueof <> elabel "expression"))
       )
     , ( "lambda without arguments"
-      , [qqMini|
+      , [qqCode|
                f = \ -> 5
         |]
       , TestFail
@@ -797,7 +797,7 @@ lambdaTestCases
 complexTestCases :: [TestCase]
 complexTestCases
   = [ ( "indirect right application of let expression"
-      , [qqMini|
+      , [qqCode|
                f = 5 + (let k = 5 in k)
         |]
       , TestSuccess
@@ -813,7 +813,7 @@ complexTestCases
         )
       )
     , ( "indirect right application of match expression"
-      , [qqMini|
+      , [qqCode|
                f = 5 + (match $C{1;0} with <1> -> 5)
         |]
       , TestSuccess
@@ -829,14 +829,14 @@ complexTestCases
         )
       )
     , ( "direct right application of let expression"
-      , [qqMini|
+      , [qqCode|
                f = 5 + let k = 5 in k
         |]
       , TestFail
         (errFancy 8 (fancy (ErrorFail "keyword \"let\" cannot be an identifier")))
       )
     , ( "direct right application of match expression"
-      , [qqMini|
+      , [qqCode|
                f = 5 + match $C{1;0} with <1> -> 5
         |]
       , TestFail

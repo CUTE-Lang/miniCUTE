@@ -6,11 +6,7 @@ module Minicute.Transpiler.VariablesRenamingSpec
 import Test.Hspec
 
 import Control.Monad
-import Data.Tuple.Extra
-import Minicute.Transpiler.VariablesRenaming
-import Minicute.Types.Minicute.Program
-
-import qualified Data.Set as Set
+import Minicute.Parser.Parser
 
 spec :: Spec
 spec = do

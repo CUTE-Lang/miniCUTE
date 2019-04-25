@@ -1,3 +1,4 @@
+{-# LANGUAGE TemplateHaskell #-}
 module Test.Minicute.Utils where
 
 import Data.Char
@@ -11,13 +12,35 @@ qqMini :: QuasiQuoter
 qqMini
   = QuasiQuoter
     { quoteExp = qqMiniExp
-    , quotePat = const . fail $ "qqMini cannot be used as a pattern"
-    , quoteType = const . fail $ "qqMini cannot be used as a type"
-    , quoteDec = const . fail $ "qqMini cannot be used as a declaration"
+    , quotePat = const . fail $ "qqCode cannot be used as a pattern"
+    , quoteType = const . fail $ "qqCode cannot be used as a type"
+    , quoteDec = const . fail $ "qqCode cannot be used as a declaration"
+    }
+
+qqCode :: QuasiQuoter
+qqCode
+  = QuasiQuoter
+    { quoteExp = qqCodeExp
+    , quotePat = const . fail $ "qqCode cannot be used as a pattern"
+    , quoteType = const . fail $ "qqCode cannot be used as a type"
+    , quoteDec = const . fail $ "qqCode cannot be used as a declaration"
     }
 
 qqMiniExp :: String -> Q Exp
-qqMiniExp = return . LitE . StringL . updateString . toUnix
+qqMiniExp = parseCaseExp . parseExp . qqCodeExp
+  where
+    parseExp :: Q Exp -> Q Exp
+    parseExp e
+      = [| $(dyn "parse") $(dyn "programL") "" $(e) |]
+    parseCaseExp :: Q Exp -> Q Exp
+    parseCaseExp e
+      = [| case $(e) of
+             Right result -> result
+             Left err -> error (errorBundlePretty err)
+        |]
+
+qqCodeExp :: String -> Q Exp
+qqCodeExp = litE . stringL . updateString . toUnix
   where
     updateString = dropEnd 1 . unlines . adjustIndent . trimEndEmptyLines . trimStartEmptyLines . lines
 
