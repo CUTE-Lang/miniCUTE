@@ -40,14 +40,14 @@ printIndented :: PrintSequence -> PrintSequence
 printIndented = PrintIndented
 
 printAppend :: PrintSequence -> PrintSequence -> PrintSequence
-printAppend PrintNothing s2 = s2
-printAppend s1 s2 = s1 `PrintAppend` s2
+printAppend PrintNothing = id
+printAppend s1 = PrintAppend s1
 infixr 9 `printAppend`
 
 printShowable :: (Show a) => a -> PrintSequence
 printShowable = printString . show
 
-printConcat :: [PrintSequence] -> PrintSequence
+printConcat :: (Foldable t) => t PrintSequence -> PrintSequence
 printConcat = foldl' printAppend PrintNothing
 
 printIntersperse :: PrintSequence -> [PrintSequence] -> PrintSequence
