@@ -16,6 +16,7 @@ module Minicute.Data.PrintSequence
   ) where
 
 import Data.List
+import Minicute.Data.String
 
 data PrintSequence
   = PrintNothing
@@ -87,9 +88,3 @@ fgsToFls fgs = fgs
 
 flsToFgs :: FlattenLocalState -> FlattenGlobalState
 flsToFgs fls = fls
-
-toUnix :: String -> String
-toUnix ('\r' : '\n' : cs) = '\n' : toUnix cs
-toUnix ('\r' : cs) = '\n' : toUnix cs
-toUnix (c : cs) = c : toUnix cs
-toUnix [] = []
