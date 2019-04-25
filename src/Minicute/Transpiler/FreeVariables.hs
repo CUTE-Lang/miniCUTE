@@ -1,6 +1,6 @@
 module Minicute.Transpiler.FreeVariables
-  ( ProgramLWithFreeVariable
-  , ExpressionLWithFreeVariable
+  ( ProgramLWithFreeVariables
+  , ExpressionLWithFreeVariables
   , FreeVariables
   , formFreeVariablesL
   ) where
@@ -12,19 +12,19 @@ import Minicute.Types.Minicute.Program
 
 import qualified Data.Set as Set
 
-type ProgramLWithFreeVariable a = AnnotatedProgramL FreeVariables a
-type ExpressionLWithFreeVariable a = AnnotatedExpressionL FreeVariables a
+type ProgramLWithFreeVariables a = AnnotatedProgramL FreeVariables a
+type ExpressionLWithFreeVariables a = AnnotatedExpressionL FreeVariables a
 
 -- |
 -- Set of identifiers those are free variables of
 -- annotated expression
 type FreeVariables = Set.Set Identifier
 
-formFreeVariablesL :: MainProgramL -> ProgramLWithFreeVariable Identifier
+formFreeVariablesL :: MainProgramL -> ProgramLWithFreeVariables Identifier
 formFreeVariablesL = formFreeVariablesL' id
 {-# INLINEABLE formFreeVariablesL #-}
 
-formFreeVariablesL' :: (a -> Identifier) -> ProgramL a -> ProgramLWithFreeVariable a
+formFreeVariablesL' :: (a -> Identifier) -> ProgramL a -> ProgramLWithFreeVariables a
 formFreeVariablesL' fA (ProgramL scs)
   = AnnotatedProgramL (formFreeVariablesSc' <$> scs)
     where
@@ -38,7 +38,7 @@ formFreeVariablesL' fA (ProgramL scs)
 -- Set of identifiers those are candidates of free variables
 type FVELEnvironment' = Set.Set Identifier
 
-formFVsEL' :: (a -> Identifier) -> FVELEnvironment' -> ExpressionL a -> ExpressionLWithFreeVariable a
+formFVsEL' :: (a -> Identifier) -> FVELEnvironment' -> ExpressionL a -> ExpressionLWithFreeVariables a
 formFVsEL' _ _ (ELInteger n) = AELInteger Set.empty n
 formFVsEL' _ _ (ELConstructor tag arity) = AELConstructor Set.empty tag arity
 formFVsEL' _ env (ELVariable v) = AELVariable fvs v
@@ -113,6 +113,6 @@ formFVsEL' fA env (ELLambda args expr)
     {-# INLINEABLE fvs #-}
     {-# INLINEABLE fvsInExpr' #-}
 
-getFVOfE :: ExpressionLWithFreeVariable a -> FreeVariables
+getFVOfE :: ExpressionLWithFreeVariables a -> FreeVariables
 getFVOfE = view annotationL
 {-# INLINEABLE getFVOfE #-}
