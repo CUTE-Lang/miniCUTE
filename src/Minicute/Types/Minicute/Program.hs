@@ -1,4 +1,6 @@
 {-# OPTIONS_GHC -fno-warn-missing-pattern-synonym-signatures #-}
+{-# LANGUAGE DeriveDataTypeable #-}
+{-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE LiberalTypeSynonyms #-}
 {-# LANGUAGE MagicHash #-}
@@ -44,6 +46,8 @@ module Minicute.Types.Minicute.Program
   ) where
 
 import Control.Lens
+import Data.Data
+import GHC.Generics
 import GHC.Show ( appPrec, appPrec1 )
 import Minicute.Types.Minicute.Expression
 
@@ -71,7 +75,11 @@ supercombinatorBody = _3
 
 newtype Program# a expr
   = Program# [Supercombinator# a expr]
-  deriving ( Eq
+  deriving ( Generic
+           , Typeable
+           , Data
+           , Eq
+           , Ord
            , Show
            )
 

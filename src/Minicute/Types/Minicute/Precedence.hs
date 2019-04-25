@@ -1,4 +1,9 @@
+{-# LANGUAGE DeriveDataTypeable #-}
+{-# LANGUAGE DeriveGeneric #-}
 module Minicute.Types.Minicute.Precedence where
+
+import Data.Data
+import GHC.Generics
 
 data Precedence
   = PInfixN { precedence :: Int }
@@ -6,8 +11,13 @@ data Precedence
   | PInfixR { precedence :: Int }
   | PPrefix { precedence :: Int }
   | PPostfix { precedence :: Int }
-  deriving ( Eq
+  deriving ( Generic
+           , Typeable
+           , Data
+           , Eq
+           , Ord
            , Show
+           , Read
            )
 
 type PrecedenceTableEntry = (String, Precedence)

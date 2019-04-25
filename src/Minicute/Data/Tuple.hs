@@ -4,6 +4,7 @@
 module Minicute.Data.Tuple where
 
 class TupleZipper1 t t' | t -> t' where
+  {-# MINIMAL tupleUnzip1, tupleZip1 #-}
   tupleUnzip1 :: t -> t'
   tupleZip1 :: t' -> t
 
@@ -40,6 +41,7 @@ instance TupleZipper1 ((a, b), c, d, e, f, g, h, i, j) (a, b, c, d, e, f, g, h, 
   tupleZip1 (a, b, c, d, e, f, g, h, i, j) = ((a, b), c, d, e, f, g, h, i, j)
 
 class TupleZipper2 t t' | t -> t' where
+  {-# MINIMAL tupleUnzip2, tupleZip2 #-}
   tupleUnzip2 :: t -> t'
   tupleZip2 :: t' -> t
 
@@ -76,6 +78,7 @@ instance TupleZipper2 (a, (b, c), d, e, f, g, h, i, j) (a, b, c, d, e, f, g, h, 
   tupleZip2 (a, b, c, d, e, f, g, h, i, j) = (a, (b, c), d, e, f, g, h, i, j)
 
 class TupleZipper3 t t' | t -> t' where
+  {-# MINIMAL tupleUnzip3, tupleZip3 #-}
   tupleUnzip3 :: t -> t'
   tupleZip3 :: t' -> t
 
@@ -108,6 +111,7 @@ instance TupleZipper3 (a, b, (c, d), e, f, g, h, i, j) (a, b, c, d, e, f, g, h, 
   tupleZip3 (a, b, c, d, e, f, g, h, i, j) = (a, b, (c, d), e, f, g, h, i, j)
 
 class TupleZipper4 t t' | t -> t' where
+  {-# MINIMAL tupleUnzip4, tupleZip4 #-}
   tupleUnzip4 :: t -> t'
   tupleZip4 :: t' -> t
 
@@ -136,6 +140,7 @@ instance TupleZipper4 (a, b, c, (d, e), f, g, h, i, j) (a, b, c, d, e, f, g, h, 
   tupleZip4 (a, b, c, d, e, f, g, h, i, j) = (a, b, c, (d, e), f, g, h, i, j)
 
 class TupleZipper5 t t' | t -> t' where
+  {-# MINIMAL tupleUnzip5, tupleZip5 #-}
   tupleUnzip5 :: t -> t'
   tupleZip5 :: t' -> t
 
@@ -160,6 +165,7 @@ instance TupleZipper5 (a, b, c, d, (e, f), g, h, i, j) (a, b, c, d, e, f, g, h, 
   tupleZip5 (a, b, c, d, e, f, g, h, i, j) = (a, b, c, d, (e, f), g, h, i, j)
 
 class TupleZipper6 t t' | t -> t' where
+  {-# MINIMAL tupleUnzip6, tupleZip6 #-}
   tupleUnzip6 :: t -> t'
   tupleZip6 :: t' -> t
 
@@ -180,6 +186,7 @@ instance TupleZipper6 (a, b, c, d, e, (f, g), h, i, j) (a, b, c, d, e, f, g, h, 
   tupleZip6 (a, b, c, d, e, f, g, h, i, j) = (a, b, c, d, e, (f, g), h, i, j)
 
 class TupleZipper7 t t' | t -> t' where
+  {-# MINIMAL tupleUnzip7, tupleZip7 #-}
   tupleUnzip7 :: t -> t'
   tupleZip7 :: t' -> t
 
@@ -196,6 +203,7 @@ instance TupleZipper7 (a, b, c, d, e, f, (g, h), i, j) (a, b, c, d, e, f, g, h, 
   tupleZip7 (a, b, c, d, e, f, g, h, i, j) = (a, b, c, d, e, f, (g, h), i, j)
 
 class TupleZipper8 t t' | t -> t' where
+  {-# MINIMAL tupleUnzip8, tupleZip8 #-}
   tupleUnzip8 :: t -> t'
   tupleZip8 :: t' -> t
 
@@ -208,6 +216,7 @@ instance TupleZipper8 (a, b, c, d, e, f, g, (h, i), j) (a, b, c, d, e, f, g, h, 
   tupleZip8 (a, b, c, d, e, f, g, h, i, j) = (a, b, c, d, e, f, g, (h, i), j)
 
 class TupleZipper9 t t' | t -> t' where
+  {-# MINIMAL tupleUnzip9, tupleZip9 #-}
   tupleUnzip9 :: t -> t'
   tupleZip9 :: t' -> t
 

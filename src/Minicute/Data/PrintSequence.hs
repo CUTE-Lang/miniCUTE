@@ -1,3 +1,5 @@
+{-# LANGUAGE DeriveDataTypeable #-}
+{-# LANGUAGE DeriveGeneric #-}
 module Minicute.Data.PrintSequence
   ( PrintSequence
 
@@ -15,7 +17,9 @@ module Minicute.Data.PrintSequence
   , printConditionalParentheses
   ) where
 
+import Data.Data
 import Data.List
+import GHC.Generics
 import Minicute.Data.String
 
 data PrintSequence
@@ -24,6 +28,14 @@ data PrintSequence
   | PrintString String
   | PrintIndented PrintSequence
   | PrintAppend PrintSequence PrintSequence
+  deriving ( Generic
+           , Typeable
+           , Data
+           , Eq
+           , Ord
+           , Show
+           , Read
+           )
 
 toString :: PrintSequence -> String
 toString ps = concat (flatten initialFgs [(ps, initialFls)])
