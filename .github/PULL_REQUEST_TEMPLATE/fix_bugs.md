@@ -1,12 +1,3 @@
----
-name: Fix bugs
-about: Resolve a problem related with specific issue
-title: ''
-labels: bug
-assignees: ''
-
----
-
 **Fixed Issue(s)**
 Fixes #000, and fixes #001
 
