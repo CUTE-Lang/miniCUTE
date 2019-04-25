@@ -24,7 +24,7 @@ formFreeVariablesLTest name beforeContent afterContent = do
 
 type TestName = String
 type TestBeforeContent = MainProgramL
-type TestAfterContent = ProgramLWithFreeVariable Identifier
+type TestAfterContent = ProgramLWithFreeVariables Identifier
 type TestCase = (TestName, TestBeforeContent, TestAfterContent)
 
 testCases :: [TestCase]
