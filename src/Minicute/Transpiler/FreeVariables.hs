@@ -2,6 +2,7 @@ module Minicute.Transpiler.FreeVariables
   ( ProgramLWithFreeVariables
   , ExpressionLWithFreeVariables
   , FreeVariables
+  , formFreeVariablesMainL
   , formFreeVariablesL
   ) where
 
@@ -20,40 +21,40 @@ type ExpressionLWithFreeVariables a = AnnotatedExpressionL FreeVariables a
 -- annotated expression
 type FreeVariables = Set.Set Identifier
 
-formFreeVariablesL :: MainProgramL -> ProgramLWithFreeVariables Identifier
-formFreeVariablesL = formFreeVariablesL' id
-{-# INLINEABLE formFreeVariablesL #-}
+formFreeVariablesMainL :: MainProgramL -> ProgramLWithFreeVariables Identifier
+formFreeVariablesMainL = formFreeVariablesL id
+{-# INLINEABLE formFreeVariablesMainL #-}
 
-formFreeVariablesL' :: (a -> Identifier) -> ProgramL a -> ProgramLWithFreeVariables a
-formFreeVariablesL' fA (ProgramL scs)
-  = AnnotatedProgramL (formFreeVariablesSc' <$> scs)
+formFreeVariablesL :: (a -> Identifier) -> ProgramL a -> ProgramLWithFreeVariables a
+formFreeVariablesL fA (ProgramL scs)
+  = AnnotatedProgramL (formFreeVariablesSc <$> scs)
     where
-      formFreeVariablesSc' (binder, args, body)
-        = (binder, args, formFVsEL' fA (Set.fromList (fA <$> args)) body)
+      formFreeVariablesSc (binder, args, body)
+        = (binder, args, formFVsEL fA (Set.fromList (fA <$> args)) body)
 
-      {-# INLINEABLE formFreeVariablesSc' #-}
-{-# INLINEABLE formFreeVariablesL' #-}
+      {-# INLINEABLE formFreeVariablesSc #-}
+{-# INLINEABLE formFreeVariablesL #-}
 
 -- |
 -- Set of identifiers those are candidates of free variables
-type FVELEnvironment' = Set.Set Identifier
+type FVELEnvironment = Set.Set Identifier
 
-formFVsEL' :: (a -> Identifier) -> FVELEnvironment' -> ExpressionL a -> ExpressionLWithFreeVariables a
-formFVsEL' _ _ (ELInteger n) = AELInteger Set.empty n
-formFVsEL' _ _ (ELConstructor tag arity) = AELConstructor Set.empty tag arity
-formFVsEL' _ env (ELVariable v) = AELVariable fvs v
+formFVsEL :: (a -> Identifier) -> FVELEnvironment -> ExpressionL a -> ExpressionLWithFreeVariables a
+formFVsEL _ _ (ELInteger n) = AELInteger Set.empty n
+formFVsEL _ _ (ELConstructor tag arity) = AELConstructor Set.empty tag arity
+formFVsEL _ env (ELVariable v) = AELVariable fvs v
   where
     fvs
       | Set.member v env = Set.singleton v
       | otherwise = Set.empty
 
     {-# INLINEABLE fvs #-}
-formFVsEL' fA env (ELApplication expr1 expr2)
+formFVsEL fA env (ELApplication expr1 expr2)
   = AELApplication (getFVOfE expr1' <> getFVOfE expr2') expr1' expr2'
   where
-    expr2' = formFVsEL' fA env expr2
-    expr1' = formFVsEL' fA env expr1
-formFVsEL' fA env (ELLet flag lDefs expr)
+    expr2' = formFVsEL fA env expr2
+    expr1' = formFVsEL fA env expr1
+formFVsEL fA env (ELLet flag lDefs expr)
   = AELLet fvs flag lDefs' expr'
   where
     fvs = fvsInLDefs' <> fvsInExpr'
@@ -64,8 +65,8 @@ formFVsEL' fA env (ELLet flag lDefs expr)
     fvsInLDefBodies' = mconcat (getFVOfE <$> lDefBodies')
 
     lDefs' = zip lDefBinders lDefBodies'
-    lDefBodies' = formFVsEL' fA lDefEnv . view letDefinitionBody <$> lDefs
-    expr' = formFVsEL' fA env' expr
+    lDefBodies' = formFVsEL fA lDefEnv . view letDefinitionBody <$> lDefs
+    expr' = formFVsEL fA env' expr
 
     env' = lDefBinderIdentifierSet <> env
     lDefEnv
@@ -81,7 +82,7 @@ formFVsEL' fA env (ELLet flag lDefs expr)
     {-# INLINEABLE fvsInLDefBodies' #-}
     {-# INLINEABLE lDefs' #-}
     {-# INLINEABLE lDefEnv #-}
-formFVsEL' fA env (ELMatch expr mCases)
+formFVsEL fA env (ELMatch expr mCases)
   = AELMatch fvs expr' mCases'
   where
     fvs = fvsInMCases' <> getFVOfE expr'
@@ -89,8 +90,8 @@ formFVsEL' fA env (ELMatch expr mCases)
     fvssInMCaseBodies' = getFVOfE <$> mCaseBodies'
 
     mCases' = zipWith (set _3) mCaseBodies' mCases
-    mCaseBodies' = zipWith (formFVsEL' fA) ((<> env) <$> mCaseArgumentSets) mCaseBodies
-    expr' = formFVsEL' fA env expr
+    mCaseBodies' = zipWith (formFVsEL fA) ((<> env) <$> mCaseArgumentSets) mCaseBodies
+    expr' = formFVsEL fA env expr
 
     mCaseBodies = view matchCaseBody <$> mCases
     mCaseArgumentSets = Set.fromList . (fA <$>) . view matchCaseArguments <$> mCases
@@ -100,13 +101,13 @@ formFVsEL' fA env (ELMatch expr mCases)
     {-# INLINEABLE fvssInMCaseBodies' #-}
     {-# INLINEABLE mCases' #-}
     {-# INLINEABLE mCaseBodies #-}
-formFVsEL' fA env (ELLambda args expr)
+formFVsEL fA env (ELLambda args expr)
   = AELLambda fvs args expr'
   where
     fvs = fvsInExpr' Set.\\ argIdentifierSet
     fvsInExpr' = getFVOfE expr'
 
-    expr' = formFVsEL' fA (argIdentifierSet <> env) expr
+    expr' = formFVsEL fA (argIdentifierSet <> env) expr
 
     argIdentifierSet = Set.fromList (fA <$> args)
 
