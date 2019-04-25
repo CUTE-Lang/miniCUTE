@@ -25,7 +25,7 @@ extra-source-files:                 README.md
 # extra-doc-files:
 # data-files:
 # data-dir:
-github:                             CUTE-Lang/minicute
+github:                             CUTE-Lang/miniCUTE
 ## Following is ignored when "github" field exists
 # git:
 # custom-setup:
