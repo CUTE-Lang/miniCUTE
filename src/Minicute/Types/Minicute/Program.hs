@@ -65,12 +65,15 @@ type AnnotatedSupercombinatorL ann a = Supercombinator# a (AnnotatedExpressionL 
 
 supercombinatorBinder :: Lens' (Supercombinator# a expr) Identifier
 supercombinatorBinder = _1
+{-# INLINEABLE supercombinatorBinder #-}
 
 supercombinatorArguments :: Lens' (Supercombinator# a expr) [a]
 supercombinatorArguments = _2
+{-# INLINEABLE supercombinatorArguments #-}
 
 supercombinatorBody :: Lens (Supercombinator# a expr1) (Supercombinator# a expr2) expr1 expr2
 supercombinatorBody = _3
+{-# INLINEABLE supercombinatorBody #-}
 
 
 newtype Program# a expr
@@ -120,3 +123,4 @@ showProgram# :: (Show a, Show expr) => String -> Int -> Program# a expr -> ShowS
 showProgram# name p (Program# scs)
   = showParen (p > appPrec)
     $ showString name . showsPrec appPrec1 scs
+{-# INLINEABLE showProgram# #-}

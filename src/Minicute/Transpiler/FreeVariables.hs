@@ -26,6 +26,7 @@ formFreeVariablesL (ProgramL scs)
     [ (binder, args, formFVsEL (Set.fromList args) body)
     | (binder, args, body) <- scs
     ]
+{-# INLINEABLE formFreeVariablesL #-}
 
 -- |
 -- Set of identifiers those are candidates of free variables
@@ -39,6 +40,8 @@ formFVsEL env (ELVariable v) = AELVariable fvs v
     fvs
       | Set.member v env = Set.singleton v
       | otherwise = Set.empty
+
+    {-# INLINEABLE fvs #-}
 formFVsEL env (ELApplication expr1 expr2)
   = AELApplication (getFVOfE expr1' <> getFVOfE expr2') expr1' expr2'
   where
@@ -65,11 +68,18 @@ formFVsEL env (ELLet flag lDefs expr)
 
     lDefBinderSet = Set.fromList lDefBinders
     lDefBinders = view letDefinitionBinder <$> lDefs
+
+    {-# INLINEABLE fvs #-}
+    {-# INLINEABLE fvsInExpr' #-}
+    {-# INLINEABLE fvsInLDefs' #-}
+    {-# INLINEABLE fvsInLDefBodies' #-}
+    {-# INLINEABLE lDefs' #-}
+    {-# INLINEABLE lDefEnv #-}
 formFVsEL env (ELMatch expr mCases)
   = AELMatch fvs expr' mCases'
   where
-    fvs = mconcat fvssInMCases' <> getFVOfE expr'
-    fvssInMCases' = zipWith (Set.\\) fvssInMCaseBodies' mCaseArgumentSets
+    fvs = fvsInMCases' <> getFVOfE expr'
+    fvsInMCases' = mconcat (zipWith (Set.\\) fvssInMCaseBodies' mCaseArgumentSets)
     fvssInMCaseBodies' = getFVOfE <$> mCaseBodies'
 
     mCases' = zipWith (set _3) mCaseBodies' mCases
@@ -78,6 +88,12 @@ formFVsEL env (ELMatch expr mCases)
 
     mCaseBodies = view matchCaseBody <$> mCases
     mCaseArgumentSets = Set.fromList . view matchCaseArguments <$> mCases
+
+    {-# INLINEABLE fvs #-}
+    {-# INLINEABLE fvsInMCases' #-}
+    {-# INLINEABLE fvssInMCaseBodies' #-}
+    {-# INLINEABLE mCases' #-}
+    {-# INLINEABLE mCaseBodies #-}
 formFVsEL env (ELLambda args expr)
   = AELLambda fvs args expr'
   where
@@ -88,5 +104,9 @@ formFVsEL env (ELLambda args expr)
 
     argSet = Set.fromList args
 
+    {-# INLINEABLE fvs #-}
+    {-# INLINEABLE fvsInExpr' #-}
+
 getFVOfE :: ExpressionLWithFreeVariable Identifier -> FreeVariables
 getFVOfE = view annotationL
+{-# INLINEABLE getFVOfE #-}

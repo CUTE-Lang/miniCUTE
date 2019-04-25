@@ -35,13 +35,14 @@ identifier = try identifier' <?> "identifier"
       pos <- getOffset
       i <- lexeme (cons <$> identifierFirstChar <*> many identifierRestChar)
       checkKeywords pos i
-    {-# INLINEABLE identifier' #-}
 
     checkKeywords pos i
       | i `elem` keywordList = do
           setOffset pos
           fail $ "keyword " <> show i <> " cannot be an identifier"
       | otherwise = return i
+
+    {-# INLINEABLE identifier' #-}
     {-# INLINEABLE checkKeywords #-}
 
 identifierFirstChar :: (MonadParser e s m) => m (Token s)
@@ -56,6 +57,7 @@ keyword :: (MonadParser e s m) => Tokens s -> m (Tokens s)
 keyword k
   | k `elem` keywordList = lexeme (chunk k <* notFollowedBy identifierRestChar)
   | otherwise = error (k <> " is not a keyword")
+{-# INLINEABLE keyword #-}
 
 keywordList :: [String]
 keywordList
@@ -82,7 +84,6 @@ integer
     integerStartWithZero
       = single '0'
         *> (prefixedInteger <|> zero)
-    {-# INLINEABLE integerStartWithZero #-}
 
     prefixedInteger = do
       b <- Char.toLower <$> satisfy ((`elem` ['b', 'o', 'd', 'x']) . Char.toLower)
@@ -100,7 +101,10 @@ integer
     endOfInteger
       = notFollowedBy MPT.alphaNumChar
         <?> "non-alphanumeric"
+
+    {-# INLINEABLE integerStartWithZero #-}
     {-# INLINEABLE zero #-}
+    {-# INLINEABLE endOfInteger #-}
 
 lexeme :: (MonadParser e s m) => m a -> m a
 lexeme = MPTL.lexeme spacesConsumer

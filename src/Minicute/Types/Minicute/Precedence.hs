@@ -28,6 +28,7 @@ isInfix (PInfixN _) = True
 isInfix (PInfixL _) = True
 isInfix (PInfixR _) = True
 isInfix _ = False
+{-# INLINEABLE isInfix #-}
 
 -- |
 -- All precedences should be smaller than 'applicationPrecedence'.
@@ -48,6 +49,8 @@ defaultPrecedenceTable
 
 applicationPrecedence :: Int
 applicationPrecedence = 100
+{-# INLINEABLE applicationPrecedence #-}
 
 applicationPrecedence1 :: Int
 applicationPrecedence1 = 101
+{-# INLINEABLE applicationPrecedence1 #-}

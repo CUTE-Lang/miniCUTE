@@ -30,6 +30,7 @@ programL = do
 
 precedenceTable :: (MonadParser e s m, m ~ Parser) => m PrecedenceTable
 precedenceTable = return defaultPrecedenceTable
+{-# INLINEABLE precedenceTable #-}
 
 supercombinatorL :: (MonadParser e s m, m ~ Parser) => WithPrecedence m MainSupercombinatorL
 supercombinatorL
@@ -37,6 +38,7 @@ supercombinatorL
     <$> L.identifier
     <*> many L.identifier <* L.symbol "="
     <*> expressionL
+{-# INLINEABLE supercombinatorL #-}
 
 expressionL :: (MonadParser e s m, m ~ Parser) => WithPrecedence m MainExpressionL
 expressionL
@@ -48,6 +50,7 @@ expressionL
     , otherExpressionsByPrec
     ]
     <?> "expression"
+{-# INLINEABLE expressionL #-}
 
 letExpressionL :: (MonadParser e s m, m ~ Parser) => IsRecursive -> WithPrecedence m MainExpressionL
 letExpressionL flag
@@ -71,12 +74,19 @@ letExpressionL flag
       | isRecursive flag = "letrec expression"
       | otherwise = "let expression"
 
+    {-# INLINEABLE letDefinitionsL #-}
+    {-# INLINEABLE startingKeyword #-}
+    {-# INLINEABLE endingKeyword #-}
+    {-# INLINEABLE zeroLetDefinitionError #-}
+    {-# INLINEABLE nameOfExpression #-}
+
 letDefinitionL :: (MonadParser e s m, m ~ Parser) => WithPrecedence m MainLetDefinitionL
 letDefinitionL
   = (,)
     <$> L.identifier <* L.symbol "="
     <*> expressionL
     <?> "let definition"
+{-# INLINEABLE letDefinitionL #-}
 
 matchExpressionL :: (MonadParser e s m, m ~ Parser) => WithPrecedence m MainExpressionL
 matchExpressionL
@@ -94,6 +104,11 @@ matchExpressionL
 
     zeroMatchCaseError = fail "match expression should include at least one case"
 
+    {-# INLINEABLE matchCasesL #-}
+    {-# INLINEABLE startingKeyword #-}
+    {-# INLINEABLE endingKeyword #-}
+    {-# INLINEABLE zeroMatchCaseError #-}
+
 matchCaseL :: (MonadParser e s m, m ~ Parser) => WithPrecedence m MainMatchCaseL
 matchCaseL
   = (,,)
@@ -101,6 +116,7 @@ matchCaseL
     <*> many L.identifier <* L.symbol "->"
     <*> expressionL
     <?> "match case"
+{-# INLINEABLE matchCaseL #-}
 
 lambdaExpressionL :: (MonadParser e s m, m ~ Parser) => WithPrecedence m MainExpressionL
 lambdaExpressionL
@@ -108,34 +124,40 @@ lambdaExpressionL
     <$> Comb.between (L.symbol "\\") (L.symbol "->") (some L.identifier)
     <*> expressionL
     <?> "lambda expression"
+{-# INLINEABLE lambdaExpressionL #-}
 
 otherExpressionsByPrec :: (MonadParser e s m, m ~ Parser) => WithPrecedence m MainExpressionL
 otherExpressionsByPrec = ask >>= CombExpr.makeExprParser applicationExpressionL . createOperatorTable
+{-# INLINEABLE otherExpressionsByPrec #-}
 
 applicationExpressionL :: (MonadParser e s m, m ~ Parser) => WithPrecedence m MainExpressionL
 applicationExpressionL
   = foldl' ELApplication <$> atomicExpressionL <*> many atomicExpressionL
+{-# INLINEABLE applicationExpressionL #-}
 
 atomicExpressionL :: (MonadParser e s m, m ~ Parser) => WithPrecedence m MainExpressionL
 atomicExpressionL
   = choice
-    [ integerExpression
-    , variableExpression
-    , constructorExpression
+    [ integerExpressionL
+    , variableExpressionL
+    , constructorExpressionL
     , mapReaderT L.betweenRoundBrackets expressionL <?> "expression with parentheses"
     ]
+{-# INLINEABLE atomicExpressionL #-}
 
-integerExpression :: (MonadParser e s m) => m MainExpressionL
-integerExpression = ELInteger <$> L.integer <?> "integer"
+integerExpressionL :: (MonadParser e s m) => m MainExpressionL
+integerExpressionL = ELInteger <$> L.integer <?> "integer"
+{-# INLINEABLE integerExpressionL #-}
 
-variableExpression :: (MonadParser e s m) => m MainExpressionL
-variableExpression = ELVariable <$> L.identifier <?> "variable"
+variableExpressionL :: (MonadParser e s m) => m MainExpressionL
+variableExpressionL = ELVariable <$> L.identifier <?> "variable"
+{-# INLINEABLE variableExpressionL #-}
 
 -- |
 -- The 'startingSymbols' do not use `try` because
 -- the keyword starts with a character that is illegal for identifiers.
-constructorExpression :: (MonadParser e s m) => m MainExpressionL
-constructorExpression
+constructorExpressionL :: (MonadParser e s m) => m MainExpressionL
+constructorExpressionL
   = Comb.between startingSymbols endingSymbols
     ( ELConstructor
       <$> L.integer <* separator
@@ -146,11 +168,17 @@ constructorExpression
     startingSymbols = L.keyword "$C" *> L.symbol "{"
     endingSymbols = L.symbol "}"
 
+    {-# INLINEABLE startingSymbols #-}
+    {-# INLINEABLE endingSymbols #-}
+{-# INLINEABLE constructorExpressionL #-}
+
 separator :: (MonadParser e s m) => m ()
 separator = L.symbol ";"
+{-# INLINEABLE separator #-}
 
 createOperatorTable :: (MonadParser e s m) => PrecedenceTable -> [[CombExpr.Operator m MainExpressionL]]
 createOperatorTable = (fmap . fmap) createOperator . groupSortOn (negate . precedence . snd)
+{-# INLINEABLE createOperatorTable #-}
 
 createOperator :: (MonadParser e s m) => PrecedenceTableEntry -> CombExpr.Operator m MainExpressionL
 createOperator (op, PInfixN _) = CombExpr.InfixN ((L.symbol op <?> "binary operator") $> ELApplication2 (ELVariable op))

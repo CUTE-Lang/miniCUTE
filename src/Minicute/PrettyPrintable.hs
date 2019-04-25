@@ -30,6 +30,7 @@ instance (PrettyPrintable a) => PrettyPrintable (Set.Set a) where
 
 prettyPrintList :: (PrettyPrintable a) => PrintSequence -> [a] -> PrintSequence
 prettyPrintList sep = printIntersperse sep . fmap prettyPrint
+{-# INLINEABLE prettyPrintList #-}
 
 instance (PrettyPrintable a, PrettyPrintable expr) => PrettyPrintable (Program# a expr) where
   prettyPrint (Program# scs) = prettyPrintList prettyPrintSeparatorWithNewline scs
@@ -73,6 +74,7 @@ printAnnotated anns exprSeq
     , exprSeq
     , printString ")"
     ]
+{-# INLINEABLE printAnnotated #-}
 
 instance (PrettyPrintable a) => PrettyPrintable (ExpressionL a) where
   prettyPrintPrec prec (ELApplication2 (ELVariable op) e1 e2)
@@ -116,6 +118,7 @@ prettyPrintBinaryExpressionPrec prec op e1 e2
           Just (PInfixL p) -> (p, p, p + 1)
           Just (PInfixR p) -> (p + 1, p, p)
           _ -> (applicationPrecedence1, applicationPrecedence, applicationPrecedence1)
+{-# INLINEABLE prettyPrintBinaryExpressionPrec #-}
 
 instance (PrettyPrintable a, PrettyPrintable (expr_ a)) => PrettyPrintable (Expression# expr_ a) where
   prettyPrintPrec _ (EInteger# int#) = printShowable int#
@@ -195,15 +198,20 @@ instance PrettyPrintable Identifier where
 
 binaryPrecedenceTable :: PrecedenceTable
 binaryPrecedenceTable = filter (isInfix . snd) defaultPrecedenceTable
+{-# INLINEABLE binaryPrecedenceTable #-}
 
 prettyPrintSeparatorWithNewline :: PrintSequence
 prettyPrintSeparatorWithNewline = printString ";" `printAppend` printNewline
+{-# INLINEABLE prettyPrintSeparatorWithNewline #-}
 
 prettyPrintSeparator :: PrintSequence
 prettyPrintSeparator = printString ";"
+{-# INLINEABLE prettyPrintSeparator #-}
 
 prettyPrintSpace :: PrintSequence
 prettyPrintSpace = printString " "
+{-# INLINEABLE prettyPrintSpace #-}
 
 prettyPrintDoubleSpace :: PrintSequence
 prettyPrintDoubleSpace = printString "  "
+{-# INLINEABLE prettyPrintDoubleSpace #-}

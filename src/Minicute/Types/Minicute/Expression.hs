@@ -138,9 +138,11 @@ type MainLetDefinitionL = LetDefinitionL Identifier
 
 letDefinitionBinder :: Lens' (LetDefinition# expr_ a) a
 letDefinitionBinder = _1
+{-# INLINEABLE letDefinitionBinder #-}
 
 letDefinitionBody :: Lens (LetDefinition# expr_ a) (LetDefinition# expr_' a) (expr_ a) (expr_' a)
 letDefinitionBody = _2
+{-# INLINEABLE letDefinitionBody #-}
 
 
 type MatchCase# expr_ a = (Int, [a], expr_ a)
@@ -152,12 +154,15 @@ type MainMatchCaseL = MatchCaseL Identifier
 
 matchCaseTag :: Lens' (MatchCase# expr_ a) Int
 matchCaseTag = _1
+{-# INLINEABLE matchCaseTag #-}
 
 matchCaseArguments :: Lens' (MatchCase# expr_ a) [a]
 matchCaseArguments = _2
+{-# INLINEABLE matchCaseArguments #-}
 
 matchCaseBody :: Lens (MatchCase# expr_ a) (MatchCase# expr_' a) (expr_ a) (expr_' a)
 matchCaseBody = _3
+{-# INLINEABLE matchCaseBody #-}
 
 
 data Expression# expr_ a
@@ -307,6 +312,7 @@ annotation = lens getter setter
   where
     getter (AnnotatedExpression ann _) = ann
     setter (AnnotatedExpression _ expr) ann = AnnotatedExpression ann expr
+{-# INLINEABLE annotation #-}
 
 
 newtype AnnotatedExpressionL# ann expr_ a
@@ -364,3 +370,4 @@ annotationL = lens getter setter
   where
     getter (AnnotatedExpressionL ann _) = ann
     setter (AnnotatedExpressionL _ expr) ann = AnnotatedExpressionL ann expr
+{-# INLINEABLE annotationL #-}
