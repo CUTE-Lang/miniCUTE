@@ -10,9 +10,9 @@ import Test.Minicute.Utils
 import Control.Monad
 import Control.Lens
 import Data.List
+import Data.Tuple.Extra
 import Minicute.Parser.Parser
 import Minicute.Transpiler.VariablesRenaming
-import Minicute.Types.Minicute.Precedence
 import Minicute.Types.Minicute.Program
 import Text.Megaparsec
 
@@ -21,33 +21,23 @@ import qualified Data.Set as Set
 spec :: Spec
 spec = do
   describe "renameVariablesMainL" $ do
-    forM_ testCases (uncurry renameVariablesMainLTest)
+    forM_ testCases (uncurry3 renameVariablesMainLTest)
 
--- |
--- These tests are too weak.
--- We should add tests to check whether the dependence is preserved or not.
-renameVariablesMainLTest :: TestName -> TestContent -> SpecWith (Arg Expectation)
-renameVariablesMainLTest name beforeContent = do
+renameVariablesMainLTest :: TestName -> TestBeforeContent -> TestAfterContent -> SpecWith (Arg Expectation)
+renameVariablesMainLTest name beforeContent afterContent = do
   it ("rename variables to avoid identifier conflicts in " <> name) $ do
     renameVariablesMainL beforeContent `shouldSatisfy` haveNoIdentifierConflictMainL
+  it ("rename variables to expected result from " <> name) $ do
+    renameVariablesMainL beforeContent `shouldBe` afterContent
 
 type TestName = String
-type TestContent = MainProgramL
-type TestCase = (TestName, TestContent)
+type TestBeforeContent = MainProgramL
+type TestAfterContent = MainProgramL
+type TestCase = (TestName, TestBeforeContent, TestAfterContent)
 
 testCases :: [TestCase]
 testCases
-  = [ ( "questionable program0"
-      , [qqMini|
-               main = f 5 4;
-               f x y = letrec
-                         g = \z -> x + y + z;
-                         h = \x y -> x * y * g 5
-                       in
-                         h 1 y
-        |]
-      )
-    , ( "questionable program1"
+  = [ ( "program with let"
       , [qqMini|
                main = f 5 4;
                f x y = let
@@ -56,6 +46,33 @@ testCases
                        in
                          h 1 y;
                g x = x / 2
+        |]
+      , [qqMini|
+               main = f0 5 4;
+               f0 x2 y3 = let
+                            g4 = \z6 -> x2 + y3 + z6;
+                            h5 = \x7 y8 -> x7 * y8 * g1 5
+                          in
+                            h5 1 y3;
+               g1 x9 = x9 / 2
+        |]
+      )
+    , ( "program with letrec"
+      , [qqMini|
+               main = f 5 4;
+               f x y = letrec
+                         g = \z -> x + y + z;
+                         h = \x y -> x * y * g 5
+                       in
+                         h 1 y
+        |]
+      , [qqMini|
+               main = f0 5 4;
+               f0 x1 y2 = letrec
+                            g3 = \z5 -> x1 + y2 + z5;
+                            h4 = \x6 y7 -> x6 * y7 * g3 5
+                          in
+                            h4 1 y2
         |]
       )
     ]
@@ -73,7 +90,7 @@ haveNoIdentifierConflictMainL (ProgramL scs)
 haveNoIdentifierConflictMainEL :: Set.Set Identifier -> MainExpressionL -> (Set.Set Identifier, Bool)
 haveNoIdentifierConflictMainEL env (ELInteger _) = (env, True)
 haveNoIdentifierConflictMainEL env (ELConstructor _ _) = (env, True)
-haveNoIdentifierConflictMainEL env (ELVariable v) = (env, Set.notMember v env)
+haveNoIdentifierConflictMainEL env (ELVariable _) = (env, True)
 haveNoIdentifierConflictMainEL env (ELApplication e1 e2)
   = (env2, noConflict1 && noConflict2)
   where
