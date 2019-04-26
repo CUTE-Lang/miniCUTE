@@ -702,7 +702,7 @@ matchTestCases
         )
       )
     , ( "match followed by other top-level definition"
-      , [qqMini|
+      , [qqCode|
                f = match $C{2;2} 5 4 with
                      <1> x y -> x;
                      <2> a b -> b;
