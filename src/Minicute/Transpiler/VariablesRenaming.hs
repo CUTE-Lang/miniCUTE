@@ -8,6 +8,7 @@ module Minicute.Transpiler.VariablesRenaming
 import Control.Lens
 import Control.Monad.State
 import Control.Monad.Reader
+import Minicute.Data.Fix
 import Minicute.Types.Minicute.Program
 
 import qualified Data.Map as Map
@@ -50,16 +51,29 @@ renameVariables# _a rExpr
       | otherwise = renameIdentifier binder
 
 renameVariablesEL :: Lens' a Identifier -> Renamer (ExpressionL a)
-renameVariablesEL _ e@(ELInteger _) = return e
-renameVariablesEL _ e@(ELConstructor _ _) = return e
-renameVariablesEL _ e@(ELVariable v) = do
+renameVariablesEL _a expr = Fix2 <$> renameVariablesEL# _a (renameVariablesEL _a) (unFix2 expr)
+
+renameVariablesEL# :: Lens' a Identifier -> Renamer (expr_ a) -> Renamer (ExpressionL# expr_ a)
+renameVariablesEL# _a rExpr (ELExpression# expr#)
+  = ELExpression# <$> renameVariablesE# _a rExpr expr#
+renameVariablesEL# _a rExpr (ELLambda# args expr) = do
+  args' <- traverse (renameA _a) args
+  let
+    argEnv = renamedRecordFromAList _a (zip args args')
+  expr' <- addLocalRenamedRecord argEnv (rExpr expr)
+  return (ELLambda# args' expr')
+
+renameVariablesE# :: Lens' a Identifier -> Renamer (expr_ a) -> Renamer (Expression# expr_ a)
+renameVariablesE# _ _ e@(EInteger# _) = return e
+renameVariablesE# _ _ e@(EConstructor# _ _) = return e
+renameVariablesE# _ _ e@(EVariable# v) = do
   record <- ask
   case Map.lookup v record of
-    Just v' -> return (ELVariable v')
+    Just v' -> return (EVariable# v')
     Nothing -> return e
-renameVariablesEL _a (ELApplication e1 e2)
-  = ELApplication <$> renameVariablesEL _a e1 <*> renameVariablesEL _a e2
-renameVariablesEL _a (ELLet flag lDefs expr) = do
+renameVariablesE# _a rExpr (EApplication# e1 e2)
+  = EApplication# <$> rExpr e1 <*> rExpr e2
+renameVariablesE# _a rExpr (ELet# flag lDefs expr) = do
   record <- ask
   lDefBinders' <- traverse (renameA _a) lDefBinders
   let
@@ -70,18 +84,17 @@ renameVariablesEL _a (ELLet flag lDefs expr) = do
       | isRecursive flag = exprRecord
       | otherwise = record
   lDefs'' <- setLocalRenamedRecord lDefRecord (traverse renameLDefBodies lDefs')
-  expr' <- setLocalRenamedRecord exprRecord (renameVariablesEL _a expr)
-  return (ELLet flag lDefs'' expr')
+  expr' <- setLocalRenamedRecord exprRecord (rExpr expr)
+  return (ELet# flag lDefs'' expr')
   where
     renameLDefBodies
-      = traverseOf _letDefinitionBody (renameVariablesEL _a)
-
+      = traverseOf _letDefinitionBody rExpr
 
     lDefBinders = view _letDefinitionBinder <$> lDefs
-renameVariablesEL _a (ELMatch expr mCases) = do
-  expr' <- renameVariablesEL _a expr
+renameVariablesE# _a rExpr (EMatch# expr mCases) = do
+  expr' <- rExpr expr
   mCases' <- traverse renameMCase mCases
-  return (ELMatch expr' mCases')
+  return (EMatch# expr' mCases')
   where
     renameMCase mCase = do
       mCaseArgs' <- traverse (renameA _a) mCaseArgs
@@ -91,15 +104,9 @@ renameVariablesEL _a (ELMatch expr mCases) = do
       addLocalRenamedRecord mCaseArgRecord (renameMCaseBody mCase')
       where
         renameMCaseBody
-          = traverseOf _matchCaseBody (renameVariablesEL _a)
+          = traverseOf _matchCaseBody rExpr
 
         mCaseArgs = view _matchCaseArguments mCase
-renameVariablesEL _a (ELLambda args expr) = do
-  args' <- traverse (renameA _a) args
-  let
-    argEnv = renamedRecordFromAList _a (zip args args')
-  expr' <- addLocalRenamedRecord argEnv (renameVariablesEL _a expr)
-  return (ELLambda args' expr')
 
 type Renamer a = a -> ReaderT RenamedRecord (State IdGeneratorState) a
 
