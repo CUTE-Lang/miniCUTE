@@ -97,7 +97,11 @@ matchExpressionL
   where
     matchCasesL
       = (notFollowedBy (separator <|> eof) <|> zeroMatchCaseError)
-        *> sepBy1 matchCaseL separator
+        *>
+        ( cons
+          <$> matchCaseL
+          <*> many (try (separator *> matchCaseL))
+        )
 
     startingKeyword = L.keyword "match"
     endingKeyword = L.keyword "with"
