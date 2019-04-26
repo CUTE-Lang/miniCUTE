@@ -46,52 +46,52 @@ type TestCase = (TestName, TestContent)
 testCases :: [TestCase]
 testCases
   = [ ( "empty program"
-      , [qqMini||]
+      , [qqCode||]
       )
     , ( "simple program"
-      , [qqMini|
+      , [qqCode|
                f = 5
         |]
       )
     , ( "program with multiple top-level definitions"
-      , [qqMini|
+      , [qqCode|
                f = 5;
                g = 5
         |]
       )
     , ( "program with top-level definitions with arguments"
-      , [qqMini|
+      , [qqCode|
                f x = g x 5;
                g x y = x y
         |]
       )
     , ( "program with arithmetic operators"
-      , [qqMini|
+      , [qqCode|
                f = 5 + 4
         |]
       )
     , ( "program with multiple arithmetic operators0"
-      , [qqMini|
+      , [qqCode|
                f = 5 + 4 * 5
         |]
       )
     , ( "program with multiple arithmetic operators1"
-      , [qqMini|
+      , [qqCode|
                f = (5 + 4) * 5
         |]
       )
     , ( "program with multiple arithmetic operators2"
-      , [qqMini|
+      , [qqCode|
                f = 5 - 4 - 3
         |]
       )
     , ( "program with multiple arithmetic operators3"
-      , [qqMini|
+      , [qqCode|
                f = 5 - (4 - 3)
         |]
       )
     , ( "program with let"
-      , [qqMini|
+      , [qqCode|
                f = let
                      x = 5
                    in
@@ -99,26 +99,26 @@ testCases
         |]
       )
     , ( "program with match"
-      , [qqMini|
+      , [qqCode|
                f = match x with
                      <1> -> 1;
                      <2> -> 2
         |]
       )
     , ( "program with lambda"
-      , [qqMini|
+      , [qqCode|
                f = \x ->
                      x + 4
         |]
       )
     , ( "program with an application with lambda"
-      , [qqMini|
+      , [qqCode|
                f = g (\x ->
                         x + 4)
         |]
       )
     , ( "program with an application for lambda"
-      , [qqMini|
+      , [qqCode|
                f = (\x ->
                       x + 4) (5 * 3)
         |]

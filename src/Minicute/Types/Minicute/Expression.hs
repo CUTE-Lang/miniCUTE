@@ -25,8 +25,8 @@ module Minicute.Types.Minicute.Expression
   , LetDefinitionL
   , MainLetDefinitionL
 
-  , letDefinitionBinder
-  , letDefinitionBody
+  , _letDefinitionBinder
+  , _letDefinitionBody
 
 
   , MatchCase#
@@ -37,9 +37,9 @@ module Minicute.Types.Minicute.Expression
   , MatchCaseL
   , MainMatchCaseL
 
-  , matchCaseTag
-  , matchCaseArguments
-  , matchCaseBody
+  , _matchCaseTag
+  , _matchCaseArguments
+  , _matchCaseBody
 
 
   , Expression#( .. )
@@ -84,7 +84,7 @@ module Minicute.Types.Minicute.Expression
   , pattern AELet
   , pattern AEMatch
 
-  , annotation
+  , _annotation
 
 
   , AnnotatedExpressionL#( .. )
@@ -101,7 +101,7 @@ module Minicute.Types.Minicute.Expression
   , pattern AELMatch
   , pattern AELLambda
 
-  , annotationL
+  , _annotationL
   ) where
 
 import Control.Lens
@@ -136,13 +136,13 @@ type MainLetDefinition = LetDefinition Identifier
 type LetDefinitionL a = LetDefinition# ExpressionL a
 type MainLetDefinitionL = LetDefinitionL Identifier
 
-letDefinitionBinder :: Lens' (LetDefinition# expr_ a) a
-letDefinitionBinder = _1
-{-# INLINEABLE letDefinitionBinder #-}
+_letDefinitionBinder :: Lens' (LetDefinition# expr_ a) a
+_letDefinitionBinder = _1
+{-# INLINEABLE _letDefinitionBinder #-}
 
-letDefinitionBody :: Lens (LetDefinition# expr_ a) (LetDefinition# expr_' a) (expr_ a) (expr_' a)
-letDefinitionBody = _2
-{-# INLINEABLE letDefinitionBody #-}
+_letDefinitionBody :: Lens (LetDefinition# expr_ a) (LetDefinition# expr_' a) (expr_ a) (expr_' a)
+_letDefinitionBody = _2
+{-# INLINEABLE _letDefinitionBody #-}
 
 
 type MatchCase# expr_ a = (Int, [a], expr_ a)
@@ -152,17 +152,17 @@ type MainMatchCase = MatchCase Identifier
 type MatchCaseL a = MatchCase# ExpressionL a
 type MainMatchCaseL = MatchCaseL Identifier
 
-matchCaseTag :: Lens' (MatchCase# expr_ a) Int
-matchCaseTag = _1
-{-# INLINEABLE matchCaseTag #-}
+_matchCaseTag :: Lens' (MatchCase# expr_ a) Int
+_matchCaseTag = _1
+{-# INLINEABLE _matchCaseTag #-}
 
-matchCaseArguments :: Lens' (MatchCase# expr_ a) [a]
-matchCaseArguments = _2
-{-# INLINEABLE matchCaseArguments #-}
+_matchCaseArguments :: Lens' (MatchCase# expr_ a) [a]
+_matchCaseArguments = _2
+{-# INLINEABLE _matchCaseArguments #-}
 
-matchCaseBody :: Lens (MatchCase# expr_ a) (MatchCase# expr_' a) (expr_ a) (expr_' a)
-matchCaseBody = _3
-{-# INLINEABLE matchCaseBody #-}
+_matchCaseBody :: Lens (MatchCase# expr_ a) (MatchCase# expr_' a) (expr_ a) (expr_' a)
+_matchCaseBody = _3
+{-# INLINEABLE _matchCaseBody #-}
 
 
 data Expression# expr_ a
@@ -307,12 +307,12 @@ instance {-# OVERLAPS #-} (Show ann, Show a) => Show (AnnotatedExpression ann a)
     = showParen (p > appPrec)
       $ showString "AEMatch " . showsPrec appPrec1 ann . showString " " . showsPrec appPrec1 e . showString " " . showsPrec appPrec1 mcs
 
-annotation :: Lens' (AnnotatedExpression ann a) ann
-annotation = lens getter setter
+_annotation :: Lens' (AnnotatedExpression ann a) ann
+_annotation = lens getter setter
   where
     getter (AnnotatedExpression ann _) = ann
     setter (AnnotatedExpression _ expr) ann = AnnotatedExpression ann expr
-{-# INLINEABLE annotation #-}
+{-# INLINEABLE _annotation #-}
 
 
 newtype AnnotatedExpressionL# ann expr_ a
@@ -365,9 +365,9 @@ instance {-# OVERLAPS #-} (Show ann, Show a) => Show (AnnotatedExpressionL ann a
     = showParen (p > appPrec)
       $ showString "AELLambda " . showsPrec appPrec1 ann . showString " " . showsPrec appPrec1 as . showString " " . showsPrec appPrec1 e
 
-annotationL :: Lens' (AnnotatedExpressionL ann a) ann
-annotationL = lens getter setter
+_annotationL :: Lens' (AnnotatedExpressionL ann a) ann
+_annotationL = lens getter setter
   where
     getter (AnnotatedExpressionL ann _) = ann
     setter (AnnotatedExpressionL _ expr) ann = AnnotatedExpressionL ann expr
-{-# INLINEABLE annotationL #-}
+{-# INLINEABLE _annotationL #-}

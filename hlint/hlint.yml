@@ -65,5 +65,6 @@
   - {name: ["Control.Monad.Combinators"], as: "Comb"}
   - {name: ["Control.Monad.Combinators.Expr"], as: "CombExpr"}
   - {name: ["Data.Set"], as: "Set"}
+  - {name: ["Data.Map"], as: "Map"}
   - {name: ["Minicute.Parser.Lexer"], as: "L"}
   - {name: ["Minicute.Parser.Parser"], as: "P"}

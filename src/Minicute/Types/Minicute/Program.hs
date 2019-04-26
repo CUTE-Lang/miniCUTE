@@ -5,6 +5,7 @@
 {-# LANGUAGE LiberalTypeSynonyms #-}
 {-# LANGUAGE MagicHash #-}
 {-# LANGUAGE PatternSynonyms #-}
+{-# LANGUAGE RankNTypes #-}
 module Minicute.Types.Minicute.Program
   ( module Minicute.Types.Minicute.Expression
 
@@ -20,9 +21,9 @@ module Minicute.Types.Minicute.Program
 
   , AnnotatedSupercombinatorL
 
-  , supercombinatorBinder
-  , supercombinatorArguments
-  , supercombinatorBody
+  , _supercombinatorBinder
+  , _supercombinatorArguments
+  , _supercombinatorBody
 
 
   , Program#( .. )
@@ -43,6 +44,9 @@ module Minicute.Types.Minicute.Program
 
   , AnnotatedProgramL
   , pattern AnnotatedProgramL
+
+
+  , _supercombinators
   ) where
 
 import Control.Lens
@@ -63,17 +67,17 @@ type AnnotatedSupercombinator ann a = Supercombinator# a (AnnotatedExpression an
 
 type AnnotatedSupercombinatorL ann a = Supercombinator# a (AnnotatedExpressionL ann a)
 
-supercombinatorBinder :: Lens' (Supercombinator# a expr) Identifier
-supercombinatorBinder = _1
-{-# INLINEABLE supercombinatorBinder #-}
+_supercombinatorBinder :: Lens' (Supercombinator# a expr) Identifier
+_supercombinatorBinder = _1
+{-# INLINEABLE _supercombinatorBinder #-}
 
-supercombinatorArguments :: Lens' (Supercombinator# a expr) [a]
-supercombinatorArguments = _2
-{-# INLINEABLE supercombinatorArguments #-}
+_supercombinatorArguments :: Lens' (Supercombinator# a expr) [a]
+_supercombinatorArguments = _2
+{-# INLINEABLE _supercombinatorArguments #-}
 
-supercombinatorBody :: Lens (Supercombinator# a expr1) (Supercombinator# a expr2) expr1 expr2
-supercombinatorBody = _3
-{-# INLINEABLE supercombinatorBody #-}
+_supercombinatorBody :: Lens (Supercombinator# a expr1) (Supercombinator# a expr2) expr1 expr2
+_supercombinatorBody = _3
+{-# INLINEABLE _supercombinatorBody #-}
 
 
 newtype Program# a expr
@@ -124,3 +128,10 @@ showProgram# name p (Program# scs)
   = showParen (p > appPrec)
     $ showString name . showsPrec appPrec1 scs
 {-# INLINEABLE showProgram# #-}
+
+_supercombinators :: Lens (Program# a expr) (Program# a' expr') [Supercombinator# a expr] [Supercombinator# a' expr']
+_supercombinators = lens getter setter
+  where
+    getter (Program# scs) = scs
+    setter _ = Program#
+{-# INLINEABLE _supercombinators #-}
