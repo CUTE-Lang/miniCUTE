@@ -96,6 +96,7 @@ tests:
     dependencies:
       - containers
       - extra
+      - lens
       - megaparsec
       - minicute
       - template-haskell
