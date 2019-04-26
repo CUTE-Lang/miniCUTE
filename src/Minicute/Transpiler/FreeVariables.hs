@@ -26,8 +26,8 @@ formFreeVariablesMainL = formFreeVariablesL id
 {-# INLINEABLE formFreeVariablesMainL #-}
 
 formFreeVariablesL :: (a -> Identifier) -> ProgramL a -> ProgramLWithFreeVariables a
-formFreeVariablesL fA (ProgramL scs)
-  = AnnotatedProgramL (formFreeVariablesSc <$> scs)
+formFreeVariablesL fA
+  = over _supercombinators (fmap formFreeVariablesSc)
     where
       formFreeVariablesSc (binder, args, body)
         = (binder, args, formFVsEL fA (Set.fromList (fA <$> args)) body)
@@ -65,7 +65,7 @@ formFVsEL fA env (ELLet flag lDefs expr)
     fvsInLDefBodies' = mconcat (getFVOfE <$> lDefBodies')
 
     lDefs' = zip lDefBinders lDefBodies'
-    lDefBodies' = formFVsEL fA lDefEnv . view letDefinitionBody <$> lDefs
+    lDefBodies' = formFVsEL fA lDefEnv . view _letDefinitionBody <$> lDefs
     expr' = formFVsEL fA env' expr
 
     env' = lDefBinderIdentifierSet <> env
@@ -74,7 +74,7 @@ formFVsEL fA env (ELLet flag lDefs expr)
       | otherwise = env
 
     lDefBinderIdentifierSet = Set.fromList (fA <$> lDefBinders)
-    lDefBinders = view letDefinitionBinder <$> lDefs
+    lDefBinders = view _letDefinitionBinder <$> lDefs
 
     {-# INLINEABLE fvs #-}
     {-# INLINEABLE fvsInExpr' #-}
@@ -93,8 +93,8 @@ formFVsEL fA env (ELMatch expr mCases)
     mCaseBodies' = zipWith (formFVsEL fA) ((<> env) <$> mCaseArgumentSets) mCaseBodies
     expr' = formFVsEL fA env expr
 
-    mCaseBodies = view matchCaseBody <$> mCases
-    mCaseArgumentSets = Set.fromList . (fA <$>) . view matchCaseArguments <$> mCases
+    mCaseBodies = view _matchCaseBody <$> mCases
+    mCaseArgumentSets = Set.fromList . (fA <$>) . view _matchCaseArguments <$> mCases
 
     {-# INLINEABLE fvs #-}
     {-# INLINEABLE fvsInMCases' #-}
@@ -115,5 +115,5 @@ formFVsEL fA env (ELLambda args expr)
     {-# INLINEABLE fvsInExpr' #-}
 
 getFVOfE :: ExpressionLWithFreeVariables a -> FreeVariables
-getFVOfE = view annotationL
+getFVOfE = view _annotationL
 {-# INLINEABLE getFVOfE #-}

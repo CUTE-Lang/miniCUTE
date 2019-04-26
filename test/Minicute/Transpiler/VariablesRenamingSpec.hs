@@ -65,10 +65,10 @@ testCases
 haveNoIdentifierConflictMainL :: MainProgramL -> Bool
 haveNoIdentifierConflictMainL (ProgramL scs)
   = scIdsNoConflict
-  && (and . snd . mapAccumL haveNoIdentifierConflictMainEL scIdSet $ view supercombinatorBody <$> scs)
+  && (and . snd . mapAccumL haveNoIdentifierConflictMainEL scIdSet $ view _supercombinatorBody <$> scs)
   where
     scIdsNoConflict = Set.size scIdSet == length scs
-    scIdSet = Set.fromList (view supercombinatorBinder <$> scs)
+    scIdSet = Set.fromList (view _supercombinatorBinder <$> scs)
 
 haveNoIdentifierConflictMainEL :: Set.Set Identifier -> MainExpressionL -> (Set.Set Identifier, Bool)
 haveNoIdentifierConflictMainEL env (ELInteger _) = (env, True)
@@ -90,9 +90,9 @@ haveNoIdentifierConflictMainEL env (ELLet _ lDefs expr)
     (exprEnv, exprNoConflict)
       = haveNoIdentifierConflictMainEL lDefEnv expr
 
-    lDefBodies = view letDefinitionBody <$> lDefs
+    lDefBodies = view _letDefinitionBody <$> lDefs
     lDefIdSet = Set.fromList lDefIds
-    lDefIds = view letDefinitionBinder <$> lDefs
+    lDefIds = view _letDefinitionBinder <$> lDefs
 haveNoIdentifierConflictMainEL env (ELMatch expr mCases)
   = (mCaseEnv, exprNoConflict && mCaseArgsNoConflict && mCaseBodiesNoConflict)
   where
@@ -105,8 +105,8 @@ haveNoIdentifierConflictMainEL env (ELMatch expr mCases)
       = and <$> mapAccumL haveNoIdentifierConflictMainEL exprEnv mCaseBodies
 
     mCaseArgIdSet = Set.fromList mCaseArgs
-    mCaseArgs = concat (view matchCaseArguments <$> mCases)
-    mCaseBodies = view matchCaseBody <$> mCases
+    mCaseArgs = concat (view _matchCaseArguments <$> mCases)
+    mCaseBodies = view _matchCaseBody <$> mCases
 haveNoIdentifierConflictMainEL env (ELLambda args expr)
   = (exprEnv, argsNoConflict && exprNoConflict)
   where
