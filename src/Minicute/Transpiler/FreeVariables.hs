@@ -27,7 +27,7 @@ formFreeVariablesMainL :: MainProgramL -> ProgramLWithFreeVariables Identifier
 formFreeVariablesMainL = formFreeVariablesL id
 {-# INLINEABLE formFreeVariablesMainL #-}
 
-formFreeVariablesL :: Lens' a Identifier -> ProgramL a -> ProgramLWithFreeVariables a
+formFreeVariablesL :: Getter a Identifier -> ProgramL a -> ProgramLWithFreeVariables a
 formFreeVariablesL fA
   = over _supercombinators (fmap formFreeVariablesSc)
     where
@@ -43,13 +43,13 @@ type FVELEnvironment = Set.Set Identifier
 
 type FVFormer e e' = e -> Reader FVELEnvironment e'
 
-formFVsEL :: Lens' a Identifier -> FVFormer (ExpressionL a) (ExpressionLWithFreeVariables a)
+formFVsEL :: Getter a Identifier -> FVFormer (ExpressionL a) (ExpressionLWithFreeVariables a)
 formFVsEL _a = over coerced (formFVsEL# _a _fv (formFVsEL _a))
   where
     _fv :: Lens' (AnnotatedExpressionL FreeVariables a) FreeVariables
     _fv = coerced . (_annotationL :: Lens' (Fix2' (AnnotatedExpressionL# FreeVariables) a) FreeVariables)
 
-formFVsEL# :: Lens' a Identifier -> Lens' (aExpr_ a) FreeVariables -> FVFormer (expr_ a) (aExpr_ a) -> FVFormer (ExpressionL# expr_ a) (AnnotatedExpressionL# FreeVariables aExpr_ a)
+formFVsEL# :: Getter a Identifier -> Getter (aExpr_ a) FreeVariables -> FVFormer (expr_ a) (aExpr_ a) -> FVFormer (ExpressionL# expr_ a) (AnnotatedExpressionL# FreeVariables aExpr_ a)
 formFVsEL# _a _fv fExpr (ELExpression# expr#) = liftAnnExpr <$> formFVsE# _a _fv fExpr expr#
   where
     liftAnnExpr (AnnotatedExpression# (ann, aExpr'))
@@ -67,7 +67,7 @@ formFVsEL# _a _fv fExpr (ELLambda# args expr) = do
   where
     argIdSet = Set.fromList (view _a <$> args)
 
-formFVsE# :: Lens' a Identifier -> Lens' (aExpr_ a) FreeVariables -> FVFormer (expr_ a) (aExpr_ a) -> FVFormer (Expression# expr_ a) (AnnotatedExpression# FreeVariables aExpr_ a)
+formFVsE# :: Getter a Identifier -> Getter (aExpr_ a) FreeVariables -> FVFormer (expr_ a) (aExpr_ a) -> FVFormer (Expression# expr_ a) (AnnotatedExpression# FreeVariables aExpr_ a)
 formFVsE# _ _ _ (EInteger# n) = return (AnnotatedExpression# (Set.empty, EInteger# n))
 formFVsE# _ _ _ (EConstructor# tag arity) = return (AnnotatedExpression# (Set.empty, EConstructor# tag arity))
 formFVsE# _ _ _ (EVariable# v) = do
