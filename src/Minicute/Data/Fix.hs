@@ -4,7 +4,10 @@
 {-# LANGUAGE StandaloneDeriving #-}
 module Minicute.Data.Fix
   ( Fix( .. )
+  , Fix'
+
   , Fix2( .. )
+  , Fix2'
   ) where
 
 import Data.Data
@@ -13,10 +16,11 @@ import GHC.Generics
 import GHC.Read ( lex )
 import GHC.Show ( appPrec, appPrec1 )
 
-newtype Fix f = Fix { unFix :: f (Fix f) }
+newtype Fix f = Fix { unFix :: Fix' f }
   deriving ( Generic
            , Typeable
            )
+type Fix' f = f (Fix f)
 
 deriving instance (Typeable f, Data (f (Fix f))) => Data (Fix f)
 
@@ -40,10 +44,11 @@ instance (Read (f (Fix f))) => Read (Fix f) where
           , (m, s'') <- readsPrec appPrec1 s'
           ]
 
-newtype Fix2 f a = Fix2 { unFix2 :: f (Fix2 f) a }
+newtype Fix2 f a = Fix2 { unFix2 :: Fix2' f a }
   deriving ( Generic
            , Typeable
            )
+type Fix2' f a = f (Fix2 f) a
 
 deriving instance (Typeable f, Typeable a, Data (f (Fix2 f) a)) => Data (Fix2 f a)
 

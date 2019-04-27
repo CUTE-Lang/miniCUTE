@@ -1,3 +1,5 @@
+{-# LANGUAGE MagicHash #-}
+{-# LANGUAGE RankNTypes #-}
 module Minicute.Transpiler.FreeVariables
   ( ProgramLWithFreeVariables
   , ExpressionLWithFreeVariables
@@ -6,9 +8,9 @@ module Minicute.Transpiler.FreeVariables
   , formFreeVariablesL
   ) where
 
-import Control.Lens.Getter
-import Control.Lens.Setter
-import Control.Lens.Tuple
+import Control.Lens
+import Control.Monad.Reader
+import Minicute.Data.Fix
 import Minicute.Types.Minicute.Program
 
 import qualified Data.Set as Set
@@ -25,12 +27,12 @@ formFreeVariablesMainL :: MainProgramL -> ProgramLWithFreeVariables Identifier
 formFreeVariablesMainL = formFreeVariablesL id
 {-# INLINEABLE formFreeVariablesMainL #-}
 
-formFreeVariablesL :: (a -> Identifier) -> ProgramL a -> ProgramLWithFreeVariables a
+formFreeVariablesL :: Lens' a Identifier -> ProgramL a -> ProgramLWithFreeVariables a
 formFreeVariablesL fA
   = over _supercombinators (fmap formFreeVariablesSc)
     where
       formFreeVariablesSc (binder, args, body)
-        = (binder, args, formFVsEL fA (Set.fromList (fA <$> args)) body)
+        = (binder, args, runReader (formFVsEL fA body) (Set.fromList (view fA <$> args)))
 
       {-# INLINEABLE formFreeVariablesSc #-}
 {-# INLINEABLE formFreeVariablesL #-}
@@ -39,81 +41,103 @@ formFreeVariablesL fA
 -- Set of identifiers those are candidates of free variables
 type FVELEnvironment = Set.Set Identifier
 
-formFVsEL :: (a -> Identifier) -> FVELEnvironment -> ExpressionL a -> ExpressionLWithFreeVariables a
-formFVsEL _ _ (ELInteger n) = AELInteger Set.empty n
-formFVsEL _ _ (ELConstructor tag arity) = AELConstructor Set.empty tag arity
-formFVsEL _ env (ELVariable v) = AELVariable fvs v
+type FVFormer e e' = e -> Reader FVELEnvironment e'
+
+formFVsEL :: Lens' a Identifier -> FVFormer (ExpressionL a) (ExpressionLWithFreeVariables a)
+formFVsEL _a = over coerced (formFVsEL# _a _fv (formFVsEL _a))
   where
+    _fv :: Lens' (AnnotatedExpressionL FreeVariables a) FreeVariables
+    _fv = coerced . (_annotationL :: Lens' (Fix2' (AnnotatedExpressionL# FreeVariables) a) FreeVariables)
+
+formFVsEL# :: Lens' a Identifier -> Lens' (aExpr_ a) FreeVariables -> FVFormer (expr_ a) (aExpr_ a) -> FVFormer (ExpressionL# expr_ a) (AnnotatedExpressionL# FreeVariables aExpr_ a)
+formFVsEL# _a _fv fExpr (ELExpression# expr#) = liftAnnExpr <$> formFVsE# _a _fv fExpr expr#
+  where
+    liftAnnExpr (AnnotatedExpression# (ann, aExpr'))
+      = AnnotatedExpressionL# (ann, ELExpression# aExpr')
+formFVsEL# _a _fv fExpr (ELLambda# args expr) = do
+  expr' <- local (argIdSet <>) . fExpr $ expr
+
+  let
+    fvsExpr' = view _fv expr'
+    fvs = fvsExpr' Set.\\ argIdSet
+
+    {-# INLINEABLE fvsExpr' #-}
+    {-# INLINEABLE fvs #-}
+  return (AnnotatedExpressionL# (fvs, ELLambda# args expr'))
+  where
+    argIdSet = Set.fromList (view _a <$> args)
+
+formFVsE# :: Lens' a Identifier -> Lens' (aExpr_ a) FreeVariables -> FVFormer (expr_ a) (aExpr_ a) -> FVFormer (Expression# expr_ a) (AnnotatedExpression# FreeVariables aExpr_ a)
+formFVsE# _ _ _ (EInteger# n) = return (AnnotatedExpression# (Set.empty, EInteger# n))
+formFVsE# _ _ _ (EConstructor# tag arity) = return (AnnotatedExpression# (Set.empty, EConstructor# tag arity))
+formFVsE# _ _ _ (EVariable# v) = do
+  env <- ask
+
+  let
     fvs
       | Set.member v env = Set.singleton v
       | otherwise = Set.empty
 
     {-# INLINEABLE fvs #-}
-formFVsEL fA env (ELApplication expr1 expr2)
-  = AELApplication (getFVOfE expr1' <> getFVOfE expr2') expr1' expr2'
-  where
-    expr2' = formFVsEL fA env expr2
-    expr1' = formFVsEL fA env expr1
-formFVsEL fA env (ELLet flag lDefs expr)
-  = AELLet fvs flag lDefs' expr'
-  where
-    fvs = fvsInLDefs' <> fvsInExpr'
-    fvsInExpr' = getFVOfE expr' Set.\\ lDefBinderIdentifierSet
-    fvsInLDefs'
-      | isRecursive flag = fvsInLDefBodies' Set.\\ lDefBinderIdentifierSet
-      | otherwise = fvsInLDefBodies'
-    fvsInLDefBodies' = mconcat (getFVOfE <$> lDefBodies')
+  return (AnnotatedExpression# (fvs, EVariable# v))
+formFVsE# _ _fv fExpr (EApplication# expr1 expr2) = do
+  expr1' <- fExpr expr1
+  expr2' <- fExpr expr2
 
-    lDefs' = zip lDefBinders lDefBodies'
-    lDefBodies' = formFVsEL fA lDefEnv . view _letDefinitionBody <$> lDefs
-    expr' = formFVsEL fA env' expr
+  let
+    fvs = view _fv expr1' <> view _fv expr2'
 
-    env' = lDefBinderIdentifierSet <> env
-    lDefEnv
-      | isRecursive flag = env'
+    {-# INLINEABLE fvs #-}
+  return (AnnotatedExpression# (fvs, EApplication# expr1' expr2'))
+formFVsE# _a _fv fExpr (ELet# flag lDefs expr) = do
+  env <- ask
+
+  let
+    exprEnv = lDefsBinderIdSet <> env
+    lDefsEnv
+      | isRecursive flag = exprEnv
       | otherwise = env
 
-    lDefBinderIdentifierSet = Set.fromList (fA <$> lDefBinders)
-    lDefBinders = view _letDefinitionBinder <$> lDefs
+    formLDefsBodies = traverse (traverseOf _letDefinitionBody fExpr)
 
+    {-# INLINEABLE lDefsEnv #-}
+    {-# INLINEABLE formLDefsBodies #-}
+  expr' <- local (const exprEnv) . fExpr $ expr
+  lDefs' <- local (const lDefsEnv) . formLDefsBodies $ lDefs
+
+  let
+    fvsLDefsBodies' = mconcat (lDefs' <&> view (_letDefinitionBody . _fv))
+    fvsLDefs'
+      | isRecursive flag = fvsLDefsBodies' Set.\\ lDefsBinderIdSet
+      | otherwise = fvsLDefsBodies'
+    fvsExpr' = view _fv expr' Set.\\ lDefsBinderIdSet
+    fvs = fvsLDefs' <> fvsExpr'
+
+    {-# INLINEABLE fvsLDefsBodies' #-}
+    {-# INLINEABLE fvsLDefs' #-}
+    {-# INLINEABLE fvsExpr' #-}
     {-# INLINEABLE fvs #-}
-    {-# INLINEABLE fvsInExpr' #-}
-    {-# INLINEABLE fvsInLDefs' #-}
-    {-# INLINEABLE fvsInLDefBodies' #-}
-    {-# INLINEABLE lDefs' #-}
-    {-# INLINEABLE lDefEnv #-}
-formFVsEL fA env (ELMatch expr mCases)
-  = AELMatch fvs expr' mCases'
+  return (AnnotatedExpression# (fvs, ELet# flag lDefs' expr'))
   where
-    fvs = fvsInMCases' <> getFVOfE expr'
-    fvsInMCases' = mconcat (zipWith (Set.\\) fvssInMCaseBodies' mCaseArgumentSets)
-    fvssInMCaseBodies' = getFVOfE <$> mCaseBodies'
+    lDefsBinderIdSet = Set.fromList (lDefs <&> view (_letDefinitionBinder . _a))
+formFVsE# _a _fv fExpr (EMatch# expr mCases) = do
+  let
+    formMCaseBodies mCaseArgSet = local (mCaseArgSet <>) . fExpr
+    formMCase mCaseArgSet = traverseOf _matchCaseBody (formMCaseBodies mCaseArgSet)
 
-    mCases' = zipWith (set _3) mCaseBodies' mCases
-    mCaseBodies' = zipWith (formFVsEL fA) ((<> env) <$> mCaseArgumentSets) mCaseBodies
-    expr' = formFVsEL fA env expr
+    {-# INLINEABLE formMCaseBodies #-}
+    {-# INLINEABLE formMCase #-}
+  expr' <- fExpr expr
+  mCases' <- zipWithM formMCase mCasesArgumentSets mCases
 
-    mCaseBodies = view _matchCaseBody <$> mCases
-    mCaseArgumentSets = Set.fromList . (fA <$>) . view _matchCaseArguments <$> mCases
+  let
+    fvssMCasesBodies' = mCases' <&> view (_matchCaseBody . _fv)
+    fvsMCases' = mconcat (zipWith (Set.\\) fvssMCasesBodies' mCasesArgumentSets)
+    fvs = fvsMCases' <> view _fv expr'
 
+    {-# INLINEABLE fvssMCasesBodies' #-}
+    {-# INLINEABLE fvsMCases' #-}
     {-# INLINEABLE fvs #-}
-    {-# INLINEABLE fvsInMCases' #-}
-    {-# INLINEABLE fvssInMCaseBodies' #-}
-    {-# INLINEABLE mCases' #-}
-    {-# INLINEABLE mCaseBodies #-}
-formFVsEL fA env (ELLambda args expr)
-  = AELLambda fvs args expr'
+  return (AnnotatedExpression# (fvs, EMatch# expr' mCases'))
   where
-    fvs = fvsInExpr' Set.\\ argIdentifierSet
-    fvsInExpr' = getFVOfE expr'
-
-    expr' = formFVsEL fA (argIdentifierSet <> env) expr
-
-    argIdentifierSet = Set.fromList (fA <$> args)
-
-    {-# INLINEABLE fvs #-}
-    {-# INLINEABLE fvsInExpr' #-}
-
-getFVOfE :: ExpressionLWithFreeVariables a -> FreeVariables
-getFVOfE = view _annotationL
-{-# INLINEABLE getFVOfE #-}
+    mCasesArgumentSets = Set.fromList . (view _a <$>) . view _matchCaseArguments <$> mCases
