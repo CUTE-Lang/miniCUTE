@@ -307,7 +307,7 @@ instance {-# OVERLAPS #-} (Show ann, Show a) => Show (AnnotatedExpression ann a)
     = showParen (p > appPrec)
       $ showString "AEMatch " . showsPrec appPrec1 ann . showString " " . showsPrec appPrec1 e . showString " " . showsPrec appPrec1 mcs
 
-_annotation :: Lens' (AnnotatedExpression# ann expr_ a) ann
+_annotation :: Lens (AnnotatedExpression# ann expr_ a) (AnnotatedExpression# ann' expr_ a) ann ann'
 _annotation = lens getter setter
   where
     getter (AnnotatedExpression# (ann, _)) = ann
@@ -365,7 +365,7 @@ instance {-# OVERLAPS #-} (Show ann, Show a) => Show (AnnotatedExpressionL ann a
     = showParen (p > appPrec)
       $ showString "AELLambda " . showsPrec appPrec1 ann . showString " " . showsPrec appPrec1 as . showString " " . showsPrec appPrec1 e
 
-_annotationL :: Lens' (AnnotatedExpressionL# ann expr_ a) ann
+_annotationL :: Lens (AnnotatedExpressionL# ann expr_ a) (AnnotatedExpressionL# ann' expr_ a) ann ann'
 _annotationL = lens getter setter
   where
     getter (AnnotatedExpressionL# (ann, _)) = ann
