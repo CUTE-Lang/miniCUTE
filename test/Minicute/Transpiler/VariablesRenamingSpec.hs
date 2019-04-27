@@ -75,6 +75,22 @@ testCases
                             h4 1 y2
         |]
       )
+    , ( "program with match"
+      , [qqMini|
+               main = f (g 5);
+               f x = match x with
+                       <1> -> 0;
+                       <2> h t -> h + f t;
+               g x = if (x > 0) ($C{2;2} x (g (x - 1))) Nil
+        |]
+      , [qqMini|
+               main = f0 (g1 5);
+               f0 x2 = match x2 with
+                       <1> -> 0;
+                       <2> h3 t4 -> h3 + f0 t4;
+               g1 x5 = if (x5 > 0) ($C{2;2} x5 (g1 (x5 - 1))) Nil
+        |]
+      )
     ]
 
 -- |
