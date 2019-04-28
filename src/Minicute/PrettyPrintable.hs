@@ -32,10 +32,10 @@ prettyPrintList :: (PrettyPrintable a) => PrintSequence -> [a] -> PrintSequence
 prettyPrintList sep = printIntersperse sep . fmap prettyPrint
 {-# INLINEABLE prettyPrintList #-}
 
-instance (PrettyPrintable a, PrettyPrintable expr) => PrettyPrintable (Program# a expr) where
+instance (PrettyPrintable a, PrettyPrintable (expr a)) => PrettyPrintable (Program# a expr) where
   prettyPrint (Program# scs) = prettyPrintList prettyPrintSeparatorWithNewline scs
 
-instance (PrettyPrintable a, PrettyPrintable expr) => PrettyPrintable (Supercombinator# a expr) where
+instance (PrettyPrintable a, PrettyPrintable (expr a)) => PrettyPrintable (Supercombinator# a expr) where
   prettyPrint (scId, argBinders, expr)
     = printConcat
       [ prettyPrint scId
@@ -53,16 +53,13 @@ instance (PrettyPrintable ann, PrettyPrintable a) => PrettyPrintable (AnnotatedE
     = printAnnotated [ann2, ann1, annOp] (prettyPrintBinaryExpressionPrec 0 op e1 e2)
   prettyPrint expr = prettyPrint (unFix2 expr)
 
-instance (PrettyPrintable ann, PrettyPrintable a, PrettyPrintable (expr_ a)) => PrettyPrintable (AnnotatedExpressionL# ann expr_ a) where
-  prettyPrint (AnnotatedExpressionL# (ann, expr)) = printAnnotated [ann] (prettyPrint expr)
-
 instance (PrettyPrintable ann, PrettyPrintable a) => PrettyPrintable (AnnotatedExpression ann a) where
   prettyPrint (AEApplication2 ann2 ann1 (AEVariable annOp op) e1 e2)
     | op `elem` fmap fst binaryPrecedenceTable
     = printAnnotated [ann2, ann1, annOp] (prettyPrintBinaryExpressionPrec 0 op e1 e2)
   prettyPrint expr = prettyPrint (unFix2 expr)
 
-instance (PrettyPrintable ann, PrettyPrintable a, PrettyPrintable (expr_ a)) => PrettyPrintable (AnnotatedExpression# ann expr_ a) where
+instance (PrettyPrintable ann, PrettyPrintable a, PrettyPrintable (wExpr expr_ a)) => PrettyPrintable (AnnotatedExpression# ann wExpr expr_ a) where
   prettyPrint (AnnotatedExpression# (ann, expr)) = printAnnotated [ann] (prettyPrint expr)
 
 printAnnotated :: (PrettyPrintable ann) => [ann] -> PrintSequence -> PrintSequence

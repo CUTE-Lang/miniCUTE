@@ -2,6 +2,7 @@
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE KindSignatures #-}
 {-# LANGUAGE LiberalTypeSynonyms #-}
 {-# LANGUAGE MagicHash #-}
 {-# LANGUAGE PatternSynonyms #-}
@@ -84,11 +85,6 @@ module Minicute.Types.Minicute.Expression
   , pattern AELet
   , pattern AEMatch
 
-  , _annotation
-
-
-  , AnnotatedExpressionL#( .. )
-
   , AnnotatedExpressionL
   , pattern AnnotatedExpressionL
   , pattern AELInteger
@@ -101,7 +97,7 @@ module Minicute.Types.Minicute.Expression
   , pattern AELMatch
   , pattern AELLambda
 
-  , _annotationL
+  , _annotation
   ) where
 
 import Control.Lens
@@ -180,7 +176,7 @@ data Expression# expr_ a
            , Show
            )
 
-type Expression a = Fix2 Expression# a
+type Expression = Fix2 Expression#
 type MainExpression = Expression Identifier
 pattern EInteger n = Fix2 (EInteger# n)
 pattern EConstructor tag args = Fix2 (EConstructor# tag args)
@@ -224,7 +220,7 @@ data ExpressionL# expr_ a
            , Show
            )
 
-type ExpressionL a = Fix2 ExpressionL# a
+type ExpressionL = Fix2 ExpressionL#
 type MainExpressionL = ExpressionL Identifier
 pattern ELInteger n = ELExpression (EInteger# n)
 pattern ELConstructor tag args = ELExpression (EConstructor# tag args)
@@ -264,8 +260,8 @@ instance {-# OVERLAPS #-} (Show a) => Show (ExpressionL a) where
       $ showString "ELLambda " . showsPrec appPrec1 as . showString " " . showsPrec appPrec1 e
 
 
-newtype AnnotatedExpression# ann expr_ a
-  = AnnotatedExpression# (ann, Expression# expr_ a)
+newtype AnnotatedExpression# ann wExpr (expr_ :: * -> *) a
+  = AnnotatedExpression# (ann, wExpr expr_ a)
   deriving ( Generic
            , Typeable
            , Data
@@ -274,7 +270,7 @@ newtype AnnotatedExpression# ann expr_ a
            , Show
            )
 
-type AnnotatedExpression ann a = Fix2 (AnnotatedExpression# ann) a
+type AnnotatedExpression ann = Fix2 (AnnotatedExpression# ann Expression#)
 pattern AnnotatedExpression ann expr = Fix2 (AnnotatedExpression# (ann, expr))
 {-# COMPLETE AnnotatedExpression #-}
 pattern AEInteger ann n = AnnotatedExpression ann (EInteger# n)
@@ -307,26 +303,8 @@ instance {-# OVERLAPS #-} (Show ann, Show a) => Show (AnnotatedExpression ann a)
     = showParen (p > appPrec)
       $ showString "AEMatch " . showsPrec appPrec1 ann . showString " " . showsPrec appPrec1 e . showString " " . showsPrec appPrec1 mcs
 
-_annotation :: Lens (AnnotatedExpression# ann expr_ a) (AnnotatedExpression# ann' expr_ a) ann ann'
-_annotation = lens getter setter
-  where
-    getter (AnnotatedExpression# (ann, _)) = ann
-    setter (AnnotatedExpression# (_, expr)) ann = AnnotatedExpression# (ann, expr)
-{-# INLINEABLE _annotation #-}
-
-
-newtype AnnotatedExpressionL# ann expr_ a
-  = AnnotatedExpressionL# (ann, ExpressionL# expr_ a)
-  deriving ( Generic
-           , Typeable
-           , Data
-           , Eq
-           , Ord
-           , Show
-           )
-
-type AnnotatedExpressionL ann a = Fix2 (AnnotatedExpressionL# ann) a
-pattern AnnotatedExpressionL ann expr = Fix2 (AnnotatedExpressionL# (ann, expr))
+type AnnotatedExpressionL ann = Fix2 (AnnotatedExpression# ann ExpressionL#)
+pattern AnnotatedExpressionL ann expr = Fix2 (AnnotatedExpression# (ann, expr))
 {-# COMPLETE AnnotatedExpressionL #-}
 pattern AELInteger ann n = AELExpression ann (EInteger# n)
 pattern AELConstructor ann tag args = AELExpression ann (EConstructor# tag args)
@@ -365,9 +343,9 @@ instance {-# OVERLAPS #-} (Show ann, Show a) => Show (AnnotatedExpressionL ann a
     = showParen (p > appPrec)
       $ showString "AELLambda " . showsPrec appPrec1 ann . showString " " . showsPrec appPrec1 as . showString " " . showsPrec appPrec1 e
 
-_annotationL :: Lens (AnnotatedExpressionL# ann expr_ a) (AnnotatedExpressionL# ann' expr_ a) ann ann'
-_annotationL = lens getter setter
+_annotation :: Lens (AnnotatedExpression# ann wExpr expr_ a) (AnnotatedExpression# ann' wExpr expr_ a) ann ann'
+_annotation = lens getter setter
   where
-    getter (AnnotatedExpressionL# (ann, _)) = ann
-    setter (AnnotatedExpressionL# (_, expr)) ann = AnnotatedExpressionL# (ann, expr)
-{-# INLINEABLE _annotationL #-}
+    getter (AnnotatedExpression# (ann, _)) = ann
+    setter (AnnotatedExpression# (_, expr)) ann = AnnotatedExpression# (ann, expr)
+{-# INLINEABLE _annotation #-}

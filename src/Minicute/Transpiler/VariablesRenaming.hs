@@ -18,14 +18,15 @@ renameVariablesMainL = renameVariablesL id
 {-# INLINABLE renameVariablesMainL #-}
 
 renameVariablesL :: Lens' a Identifier -> ProgramL a -> ProgramL a
-renameVariablesL _a = renameVariables# _a (renameVariablesEL _a)
-{-# INLINABLE renameVariablesL #-}
-
-renameVariables# :: Lens' a Identifier -> Renamer expr -> Program# a expr -> Program# a expr
-renameVariables# _a rExpr
+renameVariablesL _a
   = flip evalState initialIdGeneratorState
     . flip runReaderT initialRenamedRecord
-    . traverseOf _supercombinators renameScs
+    . renameVariables# _a (renameVariablesEL _a)
+{-# INLINABLE renameVariablesL #-}
+
+renameVariables# :: Lens' a Identifier -> Renamer (expr a) -> Renamer (Program# a expr)
+renameVariables# _a rExpr
+  = traverseOf _supercombinators renameScs
   where
     renameScs scs = do
       scsBinders' <- traverse renameScBinder scsBinders
