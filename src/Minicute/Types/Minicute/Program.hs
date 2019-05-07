@@ -49,7 +49,9 @@ module Minicute.Types.Minicute.Program
   , _supercombinators
   ) where
 
-import Control.Lens
+import Control.Lens.Lens ( lens )
+import Control.Lens.Tuple
+import Control.Lens.Type
 import Data.Data
 import GHC.Generics
 import GHC.Show ( appPrec, appPrec1 )
