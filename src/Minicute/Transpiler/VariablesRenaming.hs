@@ -118,7 +118,7 @@ renameVariablesE# _a rExpr (ELet# flag lDefs expr) = do
   where
     lDefsBinders = lDefs ^.. each . _letDefinitionBinder
 
-    renameLDefsBodies = traverse (_letDefinitionBody %%~ rExpr)
+    renameLDefsBodies = each . _letDefinitionBody %%~ rExpr
 
     {-# INLINABLE renameLDefsBodies #-}
 renameVariablesE# _a rExpr (EMatch# expr mCases)

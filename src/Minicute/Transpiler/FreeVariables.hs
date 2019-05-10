@@ -35,11 +35,11 @@ formFreeVariablesMainL = formFreeVariablesL id
 {-# INLINEABLE formFreeVariablesMainL #-}
 
 formFreeVariablesL :: Getter a Identifier -> ProgramL a -> ProgramLWithFreeVariables a
-formFreeVariablesL fA
+formFreeVariablesL _a
   = _supercombinators . each %~ formFreeVariablesSc
     where
       formFreeVariablesSc (binder, args, body)
-        = (binder, args, runReader (formFVsEL fA body) . Set.fromList $ args ^.. each . fA)
+        = (binder, args, runReader (formFVsEL _a body) . Set.fromList $ args ^.. each . _a)
 
       {-# INLINEABLE formFreeVariablesSc #-}
 {-# INLINEABLE formFreeVariablesL #-}
@@ -105,7 +105,7 @@ formFVsE# _a _fv fExpr (ELet# flag lDefs expr) = do
       | isRecursive flag = exprEnv
       | otherwise = env
 
-    formLDefsBodies = traverse (_letDefinitionBody %%~ fExpr)
+    formLDefsBodies = each . _letDefinitionBody %%~ fExpr
 
     {-# INLINEABLE lDefsEnv #-}
     {-# INLINEABLE formLDefsBodies #-}

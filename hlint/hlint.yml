@@ -61,6 +61,16 @@
     - warn: {lhs: "noneOf [a]", rhs: "anySingleBut a"}
     - warn: {lhs: "noneOf [a, b]", rhs: "satisfy (\\x -> x /= a && x /= b)"}
 
+- group:
+    name: lens
+    enabled: true
+    imports:
+    - package base
+    - package lens
+    rules:
+    - warn: {lhs: "(^. partsOf a)", rhs: "(^.. a)"}
+    - warn: {lhs: "traverse (a %%~ b)", rhs: "(each . a) %%~ b"}
+
 - modules:
   - {name: ["Control.Monad.Combinators"], as: "Comb"}
   - {name: ["Control.Monad.Combinators.Expr"], as: "CombExpr"}
