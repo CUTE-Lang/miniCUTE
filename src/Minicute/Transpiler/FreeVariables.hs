@@ -9,15 +9,16 @@ module Minicute.Transpiler.FreeVariables
   ) where
 
 import Control.Lens.Each
+import Control.Lens.Getter ( Getting, to )
 import Control.Lens.Iso ( coerced )
 import Control.Lens.Operators
-import Control.Lens.Traversal ( partsOf )
 import Control.Lens.Type
 import Control.Monad.Reader
 import Minicute.Data.Fix
 import Minicute.Types.Minicute.Program
 
 import qualified Data.Set as Set
+import qualified Data.Set.Lens as Set
 
 type ProgramLWithFreeVariables a = AnnotatedProgramL FreeVariables a
 type ExpressionLWithFreeVariables a = AnnotatedExpressionL FreeVariables a
@@ -39,7 +40,7 @@ formFreeVariablesL _a
   = _supercombinators . each %~ formFreeVariablesSc
     where
       formFreeVariablesSc (binder, args, body)
-        = (binder, args, runReader (formFVsEL _a body) . Set.fromList $ args ^.. each . _a)
+        = (binder, args, runReader (formFVsEL _a body) $ args ^. setFrom (each . _a))
 
       {-# INLINEABLE formFreeVariablesSc #-}
 {-# INLINEABLE formFreeVariablesL #-}
@@ -72,7 +73,7 @@ formFVsEL# _a _fv fExpr (ELLambda# args expr) = do
     {-# INLINEABLE fvs #-}
   return (AnnotatedExpression# (fvs, ELLambda# args expr'))
   where
-    argIdSet = Set.fromList $ args ^.. each . _a
+    argIdSet = args ^. setFrom (each . _a)
 
 formFVsE# :: Getter a Identifier -> Getter (aExpr_ a) FreeVariables -> FVFormer (expr_ a) (aExpr_ a) -> FVFormer (Expression# expr_ a) (ExpressionWithFreeVariables# aExpr_ a)
 formFVsE# _ _ _ (EInteger# n) = return (AnnotatedExpression# (Set.empty, EInteger# n))
@@ -126,7 +127,7 @@ formFVsE# _a _fv fExpr (ELet# flag lDefs expr) = do
     {-# INLINEABLE fvs #-}
   return (AnnotatedExpression# (fvs, ELet# flag lDefs' expr'))
   where
-    lDefsBinderIdSet = Set.fromList $ lDefs ^.. each . _letDefinitionBinder . _a
+    lDefsBinderIdSet = lDefs ^. setFrom (each . _letDefinitionBinder . _a)
 formFVsE# _a _fv fExpr (EMatch# expr mCases) = do
   let
     formMCaseBodies mCaseArgSet = local (mCaseArgSet <>) . fExpr
@@ -147,4 +148,11 @@ formFVsE# _a _fv fExpr (EMatch# expr mCases) = do
     {-# INLINEABLE fvs #-}
   return (AnnotatedExpression# (fvs, EMatch# expr' mCases'))
   where
-    mCasesArgumentSets = Set.fromList <$> mCases ^.. each . _matchCaseArguments . partsOf (each . _a)
+    mCasesArgumentSets = mCases ^.. each . _matchCaseArguments . setFrom (each . _a)
+
+-- |
+-- TODO - move this definition into a separate utility module.
+-- TODO - add an hlint rule from 'Set.fromList $ a ^.. b' to 'a ^. setFrom b'
+setFrom :: Getting (Set.Set a) s a -> Getter s (Set.Set a)
+setFrom = to . Set.setOf
+{-# INLINABLE setFrom #-}
