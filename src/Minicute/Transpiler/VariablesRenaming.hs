@@ -7,11 +7,11 @@ module Minicute.Transpiler.VariablesRenaming
 
 import Control.Lens.Each
 import Control.Lens.Iso ( coerced )
-import Control.Lens.Lens ( alongside )
 import Control.Lens.Operators
 import Control.Lens.Type
 import Control.Monad.State
 import Control.Monad.Reader
+import Data.Function
 import Minicute.Data.Fix
 import Minicute.Types.Minicute.Program
 
@@ -36,7 +36,7 @@ renameVariables# _a rExpr
       scsBinders' <- traverse renameScBinder scsBinders
       let
         scsUpdateBinders = zipWith (_supercombinatorBinder .~) scsBinders'
-        scsBinderRecord = renamedRecordFromIdList (zip scsBinders scsBinders')
+        scsBinderRecord = renamedRecordFromIdLists scsBinders scsBinders'
 
         {-# INLINABLE scsUpdateBinders #-}
         {-# INLINABLE scsBinderRecord #-}
@@ -49,7 +49,7 @@ renameVariables# _a rExpr
           scArgs' <- renameAs _a scArgs
           let
             scUpdateArgs = _supercombinatorArguments .~ scArgs'
-            scArgRecord = renamedRecordFromAList _a (zip scArgs scArgs')
+            scArgRecord = renamedRecordFromALists _a scArgs scArgs'
 
             {-# INLINABLE scUpdateArgs #-}
             {-# INLINABLE scArgRecord #-}
@@ -79,7 +79,7 @@ renameVariablesEL# _a rExpr (ELExpression# expr#)
 renameVariablesEL# _a rExpr (ELLambda# args expr) = do
   args' <- renameAs _a args
   let
-    argRecord = renamedRecordFromAList _a (zip args args')
+    argRecord = renamedRecordFromALists _a args args'
     renameExpr = local (argRecord <>) . rExpr
 
     {-# INLINABLE argRecord #-}
@@ -98,7 +98,7 @@ renameVariablesE# _a rExpr (ELet# flag lDefs expr) = do
   lDefsBinders' <- renameAs _a lDefsBinders
   let
     lDefsUpdateBinders = zipWith (_letDefinitionBinder .~) lDefsBinders'
-    lDefsBinderRecord = renamedRecordFromAList _a (zip lDefsBinders lDefsBinders')
+    lDefsBinderRecord = renamedRecordFromALists _a lDefsBinders lDefsBinders'
     -- |
     -- Execute '<>' once.
     -- '<>' on 'Map.Map' takes O(m*log(n/m + 1)), i.e., not that cheap.
@@ -129,7 +129,7 @@ renameVariablesE# _a rExpr (EMatch# expr mCases)
       mCaseArgs' <- renameAs _a mCaseArgs
       let
         mCaseUpdateArgs = _matchCaseArguments .~ mCaseArgs'
-        mCaseArgRecord = renamedRecordFromAList _a (zip mCaseArgs mCaseArgs')
+        mCaseArgRecord = renamedRecordFromALists _a mCaseArgs mCaseArgs'
 
         {-# INLINABLE mCaseUpdateArgs #-}
         {-# INLINABLE mCaseArgRecord #-}
@@ -159,13 +159,13 @@ initialRenamedRecord :: RenamedRecord
 initialRenamedRecord = Map.empty
 {-# INLINABLE initialRenamedRecord #-}
 
-renamedRecordFromAList :: Lens' a Identifier -> [(a, a)] -> RenamedRecord
-renamedRecordFromAList _a = renamedRecordFromIdList . (^.. each . alongside _a _a)
-{-# INLINABLE renamedRecordFromAList #-}
+renamedRecordFromALists :: Lens' a Identifier -> [a] -> [a] -> RenamedRecord
+renamedRecordFromALists _a = renamedRecordFromIdLists `on` (^.. each . _a)
+{-# INLINABLE renamedRecordFromALists #-}
 
-renamedRecordFromIdList :: [(Identifier, Identifier)] -> RenamedRecord
-renamedRecordFromIdList = Map.fromList
-{-# INLINABLE renamedRecordFromIdList #-}
+renamedRecordFromIdLists :: [Identifier] -> [Identifier] -> RenamedRecord
+renamedRecordFromIdLists = (Map.fromList .) . zip
+{-# INLINABLE renamedRecordFromIdLists #-}
 
 type IdGeneratorState = Int
 
