@@ -11,10 +11,8 @@ import Control.Monad
 import Control.Lens
 import Data.List
 import Data.Tuple.Extra
-import Minicute.Parser.Parser
 import Minicute.Transpiler.VariablesRenaming
 import Minicute.Types.Minicute.Program
-import Text.Megaparsec
 
 import qualified Data.Set as Set
 
