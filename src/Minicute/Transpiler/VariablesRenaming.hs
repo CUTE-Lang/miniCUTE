@@ -1,4 +1,3 @@
-{-# LANGUAGE MagicHash #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 module Minicute.Transpiler.VariablesRenaming
@@ -25,11 +24,11 @@ renameVariablesL :: Lens' a Identifier -> ProgramL a -> ProgramL a
 renameVariablesL _a
   = flip evalState initialIdGeneratorState
     . flip runReaderT initialRenamedRecord
-    . renameVariables# _a (renameVariablesEL _a)
+    . renameVariables_ _a (renameVariablesEL _a)
 {-# INLINABLE renameVariablesL #-}
 
-renameVariables# :: Lens' a Identifier -> Renamer (expr a) -> Renamer (Program# a expr)
-renameVariables# _a rExpr
+renameVariables_ :: Lens' a Identifier -> Renamer (expr a) -> Renamer (Program_ a expr)
+renameVariables_ _a rExpr
   = _supercombinators %%~ renameScs
   where
     renameScs scs = do
@@ -70,13 +69,13 @@ renameVariables# _a rExpr
     {-# INLINABLE renameScBinder #-}
 
 renameVariablesEL :: Lens' a Identifier -> Renamer (ExpressionL a)
-renameVariablesEL _a = coerced %~ renameVariablesEL# _a (renameVariablesEL _a)
+renameVariablesEL _a = coerced %~ renameVariablesEL_ _a (renameVariablesEL _a)
 {-# INLINABLE renameVariablesEL #-}
 
-renameVariablesEL# :: Lens' a Identifier -> Renamer (expr_ a) -> Renamer (ExpressionL# expr_ a)
-renameVariablesEL# _a rExpr (ELExpression# expr#)
-  = ELExpression# <$> renameVariablesE# _a rExpr expr#
-renameVariablesEL# _a rExpr (ELLambda# args expr) = do
+renameVariablesEL_ :: Lens' a Identifier -> Renamer (expr_ a) -> Renamer (ExpressionL_ expr_ a)
+renameVariablesEL_ _a rExpr (ELExpression_ expr_)
+  = ELExpression_ <$> renameVariablesE_ _a rExpr expr_
+renameVariablesEL_ _a rExpr (ELLambda_ args expr) = do
   args' <- renameAs _a args
   let
     argRecord = renamedRecordFromALists _a args args'
@@ -84,16 +83,16 @@ renameVariablesEL# _a rExpr (ELLambda# args expr) = do
 
     {-# INLINABLE argRecord #-}
     {-# INLINABLE renameExpr #-}
-  ELLambda# args' <$> renameExpr expr
+  ELLambda_ args' <$> renameExpr expr
 
-renameVariablesE# :: Lens' a Identifier -> Renamer (expr_ a) -> Renamer (Expression# expr_ a)
-renameVariablesE# _ _ e@(EInteger# _) = return e
-renameVariablesE# _ _ e@(EConstructor# _ _) = return e
-renameVariablesE# _ _ (EVariable# v)
-  = asks (EVariable# . Map.findWithDefault v v)
-renameVariablesE# _ rExpr (EApplication# e1 e2)
-  = EApplication# <$> rExpr e1 <*> rExpr e2
-renameVariablesE# _a rExpr (ELet# flag lDefs expr) = do
+renameVariablesE_ :: Lens' a Identifier -> Renamer (expr_ a) -> Renamer (Expression_ expr_ a)
+renameVariablesE_ _ _ e@(EInteger_ _) = return e
+renameVariablesE_ _ _ e@(EConstructor_ _ _) = return e
+renameVariablesE_ _ _ (EVariable_ v)
+  = asks (EVariable_ . Map.findWithDefault v v)
+renameVariablesE_ _ rExpr (EApplication_ e1 e2)
+  = EApplication_ <$> rExpr e1 <*> rExpr e2
+renameVariablesE_ _a rExpr (ELet_ flag lDefs expr) = do
   record <- ask
   lDefsBinders' <- renameAs _a lDefsBinders
   let
@@ -114,15 +113,15 @@ renameVariablesE# _a rExpr (ELet# flag lDefs expr) = do
     {-# INLINABLE lDefsRecord #-}
     {-# INLINABLE renameLDefs #-}
     {-# INLINABLE renameExpr #-}
-  ELet# flag <$> renameLDefs lDefs <*> renameExpr expr
+  ELet_ flag <$> renameLDefs lDefs <*> renameExpr expr
   where
     lDefsBinders = lDefs ^.. each . _letDefinitionBinder
 
     renameLDefsBodies = each . _letDefinitionBody %%~ rExpr
 
     {-# INLINABLE renameLDefsBodies #-}
-renameVariablesE# _a rExpr (EMatch# expr mCases)
-  = EMatch# <$> rExpr expr <*> renameMCases mCases
+renameVariablesE_ _a rExpr (EMatch_ expr mCases)
+  = EMatch_ <$> rExpr expr <*> renameMCases mCases
   where
     renameMCases = traverse renameMCase
     renameMCase mCase = do

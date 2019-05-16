@@ -1,5 +1,4 @@
 {-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE MagicHash #-}
 {-# LANGUAGE TypeSynonymInstances #-}
 module Minicute.PrettyPrintable
   ( PrettyPrintable( .. )
@@ -32,10 +31,10 @@ prettyPrintList :: (PrettyPrintable a) => PrintSequence -> [a] -> PrintSequence
 prettyPrintList sep = printIntersperse sep . fmap prettyPrint
 {-# INLINEABLE prettyPrintList #-}
 
-instance (PrettyPrintable a, PrettyPrintable (expr a)) => PrettyPrintable (Program# a expr) where
-  prettyPrint (Program# scs) = prettyPrintList prettyPrintSeparatorWithNewline scs
+instance (PrettyPrintable a, PrettyPrintable (expr a)) => PrettyPrintable (Program_ a expr) where
+  prettyPrint (Program_ scs) = prettyPrintList prettyPrintSeparatorWithNewline scs
 
-instance (PrettyPrintable a, PrettyPrintable (expr a)) => PrettyPrintable (Supercombinator# a expr) where
+instance (PrettyPrintable a, PrettyPrintable (expr a)) => PrettyPrintable (Supercombinator_ a expr) where
   prettyPrint (scId, argBinders, expr)
     = printConcat
       [ prettyPrint scId
@@ -59,8 +58,8 @@ instance (PrettyPrintable ann, PrettyPrintable a) => PrettyPrintable (AnnotatedE
     = printAnnotated [ann2, ann1, annOp] (prettyPrintBinaryExpressionPrec 0 op e1 e2)
   prettyPrint expr = prettyPrint (unFix2 expr)
 
-instance (PrettyPrintable ann, PrettyPrintable a, PrettyPrintable (wExpr expr_ a)) => PrettyPrintable (AnnotatedExpression# ann wExpr expr_ a) where
-  prettyPrint (AnnotatedExpression# (ann, expr)) = printAnnotated [ann] (prettyPrint expr)
+instance (PrettyPrintable ann, PrettyPrintable a, PrettyPrintable (wExpr expr_ a)) => PrettyPrintable (AnnotatedExpression_ ann wExpr expr_ a) where
+  prettyPrint (AnnotatedExpression_ (ann, expr)) = printAnnotated [ann] (prettyPrint expr)
 
 printAnnotated :: (PrettyPrintable ann) => [ann] -> PrintSequence -> PrintSequence
 printAnnotated anns exprSeq
@@ -79,9 +78,9 @@ instance (PrettyPrintable a) => PrettyPrintable (ExpressionL a) where
     = prettyPrintBinaryExpressionPrec prec op e1 e2
   prettyPrintPrec prec expr = prettyPrintPrec prec (unFix2 expr)
 
-instance (PrettyPrintable a, PrettyPrintable (expr_ a)) => PrettyPrintable (ExpressionL# expr_ a) where
-  prettyPrintPrec prec (ELExpression# expr#) = prettyPrintPrec prec expr#
-  prettyPrintPrec prec (ELLambda# argBinders bodyExpr)
+instance (PrettyPrintable a, PrettyPrintable (expr_ a)) => PrettyPrintable (ExpressionL_ expr_ a) where
+  prettyPrintPrec prec (ELExpression_ expr_) = prettyPrintPrec prec expr_
+  prettyPrintPrec prec (ELLambda_ argBinders bodyExpr)
     = printConditionalParentheses (prec > 0) . printIndented $ printConcat
       [ printString "\\"
       , prettyPrintList prettyPrintSpace argBinders
@@ -117,9 +116,9 @@ prettyPrintBinaryExpressionPrec prec op e1 e2
           _ -> (applicationPrecedence1, applicationPrecedence, applicationPrecedence1)
 {-# INLINEABLE prettyPrintBinaryExpressionPrec #-}
 
-instance (PrettyPrintable a, PrettyPrintable (expr_ a)) => PrettyPrintable (Expression# expr_ a) where
-  prettyPrintPrec _ (EInteger# int#) = printShowable int#
-  prettyPrintPrec _ (EConstructor# tag arity)
+instance (PrettyPrintable a, PrettyPrintable (expr_ a)) => PrettyPrintable (Expression_ expr_ a) where
+  prettyPrintPrec _ (EInteger_ int_) = printShowable int_
+  prettyPrintPrec _ (EConstructor_ tag arity)
     = printConcat
       [ printString "$C{"
       , printShowable tag
@@ -127,14 +126,14 @@ instance (PrettyPrintable a, PrettyPrintable (expr_ a)) => PrettyPrintable (Expr
       , printShowable arity
       , printString "}"
       ]
-  prettyPrintPrec _ (EVariable# vId) = prettyPrint vId
-  prettyPrintPrec prec (EApplication# e1 e2)
+  prettyPrintPrec _ (EVariable_ vId) = prettyPrint vId
+  prettyPrintPrec prec (EApplication_ e1 e2)
     = printConditionalParentheses (prec > applicationPrecedence) . printIndented $ printConcat
       [ prettyPrintPrec applicationPrecedence e1
       , prettyPrintSpace
       , prettyPrintPrec applicationPrecedence1 e2
       ]
-  prettyPrintPrec prec (ELet# flag letDefs e)
+  prettyPrintPrec prec (ELet_ flag letDefs e)
     = printConditionalParentheses (prec > 0) . printIndented $ printConcat
       [ printString keyword
 
@@ -156,7 +155,7 @@ instance (PrettyPrintable a, PrettyPrintable (expr_ a)) => PrettyPrintable (Expr
       keyword
         | isRecursive flag = "letrec"
         | otherwise = "let"
-  prettyPrintPrec prec (EMatch# e matchCases)
+  prettyPrintPrec prec (EMatch_ e matchCases)
     = printConditionalParentheses (prec > 0) . printIndented $ printConcat
       [ printString "match "
       , prettyPrint e
@@ -168,7 +167,7 @@ instance (PrettyPrintable a, PrettyPrintable (expr_ a)) => PrettyPrintable (Expr
       , printIndented (prettyPrintList prettyPrintSeparatorWithNewline matchCases)
       ]
 
-instance (PrettyPrintable a, PrettyPrintable (expr_ a)) => PrettyPrintable (MatchCase# expr_ a) where
+instance (PrettyPrintable a, PrettyPrintable (expr_ a)) => PrettyPrintable (MatchCase_ expr_ a) where
   prettyPrint (tag, argBinders, bodyExpr)
     = printConcat
       [ printString "<"
@@ -182,7 +181,7 @@ instance (PrettyPrintable a, PrettyPrintable (expr_ a)) => PrettyPrintable (Matc
       , prettyPrint bodyExpr
       ]
 
-instance (PrettyPrintable a, PrettyPrintable (expr_ a)) => PrettyPrintable (LetDefinition# expr_ a) where
+instance (PrettyPrintable a, PrettyPrintable (expr_ a)) => PrettyPrintable (LetDefinition_ expr_ a) where
   prettyPrint (binder, bodyExpr)
     = printConcat
       [ prettyPrint binder
