@@ -3,7 +3,7 @@ module Main where
 import Minicute.Data.PrintSequence ( toString )
 import Minicute.Parser.Parser ( programL )
 import Minicute.PrettyPrintable ( prettyPrint )
-import Minicute.Transpiler.FreeVariables ( formFreeVariablesMainL )
+import Minicute.Transpiler.LambdaLifting ( lambdaLifting )
 import System.Environment
 import System.IO
 import Text.Megaparsec ( errorBundlePretty, parse )
@@ -27,11 +27,11 @@ compile handle = do
       print program
       putStrLn "program by pretty printing:"
       putStrLn (toString (prettyPrint program))
-      let annotatedProgram = formFreeVariablesMainL program
-      putStrLn "annotated program by show:"
-      print annotatedProgram
-      putStrLn "annotated program by pretty printing:"
-      putStrLn (toString (prettyPrint annotatedProgram))
+      let liftedProgram = lambdaLifting program
+      putStrLn "lifted program by show:"
+      print liftedProgram
+      putStrLn "lifted program by pretty printing:"
+      putStrLn (toString (prettyPrint liftedProgram))
     Left err -> do
       putStrLn "error:"
       putStrLn (errorBundlePretty err)

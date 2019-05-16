@@ -5,9 +5,13 @@ module Minicute.Transpiler.VariablesRenaming
   ( renameVariablesMainL
   ) where
 
-import Control.Lens
+import Control.Lens.Each
+import Control.Lens.Iso ( coerced )
+import Control.Lens.Operators
+import Control.Lens.Type
 import Control.Monad.State
 import Control.Monad.Reader
+import Data.Function
 import Minicute.Data.Fix
 import Minicute.Types.Minicute.Program
 
@@ -18,41 +22,42 @@ renameVariablesMainL = renameVariablesL id
 {-# INLINABLE renameVariablesMainL #-}
 
 renameVariablesL :: Lens' a Identifier -> ProgramL a -> ProgramL a
-renameVariablesL _a = renameVariables# _a (renameVariablesEL _a)
-{-# INLINABLE renameVariablesL #-}
-
-renameVariables# :: Lens' a Identifier -> Renamer expr -> Program# a expr -> Program# a expr
-renameVariables# _a rExpr
+renameVariablesL _a
   = flip evalState initialIdGeneratorState
     . flip runReaderT initialRenamedRecord
-    . traverseOf _supercombinators renameScs
+    . renameVariables# _a (renameVariablesEL _a)
+{-# INLINABLE renameVariablesL #-}
+
+renameVariables# :: Lens' a Identifier -> Renamer (expr a) -> Renamer (Program# a expr)
+renameVariables# _a rExpr
+  = _supercombinators %%~ renameScs
   where
     renameScs scs = do
       scsBinders' <- traverse renameScBinder scsBinders
       let
-        scsUpdateBinders = zipWith (set _supercombinatorBinder) scsBinders'
-        scsBinderRecord = renamedRecordFromIdList (zip scsBinders scsBinders')
+        scsUpdateBinders = zipWith (_supercombinatorBinder .~) scsBinders'
+        scsBinderRecord = renamedRecordFromIdLists scsBinders scsBinders'
 
         {-# INLINABLE scsUpdateBinders #-}
         {-# INLINABLE scsBinderRecord #-}
       local (scsBinderRecord <>) . renameScsArgsAndBody . scsUpdateBinders $ scs
       where
-        scsBinders = view _supercombinatorBinder <$> scs
+        scsBinders = scs ^.. each . _supercombinatorBinder
 
         renameScsArgsAndBody = traverse renameScArgsAndBody
         renameScArgsAndBody sc = do
-          scArgs' <- traverse (renameA _a) scArgs
+          scArgs' <- renameAs _a scArgs
           let
-            scUpdateArgs = set _supercombinatorArguments scArgs'
-            scArgRecord = renamedRecordFromAList _a (zip scArgs scArgs')
+            scUpdateArgs = _supercombinatorArguments .~ scArgs'
+            scArgRecord = renamedRecordFromALists _a scArgs scArgs'
 
             {-# INLINABLE scUpdateArgs #-}
             {-# INLINABLE scArgRecord #-}
           local (scArgRecord <>) . renameScBody . scUpdateArgs $ sc
           where
-            scArgs = view _supercombinatorArguments sc
+            scArgs = sc ^. _supercombinatorArguments
 
-            renameScBody = traverseOf _supercombinatorBody rExpr
+            renameScBody = _supercombinatorBody %%~ rExpr
 
             {-# INLINABLE renameScBody #-}
 
@@ -65,16 +70,16 @@ renameVariables# _a rExpr
     {-# INLINABLE renameScBinder #-}
 
 renameVariablesEL :: Lens' a Identifier -> Renamer (ExpressionL a)
-renameVariablesEL _a = over coerced (renameVariablesEL# _a (renameVariablesEL _a))
+renameVariablesEL _a = coerced %~ renameVariablesEL# _a (renameVariablesEL _a)
 {-# INLINABLE renameVariablesEL #-}
 
 renameVariablesEL# :: Lens' a Identifier -> Renamer (expr_ a) -> Renamer (ExpressionL# expr_ a)
 renameVariablesEL# _a rExpr (ELExpression# expr#)
   = ELExpression# <$> renameVariablesE# _a rExpr expr#
 renameVariablesEL# _a rExpr (ELLambda# args expr) = do
-  args' <- traverse (renameA _a) args
+  args' <- renameAs _a args
   let
-    argRecord = renamedRecordFromAList _a (zip args args')
+    argRecord = renamedRecordFromALists _a args args'
     renameExpr = local (argRecord <>) . rExpr
 
     {-# INLINABLE argRecord #-}
@@ -90,10 +95,10 @@ renameVariablesE# _ rExpr (EApplication# e1 e2)
   = EApplication# <$> rExpr e1 <*> rExpr e2
 renameVariablesE# _a rExpr (ELet# flag lDefs expr) = do
   record <- ask
-  lDefsBinders' <- traverse (renameA _a) lDefsBinders
+  lDefsBinders' <- renameAs _a lDefsBinders
   let
-    lDefsUpdateBinders = zipWith (set _letDefinitionBinder) lDefsBinders'
-    lDefsBinderRecord = renamedRecordFromAList _a (zip lDefsBinders lDefsBinders')
+    lDefsUpdateBinders = zipWith (_letDefinitionBinder .~) lDefsBinders'
+    lDefsBinderRecord = renamedRecordFromALists _a lDefsBinders lDefsBinders'
     -- |
     -- Execute '<>' once.
     -- '<>' on 'Map.Map' takes O(m*log(n/m + 1)), i.e., not that cheap.
@@ -111,9 +116,9 @@ renameVariablesE# _a rExpr (ELet# flag lDefs expr) = do
     {-# INLINABLE renameExpr #-}
   ELet# flag <$> renameLDefs lDefs <*> renameExpr expr
   where
-    lDefsBinders = view _letDefinitionBinder <$> lDefs
+    lDefsBinders = lDefs ^.. each . _letDefinitionBinder
 
-    renameLDefsBodies = traverse (traverseOf _letDefinitionBody rExpr)
+    renameLDefsBodies = each . _letDefinitionBody %%~ rExpr
 
     {-# INLINABLE renameLDefsBodies #-}
 renameVariablesE# _a rExpr (EMatch# expr mCases)
@@ -121,18 +126,18 @@ renameVariablesE# _a rExpr (EMatch# expr mCases)
   where
     renameMCases = traverse renameMCase
     renameMCase mCase = do
-      mCaseArgs' <- traverse (renameA _a) mCaseArgs
+      mCaseArgs' <- renameAs _a mCaseArgs
       let
-        mCaseUpdateArgs = set _matchCaseArguments mCaseArgs'
-        mCaseArgRecord = renamedRecordFromAList _a (zip mCaseArgs mCaseArgs')
+        mCaseUpdateArgs = _matchCaseArguments .~ mCaseArgs'
+        mCaseArgRecord = renamedRecordFromALists _a mCaseArgs mCaseArgs'
 
         {-# INLINABLE mCaseUpdateArgs #-}
         {-# INLINABLE mCaseArgRecord #-}
       local (mCaseArgRecord <>) . renameMCaseBody . mCaseUpdateArgs $ mCase
       where
-        mCaseArgs = view _matchCaseArguments mCase
+        mCaseArgs = mCase ^. _matchCaseArguments
 
-        renameMCaseBody = traverseOf _matchCaseBody rExpr
+        renameMCaseBody = _matchCaseBody %%~ rExpr
 
         {-# INLINABLE renameMCaseBody #-}
 
@@ -140,9 +145,9 @@ renameVariablesE# _a rExpr (EMatch# expr mCases)
 
 type Renamer a = a -> ReaderT RenamedRecord (State IdGeneratorState) a
 
-renameA :: Lens' a Identifier -> Renamer a
-renameA _a = traverseOf _a renameIdentifier
-{-# INLINABLE renameA #-}
+renameAs :: Traversal' a Identifier -> Renamer [a]
+renameAs _a = each . _a %%~ renameIdentifier
+{-# INLINABLE renameAs #-}
 
 renameIdentifier :: Renamer Identifier
 renameIdentifier = lift . generateId
@@ -154,13 +159,13 @@ initialRenamedRecord :: RenamedRecord
 initialRenamedRecord = Map.empty
 {-# INLINABLE initialRenamedRecord #-}
 
-renamedRecordFromAList :: Lens' a Identifier -> [(a, a)] -> RenamedRecord
-renamedRecordFromAList _a = renamedRecordFromIdList . (view (alongside _a _a) <$>)
-{-# INLINABLE renamedRecordFromAList #-}
+renamedRecordFromALists :: Lens' a Identifier -> [a] -> [a] -> RenamedRecord
+renamedRecordFromALists _a = renamedRecordFromIdLists `on` (^.. each . _a)
+{-# INLINABLE renamedRecordFromALists #-}
 
-renamedRecordFromIdList :: [(Identifier, Identifier)] -> RenamedRecord
-renamedRecordFromIdList = Map.fromList
-{-# INLINABLE renamedRecordFromIdList #-}
+renamedRecordFromIdLists :: [Identifier] -> [Identifier] -> RenamedRecord
+renamedRecordFromIdLists = (Map.fromList .) . zip
+{-# INLINABLE renamedRecordFromIdLists #-}
 
 type IdGeneratorState = Int
 

@@ -49,23 +49,25 @@ module Minicute.Types.Minicute.Program
   , _supercombinators
   ) where
 
-import Control.Lens
+import Control.Lens.Lens ( lens )
+import Control.Lens.Tuple
+import Control.Lens.Type
 import Data.Data
 import GHC.Generics
 import GHC.Show ( appPrec, appPrec1 )
 import Minicute.Types.Minicute.Expression
 
-type Supercombinator# a expr = (Identifier, [a], expr)
+type Supercombinator# a expr = (Identifier, [a], expr a)
 
-type Supercombinator a = Supercombinator# a (Expression a)
+type Supercombinator a = Supercombinator# a Expression
 type MainSupercombinator = Supercombinator Identifier
 
-type SupercombinatorL a = Supercombinator# a (ExpressionL a)
+type SupercombinatorL a = Supercombinator# a ExpressionL
 type MainSupercombinatorL = SupercombinatorL Identifier
 
-type AnnotatedSupercombinator ann a = Supercombinator# a (AnnotatedExpression ann a)
+type AnnotatedSupercombinator ann a = Supercombinator# a (AnnotatedExpression ann)
 
-type AnnotatedSupercombinatorL ann a = Supercombinator# a (AnnotatedExpressionL ann a)
+type AnnotatedSupercombinatorL ann a = Supercombinator# a (AnnotatedExpressionL ann)
 
 _supercombinatorBinder :: Lens' (Supercombinator# a expr) Identifier
 _supercombinatorBinder = _1
@@ -75,7 +77,7 @@ _supercombinatorArguments :: Lens' (Supercombinator# a expr) [a]
 _supercombinatorArguments = _2
 {-# INLINEABLE _supercombinatorArguments #-}
 
-_supercombinatorBody :: Lens (Supercombinator# a expr1) (Supercombinator# a expr2) expr1 expr2
+_supercombinatorBody :: Lens (Supercombinator# a expr1) (Supercombinator# a expr2) (expr1 a) (expr2 a)
 _supercombinatorBody = _3
 {-# INLINEABLE _supercombinatorBody #-}
 
@@ -90,7 +92,7 @@ newtype Program# a expr
            , Show
            )
 
-type Program a = Program# a (Expression a)
+type Program a = Program# a Expression
 type MainProgram = Program Identifier
 pattern Program sc = Program# sc
 {-# COMPLETE Program #-}
@@ -99,7 +101,7 @@ instance {-# OVERLAPS #-} (Show a) => Show (Program a) where
   showsPrec = showProgram# "Program "
 
 
-type ProgramL a = Program# a (ExpressionL a)
+type ProgramL a = Program# a ExpressionL
 type MainProgramL = ProgramL Identifier
 pattern ProgramL sc = Program# sc
 {-# COMPLETE ProgramL #-}
@@ -108,7 +110,7 @@ instance {-# OVERLAPS #-} (Show a) => Show (ProgramL a) where
   showsPrec = showProgram# "ProgramL "
 
 
-type AnnotatedProgram ann a = Program# a (AnnotatedExpression ann a)
+type AnnotatedProgram ann a = Program# a (AnnotatedExpression ann)
 pattern AnnotatedProgram sc = Program# sc
 {-# COMPLETE AnnotatedProgram #-}
 
@@ -116,14 +118,14 @@ instance {-# OVERLAPS #-} (Show ann, Show a) => Show (AnnotatedProgram ann a) wh
   showsPrec = showProgram# "AnnotatedProgram "
 
 
-type AnnotatedProgramL ann a = Program# a (AnnotatedExpressionL ann a)
+type AnnotatedProgramL ann a = Program# a (AnnotatedExpressionL ann)
 pattern AnnotatedProgramL sc = Program# sc
 {-# COMPLETE AnnotatedProgramL #-}
 
 instance {-# OVERLAPS #-} (Show ann, Show a) => Show (AnnotatedProgramL ann a) where
   showsPrec = showProgram# "AnnotatedProgramL "
 
-showProgram# :: (Show a, Show expr) => String -> Int -> Program# a expr -> ShowS
+showProgram# :: (Show a, Show (expr a)) => String -> Int -> Program# a expr -> ShowS
 showProgram# name p (Program# scs)
   = showParen (p > appPrec)
     $ showString name . showsPrec appPrec1 scs

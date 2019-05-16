@@ -7,6 +7,8 @@ import Data.List.Extra
 import Language.Haskell.TH
 import Language.Haskell.TH.Quote
 import Minicute.Data.String
+import Minicute.Parser.Parser
+import Text.Megaparsec
 
 qqMini :: QuasiQuoter
 qqMini
@@ -31,7 +33,7 @@ qqMiniExp = parseCaseExp . parseExp . qqCodeExp
   where
     parseExp :: Q Exp -> Q Exp
     parseExp e
-      = [| $(dyn "parse") $(dyn "programL") "" $(e) |]
+      = [| parse programL "" $(e) |]
     parseCaseExp :: Q Exp -> Q Exp
     parseCaseExp e
       = [| case $(e) of
