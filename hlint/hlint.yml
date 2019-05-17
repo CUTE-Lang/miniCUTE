@@ -71,6 +71,9 @@
     - warn: {lhs: "(^. partsOf a)", rhs: "(^.. a)"}
     - warn: {lhs: "traverse (a %%~ b)", rhs: "(each . a) %%~ b"}
 
+- extensions:
+  - name: ["MagicHash"]
+
 - modules:
   - {name: ["Control.Monad.Combinators"], as: "Comb"}
   - {name: ["Control.Monad.Combinators.Expr"], as: "CombExpr"}

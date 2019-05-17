@@ -1,4 +1,3 @@
-{-# LANGUAGE MagicHash #-}
 {-# LANGUAGE RankNTypes #-}
 module Minicute.Transpiler.FreeVariables
   ( ProgramLWithFreeVariables
@@ -23,8 +22,8 @@ import qualified Data.Set.Lens as Set
 type ProgramLWithFreeVariables a = AnnotatedProgramL FreeVariables a
 type ExpressionLWithFreeVariables a = AnnotatedExpressionL FreeVariables a
 
-type ExpressionWithFreeVariables# = AnnotatedExpression# FreeVariables Expression#
-type ExpressionLWithFreeVariables# = AnnotatedExpression# FreeVariables ExpressionL#
+type ExpressionWithFreeVariables_ = AnnotatedExpression_ FreeVariables Expression_
+type ExpressionLWithFreeVariables_ = AnnotatedExpression_ FreeVariables ExpressionL_
 
 -- |
 -- Set of identifiers those are free variables of
@@ -52,17 +51,17 @@ type FVELEnvironment = Set.Set Identifier
 type FVFormer e e' = e -> Reader FVELEnvironment e'
 
 formFVsEL :: Getter a Identifier -> FVFormer (ExpressionL a) (ExpressionLWithFreeVariables a)
-formFVsEL _a = coerced %~ formFVsEL# _a _fv (formFVsEL _a)
+formFVsEL _a = coerced %~ formFVsEL_ _a _fv (formFVsEL _a)
   where
     _fv :: Lens' (AnnotatedExpressionL FreeVariables a) FreeVariables
-    _fv = coerced . (_annotation :: Lens' (Fix2' ExpressionLWithFreeVariables# a) FreeVariables)
+    _fv = coerced . (_annotation :: Lens' (Fix2' ExpressionLWithFreeVariables_ a) FreeVariables)
 
-formFVsEL# :: Getter a Identifier -> Getter (aExpr_ a) FreeVariables -> FVFormer (expr_ a) (aExpr_ a) -> FVFormer (ExpressionL# expr_ a) (ExpressionLWithFreeVariables# aExpr_ a)
-formFVsEL# _a _fv fExpr (ELExpression# expr#) = liftAnnExpr <$> formFVsE# _a _fv fExpr expr#
+formFVsEL_ :: Getter a Identifier -> Getter (aExpr_ a) FreeVariables -> FVFormer (expr_ a) (aExpr_ a) -> FVFormer (ExpressionL_ expr_ a) (ExpressionLWithFreeVariables_ aExpr_ a)
+formFVsEL_ _a _fv fExpr (ELExpression_ expr_) = liftAnnExpr <$> formFVsE_ _a _fv fExpr expr_
   where
-    liftAnnExpr (AnnotatedExpression# (ann, aExpr'))
-      = AnnotatedExpression# (ann, ELExpression# aExpr')
-formFVsEL# _a _fv fExpr (ELLambda# args expr) = do
+    liftAnnExpr (AnnotatedExpression_ (ann, aExpr'))
+      = AnnotatedExpression_ (ann, ELExpression_ aExpr')
+formFVsEL_ _a _fv fExpr (ELLambda_ args expr) = do
   expr' <- local (argIdSet <>) . fExpr $ expr
 
   let
@@ -71,14 +70,14 @@ formFVsEL# _a _fv fExpr (ELLambda# args expr) = do
 
     {-# INLINEABLE fvsExpr' #-}
     {-# INLINEABLE fvs #-}
-  return (AnnotatedExpression# (fvs, ELLambda# args expr'))
+  return (AnnotatedExpression_ (fvs, ELLambda_ args expr'))
   where
     argIdSet = args ^. setFrom (each . _a)
 
-formFVsE# :: Getter a Identifier -> Getter (aExpr_ a) FreeVariables -> FVFormer (expr_ a) (aExpr_ a) -> FVFormer (Expression# expr_ a) (ExpressionWithFreeVariables# aExpr_ a)
-formFVsE# _ _ _ (EInteger# n) = return (AnnotatedExpression# (Set.empty, EInteger# n))
-formFVsE# _ _ _ (EConstructor# tag arity) = return (AnnotatedExpression# (Set.empty, EConstructor# tag arity))
-formFVsE# _ _ _ (EVariable# v) = do
+formFVsE_ :: Getter a Identifier -> Getter (aExpr_ a) FreeVariables -> FVFormer (expr_ a) (aExpr_ a) -> FVFormer (Expression_ expr_ a) (ExpressionWithFreeVariables_ aExpr_ a)
+formFVsE_ _ _ _ (EInteger_ n) = return (AnnotatedExpression_ (Set.empty, EInteger_ n))
+formFVsE_ _ _ _ (EConstructor_ tag arity) = return (AnnotatedExpression_ (Set.empty, EConstructor_ tag arity))
+formFVsE_ _ _ _ (EVariable_ v) = do
   env <- ask
 
   let
@@ -87,8 +86,8 @@ formFVsE# _ _ _ (EVariable# v) = do
       | otherwise = Set.empty
 
     {-# INLINEABLE fvs #-}
-  return (AnnotatedExpression# (fvs, EVariable# v))
-formFVsE# _ _fv fExpr (EApplication# expr1 expr2) = do
+  return (AnnotatedExpression_ (fvs, EVariable_ v))
+formFVsE_ _ _fv fExpr (EApplication_ expr1 expr2) = do
   expr1' <- fExpr expr1
   expr2' <- fExpr expr2
 
@@ -96,8 +95,8 @@ formFVsE# _ _fv fExpr (EApplication# expr1 expr2) = do
     fvs = expr1' ^. _fv <> expr2' ^. _fv
 
     {-# INLINEABLE fvs #-}
-  return (AnnotatedExpression# (fvs, EApplication# expr1' expr2'))
-formFVsE# _a _fv fExpr (ELet# flag lDefs expr) = do
+  return (AnnotatedExpression_ (fvs, EApplication_ expr1' expr2'))
+formFVsE_ _a _fv fExpr (ELet_ flag lDefs expr) = do
   env <- ask
 
   let
@@ -125,10 +124,10 @@ formFVsE# _a _fv fExpr (ELet# flag lDefs expr) = do
     {-# INLINEABLE fvsLDefs' #-}
     {-# INLINEABLE fvsExpr' #-}
     {-# INLINEABLE fvs #-}
-  return (AnnotatedExpression# (fvs, ELet# flag lDefs' expr'))
+  return (AnnotatedExpression_ (fvs, ELet_ flag lDefs' expr'))
   where
     lDefsBinderIdSet = lDefs ^. setFrom (each . _letDefinitionBinder . _a)
-formFVsE# _a _fv fExpr (EMatch# expr mCases) = do
+formFVsE_ _a _fv fExpr (EMatch_ expr mCases) = do
   let
     formMCaseBodies mCaseArgSet = local (mCaseArgSet <>) . fExpr
     formMCase mCaseArgSet = _matchCaseBody %%~ formMCaseBodies mCaseArgSet
@@ -146,7 +145,7 @@ formFVsE# _a _fv fExpr (EMatch# expr mCases) = do
     {-# INLINEABLE fvssMCasesBodies' #-}
     {-# INLINEABLE fvsMCases' #-}
     {-# INLINEABLE fvs #-}
-  return (AnnotatedExpression# (fvs, EMatch# expr' mCases'))
+  return (AnnotatedExpression_ (fvs, EMatch_ expr' mCases'))
   where
     mCasesArgumentSets = mCases ^.. each . _matchCaseArguments . setFrom (each . _a)
 
