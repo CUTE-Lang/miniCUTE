@@ -69,6 +69,7 @@ module Minicute.Types.Minicute.Expression
   , pattern ELLet
   , pattern ELMatch
   , pattern ELLambda
+  , pattern ELExpression
 
 
   , AnnotatedExpression_( .. )
@@ -233,9 +234,8 @@ pattern ELLet flag lds e = ELExpression (ELet_ flag lds e)
 pattern ELMatch e mcs = ELExpression (EMatch_ e mcs)
 pattern ELLambda as e = Fix2 (ELLambda_ as e)
 {-# COMPLETE ELInteger, ELConstructor, ELVariable, ELApplication, ELLet, ELMatch, ELLambda #-}
--- |
--- Internal pattern
 pattern ELExpression e = Fix2 (ELExpression_ e)
+{-# COMPLETE ELExpression, ELLambda #-}
 
 instance {-# OVERLAPS #-} (Show a) => Show (ExpressionL a) where
   showsPrec p (ELInteger n)
