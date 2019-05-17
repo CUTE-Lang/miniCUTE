@@ -27,7 +27,7 @@ renameVariablesL _a
     . renameVariables_ _a (renameVariablesEL _a)
 {-# INLINABLE renameVariablesL #-}
 
-renameVariables_ :: Lens' a Identifier -> Renamer (expr a) -> Renamer (Program_ a expr)
+renameVariables_ :: Lens' a Identifier -> Renamer (expr a) -> Renamer (Program_ expr a)
 renameVariables_ _a rExpr
   = _supercombinators %%~ renameScs
   where

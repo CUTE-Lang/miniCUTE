@@ -31,10 +31,10 @@ prettyPrintList :: (PrettyPrintable a) => PrintSequence -> [a] -> PrintSequence
 prettyPrintList sep = printIntersperse sep . fmap prettyPrint
 {-# INLINEABLE prettyPrintList #-}
 
-instance (PrettyPrintable a, PrettyPrintable (expr a)) => PrettyPrintable (Program_ a expr) where
+instance (PrettyPrintable a, PrettyPrintable (expr a)) => PrettyPrintable (Program_ expr a) where
   prettyPrint (Program_ scs) = prettyPrintList prettyPrintSeparatorWithNewline scs
 
-instance (PrettyPrintable a, PrettyPrintable (expr a)) => PrettyPrintable (Supercombinator_ a expr) where
+instance (PrettyPrintable a, PrettyPrintable (expr a)) => PrettyPrintable (Supercombinator_ expr a) where
   prettyPrint (scId, argBinders, expr)
     = printConcat
       [ prettyPrint scId
