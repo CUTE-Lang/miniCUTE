@@ -26,10 +26,10 @@ spec = do
 programLTest :: TestName -> TestContent -> TestResult -> SpecWith (Arg Expectation)
 programLTest name content (TestSuccess result) = do
   it ("parses " <> name <> " successfully") $ do
-    parse P.programL "" content `shouldParse` result
+    parse P.mainProgramL "" content `shouldParse` result
 programLTest name content (TestFail parseError) = do
   it ("fails to parse " <> name) $ do
-    parse P.programL "" content `shouldFailWith` parseError
+    parse P.mainProgramL "" content `shouldFailWith` parseError
 
 type TestName = String
 type TestContent = String

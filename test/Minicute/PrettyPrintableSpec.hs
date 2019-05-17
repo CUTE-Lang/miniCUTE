@@ -27,15 +27,15 @@ programLTest name programString = do
   describe ("with " <> name) $ do
     it "prints re-parsable text" $ do
       program <- parseProgramL programString
-      parse P.programL "" (PS.toString (PP.prettyPrint program)) `shouldParse` program
+      parse P.mainProgramL "" (PS.toString (PP.prettyPrint program)) `shouldParse` program
     it "prints expected text" $ do
       program <- parseProgramL programString
       PS.toString (PP.prettyPrint program) `shouldBe` programString
   where
     parseProgramL :: String -> IO MainProgramL
     parseProgramL ps = do
-      parse P.programL "" ps `shouldSatisfy` isRight
-      case parse P.programL "" ps of
+      parse P.mainProgramL "" ps `shouldSatisfy` isRight
+      case parse P.mainProgramL "" ps of
         Right program -> return program
         Left e -> error (errorBundlePretty e)
 

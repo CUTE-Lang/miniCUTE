@@ -33,7 +33,7 @@ qqMiniExp = parseCaseExp . parseExp . qqCodeExp
   where
     parseExp :: Q Exp -> Q Exp
     parseExp e
-      = [| parse programL "" $(e) |]
+      = [| parse mainProgramL "" $(e) |]
     parseCaseExp :: Q Exp -> Q Exp
     parseCaseExp e
       = [| case $(e) of

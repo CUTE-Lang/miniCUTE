@@ -4,7 +4,7 @@ module Minicute.Parser.Parser
   ( Parser
 
   , MainProgramL
-  , programL
+  , mainProgramL
   ) where
 
 import Control.Monad.Reader ( runReaderT, mapReaderT, ask )
@@ -19,8 +19,11 @@ import qualified Control.Monad.Combinators as Comb
 import qualified Control.Monad.Combinators.Expr as CombExpr
 import qualified Minicute.Parser.Lexer as L
 
-programL :: Parser MainProgramL
-programL = program_ L.identifier (expressionL L.identifier)
+mainProgramL :: Parser MainProgramL
+mainProgramL = programL L.identifier
+
+programL :: (MonadParser e s m) => WithPrecedence m a -> m (ProgramL a)
+programL pA = program_ pA (expressionL pA)
 
 expressionL :: (MonadParser e s m) => WithPrecedence m a -> WithPrecedence m (ExpressionL a)
 expressionL pA
