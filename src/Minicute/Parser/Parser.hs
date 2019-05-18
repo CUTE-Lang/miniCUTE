@@ -5,8 +5,10 @@ module Minicute.Parser.Parser
 
   , MainProgramL
   , mainProgramL
-  ) where
 
+  , MainProgram
+  , mainProgram
+  ) where
 import Control.Monad.Reader ( runReaderT, mapReaderT, ask )
 import Data.List.Extra
 import Data.Functor
@@ -25,37 +27,37 @@ mainProgramL = programL L.identifier
 programL :: (MonadParser e s m) => WithPrecedence m a -> m (ProgramL a)
 programL pA = program_ pA (expressionL pA)
 
+
 expressionL :: (MonadParser e s m) => WithPrecedence m a -> WithPrecedence m (ExpressionL a)
-expressionL pA
-  = choice
-    [ ELExpression <$> letExpression_ pA (expressionL pA) Recursive
-    , ELExpression <$> letExpression_ pA (expressionL pA) NonRecursive
-    , ELExpression <$> matchExpression_ pA (expressionL pA)
-    , Fix2 <$> lambdaExpressionL_ pA (expressionL pA)
-    , otherExpressionsByPrecL pA
-    ]
-    <?> "expression"
+expressionL pA = go
+  where
+    go
+      = choice
+        [ ELExpression <$> complexExpression_ pA go
+        , Fix2 <$> lambdaExpressionL_ pA go
+        , otherExpressionsByPrec_ ELExpression pA go
+        ]
+        <?> "expression"
 {-# INLINEABLE expressionL #-}
 
-otherExpressionsByPrecL :: (MonadParser e s m) => WithPrecedence m a -> WithPrecedence m (ExpressionL a)
-otherExpressionsByPrecL pA
-  = ask >>= CombExpr.makeExprParser (applicationExpressionL pA) . createOperatorTableL
-{-# INLINEABLE otherExpressionsByPrecL #-}
 
-applicationExpressionL :: (MonadParser e s m) => WithPrecedence m a -> WithPrecedence m (ExpressionL a)
-applicationExpressionL pA
-  = foldl' ELApplication <$> atomicExpressionL pA <*> many (atomicExpressionL pA)
-{-# INLINEABLE applicationExpressionL #-}
+mainProgram :: Parser MainProgram
+mainProgram = program L.identifier
 
-atomicExpressionL :: (MonadParser e s m) => WithPrecedence m a -> WithPrecedence m (ExpressionL a)
-atomicExpressionL pA
-  = choice
-    [ ELExpression <$> integerExpression_
-    , ELExpression <$> variableExpression_
-    , ELExpression <$> constructorExpression_
-    , mapReaderT L.betweenRoundBrackets (expressionL pA) <?> "expression with parentheses"
-    ]
-{-# INLINEABLE atomicExpressionL #-}
+program :: (MonadParser e s m) => WithPrecedence m a -> m (Program a)
+program pA = program_ pA (expression pA)
+
+
+expression :: (MonadParser e s m) => WithPrecedence m a -> WithPrecedence m (Expression a)
+expression pA = go
+  where
+    go
+      = choice
+        [ Fix2 <$> complexExpression_ pA go
+        , otherExpressionsByPrec_ Fix2 pA go
+        ]
+        <?> "expression"
+{-# INLINEABLE expression #-}
 
 
 program_ :: (MonadParser e s m) => WithPrecedence m a -> WithPrecedence m (expr a) -> m (Program_ expr a)
@@ -64,9 +66,9 @@ program_ pA pExpr = do
   ps <- getParserState
   pt <- precedenceTable
   setParserState ps
-  program <- Program_ <$> runReaderT (sepEndBy (supercombinator_ pA pExpr) (L.symbol ";")) pt
+  result <- Program_ <$> runReaderT (sepEndBy (supercombinator_ pA pExpr) (L.symbol ";")) pt
   void eof
-  return program
+  return result
 
 precedenceTable :: (MonadParser e s m) => m PrecedenceTable
 precedenceTable = return defaultPrecedenceTable
@@ -89,6 +91,15 @@ lambdaExpressionL_ pA pExpr
     <*> pExpr
     <?> "lambda expression"
 {-# INLINEABLE lambdaExpressionL_ #-}
+
+
+complexExpression_ :: (MonadParser e s m) => WithPrecedence m a -> WithPrecedence m (expr_ a) -> WithPrecedence m (Expression_ expr_ a)
+complexExpression_ pA pExpr
+  = choice
+    [ letExpression_ pA pExpr Recursive
+    , letExpression_ pA pExpr NonRecursive
+    , matchExpression_ pA pExpr
+    ]
 
 letExpression_ :: (MonadParser e s m) => WithPrecedence m a -> WithPrecedence m (expr_ a) -> IsRecursive -> WithPrecedence m (Expression_ expr_ a)
 letExpression_ pA pExpr flag
@@ -160,6 +171,48 @@ matchCase_ pA pExpr
     <?> "match case"
 {-# INLINEABLE matchCase_ #-}
 
+
+otherExpressionsByPrec_
+  :: (MonadParser e s m)
+  => (Expression_ expr_ a -> expr_ a)
+  -> WithPrecedence m a
+  -> WithPrecedence m (expr_ a)
+  -> WithPrecedence m (expr_ a)
+otherExpressionsByPrec_ wrap pA pExpr
+  = ask
+    >>= CombExpr.makeExprParser (applicationExpression_ wrap pA pExpr)
+    . createOperatorTable_ eVariable_ eApplication_ eApplication2_
+  where
+    eVariable_ v = wrap (EVariable_ v)
+    eApplication_ e1 e2 = wrap (EApplication_ e1 e2)
+    eApplication2_ e1 e2 e3 = wrap (EApplication_ (wrap (EApplication_ e1 e2)) e3)
+{-# INLINEABLE otherExpressionsByPrec_ #-}
+
+applicationExpression_
+  :: (MonadParser e s m)
+  => (Expression_ expr_ a -> expr_ a)
+  -> WithPrecedence m a
+  -> WithPrecedence m (expr_ a)
+  -> WithPrecedence m (expr_ a)
+applicationExpression_ wrap pA pExpr
+  = foldl' ((wrap .) . EApplication_) <$> atomicExpression_ wrap pA pExpr <*> many (atomicExpression_ wrap pA pExpr)
+{-# INLINEABLE applicationExpression_ #-}
+
+atomicExpression_
+  :: (MonadParser e s m)
+  => (Expression_ expr_ a -> expr_ a)
+  -> WithPrecedence m a
+  -> WithPrecedence m (expr_ a)
+  -> WithPrecedence m (expr_ a)
+atomicExpression_ wrap _ pExpr
+  = choice
+    [ wrap <$> integerExpression_
+    , wrap <$> variableExpression_
+    , wrap <$> constructorExpression_
+    , mapReaderT L.betweenRoundBrackets pExpr <?> "expression with parentheses"
+    ]
+{-# INLINEABLE atomicExpression_ #-}
+
 integerExpression_ :: (MonadParser e s m) => m (Expression_ expr_ a)
 integerExpression_ = EInteger_ <$> L.integer <?> "integer"
 {-# INLINEABLE integerExpression_ #-}
@@ -191,13 +244,13 @@ separator :: (MonadParser e s m) => m ()
 separator = L.symbol ";"
 {-# INLINEABLE separator #-}
 
-createOperatorTableL :: (MonadParser e s m) => PrecedenceTable -> [[CombExpr.Operator m (ExpressionL a)]]
-createOperatorTableL = (fmap . fmap) createOperatorL . groupSortOn (negate . precedence . snd)
-{-# INLINEABLE createOperatorTableL #-}
+createOperatorTable_ :: (MonadParser e s m) => (Identifier -> expr) -> (expr -> expr -> expr) -> (expr -> expr -> expr -> expr) -> PrecedenceTable -> [[CombExpr.Operator m expr]]
+createOperatorTable_ cVar cUn cBar = (fmap . fmap) (createOperator_ cVar cUn cBar) . groupSortOn (negate . precedence . snd)
+{-# INLINEABLE createOperatorTable_ #-}
 
-createOperatorL :: (MonadParser e s m) => PrecedenceTableEntry -> CombExpr.Operator m (ExpressionL a)
-createOperatorL (op, PInfixN _) = CombExpr.InfixN ((L.symbol op <?> "binary operator") $> ELApplication2 (ELVariable op))
-createOperatorL (op, PInfixL _) = CombExpr.InfixL ((L.symbol op <?> "binary operator") $> ELApplication2 (ELVariable op))
-createOperatorL (op, PInfixR _) = CombExpr.InfixR ((L.symbol op <?> "binary operator") $> ELApplication2 (ELVariable op))
-createOperatorL (op, PPrefix _) = CombExpr.Prefix ((L.symbol op <?> "binary operator") $> ELApplication (ELVariable op))
-createOperatorL (op, PPostfix _) = CombExpr.Postfix ((L.symbol op <?> "binary operator") $> ELApplication (ELVariable op))
+createOperator_ :: (MonadParser e s m) => (Identifier -> expr) -> (expr -> expr -> expr) -> (expr -> expr -> expr -> expr) -> PrecedenceTableEntry -> CombExpr.Operator m expr
+createOperator_ cVar _ cBin (op, PInfixN _) = CombExpr.InfixN ((L.symbol op <?> "binary operator") $> cBin (cVar op))
+createOperator_ cVar _ cBin (op, PInfixL _) = CombExpr.InfixL ((L.symbol op <?> "binary operator") $> cBin (cVar op))
+createOperator_ cVar _ cBin (op, PInfixR _) = CombExpr.InfixR ((L.symbol op <?> "binary operator") $> cBin (cVar op))
+createOperator_ cVar cUn _ (op, PPrefix _) = CombExpr.Prefix ((L.symbol op <?> "binary operator") $> cUn (cVar op))
+createOperator_ cVar cUn _ (op, PPostfix _) = CombExpr.Postfix ((L.symbol op <?> "binary operator") $> cUn (cVar op))

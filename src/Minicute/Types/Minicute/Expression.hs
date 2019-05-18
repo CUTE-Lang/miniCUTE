@@ -96,6 +96,7 @@ module Minicute.Types.Minicute.Expression
   , pattern AELLet
   , pattern AELMatch
   , pattern AELLambda
+  , pattern AELExpression
 
   , _annotation
   ) where
@@ -317,9 +318,8 @@ pattern AELLet ann flag lds e = AELExpression ann (ELet_ flag lds e)
 pattern AELMatch ann e mcs = AELExpression ann (EMatch_ e mcs)
 pattern AELLambda ann as e = AnnotatedExpressionL ann (ELLambda_ as e)
 {-# COMPLETE AELInteger, AELConstructor, AELVariable, AELApplication, AELLet, AELMatch, AELLambda #-}
--- |
--- Internal pattern
 pattern AELExpression ann expr = AnnotatedExpressionL ann (ELExpression_ expr)
+{-# COMPLETE AELExpression, AELLambda #-}
 
 instance {-# OVERLAPS #-} (Show ann, Show a) => Show (AnnotatedExpressionL ann a) where
   showsPrec p (AELInteger ann n)
