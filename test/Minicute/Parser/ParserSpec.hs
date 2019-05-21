@@ -20,14 +20,14 @@ import qualified Minicute.Parser.Parser as P
 
 spec :: Spec
 spec = do
-  describe "programL parser" $ do
-    forM_ testCases (uncurry3 programLTest)
+  describe "mainProgramL parser" $ do
+    forM_ testCases (uncurry3 mainProgramLTest)
 
-programLTest :: TestName -> TestContent -> TestResult -> SpecWith (Arg Expectation)
-programLTest name content (TestSuccess result) = do
+mainProgramLTest :: TestName -> TestContent -> TestResult -> SpecWith (Arg Expectation)
+mainProgramLTest name content (TestSuccess result) = do
   it ("parses " <> name <> " successfully") $ do
     parse P.mainProgramL "" content `shouldParse` result
-programLTest name content (TestFail parseError) = do
+mainProgramLTest name content (TestFail parseError) = do
   it ("fails to parse " <> name) $ do
     parse P.mainProgramL "" content `shouldFailWith` parseError
 
