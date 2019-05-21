@@ -18,10 +18,10 @@ import qualified Data.Set as Set
 lambdaLifting :: MainProgramL -> MainProgram
 lambdaLifting = liftAnnons . renameVariablesMainL . replaceLambda . formFreeVariablesMainL
 
-replaceLambda :: ProgramLWithFreeVariables Identifier -> MainProgramL
+replaceLambda :: MainProgramLWithFreeVariables -> MainProgramL
 replaceLambda = _supercombinators . each . _supercombinatorBody %~ replaceLambdaEL
 
-replaceLambdaEL :: ExpressionLWithFreeVariables Identifier -> MainExpressionL
+replaceLambdaEL :: MainExpressionLWithFreeVariables -> MainExpressionL
 replaceLambdaEL (AELInteger _ n) = ELInteger n
 replaceLambdaEL (AELConstructor _ tag arity) = ELConstructor tag arity
 replaceLambdaEL (AELVariable _ v) = ELVariable v

@@ -1,8 +1,12 @@
 {-# LANGUAGE RankNTypes #-}
 module Minicute.Transpiler.FreeVariables
   ( ProgramLWithFreeVariables
+  , MainProgramLWithFreeVariables
   , ExpressionLWithFreeVariables
+  , MainExpressionLWithFreeVariables
+
   , FreeVariables
+
   , formFreeVariablesMainL
   , formFreeVariablesL
   ) where
@@ -19,8 +23,10 @@ import Minicute.Types.Minicute.Program
 import qualified Data.Set as Set
 import qualified Data.Set.Lens as Set
 
-type ProgramLWithFreeVariables a = AnnotatedProgramL FreeVariables a
-type ExpressionLWithFreeVariables a = AnnotatedExpressionL FreeVariables a
+type ProgramLWithFreeVariables = AnnotatedProgramL FreeVariables
+type MainProgramLWithFreeVariables = MainAnnotatedProgramL FreeVariables
+type ExpressionLWithFreeVariables = AnnotatedExpressionL FreeVariables
+type MainExpressionLWithFreeVariables = MainAnnotatedExpressionL FreeVariables
 
 type ExpressionWithFreeVariables_ = AnnotatedExpression_ FreeVariables Expression_
 type ExpressionLWithFreeVariables_ = AnnotatedExpression_ FreeVariables ExpressionL_
@@ -30,7 +36,7 @@ type ExpressionLWithFreeVariables_ = AnnotatedExpression_ FreeVariables Expressi
 -- annotated expression
 type FreeVariables = Set.Set Identifier
 
-formFreeVariablesMainL :: MainProgramL -> ProgramLWithFreeVariables Identifier
+formFreeVariablesMainL :: MainProgramL -> MainProgramLWithFreeVariables
 formFreeVariablesMainL = formFreeVariablesL id
 {-# INLINEABLE formFreeVariablesMainL #-}
 

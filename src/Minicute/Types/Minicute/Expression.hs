@@ -75,6 +75,7 @@ module Minicute.Types.Minicute.Expression
   , AnnotatedExpression_( .. )
 
   , AnnotatedExpression
+  , MainAnnotatedExpression
   , pattern AnnotatedExpression
   , pattern AEInteger
   , pattern AEConstructor
@@ -86,6 +87,7 @@ module Minicute.Types.Minicute.Expression
   , pattern AEMatch
 
   , AnnotatedExpressionL
+  , MainAnnotatedExpressionL
   , pattern AnnotatedExpressionL
   , pattern AELInteger
   , pattern AELConstructor
@@ -273,6 +275,7 @@ newtype AnnotatedExpression_ ann wExpr (expr_ :: * -> *) a
            )
 
 type AnnotatedExpression ann = Fix2 (AnnotatedExpression_ ann Expression_)
+type MainAnnotatedExpression ann = AnnotatedExpression ann Identifier
 pattern AnnotatedExpression ann expr = Fix2 (AnnotatedExpression_ (ann, expr))
 {-# COMPLETE AnnotatedExpression #-}
 pattern AEInteger ann n = AnnotatedExpression ann (EInteger_ n)
@@ -306,6 +309,7 @@ instance {-# OVERLAPS #-} (Show ann, Show a) => Show (AnnotatedExpression ann a)
       $ showString "AEMatch " . showsPrec appPrec1 ann . showString " " . showsPrec appPrec1 e . showString " " . showsPrec appPrec1 mcs
 
 type AnnotatedExpressionL ann = Fix2 (AnnotatedExpression_ ann ExpressionL_)
+type MainAnnotatedExpressionL ann = AnnotatedExpressionL ann Identifier
 pattern AnnotatedExpressionL ann expr = Fix2 (AnnotatedExpression_ (ann, expr))
 {-# COMPLETE AnnotatedExpressionL #-}
 pattern AELInteger ann n = AELExpression ann (EInteger_ n)

@@ -17,8 +17,10 @@ module Minicute.Types.Minicute.Program
   , MainSupercombinatorL
 
   , AnnotatedSupercombinator
+  , MainAnnotatedSupercombinator
 
   , AnnotatedSupercombinatorL
+  , MainAnnotatedSupercombinatorL
 
   , _supercombinatorBinder
   , _supercombinatorArguments
@@ -38,10 +40,12 @@ module Minicute.Types.Minicute.Program
 
 
   , AnnotatedProgram
+  , MainAnnotatedProgram
   , pattern AnnotatedProgram
 
 
   , AnnotatedProgramL
+  , MainAnnotatedProgramL
   , pattern AnnotatedProgramL
 
 
@@ -65,8 +69,10 @@ type SupercombinatorL a = Supercombinator_ ExpressionL a
 type MainSupercombinatorL = SupercombinatorL Identifier
 
 type AnnotatedSupercombinator ann a = Supercombinator_ (AnnotatedExpression ann) a
+type MainAnnotatedSupercombinator ann = AnnotatedSupercombinator ann Identifier
 
 type AnnotatedSupercombinatorL ann a = Supercombinator_ (AnnotatedExpressionL ann) a
+type MainAnnotatedSupercombinatorL ann = AnnotatedSupercombinatorL ann Identifier
 
 _supercombinatorBinder :: Lens' (Supercombinator_ expr a) Identifier
 _supercombinatorBinder = _1
@@ -91,7 +97,7 @@ newtype Program_ expr a
            , Show
            )
 
-type Program a = Program_ Expression a
+type Program = Program_ Expression
 type MainProgram = Program Identifier
 pattern Program sc = Program_ sc
 {-# COMPLETE Program #-}
@@ -100,7 +106,7 @@ instance {-# OVERLAPS #-} (Show a) => Show (Program a) where
   showsPrec = showProgram_ "Program "
 
 
-type ProgramL a = Program_ ExpressionL a
+type ProgramL = Program_ ExpressionL
 type MainProgramL = ProgramL Identifier
 pattern ProgramL sc = Program_ sc
 {-# COMPLETE ProgramL #-}
@@ -109,7 +115,8 @@ instance {-# OVERLAPS #-} (Show a) => Show (ProgramL a) where
   showsPrec = showProgram_ "ProgramL "
 
 
-type AnnotatedProgram ann a = Program_ (AnnotatedExpression ann) a
+type AnnotatedProgram ann = Program_ (AnnotatedExpression ann)
+type MainAnnotatedProgram ann = AnnotatedProgram ann Identifier
 pattern AnnotatedProgram sc = Program_ sc
 {-# COMPLETE AnnotatedProgram #-}
 
@@ -117,7 +124,8 @@ instance {-# OVERLAPS #-} (Show ann, Show a) => Show (AnnotatedProgram ann a) wh
   showsPrec = showProgram_ "AnnotatedProgram "
 
 
-type AnnotatedProgramL ann a = Program_ (AnnotatedExpressionL ann) a
+type AnnotatedProgramL ann = Program_ (AnnotatedExpressionL ann)
+type MainAnnotatedProgramL ann = AnnotatedProgramL ann Identifier
 pattern AnnotatedProgramL sc = Program_ sc
 {-# COMPLETE AnnotatedProgramL #-}
 
