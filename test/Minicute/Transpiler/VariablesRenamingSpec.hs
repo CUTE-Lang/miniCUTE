@@ -36,57 +36,57 @@ type TestCase = (TestName, TestBeforeContent, TestAfterContent)
 testCases :: [TestCase]
 testCases
   = [ ( "program with let"
-      , [qqMini|
-               main = f 5 4;
-               f x y = let
-                         g = \z -> x + y + z;
-                         h = \x y -> x * y * g 5
-                       in
-                         h 1 y;
-               g x = x / 2
+      , [qqMiniMainL|
+                    main = f 5 4;
+                    f x y = let
+                              g = \z -> x + y + z;
+                              h = \x y -> x * y * g 5
+                            in
+                              h 1 y;
+                    g x = x / 2
         |]
-      , [qqMini|
-               main = f0 5 4;
-               f0 x2 y3 = let
-                            g4 = \z6 -> x2 + y3 + z6;
-                            h5 = \x7 y8 -> x7 * y8 * g1 5
-                          in
-                            h5 1 y3;
-               g1 x9 = x9 / 2
+      , [qqMiniMainL|
+                    main = f0 5 4;
+                    f0 x2 y3 = let
+                                 g4 = \z6 -> x2 + y3 + z6;
+                                 h5 = \x7 y8 -> x7 * y8 * g1 5
+                               in
+                                 h5 1 y3;
+                    g1 x9 = x9 / 2
         |]
       )
     , ( "program with letrec"
-      , [qqMini|
-               main = f 5 4;
-               f x y = letrec
-                         g = \z -> x + y + z;
-                         h = \x y -> x * y * g 5
-                       in
-                         h 1 y
+      , [qqMiniMainL|
+                    main = f 5 4;
+                    f x y = letrec
+                              g = \z -> x + y + z;
+                              h = \x y -> x * y * g 5
+                            in
+                              h 1 y
         |]
-      , [qqMini|
-               main = f0 5 4;
-               f0 x1 y2 = letrec
-                            g3 = \z5 -> x1 + y2 + z5;
-                            h4 = \x6 y7 -> x6 * y7 * g3 5
-                          in
-                            h4 1 y2
+      , [qqMiniMainL|
+                    main = f0 5 4;
+                    f0 x1 y2 = letrec
+                                 g3 = \z5 -> x1 + y2 + z5;
+                                 h4 = \x6 y7 -> x6 * y7 * g3 5
+                               in
+                                 h4 1 y2
         |]
       )
     , ( "program with match"
-      , [qqMini|
-               main = f (g 5);
-               f x = match x with
-                       <1> -> 0;
-                       <2> h t -> h + f t;
-               g x = if (x > 0) ($C{2;2} x (g (x - 1))) Nil
+      , [qqMiniMainL|
+                    main = f (g 5);
+                    f x = match x with
+                            <1> -> 0;
+                            <2> h t -> h + f t;
+                    g x = if (x > 0) ($C{2;2} x (g (x - 1))) Nil
         |]
-      , [qqMini|
-               main = f0 (g1 5);
-               f0 x2 = match x2 with
-                       <1> -> 0;
-                       <2> h3 t4 -> h3 + f0 t4;
-               g1 x5 = if (x5 > 0) ($C{2;2} x5 (g1 (x5 - 1))) Nil
+      , [qqMiniMainL|
+                    main = f0 (g1 5);
+                    f0 x2 = match x2 with
+                            <1> -> 0;
+                            <2> h3 t4 -> h3 + f0 t4;
+                    g1 x5 = if (x5 > 0) ($C{2;2} x5 (g1 (x5 - 1))) Nil
         |]
       )
     ]

@@ -10,26 +10,26 @@ import Minicute.Data.String
 import Minicute.Parser.Parser
 import Text.Megaparsec
 
-qqMini :: QuasiQuoter
-qqMini
+qqMiniMainL :: QuasiQuoter
+qqMiniMainL
   = QuasiQuoter
-    { quoteExp = qqMiniExp
-    , quotePat = const . fail $ "qqCode cannot be used as a pattern"
-    , quoteType = const . fail $ "qqCode cannot be used as a type"
-    , quoteDec = const . fail $ "qqCode cannot be used as a declaration"
+    { quoteExp = qqMiniMainLExp
+    , quotePat = const . fail $ "qqMiniMainLExp cannot be used as a pattern"
+    , quoteType = const . fail $ "qqMiniMainLExp cannot be used as a type"
+    , quoteDec = const . fail $ "qqMiniMainLExp cannot be used as a declaration"
     }
 
-qqCode :: QuasiQuoter
-qqCode
+qqRawCode :: QuasiQuoter
+qqRawCode
   = QuasiQuoter
-    { quoteExp = qqCodeExp
-    , quotePat = const . fail $ "qqCode cannot be used as a pattern"
-    , quoteType = const . fail $ "qqCode cannot be used as a type"
-    , quoteDec = const . fail $ "qqCode cannot be used as a declaration"
+    { quoteExp = qqRawCodeExp
+    , quotePat = const . fail $ "qqRawCode cannot be used as a pattern"
+    , quoteType = const . fail $ "qqRawCode cannot be used as a type"
+    , quoteDec = const . fail $ "qqRawCode cannot be used as a declaration"
     }
 
-qqMiniExp :: String -> Q Exp
-qqMiniExp = parseCaseExp . parseExp . qqCodeExp
+qqMiniMainLExp :: String -> Q Exp
+qqMiniMainLExp = parseCaseExp . parseExp . qqRawCodeExp
   where
     parseExp :: Q Exp -> Q Exp
     parseExp e
@@ -41,8 +41,8 @@ qqMiniExp = parseCaseExp . parseExp . qqCodeExp
              Left err -> error (errorBundlePretty err)
         |]
 
-qqCodeExp :: String -> Q Exp
-qqCodeExp = litE . stringL . updateString . toUnix
+qqRawCodeExp :: String -> Q Exp
+qqRawCodeExp = litE . stringL . updateString . toUnix
   where
     updateString = dropEnd 1 . unlines . adjustIndent . trimEndEmptyLines . trimStartEmptyLines . lines
 

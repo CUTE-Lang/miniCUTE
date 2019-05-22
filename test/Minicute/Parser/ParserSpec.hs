@@ -10,7 +10,6 @@ import Test.Hspec.Megaparsec
 import Test.Minicute.Utils
 
 import Control.Monad
-import Data.Tuple.Extra
 import Data.Void
 import Minicute.Data.Tuple ( tupleUnzip2 )
 import Minicute.Types.Minicute.Program
@@ -21,51 +20,50 @@ import qualified Minicute.Parser.Parser as P
 spec :: Spec
 spec = do
   describe "mainProgramL parser" $ do
-    forM_ testCases (uncurry3 mainProgramLTest)
+    forM_ mainProgramLTestCases mainProgramLTest
 
-mainProgramLTest :: TestName -> TestContent -> TestResult -> SpecWith (Arg Expectation)
-mainProgramLTest name content (TestSuccess result) = do
+mainProgramLTest :: MainProgramLTestCase -> SpecWith (Arg Expectation)
+mainProgramLTest (name, content, Right result) = do
   it ("parses " <> name <> " successfully") $ do
     parse P.mainProgramL "" content `shouldParse` result
-mainProgramLTest name content (TestFail parseError) = do
+mainProgramLTest (name, content, Left parseError) = do
   it ("fails to parse " <> name) $ do
     parse P.mainProgramL "" content `shouldFailWith` parseError
 
 type TestName = String
 type TestContent = String
-data TestResult
-  = TestSuccess MainProgramL
-  | TestFail (ParseError String Void)
-type TestCase = (TestName, TestContent, TestResult)
+type MainProgramLTestResult = Either (ParseError String Void) MainProgramL
+type MainProgramLTestCase = (TestName, TestContent, MainProgramLTestResult)
 
-testCases :: [TestCase]
-testCases
-  = simpleTestCases
-    <> arithmeticOperatorTestCases
-    <> constructorTestCases
-    <> applicationTestCases
-    <> supercombinatorTestCases
-    <> letAndLetrecTestCases
-    <> matchTestCases
-    <> lambdaTestCases
-    <> complexTestCases
+mainProgramLTestCases :: [MainProgramLTestCase]
+mainProgramLTestCases
+  = simpleMainProgramLTestCases
+    <> arithmeticOperatorMainProgramLTestCases
+    <> constructorMainProgramLTestCases
+    <> applicationMainProgramLTestCases
+    <> supercombinatorMainProgramLTestCases
+    <> letAndLetrecMainProgramLTestCases
+    <> matchMainProgramLTestCases
+    <> lambdaMainProgramLTestCases
+    <> complexMainProgramLTestCases
   where
-    simpleTestCases = fmap tupleUnzip2 (zip simpleLabels simpleTestTemplates)
-    simpleLabels = fmap (("simple case" <>) . show) [0..]
+    simpleMainProgramLTestCases
+      = tupleUnzip2 <$> zip simpleLabels simpleMainProgramLTestTemplates
+    simpleLabels = ("simple case" <>) . show <$> [0..]
 
-simpleTestTemplates :: [(TestContent, TestResult)]
-simpleTestTemplates
-  = [ ( [qqCode||]
-      , TestSuccess
+simpleMainProgramLTestTemplates :: [(TestContent, MainProgramLTestResult)]
+simpleMainProgramLTestTemplates
+  = [ ( [qqRawCode||]
+      , Right
         ( ProgramL
           [
           ]
         )
       )
-    , ( [qqCode|
-               f = 1
+    , ( [qqRawCode|
+                  f = 1
         |]
-      , TestSuccess
+      , Right
         ( ProgramL
           [ ( "f"
             , []
@@ -74,10 +72,10 @@ simpleTestTemplates
           ]
         )
       )
-    , ( [qqCode|
-               f = 1;
+    , ( [qqRawCode|
+                  f = 1;
         |]
-      , TestSuccess
+      , Right
         ( ProgramL
           [ ( "f"
             , []
@@ -86,10 +84,10 @@ simpleTestTemplates
           ]
         )
       )
-    , ( [qqCode|
-               f=1;
+    , ( [qqRawCode|
+                  f=1;
         |]
-      , TestSuccess
+      , Right
         ( ProgramL
           [ ( "f"
             , []
@@ -98,10 +96,10 @@ simpleTestTemplates
           ]
         )
       )
-    , ( [qqCode|
-               f= 1;
+    , ( [qqRawCode|
+                  f= 1;
         |]
-      , TestSuccess
+      , Right
         ( ProgramL
           [ ( "f"
             , []
@@ -110,10 +108,10 @@ simpleTestTemplates
           ]
         )
       )
-    , ( [qqCode|
-               f= 1 ;
+    , ( [qqRawCode|
+                  f= 1 ;
         |]
-      , TestSuccess
+      , Right
         ( ProgramL
           [ ( "f"
             , []
@@ -122,11 +120,11 @@ simpleTestTemplates
           ]
         )
       )
-    , ( [qqCode|
-               f = 1;
-          g = 2
-           |]
-      , TestSuccess
+    , ( [qqRawCode|
+                  f = 1;
+                  g = 2
+        |]
+      , Right
         ( ProgramL
           [ ( "f"
             , []
@@ -139,11 +137,11 @@ simpleTestTemplates
           ]
         )
       )
-    , ( [qqCode|
-               f = 1  ;
-          g=2 ;
-           |]
-      , TestSuccess
+    , ( [qqRawCode|
+                  f = 1  ;
+                  g=2 ;
+        |]
+      , Right
         ( ProgramL
           [ ( "f"
             , []
@@ -156,11 +154,11 @@ simpleTestTemplates
           ]
         )
       )
-    , ( [qqCode|
-               f = g;
-          g = 2
-           |]
-      , TestSuccess
+    , ( [qqRawCode|
+                  f = g;
+                  g = 2
+        |]
+      , Right
         ( ProgramL
           [ ( "f"
             , []
@@ -173,10 +171,10 @@ simpleTestTemplates
           ]
         )
       )
-    , ( [qqCode|
-               matchx = matchx
+    , ( [qqRawCode|
+                  matchx = matchx
         |]
-      , TestSuccess
+      , Right
         ( ProgramL
           [ ( "matchx"
             , []
@@ -185,45 +183,45 @@ simpleTestTemplates
           ]
         )
       )
-    , ( [qqCode|
-               1f = 2
+    , ( [qqRawCode|
+                  1f = 2
         |]
-      , TestFail
+      , Left
         (err 0 (utok '1' <> elabel "identifier" <> eeof))
       )
-    , ( [qqCode|
-               f;
+    , ( [qqRawCode|
+                  f;
         |]
-      , TestFail
+      , Left
         (err 1 (utok ';' <> etok '=' <> elabel "alphanumeric character" <> etok '_' <> elabel "identifier"))
       )
-    , ( [qqCode|
-               f =;
+    , ( [qqRawCode|
+                  f =;
         |]
-      , TestFail
+      , Left
         (err 3 (utok ';' <> elabel "expression"))
       )
-    , ( [qqCode|
-               f! = 5;
+    , ( [qqRawCode|
+                  f! = 5;
         |]
-      , TestFail
+      , Left
         (err 1 (utok '!' <> etok '=' <> elabel "alphanumeric character" <> etok '_' <> elabel "identifier"))
       )
-    , ( [qqCode|
-               f = 5;;
+    , ( [qqRawCode|
+                  f = 5;;
         |]
-      , TestFail
+      , Left
         (err 6 (utok ';' <> elabel "identifier" <> eeof))
       )
     ]
 
-arithmeticOperatorTestCases :: [TestCase]
-arithmeticOperatorTestCases
+arithmeticOperatorMainProgramLTestCases :: [MainProgramLTestCase]
+arithmeticOperatorMainProgramLTestCases
   = [ ( "addition of two numbers"
-      , [qqCode|
-               f = 1 + 1
+      , [qqRawCode|
+                  f = 1 + 1
         |]
-      , TestSuccess
+      , Right
         ( ProgramL
           [ ( "f"
             , []
@@ -233,11 +231,11 @@ arithmeticOperatorTestCases
         )
       )
     , ( "addition of a number and a variable"
-      , [qqCode|
-               f = 1 * g;
-               g = 3
+      , [qqRawCode|
+                  f = 1 * g;
+                  g = 3
         |]
-      , TestSuccess
+      , Right
         ( ProgramL
           [ ( "f"
             , []
@@ -251,10 +249,10 @@ arithmeticOperatorTestCases
         )
       )
     , ( "multiple addition of numbers"
-      , [qqCode|
-               f = 1 + (3 + 4)
+      , [qqRawCode|
+                  f = 1 + (3 + 4)
         |]
-      , TestSuccess
+      , Right
         ( ProgramL
           [ ( "f"
             , []
@@ -267,10 +265,10 @@ arithmeticOperatorTestCases
         )
       )
     , ( "operator association of -"
-      , [qqCode|
-               f = 3 - 2 - 1
+      , [qqRawCode|
+                  f = 3 - 2 - 1
         |]
-      , TestSuccess
+      , Right
         ( ProgramL
           [ ( "f"
             , []
@@ -286,10 +284,10 @@ arithmeticOperatorTestCases
         )
       )
     , ( "operator precedence of + and *"
-      , [qqCode|
-               f = 1 * 2 + 3
+      , [qqRawCode|
+                  f = 1 * 2 + 3
         |]
-      , TestSuccess
+      , Right
         ( ProgramL
           [ ( "f"
             , []
@@ -305,29 +303,29 @@ arithmeticOperatorTestCases
         )
       )
     , ( "left partial application of arithmetic operator"
-      , [qqCode|
-               f = 2 +
+      , [qqRawCode|
+                  f = 2 +
         |]
-      , TestFail
+      , Left
         (err 7 (ueof <> elabel "expression with parentheses" <> elabel "constructor" <> elabel "integer" <> elabel "variable"))
       )
     , ( "right partial application of arithmetic operator"
-      , [qqCode|
-               f = + 2
+      , [qqRawCode|
+                  f = + 2
         |]
-      , TestFail
+      , Left
         (err 4 (utoks "+ 2" <> elabel "expression"))
       )
     ]
 
-constructorTestCases :: [TestCase]
-constructorTestCases
+constructorMainProgramLTestCases :: [MainProgramLTestCase]
+constructorMainProgramLTestCases
   = [ ( "basic constructor"
-      , [qqCode|
-               f = $C{1;0};
-               g = $C{2;2}
+      , [qqRawCode|
+                  f = $C{1;0};
+                  g = $C{2;2}
         |]
-      , TestSuccess
+      , Right
         ( ProgramL
           [ ( "f"
             , []
@@ -341,11 +339,11 @@ constructorTestCases
         )
       )
     , ( "constructor with arguments"
-      , [qqCode|
-               f = $C{1;1} 5;
-               g = $C{2;3} f
+      , [qqRawCode|
+                  f = $C{1;1} 5;
+                  g = $C{2;3} f
         |]
-      , TestSuccess
+      , Right
         ( ProgramL
           [ ( "f"
             , []
@@ -359,42 +357,42 @@ constructorTestCases
         )
       )
     , ( "constructor without arity"
-      , [qqCode|
-               f = $C{1};
+      , [qqRawCode|
+                  f = $C{1};
         |]
-      , TestFail
+      , Left
         (err 8 (utok '}' <> etok ';' <> elabel "decimal digit"))
       )
     , ( "constructor without tag"
-      , [qqCode|
-               f = $C{;1};
+      , [qqRawCode|
+                  f = $C{;1};
         |]
-      , TestFail
+      , Left
         (err 7 (utok ';' <> elabel "integer"))
       )
     , ( "wrong tokens for constructor"
-      , [qqCode|
-               f = $Co{1;1};
+      , [qqRawCode|
+                  f = $Co{1;1};
         |]
-      , TestFail
+      , Left
         (err 6 (utok 'o'))
       )
     , ( "wrong tokens for constructor"
-      , [qqCode|
-               f = $C{1,1};
+      , [qqRawCode|
+                  f = $C{1,1};
         |]
-      , TestFail
+      , Left
         (err 8 (utok ',' <> etok ';' <> elabel "decimal digit"))
       )
     ]
 
-applicationTestCases :: [TestCase]
-applicationTestCases
+applicationMainProgramLTestCases :: [MainProgramLTestCase]
+applicationMainProgramLTestCases
   = [ ( "application of an integer"
-      , [qqCode|
-               f = g 5
+      , [qqRawCode|
+                  f = g 5
         |]
-      , TestSuccess
+      , Right
         ( ProgramL
           [ ( "f"
             , []
@@ -404,10 +402,10 @@ applicationTestCases
         )
       )
     , ( "application of a variable"
-      , [qqCode|
-               f = g f
+      , [qqRawCode|
+                  f = g f
         |]
-      , TestSuccess
+      , Right
         ( ProgramL
           [ ( "f"
             , []
@@ -417,21 +415,21 @@ applicationTestCases
         )
       )
     , ( "application of wrong expression"
-      , [qqCode|
-               f = g []
+      , [qqRawCode|
+                  f = g []
         |]
-      , TestFail
+      , Left
         (err 6 (utok '[' <> etok ';' <> elabel "binary operator" <> elabel "constructor" <> elabel "integer" <> elabel "variable" <> elabel "expression with parentheses" <> eeof))
       )
     ]
 
-supercombinatorTestCases :: [TestCase]
-supercombinatorTestCases
+supercombinatorMainProgramLTestCases :: [MainProgramLTestCase]
+supercombinatorMainProgramLTestCases
   = [ ( "supercombinator with an argument"
-      , [qqCode|
-               f x = x
+      , [qqRawCode|
+                  f x = x
         |]
-      , TestSuccess
+      , Right
         ( ProgramL
           [ ( "f"
             , ["x"]
@@ -441,10 +439,10 @@ supercombinatorTestCases
         )
       )
     , ( "supercombinator with two argument"
-      , [qqCode|
-               f x y = x y
+      , [qqRawCode|
+                  f x y = x y
         |]
-      , TestSuccess
+      , Right
         ( ProgramL
           [ ( "f"
             , ["x", "y"]
@@ -454,28 +452,28 @@ supercombinatorTestCases
         )
       )
     , ( "supercombinator with a number"
-      , [qqCode|
-               f 5 = x
+      , [qqRawCode|
+                  f 5 = x
         |]
-      , TestFail
+      , Left
         (err 2 (utok '5' <> elabel "identifier" <> etok '='))
       )
     , ( "supercombinator with an illegal argument"
-      , [qqCode|
-               f $x = $x
+      , [qqRawCode|
+                  f $x = $x
         |]
-      , TestFail
+      , Left
         (err 2 (utok '$' <> elabel "identifier" <> etok '='))
       )
     ]
 
-letAndLetrecTestCases :: [TestCase]
-letAndLetrecTestCases
+letAndLetrecMainProgramLTestCases :: [MainProgramLTestCase]
+letAndLetrecMainProgramLTestCases
   = [ ( "let with a single definition"
-      , [qqCode|
-               f = let x = 5 in x
+      , [qqRawCode|
+                  f = let x = 5 in x
         |]
-      , TestSuccess
+      , Right
         ( ProgramL
           [ ( "f"
             , []
@@ -489,12 +487,12 @@ letAndLetrecTestCases
         )
       )
     , ( "letrec with a single definition"
-      , [qqCode|
-               f = letrec
-                  x = 5
-                in x
+      , [qqRawCode|
+                  f = letrec
+                        x = 5
+                      in x
         |]
-      , TestSuccess
+      , Right
         ( ProgramL
           [ ( "f"
             , []
@@ -508,13 +506,13 @@ letAndLetrecTestCases
         )
       )
     , ( "let with multiple definitions"
-      , [qqCode|
-               f = let
-                     x = 5;
-                     y = 4
-                   in x + y
+      , [qqRawCode|
+                  f = let
+                        x = 5;
+                        y = 4
+                      in x + y
         |]
-      , TestSuccess
+      , Right
         ( ProgramL
           [ ( "f"
             , []
@@ -529,14 +527,14 @@ letAndLetrecTestCases
         )
       )
     , ( "letrec with multiple definitions"
-      , [qqCode|
-               f = letrec
-                     x = 5;
-                     y = x + x;
-                     z = x * y
-                   in z
+      , [qqRawCode|
+                  f = letrec
+                        x = 5;
+                        y = x + x;
+                        z = x * y
+                      in z
         |]
-      , TestSuccess
+      , Right
         ( ProgramL
           [ ( "f"
             , []
@@ -552,14 +550,14 @@ letAndLetrecTestCases
         )
       )
     , ( "let with nested let"
-      , [qqCode|
-               f = let
-                     x = let
-                           k = 5;
-                         in k
-                   in x
+      , [qqRawCode|
+                  f = let
+                        x = let
+                              k = 5;
+                            in k
+                      in x
         |]
-      , TestSuccess
+      , Right
         ( ProgramL
           [ ( "f"
             , []
@@ -573,10 +571,10 @@ letAndLetrecTestCases
         )
       )
     , ( "let with nested letrec"
-      , [qqCode|
-               f = let x = letrec k = 5 in k; in x
+      , [qqRawCode|
+                  f = let x = letrec k = 5 in k; in x
         |]
-      , TestSuccess
+      , Right
         ( ProgramL
           [ ( "f"
             , []
@@ -590,10 +588,10 @@ letAndLetrecTestCases
         )
       )
     , ( "letrec with nested let"
-      , [qqCode|
-               f = letrec x = let k = 5; in k in x
+      , [qqRawCode|
+                  f = letrec x = let k = 5; in k in x
         |]
-      , TestSuccess
+      , Right
         ( ProgramL
           [ ( "f"
             , []
@@ -607,14 +605,14 @@ letAndLetrecTestCases
         )
       )
     , ( "letrec with nested letrec"
-      , [qqCode|
-               f = letrec
-                     x = letrec
-                           k = 5;
-                         in k
-                   in x
+      , [qqRawCode|
+                  f = letrec
+                        x = letrec
+                              k = 5;
+                            in k
+                      in x
         |]
-      , TestSuccess
+      , Right
         ( ProgramL
           [ ( "f"
             , []
@@ -628,28 +626,28 @@ letAndLetrecTestCases
         )
       )
     , ( "let with zero definitions"
-      , [qqCode|
-               f = let in 5
+      , [qqRawCode|
+                  f = let in 5
         |]
-      , TestFail
+      , Left
         (errFancy 8 (fancy (ErrorFail "let expression should include at least one definition")))
       )
     , ( "let without in"
-      , [qqCode|
-               f = let x = 5
+      , [qqRawCode|
+                  f = let x = 5
         |]
-      , TestFail
+      , Left
         (err 13 (ueof <> etok ';' <> etoks "in" <> elabel "decimal digit" <> elabel "binary operator" <> elabel "constructor" <> elabel "integer" <> elabel "variable" <> elabel "expression with parentheses"))
       )
     ]
 
-matchTestCases :: [TestCase]
-matchTestCases
+matchMainProgramLTestCases :: [MainProgramLTestCase]
+matchMainProgramLTestCases
   = [ ( "match with a single match case"
-      , [qqCode|
-               f = match $C{1;0} with <1> -> 5
+      , [qqRawCode|
+                  f = match $C{1;0} with <1> -> 5
         |]
-      , TestSuccess
+      , Right
         ( ProgramL
           [ ( "f"
             , []
@@ -662,13 +660,13 @@ matchTestCases
         )
       )
     , ( "match with multiple match cases"
-      , [qqCode|
-               f = match $C{2;0} with
-                     <1> -> 5;
-                     <2> -> 3;
-                     <4> -> g
+      , [qqRawCode|
+                  f = match $C{2;0} with
+                        <1> -> 5;
+                        <2> -> 3;
+                        <4> -> g
         |]
-      , TestSuccess
+      , Right
         ( ProgramL
           [ ( "f"
             , []
@@ -683,12 +681,12 @@ matchTestCases
         )
       )
     , ( "match with arguments"
-      , [qqCode|
-               f = match $C{2;2} 5 4 with
-                     <1> x y -> x;
-                     <2> a b -> b
+      , [qqRawCode|
+                  f = match $C{2;2} 5 4 with
+                        <1> x y -> x;
+                        <2> a b -> b
         |]
-      , TestSuccess
+      , Right
         ( ProgramL
           [ ( "f"
             , []
@@ -702,13 +700,13 @@ matchTestCases
         )
       )
     , ( "match followed by other top-level definition"
-      , [qqCode|
-               f = match $C{2;2} 5 4 with
-                     <1> x y -> x;
-                     <2> a b -> b;
-               g = 1
+      , [qqRawCode|
+                  f = match $C{2;2} 5 4 with
+                        <1> x y -> x;
+                        <2> a b -> b;
+                  g = 1
         |]
-      , TestSuccess
+      , Right
         ( ProgramL
           [ ( "f"
             , []
@@ -726,21 +724,21 @@ matchTestCases
         )
       )
     , ( "match without a case"
-      , [qqCode|
-               f = match $C{2;0} with
+      , [qqRawCode|
+                  f = match $C{2;0} with
         |]
-      , TestFail
+      , Left
         (errFancy 22 (fancy (ErrorFail "match expression should include at least one case")))
       )
     ]
 
-lambdaTestCases :: [TestCase]
-lambdaTestCases
+lambdaMainProgramLTestCases :: [MainProgramLTestCase]
+lambdaMainProgramLTestCases
   = [ ( "lambda with a single argument"
-      , [qqCode|
-               f = \x -> x
+      , [qqRawCode|
+                  f = \x -> x
         |]
-      , TestSuccess
+      , Right
         ( ProgramL
           [ ( "f"
             , []
@@ -752,10 +750,10 @@ lambdaTestCases
         )
       )
     , ( "lambda with multiple arguments"
-      , [qqCode|
-               f = \x y -> x + y
+      , [qqRawCode|
+                  f = \x y -> x + y
         |]
-      , TestSuccess
+      , Right
         ( ProgramL
           [ ( "f"
             , []
@@ -767,10 +765,10 @@ lambdaTestCases
         )
       )
     , ( "lambda with nested lambda"
-      , [qqCode|
-               f = \x -> \y -> x + y
+      , [qqRawCode|
+                  f = \x -> \y -> x + y
         |]
-      , TestSuccess
+      , Right
         ( ProgramL
           [ ( "f"
             , []
@@ -785,10 +783,10 @@ lambdaTestCases
         )
       )
     , ( "immidiate application of lambda"
-      , [qqCode|
-               f = (\x -> x) 5
+      , [qqRawCode|
+                  f = (\x -> x) 5
         |]
-      , TestSuccess
+      , Right
         ( ProgramL
           [ ( "f"
             , []
@@ -803,28 +801,28 @@ lambdaTestCases
         )
       )
     , ( "lambda without body"
-      , [qqCode|
-               f = \x ->
+      , [qqRawCode|
+                  f = \x ->
         |]
-      , TestFail
+      , Left
         (err 9 (ueof <> elabel "expression"))
       )
     , ( "lambda without arguments"
-      , [qqCode|
-               f = \ -> 5
+      , [qqRawCode|
+                  f = \ -> 5
         |]
-      , TestFail
+      , Left
         (err 6 (utok '-' <> elabel "identifier"))
       )
     ]
 
-complexTestCases :: [TestCase]
-complexTestCases
+complexMainProgramLTestCases :: [MainProgramLTestCase]
+complexMainProgramLTestCases
   = [ ( "indirect right application of let expression"
-      , [qqCode|
-               f = 5 + (let k = 5 in k)
+      , [qqRawCode|
+                  f = 5 + (let k = 5 in k)
         |]
-      , TestSuccess
+      , Right
         ( ProgramL
           [ ( "f"
             , []
@@ -837,10 +835,10 @@ complexTestCases
         )
       )
     , ( "indirect right application of match expression"
-      , [qqCode|
-               f = 5 + (match $C{1;0} with <1> -> 5)
+      , [qqRawCode|
+                  f = 5 + (match $C{1;0} with <1> -> 5)
         |]
-      , TestSuccess
+      , Right
         ( ProgramL
           [ ( "f"
             , []
@@ -853,17 +851,17 @@ complexTestCases
         )
       )
     , ( "direct right application of let expression"
-      , [qqCode|
-               f = 5 + let k = 5 in k
+      , [qqRawCode|
+                  f = 5 + let k = 5 in k
         |]
-      , TestFail
+      , Left
         (errFancy 8 (fancy (ErrorFail "keyword \"let\" cannot be an identifier")))
       )
     , ( "direct right application of match expression"
-      , [qqCode|
-               f = 5 + match $C{1;0} with <1> -> 5
+      , [qqRawCode|
+                  f = 5 + match $C{1;0} with <1> -> 5
         |]
-      , TestFail
+      , Left
         (errFancy 8 (fancy (ErrorFail "keyword \"match\" cannot be an identifier")))
       )
     ]
