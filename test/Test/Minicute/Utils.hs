@@ -19,6 +19,15 @@ qqMiniMainL
     , quoteDec = const . fail $ "qqMiniMainLExp cannot be used as a declaration"
     }
 
+qqMiniMain :: QuasiQuoter
+qqMiniMain
+  = QuasiQuoter
+    { quoteExp = qqMiniMainExp
+    , quotePat = const . fail $ "qqMiniMainExp cannot be used as a pattern"
+    , quoteType = const . fail $ "qqMiniMainExp cannot be used as a type"
+    , quoteDec = const . fail $ "qqMiniMainExp cannot be used as a declaration"
+    }
+
 qqRawCode :: QuasiQuoter
 qqRawCode
   = QuasiQuoter
@@ -34,6 +43,19 @@ qqMiniMainLExp = parseCaseExp . parseExp . qqRawCodeExp
     parseExp :: Q Exp -> Q Exp
     parseExp e
       = [| parse mainProgramL "" $(e) |]
+    parseCaseExp :: Q Exp -> Q Exp
+    parseCaseExp e
+      = [| case $(e) of
+             Right result -> result
+             Left err -> error (errorBundlePretty err)
+        |]
+
+qqMiniMainExp :: String -> Q Exp
+qqMiniMainExp = parseCaseExp . parseExp . qqRawCodeExp
+  where
+    parseExp :: Q Exp -> Q Exp
+    parseExp e
+      = [| parse mainProgram "" $(e) |]
     parseCaseExp :: Q Exp -> Q Exp
     parseCaseExp e
       = [| case $(e) of
