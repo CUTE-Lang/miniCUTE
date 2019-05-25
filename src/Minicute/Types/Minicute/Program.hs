@@ -1,4 +1,7 @@
 {-# OPTIONS_GHC -fno-warn-missing-pattern-synonym-signatures #-}
+-- |
+-- TODO: remove the following option
+{-# OPTIONS_GHC -fno-warn-orphans #-}
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE FlexibleInstances #-}
@@ -59,6 +62,9 @@ import Data.Data
 import GHC.Generics
 import GHC.Show ( appPrec, appPrec1 )
 import Minicute.Types.Minicute.Expression
+import Text.PrettyPrint.HughesPJClass ( Pretty(..) )
+
+import qualified Text.PrettyPrint.HughesPJClass as PP
 
 type Supercombinator_ expr a = (Identifier, [a], expr a)
 
@@ -73,6 +79,18 @@ type MainAnnotatedSupercombinator ann = AnnotatedSupercombinator ann Identifier
 
 type AnnotatedSupercombinatorL ann a = Supercombinator_ (AnnotatedExpressionL ann) a
 type MainAnnotatedSupercombinatorL ann = AnnotatedSupercombinatorL ann Identifier
+
+instance {-# OVERLAPS #-} (Pretty a, Pretty (expr a)) => Pretty (Supercombinator_ expr a) where
+  pPrint (scId, argBinders, expr)
+    = PP.hcat
+      [ pPrint scId
+      , if null argBinders
+        then PP.empty
+        else PP.space
+      , PP.hcat . PP.punctuate PP.space . fmap pPrint $ argBinders
+      , PP.text " = "
+      , pPrint expr
+      ]
 
 _supercombinatorBinder :: Lens' (Supercombinator_ expr a) Identifier
 _supercombinatorBinder = _1
@@ -104,6 +122,9 @@ pattern Program sc = Program_ sc
 
 instance {-# OVERLAPS #-} (Show a) => Show (Program a) where
   showsPrec = showProgram_ "Program "
+
+instance (Pretty a, Pretty (expr a)) => Pretty (Program_ expr a) where
+  pPrint (Program_ scs) = vsep . PP.punctuate PP.semi . fmap pPrint $ scs
 
 
 type ProgramL = Program_ ExpressionL
@@ -144,3 +165,8 @@ _supercombinators = lens getter setter
     getter (Program_ scs) = scs
     setter _ = Program_
 {-# INLINEABLE _supercombinators #-}
+
+-- |
+-- TODO: move this into a separate module
+vsep :: [PP.Doc] -> PP.Doc
+vsep = foldr (PP.$+$) PP.empty

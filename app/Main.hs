@@ -1,12 +1,12 @@
 module Main where
 
-import Minicute.Data.PrintSequence ( toString )
 import Minicute.Parser.Parser ( mainProgramL )
-import Minicute.PrettyPrintable ( prettyPrint )
 import Minicute.Transpiler.LambdaLifting ( lambdaLifting )
 import System.Environment
 import System.IO
 import Text.Megaparsec ( errorBundlePretty, parse )
+
+import Text.PrettyPrint.HughesPJClass ( prettyShow )
 
 main :: IO ()
 main = do
@@ -26,12 +26,12 @@ compile handle = do
       putStrLn "program by show:"
       print program
       putStrLn "program by pretty printing:"
-      putStrLn (toString (prettyPrint program))
+      putStrLn (prettyShow program)
       let liftedProgram = lambdaLifting program
       putStrLn "lifted program by show:"
       print liftedProgram
       putStrLn "lifted program by pretty printing:"
-      putStrLn (toString (prettyPrint liftedProgram))
+      putStrLn (prettyShow liftedProgram)
     Left err -> do
       putStrLn "error:"
       putStrLn (errorBundlePretty err)
