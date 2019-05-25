@@ -55,6 +55,7 @@ library:
     - mtl >= 2.2 && < 3
     - megaparsec >= 7.0 && < 8
     - parser-combinators
+    - pretty >= 1.1 && < 2
 
 # internal-libraries:
 
@@ -73,8 +74,10 @@ executables:
       - -rtsopts
       - -with-rtsopts=-N
     dependencies:
-      ## Remove this 'megaparsec' dependence if possible
+      ## Remove following dependence if possible
       - megaparsec
+      - pretty
+
       - minicute
 
 # executable:
@@ -99,6 +102,7 @@ tests:
       - lens
       - megaparsec
       - minicute
+      - pretty
       - template-haskell
 
       - hspec
