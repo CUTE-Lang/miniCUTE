@@ -1,6 +1,6 @@
 {- HLINT ignore "Redundant do" -}
 {-# LANGUAGE QuasiQuotes #-}
-module Minicute.PrettyPrintableSpec
+module Minicute.PrettySpec
   ( spec
   ) where
 
@@ -13,9 +13,8 @@ import Data.Either
 import Minicute.Types.Minicute.Program
 import Text.Megaparsec
 
-import qualified Minicute.Data.PrintSequence as PS
-import qualified Minicute.PrettyPrintable as PP
 import qualified Minicute.Parser.Parser as P
+import qualified Text.PrettyPrint.HughesPJClass as PP
 
 spec :: Spec
 spec = do
@@ -27,10 +26,10 @@ programLTest name programString = do
   describe ("with " <> name) $ do
     it "prints re-parsable text" $ do
       program <- parseProgramL programString
-      parse P.mainProgramL "" (PS.toString (PP.prettyPrint program)) `shouldParse` program
+      parse P.mainProgramL "" (PP.prettyShow  program) `shouldParse` program
     it "prints expected text" $ do
       program <- parseProgramL programString
-      PS.toString (PP.prettyPrint program) `shouldBe` programString
+      PP.prettyShow program `shouldBe` programString
   where
     parseProgramL :: String -> IO MainProgramL
     parseProgramL ps = do

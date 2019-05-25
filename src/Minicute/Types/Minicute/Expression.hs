@@ -1,4 +1,7 @@
 {-# OPTIONS_GHC -fno-warn-missing-pattern-synonym-signatures #-}
+-- |
+-- TODO: remove the following option
+{-# OPTIONS_GHC -fno-warn-orphans #-}
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE FlexibleInstances #-}
@@ -110,8 +113,16 @@ import Data.Data
 import GHC.Generics
 import GHC.Show ( appPrec, appPrec1 )
 import Minicute.Data.Fix
+import Minicute.Types.Minicute.Precedence
+import Text.PrettyPrint.HughesPJClass ( Pretty(..) )
+
+import qualified Data.Set as Set
+import qualified Text.PrettyPrint.HughesPJClass as PP
 
 type Identifier = String
+
+instance {-# OVERLAPS #-} Pretty Identifier where
+  pPrint = PP.text
 
 
 newtype IsRecursive = IsRecursive { isRecursive :: Bool }
@@ -137,6 +148,14 @@ type MainLetDefinition = LetDefinition Identifier
 type LetDefinitionL a = LetDefinition_ ExpressionL a
 type MainLetDefinitionL = LetDefinitionL Identifier
 
+instance {-# OVERLAPS #-} (Pretty a, Pretty (expr_ a)) => Pretty (LetDefinition_ expr_ a) where
+  pPrint (binder, bodyExpr)
+    = PP.hsep
+      [ pPrint binder
+      , PP.equals
+      , pPrint bodyExpr
+      ]
+
 _letDefinitionBinder :: Lens' (LetDefinition_ expr_ a) a
 _letDefinitionBinder = _1
 {-# INLINEABLE _letDefinitionBinder #-}
@@ -152,6 +171,20 @@ type MainMatchCase = MatchCase Identifier
 
 type MatchCaseL a = MatchCase_ ExpressionL a
 type MainMatchCaseL = MatchCaseL Identifier
+
+instance {-# OVERLAPS #-} (Pretty a, Pretty (expr_ a)) => Pretty (MatchCase_ expr_ a) where
+  pPrint (tag, argBinders, bodyExpr)
+    = PP.hcat
+      [ PP.text "<"
+      , pPrint tag
+      , PP.text ">"
+      , if null argBinders
+        then PP.empty
+        else PP.space
+      , PP.hcat . PP.punctuate PP.space . fmap pPrint $ argBinders
+      , PP.text " -> "
+      , pPrint bodyExpr
+      ]
 
 _matchCaseTag :: Lens' (MatchCase_ expr_ a) Int
 _matchCaseTag = _1
@@ -213,6 +246,52 @@ instance {-# OVERLAPS #-} (Show a) => Show (Expression a) where
     = showParen (p > appPrec)
       $ showString "EMatch " . showsPrec appPrec1 e . showString " " . showsPrec appPrec1 mcs
 
+instance (Pretty a, Pretty (expr_ a)) => Pretty (Expression_ expr_ a) where
+  pPrint = pPrintPrec PP.prettyNormal 0
+
+  pPrintPrec _ _ (EInteger_ n) = pPrint n
+  pPrintPrec _ _ (EConstructor_ tag arity)
+    = PP.hcat
+      [ PP.text "$C{"
+      , pPrint tag
+      , PP.comma
+      , pPrint arity
+      , PP.text "}"
+      ]
+  pPrintPrec _ _ (EVariable_ vId) = pPrint vId
+  pPrintPrec l p (EApplication_ e1 e2)
+    = PP.maybeParens (p > rationalApplicationPrecedence) $ PP.hcat
+      [ pPrintPrec l rationalApplicationPrecedence e1
+      , PP.space
+      , pPrintPrec l rationalApplicationPrecedence1 e2
+      ]
+  pPrintPrec _ p (ELet_ flag letDefs e)
+    = PP.maybeParens (p > 0)
+      ( PP.text keyword
+        PP.$+$ pPrintIndent (PP.hcat . PP.punctuate PP.semi . fmap pPrint $ letDefs)
+        PP.$+$ PP.text "in"
+        PP.$+$ pPrintIndent (pPrint e)
+      )
+    where
+      keyword
+        | isRecursive flag = "letrec"
+        | otherwise = "let"
+  pPrintPrec _ p (EMatch_ e matchCases)
+    = PP.maybeParens (p > 0)
+      ( PP.text "match"
+        PP.<+> pPrint e
+        PP.<+> PP.text "with"
+        PP.$+$ pPrintIndent (vsep . PP.punctuate PP.semi . fmap pPrint $ matchCases)
+      )
+
+instance (Pretty a) => Pretty (Expression a) where
+  pPrint = pPrintPrec PP.prettyNormal 0
+
+  pPrintPrec l p (EApplication2 (EVariable op) e1 e2)
+    | op `elem` fmap fst binaryPrecedenceTable
+    = pPrintBinaryExpressionPrec l p op e1 e2
+  pPrintPrec l p expr = pPrintPrec l p (unFix2 expr)
+
 
 data ExpressionL_ expr_ a
   = ELExpression_ (Expression_ expr_ a)
@@ -263,6 +342,24 @@ instance {-# OVERLAPS #-} (Show a) => Show (ExpressionL a) where
     = showParen (p > appPrec)
       $ showString "ELLambda " . showsPrec appPrec1 as . showString " " . showsPrec appPrec1 e
 
+instance (Pretty a, Pretty (expr_ a)) => Pretty (ExpressionL_ expr_ a) where
+  pPrint = pPrintPrec PP.prettyNormal 0
+
+  pPrintPrec l p (ELExpression_ expr_) = pPrintPrec l p expr_
+  pPrintPrec _ p (ELLambda_ argBinders bodyExpr)
+    = PP.maybeParens (p > 0)
+      ( PP.text "\\"
+        PP.<> (PP.hcat . PP.punctuate PP.space . fmap pPrint $ argBinders)
+        PP.<+> PP.text "->"
+        PP.$+$ pPrintIndent (pPrint bodyExpr)
+      )
+
+instance (Pretty a) => Pretty (ExpressionL a) where
+  pPrintPrec l p (ELApplication2 (ELVariable op) e1 e2)
+    | op `elem` fmap fst binaryPrecedenceTable
+    = pPrintBinaryExpressionPrec l p op e1 e2
+  pPrintPrec l p expr = pPrintPrec l p (unFix2 expr)
+
 
 newtype AnnotatedExpression_ ann wExpr (expr_ :: * -> *) a
   = AnnotatedExpression_ (ann, wExpr expr_ a)
@@ -308,6 +405,16 @@ instance {-# OVERLAPS #-} (Show ann, Show a) => Show (AnnotatedExpression ann a)
     = showParen (p > appPrec)
       $ showString "AEMatch " . showsPrec appPrec1 ann . showString " " . showsPrec appPrec1 e . showString " " . showsPrec appPrec1 mcs
 
+instance (Pretty ann, Pretty a, Pretty (wExpr expr_ a)) => Pretty (AnnotatedExpression_ ann wExpr expr_ a) where
+  pPrint (AnnotatedExpression_ (ann, expr))
+    = PP.parens (pPrint ann PP.<> PP.comma PP.<+> pPrint expr)
+
+instance (Pretty ann, Pretty a) => Pretty (AnnotatedExpression ann a) where
+  pPrint (AEApplication2 ann2 ann1 (AEVariable annOp op) e1 e2)
+    | op `elem` fmap fst binaryPrecedenceTable
+    = PP.parens ((PP.hsep . PP.punctuate PP.comma . fmap pPrint $ [ann2, ann1, annOp]) PP.<> PP.comma PP.<+> pPrintBinaryExpressionPrec PP.prettyNormal 0 op e1 e2)
+  pPrint expr = pPrint (unFix2 expr)
+
 type AnnotatedExpressionL ann = Fix2 (AnnotatedExpression_ ann ExpressionL_)
 type MainAnnotatedExpressionL ann = AnnotatedExpressionL ann Identifier
 pattern AnnotatedExpressionL ann expr = Fix2 (AnnotatedExpression_ (ann, expr))
@@ -348,9 +455,57 @@ instance {-# OVERLAPS #-} (Show ann, Show a) => Show (AnnotatedExpressionL ann a
     = showParen (p > appPrec)
       $ showString "AELLambda " . showsPrec appPrec1 ann . showString " " . showsPrec appPrec1 as . showString " " . showsPrec appPrec1 e
 
+instance (Pretty ann, Pretty a) => Pretty (AnnotatedExpressionL ann a) where
+  pPrint (AELApplication2 ann2 ann1 (AELVariable annOp op) e1 e2)
+    | op `elem` fmap fst binaryPrecedenceTable
+    = PP.parens ((PP.hsep . PP.punctuate PP.comma . fmap pPrint $ [ann2, ann1, annOp]) PP.<> PP.comma PP.<+> pPrintBinaryExpressionPrec PP.prettyNormal 0 op e1 e2)
+  pPrint expr = pPrint (unFix2 expr)
+
 _annotation :: Lens (AnnotatedExpression_ ann wExpr expr_ a) (AnnotatedExpression_ ann' wExpr expr_ a) ann ann'
 _annotation = lens getter setter
   where
     getter (AnnotatedExpression_ (ann, _)) = ann
     setter (AnnotatedExpression_ (_, expr)) ann = AnnotatedExpression_ (ann, expr)
 {-# INLINEABLE _annotation #-}
+
+-- |
+-- TODO: move this into an other module
+binaryPrecedenceTable :: PrecedenceTable
+binaryPrecedenceTable = filter (isInfix . snd) defaultPrecedenceTable
+{-# INLINEABLE binaryPrecedenceTable #-}
+
+pPrintBinaryExpressionPrec :: (Pretty a, Pretty (expr_ a)) => PP.PrettyLevel -> Rational -> Identifier -> expr_ a -> expr_ a -> PP.Doc
+pPrintBinaryExpressionPrec l p op e1 e2
+  = PP.maybeParens (p > toRational opP) $ PP.hsep
+    [ pPrintPrec l leftP e1
+    , pPrint op
+    , pPrintPrec l rightP e2
+    ]
+  where
+    (leftP, opP, rightP)
+      = case lookup op binaryPrecedenceTable of
+          Just (PInfixN opP') -> (toRational opP' + 1, toRational opP', toRational opP' + 1)
+          Just (PInfixL opP') -> (toRational opP', toRational opP', toRational opP' + 1)
+          Just (PInfixR opP') -> (toRational opP' + 1, toRational opP', toRational opP')
+          _ -> (rationalApplicationPrecedence1, rationalApplicationPrecedence, rationalApplicationPrecedence1)
+{-# INLINEABLE pPrintBinaryExpressionPrec #-}
+
+-- |
+-- TODO: move this into a separate module
+vsep :: [PP.Doc] -> PP.Doc
+vsep = foldr (PP.$+$) PP.empty
+
+pPrintIndent :: PP.Doc -> PP.Doc
+pPrintIndent = PP.nest 2
+
+rationalApplicationPrecedence :: Rational
+rationalApplicationPrecedence = toRational applicationPrecedence
+
+rationalApplicationPrecedence1 :: Rational
+rationalApplicationPrecedence1 = toRational applicationPrecedence1
+
+-- |
+-- TODO: move this into a separated module
+instance (Pretty a) => Pretty (Set.Set a) where
+  pPrint set
+    = PP.braces (PP.braces (PP.hsep . PP.punctuate PP.comma . fmap pPrint . Set.toList $ set))
