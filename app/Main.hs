@@ -1,7 +1,7 @@
 module Main where
 
 import Minicute.Data.PrintSequence ( toString )
-import Minicute.Parser.Parser ( programL )
+import Minicute.Parser.Parser ( mainProgramL )
 import Minicute.PrettyPrintable ( prettyPrint )
 import Minicute.Transpiler.LambdaLifting ( lambdaLifting )
 import System.Environment
@@ -21,7 +21,7 @@ compile handle = do
   putStrLn "inputs:"
   content <- hGetContents handle -- unlines <$> whileM (hIsEOF handle) (hGetLine handle)
   putChar '\n'
-  case parse programL "" content of
+  case parse mainProgramL "" content of
     Right program -> do
       putStrLn "program by show:"
       print program

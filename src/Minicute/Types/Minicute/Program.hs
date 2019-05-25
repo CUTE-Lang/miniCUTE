@@ -17,8 +17,10 @@ module Minicute.Types.Minicute.Program
   , MainSupercombinatorL
 
   , AnnotatedSupercombinator
+  , MainAnnotatedSupercombinator
 
   , AnnotatedSupercombinatorL
+  , MainAnnotatedSupercombinatorL
 
   , _supercombinatorBinder
   , _supercombinatorArguments
@@ -38,10 +40,12 @@ module Minicute.Types.Minicute.Program
 
 
   , AnnotatedProgram
+  , MainAnnotatedProgram
   , pattern AnnotatedProgram
 
 
   , AnnotatedProgramL
+  , MainAnnotatedProgramL
   , pattern AnnotatedProgramL
 
 
@@ -56,33 +60,35 @@ import GHC.Generics
 import GHC.Show ( appPrec, appPrec1 )
 import Minicute.Types.Minicute.Expression
 
-type Supercombinator_ a expr = (Identifier, [a], expr a)
+type Supercombinator_ expr a = (Identifier, [a], expr a)
 
-type Supercombinator a = Supercombinator_ a Expression
+type Supercombinator a = Supercombinator_ Expression a
 type MainSupercombinator = Supercombinator Identifier
 
-type SupercombinatorL a = Supercombinator_ a ExpressionL
+type SupercombinatorL a = Supercombinator_ ExpressionL a
 type MainSupercombinatorL = SupercombinatorL Identifier
 
-type AnnotatedSupercombinator ann a = Supercombinator_ a (AnnotatedExpression ann)
+type AnnotatedSupercombinator ann a = Supercombinator_ (AnnotatedExpression ann) a
+type MainAnnotatedSupercombinator ann = AnnotatedSupercombinator ann Identifier
 
-type AnnotatedSupercombinatorL ann a = Supercombinator_ a (AnnotatedExpressionL ann)
+type AnnotatedSupercombinatorL ann a = Supercombinator_ (AnnotatedExpressionL ann) a
+type MainAnnotatedSupercombinatorL ann = AnnotatedSupercombinatorL ann Identifier
 
-_supercombinatorBinder :: Lens' (Supercombinator_ a expr) Identifier
+_supercombinatorBinder :: Lens' (Supercombinator_ expr a) Identifier
 _supercombinatorBinder = _1
 {-# INLINEABLE _supercombinatorBinder #-}
 
-_supercombinatorArguments :: Lens' (Supercombinator_ a expr) [a]
+_supercombinatorArguments :: Lens' (Supercombinator_ expr a) [a]
 _supercombinatorArguments = _2
 {-# INLINEABLE _supercombinatorArguments #-}
 
-_supercombinatorBody :: Lens (Supercombinator_ a expr1) (Supercombinator_ a expr2) (expr1 a) (expr2 a)
+_supercombinatorBody :: Lens (Supercombinator_ expr1 a) (Supercombinator_ expr2 a) (expr1 a) (expr2 a)
 _supercombinatorBody = _3
 {-# INLINEABLE _supercombinatorBody #-}
 
 
-newtype Program_ a expr
-  = Program_ [Supercombinator_ a expr]
+newtype Program_ expr a
+  = Program_ [Supercombinator_ expr a]
   deriving ( Generic
            , Typeable
            , Data
@@ -91,7 +97,7 @@ newtype Program_ a expr
            , Show
            )
 
-type Program a = Program_ a Expression
+type Program = Program_ Expression
 type MainProgram = Program Identifier
 pattern Program sc = Program_ sc
 {-# COMPLETE Program #-}
@@ -100,7 +106,7 @@ instance {-# OVERLAPS #-} (Show a) => Show (Program a) where
   showsPrec = showProgram_ "Program "
 
 
-type ProgramL a = Program_ a ExpressionL
+type ProgramL = Program_ ExpressionL
 type MainProgramL = ProgramL Identifier
 pattern ProgramL sc = Program_ sc
 {-# COMPLETE ProgramL #-}
@@ -109,7 +115,8 @@ instance {-# OVERLAPS #-} (Show a) => Show (ProgramL a) where
   showsPrec = showProgram_ "ProgramL "
 
 
-type AnnotatedProgram ann a = Program_ a (AnnotatedExpression ann)
+type AnnotatedProgram ann = Program_ (AnnotatedExpression ann)
+type MainAnnotatedProgram ann = AnnotatedProgram ann Identifier
 pattern AnnotatedProgram sc = Program_ sc
 {-# COMPLETE AnnotatedProgram #-}
 
@@ -117,20 +124,21 @@ instance {-# OVERLAPS #-} (Show ann, Show a) => Show (AnnotatedProgram ann a) wh
   showsPrec = showProgram_ "AnnotatedProgram "
 
 
-type AnnotatedProgramL ann a = Program_ a (AnnotatedExpressionL ann)
+type AnnotatedProgramL ann = Program_ (AnnotatedExpressionL ann)
+type MainAnnotatedProgramL ann = AnnotatedProgramL ann Identifier
 pattern AnnotatedProgramL sc = Program_ sc
 {-# COMPLETE AnnotatedProgramL #-}
 
 instance {-# OVERLAPS #-} (Show ann, Show a) => Show (AnnotatedProgramL ann a) where
   showsPrec = showProgram_ "AnnotatedProgramL "
 
-showProgram_ :: (Show a, Show (expr a)) => String -> Int -> Program_ a expr -> ShowS
+showProgram_ :: (Show a, Show (expr a)) => String -> Int -> Program_ expr a -> ShowS
 showProgram_ name p (Program_ scs)
   = showParen (p > appPrec)
     $ showString name . showsPrec appPrec1 scs
 {-# INLINEABLE showProgram_ #-}
 
-_supercombinators :: Lens (Program_ a expr) (Program_ a' expr') [Supercombinator_ a expr] [Supercombinator_ a' expr']
+_supercombinators :: Lens (Program_ expr a) (Program_ expr' a') [Supercombinator_ expr a] [Supercombinator_ expr' a']
 _supercombinators = lens getter setter
   where
     getter (Program_ scs) = scs

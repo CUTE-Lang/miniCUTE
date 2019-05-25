@@ -69,11 +69,13 @@ module Minicute.Types.Minicute.Expression
   , pattern ELLet
   , pattern ELMatch
   , pattern ELLambda
+  , pattern ELExpression
 
 
   , AnnotatedExpression_( .. )
 
   , AnnotatedExpression
+  , MainAnnotatedExpression
   , pattern AnnotatedExpression
   , pattern AEInteger
   , pattern AEConstructor
@@ -85,6 +87,7 @@ module Minicute.Types.Minicute.Expression
   , pattern AEMatch
 
   , AnnotatedExpressionL
+  , MainAnnotatedExpressionL
   , pattern AnnotatedExpressionL
   , pattern AELInteger
   , pattern AELConstructor
@@ -95,6 +98,7 @@ module Minicute.Types.Minicute.Expression
   , pattern AELLet
   , pattern AELMatch
   , pattern AELLambda
+  , pattern AELExpression
 
   , _annotation
   ) where
@@ -233,9 +237,8 @@ pattern ELLet flag lds e = ELExpression (ELet_ flag lds e)
 pattern ELMatch e mcs = ELExpression (EMatch_ e mcs)
 pattern ELLambda as e = Fix2 (ELLambda_ as e)
 {-# COMPLETE ELInteger, ELConstructor, ELVariable, ELApplication, ELLet, ELMatch, ELLambda #-}
--- |
--- Internal pattern
 pattern ELExpression e = Fix2 (ELExpression_ e)
+{-# COMPLETE ELExpression, ELLambda #-}
 
 instance {-# OVERLAPS #-} (Show a) => Show (ExpressionL a) where
   showsPrec p (ELInteger n)
@@ -272,6 +275,7 @@ newtype AnnotatedExpression_ ann wExpr (expr_ :: * -> *) a
            )
 
 type AnnotatedExpression ann = Fix2 (AnnotatedExpression_ ann Expression_)
+type MainAnnotatedExpression ann = AnnotatedExpression ann Identifier
 pattern AnnotatedExpression ann expr = Fix2 (AnnotatedExpression_ (ann, expr))
 {-# COMPLETE AnnotatedExpression #-}
 pattern AEInteger ann n = AnnotatedExpression ann (EInteger_ n)
@@ -305,6 +309,7 @@ instance {-# OVERLAPS #-} (Show ann, Show a) => Show (AnnotatedExpression ann a)
       $ showString "AEMatch " . showsPrec appPrec1 ann . showString " " . showsPrec appPrec1 e . showString " " . showsPrec appPrec1 mcs
 
 type AnnotatedExpressionL ann = Fix2 (AnnotatedExpression_ ann ExpressionL_)
+type MainAnnotatedExpressionL ann = AnnotatedExpressionL ann Identifier
 pattern AnnotatedExpressionL ann expr = Fix2 (AnnotatedExpression_ (ann, expr))
 {-# COMPLETE AnnotatedExpressionL #-}
 pattern AELInteger ann n = AELExpression ann (EInteger_ n)
@@ -317,9 +322,8 @@ pattern AELLet ann flag lds e = AELExpression ann (ELet_ flag lds e)
 pattern AELMatch ann e mcs = AELExpression ann (EMatch_ e mcs)
 pattern AELLambda ann as e = AnnotatedExpressionL ann (ELLambda_ as e)
 {-# COMPLETE AELInteger, AELConstructor, AELVariable, AELApplication, AELLet, AELMatch, AELLambda #-}
--- |
--- Internal pattern
 pattern AELExpression ann expr = AnnotatedExpressionL ann (ELExpression_ expr)
+{-# COMPLETE AELExpression, AELLambda #-}
 
 instance {-# OVERLAPS #-} (Show ann, Show a) => Show (AnnotatedExpressionL ann a) where
   showsPrec p (AELInteger ann n)
