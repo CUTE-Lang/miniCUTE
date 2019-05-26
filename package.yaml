@@ -56,6 +56,7 @@ library:
     - megaparsec >= 7.0 && < 8
     - parser-combinators
     - pretty >= 1.1 && < 2
+    - prettyprinter >= 1.2 && < 2
     - template-haskell >= 2.14 && < 3
 
 # internal-libraries:
