@@ -1,7 +1,7 @@
 module Main where
 
 import Minicute.Parser.Parser ( mainProgramL )
-import Minicute.Transpiler.LambdaLifting ( lambdaLifting )
+import Minicute.Transpilers.LambdaLifting ( lambdaLifting )
 import System.Environment
 import System.IO
 import Text.Megaparsec ( errorBundlePretty, parse )

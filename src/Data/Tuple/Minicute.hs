@@ -1,7 +1,7 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE FunctionalDependencies #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
-module Minicute.Data.Tuple where
+module Data.Tuple.Minicute where
 
 class TupleZipper1 t t' | t -> t' where
   {-# MINIMAL tupleUnzip1, tupleZip1 #-}

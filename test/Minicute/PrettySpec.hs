@@ -6,11 +6,11 @@ module Minicute.PrettySpec
 
 import Test.Hspec
 import Test.Hspec.Megaparsec
-import Test.Minicute.Utils
 
 import Control.Monad
 import Data.Either
 import Minicute.Types.Minicute.Program
+import Minicute.Utils.TH
 import Text.Megaparsec
 
 import qualified Minicute.Parser.Parser as P

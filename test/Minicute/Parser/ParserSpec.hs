@@ -7,12 +7,12 @@ module Minicute.Parser.ParserSpec
 
 import Test.Hspec
 import Test.Hspec.Megaparsec
-import Test.Minicute.Utils
 
 import Control.Monad
+import Data.Tuple.Minicute ( tupleUnzip2 )
 import Data.Void
-import Minicute.Data.Tuple ( tupleUnzip2 )
 import Minicute.Types.Minicute.Program
+import Minicute.Utils.TH
 import Text.Megaparsec
 
 import qualified Minicute.Parser.Parser as P

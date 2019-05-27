@@ -1,4 +1,4 @@
-module Minicute.Data.String where
+module Data.String.Minicute where
 
 toUnix :: String -> String
 toUnix ('\r' : '\n' : cs) = '\n' : toUnix cs

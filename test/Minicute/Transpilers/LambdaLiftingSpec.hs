@@ -1,16 +1,16 @@
 {- HLINT ignore "Redundant do" -}
 {-# LANGUAGE QuasiQuotes #-}
-module Minicute.Transpiler.LambdaLiftingSpec
+module Minicute.Transpilers.LambdaLiftingSpec
   ( spec
   ) where
 
 import Test.Hspec
-import Test.Minicute.Utils
 
 import Control.Monad
 import Data.Tuple.Extra
-import Minicute.Transpiler.LambdaLifting
+import Minicute.Transpilers.LambdaLifting
 import Minicute.Types.Minicute.Program
+import Minicute.Utils.TH
 
 spec :: Spec
 spec = do
