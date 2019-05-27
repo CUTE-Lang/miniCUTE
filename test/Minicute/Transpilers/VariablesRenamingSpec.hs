@@ -1,6 +1,6 @@
 {- HLINT ignore "Redundant do" -}
 {-# LANGUAGE QuasiQuotes #-}
-module Minicute.Transpiler.VariablesRenamingSpec
+module Minicute.Transpilers.VariablesRenamingSpec
   ( spec
   ) where
 
@@ -11,7 +11,7 @@ import Control.Monad
 import Control.Lens
 import Data.List
 import Data.Tuple.Extra
-import Minicute.Transpiler.VariablesRenaming
+import Minicute.Transpilers.VariablesRenaming
 import Minicute.Types.Minicute.Program
 
 import qualified Data.Set as Set

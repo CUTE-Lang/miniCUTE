@@ -1,5 +1,5 @@
 {-# LANGUAGE RankNTypes #-}
-module Minicute.Transpiler.FreeVariables
+module Minicute.Transpilers.FreeVariables
   ( ProgramLWithFreeVariables
   , MainProgramLWithFreeVariables
   , ExpressionLWithFreeVariables

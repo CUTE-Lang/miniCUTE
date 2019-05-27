@@ -1,6 +1,6 @@
 {- HLINT ignore "Redundant do" -}
 {-# LANGUAGE QuasiQuotes #-}
-module Minicute.Transpiler.LambdaLiftingSpec
+module Minicute.Transpilers.LambdaLiftingSpec
   ( spec
   ) where
 
@@ -9,7 +9,7 @@ import Test.Minicute.Utils
 
 import Control.Monad
 import Data.Tuple.Extra
-import Minicute.Transpiler.LambdaLifting
+import Minicute.Transpilers.LambdaLifting
 import Minicute.Types.Minicute.Program
 
 spec :: Spec

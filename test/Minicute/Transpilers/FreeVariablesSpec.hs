@@ -1,5 +1,5 @@
 {- HLINT ignore "Redundant do" -}
-module Minicute.Transpiler.FreeVariablesSpec
+module Minicute.Transpilers.FreeVariablesSpec
   ( spec
   ) where
 
@@ -7,7 +7,7 @@ import Test.Hspec
 
 import Control.Monad
 import Data.Tuple.Extra
-import Minicute.Transpiler.FreeVariables
+import Minicute.Transpilers.FreeVariables
 import Minicute.Types.Minicute.Program
 
 import qualified Data.Set as Set

@@ -1,11 +1,11 @@
-module Minicute.Transpiler.LambdaLifting where
+module Minicute.Transpilers.LambdaLifting where
 
 import Control.Lens.Each
 import Control.Lens.Operators
 import Data.List
 import Data.Tuple
-import Minicute.Transpiler.FreeVariables
-import Minicute.Transpiler.VariablesRenaming
+import Minicute.Transpilers.FreeVariables
+import Minicute.Transpilers.VariablesRenaming
 import Minicute.Types.Minicute.Program
 
 import qualified Data.Set as Set

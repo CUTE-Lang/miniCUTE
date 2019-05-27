@@ -1,6 +1,6 @@
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
-module Minicute.Transpiler.VariablesRenaming
+module Minicute.Transpilers.VariablesRenaming
   ( renameVariablesMainL
   ) where
 
