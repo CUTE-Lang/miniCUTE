@@ -1,5 +1,5 @@
 {-# LANGUAGE TemplateHaskell #-}
-module Test.Minicute.Utils where
+module Minicute.Utils.TH where
 
 import Data.Char
 import Data.List
