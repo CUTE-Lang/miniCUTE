@@ -4,6 +4,7 @@
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE DeriveLift #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE KindSignatures #-}
 {-# LANGUAGE LiberalTypeSynonyms #-}
@@ -112,6 +113,7 @@ import Control.Lens.Type
 import Data.Data
 import GHC.Generics
 import GHC.Show ( appPrec, appPrec1 )
+import Language.Haskell.TH.Syntax
 import Minicute.Data.Fix
 import Minicute.Types.Minicute.Precedence
 import Text.PrettyPrint.HughesPJClass ( Pretty(..) )
@@ -129,6 +131,7 @@ newtype IsRecursive = IsRecursive { isRecursive :: Bool }
   deriving ( Generic
            , Typeable
            , Data
+           , Lift
            , Eq
            , Ord
            )
@@ -209,6 +212,7 @@ data Expression_ expr_ a
   deriving ( Generic
            , Typeable
            , Data
+           , Lift
            , Eq
            , Ord
            , Show
@@ -299,6 +303,7 @@ data ExpressionL_ expr_ a
   deriving ( Generic
            , Typeable
            , Data
+           , Lift
            , Eq
            , Ord
            , Show
@@ -366,6 +371,7 @@ newtype AnnotatedExpression_ ann wExpr (expr_ :: * -> *) a
   deriving ( Generic
            , Typeable
            , Data
+           , Lift
            , Eq
            , Ord
            , Show

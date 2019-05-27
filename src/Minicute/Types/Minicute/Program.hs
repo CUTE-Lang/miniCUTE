@@ -4,6 +4,7 @@
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE DeriveLift #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE LiberalTypeSynonyms #-}
 {-# LANGUAGE PatternSynonyms #-}
@@ -61,6 +62,7 @@ import Control.Lens.Type
 import Data.Data
 import GHC.Generics
 import GHC.Show ( appPrec, appPrec1 )
+import Language.Haskell.TH.Syntax
 import Minicute.Types.Minicute.Expression
 import Text.PrettyPrint.HughesPJClass ( Pretty(..) )
 
@@ -110,6 +112,7 @@ newtype Program_ expr a
   deriving ( Generic
            , Typeable
            , Data
+           , Lift
            , Eq
            , Ord
            , Show

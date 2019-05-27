@@ -1,5 +1,6 @@
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE DeriveLift #-}
 {-# LANGUAGE UndecidableInstances #-}
 {-# LANGUAGE StandaloneDeriving #-}
 module Minicute.Data.Fix
@@ -15,6 +16,7 @@ import Data.Function
 import GHC.Generics
 import GHC.Read ( lex )
 import GHC.Show ( appPrec, appPrec1 )
+import Language.Haskell.TH.Syntax
 
 newtype Fix f = Fix { unFix :: Fix' f }
   deriving ( Generic
@@ -23,6 +25,7 @@ newtype Fix f = Fix { unFix :: Fix' f }
 type Fix' f = f (Fix f)
 
 deriving instance (Typeable f, Data (f (Fix f))) => Data (Fix f)
+deriving instance (Lift (f (Fix f))) => Lift (Fix f)
 
 instance (Eq (f (Fix f))) => Eq (Fix f) where
   (==) = (==) `on` unFix
@@ -51,6 +54,7 @@ newtype Fix2 f a = Fix2 { unFix2 :: Fix2' f a }
 type Fix2' f a = f (Fix2 f) a
 
 deriving instance (Typeable f, Typeable a, Data (f (Fix2 f) a)) => Data (Fix2 f a)
+deriving instance (Lift (f (Fix2 f) a)) => Lift (Fix2 f a)
 
 instance (Eq (f (Fix2 f) a)) => Eq (Fix2 f a) where
   (==) = (==) `on` unFix2

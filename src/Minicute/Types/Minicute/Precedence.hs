@@ -1,9 +1,11 @@
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE DeriveLift #-}
 module Minicute.Types.Minicute.Precedence where
 
 import Data.Data
 import GHC.Generics
+import Language.Haskell.TH.Syntax
 
 data Precedence
   = PInfixN { precedence :: Int }
@@ -14,6 +16,7 @@ data Precedence
   deriving ( Generic
            , Typeable
            , Data
+           , Lift
            , Eq
            , Ord
            , Show
