@@ -4,9 +4,9 @@ module Test.Minicute.Utils where
 import Data.Char
 import Data.List
 import Data.List.Extra
+import Data.String.Minicute
 import Language.Haskell.TH
 import Language.Haskell.TH.Quote
-import Minicute.Data.String
 import Minicute.Parser.Parser
 import Text.Megaparsec
 

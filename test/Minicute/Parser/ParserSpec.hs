@@ -10,8 +10,8 @@ import Test.Hspec.Megaparsec
 import Test.Minicute.Utils
 
 import Control.Monad
+import Data.Tuple.Minicute ( tupleUnzip2 )
 import Data.Void
-import Minicute.Data.Tuple ( tupleUnzip2 )
 import Minicute.Types.Minicute.Program
 import Text.Megaparsec
 
