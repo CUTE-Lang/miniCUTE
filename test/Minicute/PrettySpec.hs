@@ -13,8 +13,8 @@ import Minicute.Types.Minicute.Program
 import Minicute.Utils.TH
 import Text.Megaparsec
 
+import qualified Data.Text.Prettyprint.Doc.Minicute as PP
 import qualified Minicute.Parser.Parser as P
-import qualified Text.PrettyPrint.HughesPJClass as PP
 
 spec :: Spec
 spec = do
@@ -26,7 +26,7 @@ programLTest name programString = do
   describe ("of " <> name) $ do
     it "prints re-parsable text" $ do
       program <- parseProgramL programString
-      parse P.mainProgramL "" (PP.prettyShow  program) `shouldParse` program
+      parse P.mainProgramL "" (PP.prettyShow program) `shouldParse` program
     it "prints expected text" $ do
       program <- parseProgramL programString
       PP.prettyShow program `shouldBe` programString
