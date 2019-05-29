@@ -23,7 +23,7 @@ spec = do
 
 programLTest :: TestName -> TestContent -> SpecWith (Arg Expectation)
 programLTest name programString = do
-  describe ("with " <> name) $ do
+  describe ("of " <> name) $ do
     it "prints re-parsable text" $ do
       program <- parseProgramL programString
       parse P.mainProgramL "" (PP.prettyShow  program) `shouldParse` program
@@ -89,12 +89,21 @@ testCases
                   f = 5 - (4 - 3)
         |]
       )
-    , ( "program with let"
+    , ( "program with a let definition"
       , [qqRawCode|
                   f = let
                         x = 5
                       in
                         x
+        |]
+      )
+    , ( "program with let definitions"
+      , [qqRawCode|
+                  f = let
+                        x = 5;
+                        y = 4
+                      in
+                        g x y
         |]
       )
     , ( "program with match"
@@ -108,6 +117,15 @@ testCases
       , [qqRawCode|
                   f = \x ->
                         x + 4
+        |]
+      )
+    , ( "program with lambda of multilined body"
+      , [qqRawCode|
+                  f = \x ->
+                        let
+                          y = 4
+                        in
+                          x + y
         |]
       )
     , ( "program with an application with lambda"
