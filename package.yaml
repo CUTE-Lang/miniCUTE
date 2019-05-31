@@ -55,7 +55,7 @@ library:
     - mtl >= 2.2 && < 3
     - megaparsec >= 7.0 && < 8
     - parser-combinators
-    - pretty >= 1.1 && < 2
+    - prettyprinter >= 1.2 && < 2
     - template-haskell >= 2.14 && < 3
 
 # internal-libraries:
@@ -77,7 +77,6 @@ executables:
     dependencies:
       ## Remove following dependence if possible
       - megaparsec
-      - pretty
 
       - minicute
 
@@ -103,7 +102,6 @@ tests:
       - lens
       - megaparsec
       - minicute
-      - pretty
 
       - hspec
       - hspec-megaparsec

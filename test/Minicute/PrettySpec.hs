@@ -13,8 +13,8 @@ import Minicute.Types.Minicute.Program
 import Minicute.Utils.TH
 import Text.Megaparsec
 
+import qualified Data.Text.Prettyprint.Doc.Minicute as PP
 import qualified Minicute.Parser.Parser as P
-import qualified Text.PrettyPrint.HughesPJClass as PP
 
 spec :: Spec
 spec = do
@@ -23,10 +23,10 @@ spec = do
 
 programLTest :: TestName -> TestContent -> SpecWith (Arg Expectation)
 programLTest name programString = do
-  describe ("with " <> name) $ do
+  describe ("of " <> name) $ do
     it "prints re-parsable text" $ do
       program <- parseProgramL programString
-      parse P.mainProgramL "" (PP.prettyShow  program) `shouldParse` program
+      parse P.mainProgramL "" (PP.prettyShow program) `shouldParse` program
     it "prints expected text" $ do
       program <- parseProgramL programString
       PP.prettyShow program `shouldBe` programString
@@ -89,12 +89,21 @@ testCases
                   f = 5 - (4 - 3)
         |]
       )
-    , ( "program with let"
+    , ( "program with a let definition"
       , [qqRawCode|
                   f = let
                         x = 5
                       in
                         x
+        |]
+      )
+    , ( "program with let definitions"
+      , [qqRawCode|
+                  f = let
+                        x = 5;
+                        y = 4
+                      in
+                        g x y
         |]
       )
     , ( "program with match"
@@ -108,6 +117,15 @@ testCases
       , [qqRawCode|
                   f = \x ->
                         x + 4
+        |]
+      )
+    , ( "program with lambda of multilined body"
+      , [qqRawCode|
+                  f = \x ->
+                        let
+                          y = 4
+                        in
+                          x + y
         |]
       )
     , ( "program with an application with lambda"

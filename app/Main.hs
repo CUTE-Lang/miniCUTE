@@ -1,12 +1,13 @@
-module Main where
+module Main
+  ( main
+  ) where
 
+import Data.Text.Prettyprint.Doc.Minicute ( prettyShow )
 import Minicute.Parser.Parser ( mainProgramL )
 import Minicute.Transpilers.LambdaLifting ( lambdaLifting )
 import System.Environment
 import System.IO
 import Text.Megaparsec ( errorBundlePretty, parse )
-
-import Text.PrettyPrint.HughesPJClass ( prettyShow )
 
 main :: IO ()
 main = do

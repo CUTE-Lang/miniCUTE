@@ -7,6 +7,7 @@
 {-# LANGUAGE DeriveLift #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE LiberalTypeSynonyms #-}
+{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE PatternSynonyms #-}
 {-# LANGUAGE RankNTypes #-}
 module Minicute.Types.Minicute.Program
@@ -64,9 +65,9 @@ import GHC.Generics
 import GHC.Show ( appPrec, appPrec1 )
 import Language.Haskell.TH.Syntax
 import Minicute.Types.Minicute.Expression
-import Text.PrettyPrint.HughesPJClass ( Pretty(..) )
+import Data.Text.Prettyprint.Doc ( Pretty(..) )
 
-import qualified Text.PrettyPrint.HughesPJClass as PP
+import qualified Data.Text.Prettyprint.Doc as PP
 
 type Supercombinator_ expr a = (Identifier, [a], expr a)
 
@@ -83,15 +84,17 @@ type AnnotatedSupercombinatorL ann a = Supercombinator_ (AnnotatedExpressionL an
 type MainAnnotatedSupercombinatorL ann = AnnotatedSupercombinatorL ann Identifier
 
 instance {-# OVERLAPS #-} (Pretty a, Pretty (expr a)) => Pretty (Supercombinator_ expr a) where
-  pPrint (scId, argBinders, expr)
+  pretty (scId, argBinders, expr)
     = PP.hcat
-      [ pPrint scId
+      [ pretty scId
       , if null argBinders
-        then PP.empty
+        then PP.emptyDoc
         else PP.space
-      , PP.hcat . PP.punctuate PP.space . fmap pPrint $ argBinders
-      , PP.text " = "
-      , pPrint expr
+      , PP.hsep . fmap pretty $ argBinders
+      , PP.space
+      , PP.equals
+      , PP.space
+      , pretty expr
       ]
 
 _supercombinatorBinder :: Lens' (Supercombinator_ expr a) Identifier
@@ -127,7 +130,7 @@ instance {-# OVERLAPS #-} (Show a) => Show (Program a) where
   showsPrec = showProgram_ "Program "
 
 instance (Pretty a, Pretty (expr a)) => Pretty (Program_ expr a) where
-  pPrint (Program_ scs) = vsep . PP.punctuate PP.semi . fmap pPrint $ scs
+  pretty (Program_ scs) = PP.vcat . PP.punctuate PP.semi . fmap pretty $ scs
 
 
 type ProgramL = Program_ ExpressionL
@@ -168,8 +171,3 @@ _supercombinators = lens getter setter
     getter (Program_ scs) = scs
     setter _ = Program_
 {-# INLINEABLE _supercombinators #-}
-
--- |
--- TODO: move this into a separate module
-vsep :: [PP.Doc] -> PP.Doc
-vsep = foldr (PP.$+$) PP.empty
