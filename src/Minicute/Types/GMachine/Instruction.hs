@@ -3,11 +3,17 @@ module Minicute.Types.GMachine.Instruction where
 import Control.Lens.Operators
 import Minicute.Types.Minicute.Program
 
-transpileProgram :: MainProgram -> [Instruction]
-transpileProgram program = program ^. _supercombinators >>= transpileSc
+-- |
+-- Which calling convention we gonna use?
 
-transpileSc :: MainSupercombinator -> [Instruction]
-transpileSc sc = sc ^. _supercombinatorBody & transpileE
+transpileProgram :: MainProgram -> [(Identifier, [Instruction])]
+transpileProgram program = program ^. _supercombinators <&> transpileSc
+
+transpileSc :: MainSupercombinator -> (Identifier, [Instruction])
+transpileSc sc = (scBinder, scBodyInstruction)
+  where
+    scBinder = sc ^. _supercombinatorBinder
+    scBodyInstruction = sc ^. _supercombinatorBody & transpileE
 
 transpileE :: MainExpression -> [Instruction]
 transpileE (EInteger n) = [IMakeInteger n]
