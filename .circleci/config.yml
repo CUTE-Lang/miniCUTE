@@ -34,16 +34,29 @@ jobs:
     executor: stack-minimal
     steps:
       - checkout
+
       - restore_cache:
-          # Read about caching dependencies: https://circleci.com/docs/2.0/caching/
-          name: Restore Cached Dependencies
+          name: Restore Global Data
           keys:
-            - cci-demo-haskell-v1-{{ checksum "package.yaml" }}-{{ checksum "stack.yaml" }}
+            - circleci-minicute-global-v1-{{ arch }}-{{ checksum "stack.yaml" }}-{{ checksum "package.yaml" }}
+            - circleci-minicute-global-v1-{{ arch }}-{{ checksum "stack.yaml" }}
+            - circleci-minicute-global-v1-{{ arch }}
+
+      - restore_cache:
+          name: Restore Local Data
+          keys:
+            - circleci-minicute-local-v1-{{ arch }}-{{ checksum "stack.yaml" }}-{{ checksum "package.yaml" }}
+
       - stack-setup
       - stack-verify-all
+
       - save_cache:
-          name: Cache Dependencies
-          key: cci-demo-haskell-v1-{{ checksum "package.yaml" }}-{{ checksum "stack.yaml" }}
+          name: Cache Global Data
+          key: circleci-minicute-global-v1-{{ arch }}-{{ checksum "stack.yaml" }}-{{ checksum "package.yaml" }}
           paths:
             - "/root/.stack"
+      - save_cache:
+          name: Cache Local Data
+          key: circleci-minicute-local-v1-{{ arch }}-{{ checksum "stack.yaml" }}-{{ checksum "package.yaml" }}
+          paths:
             - ".stack-work"
