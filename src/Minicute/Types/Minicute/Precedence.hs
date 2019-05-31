@@ -15,8 +15,8 @@ module Minicute.Types.Minicute.Precedence
   , defaultPrecedenceTable
   , binaryPrecedenceTable
 
-  , applicationPrecedence
-  , applicationPrecedence1
+  , miniApplicationPrecedence
+  , miniApplicationPrecedence1
 
   , prettyBinaryExpressionPrec
   ) where
@@ -57,7 +57,7 @@ isInfix _ = False
 {-# INLINEABLE isInfix #-}
 
 -- |
--- All precedences should be smaller than 'applicationPrecedence'.
+-- All precedences should be smaller than 'miniApplicationPrecedence'.
 -- Where do I need to check this condition?
 defaultPrecedenceTable :: PrecedenceTable
 defaultPrecedenceTable
@@ -77,13 +77,13 @@ binaryPrecedenceTable :: PrecedenceTable
 binaryPrecedenceTable = filter (isInfix . snd) defaultPrecedenceTable
 {-# INLINEABLE binaryPrecedenceTable #-}
 
-applicationPrecedence :: Int
-applicationPrecedence = 100
-{-# INLINEABLE applicationPrecedence #-}
+miniApplicationPrecedence :: Int
+miniApplicationPrecedence = 100
+{-# INLINEABLE miniApplicationPrecedence #-}
 
-applicationPrecedence1 :: Int
-applicationPrecedence1 = 101
-{-# INLINEABLE applicationPrecedence1 #-}
+miniApplicationPrecedence1 :: Int
+miniApplicationPrecedence1 = 101
+{-# INLINEABLE miniApplicationPrecedence1 #-}
 
 
 prettyBinaryExpressionPrec :: (Pretty a, PrettyPrec (expr_ a)) => Int -> Identifier -> expr_ a -> expr_ a -> PP.Doc ann
@@ -99,5 +99,5 @@ prettyBinaryExpressionPrec p op e1 e2
           Just (PInfixN opP') -> (opP' + 1, opP', opP' + 1)
           Just (PInfixL opP') -> (opP', opP', opP' + 1)
           Just (PInfixR opP') -> (opP' + 1, opP', opP')
-          _ -> (applicationPrecedence1, applicationPrecedence, applicationPrecedence1)
+          _ -> (miniApplicationPrecedence1, miniApplicationPrecedence, miniApplicationPrecedence1)
 {-# INLINEABLE prettyBinaryExpressionPrec #-}

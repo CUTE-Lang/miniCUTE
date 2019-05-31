@@ -238,10 +238,10 @@ instance (Pretty a, PrettyPrec (expr_ a)) => PrettyPrec (Expression_ expr_ a) wh
       ]
   prettyPrec _ (EVariable_ vId) = pretty vId
   prettyPrec p (EApplication_ e1 e2)
-    = (if p > applicationPrecedence then PP.parens else id) . PP.align $ PP.hcat
-      [ prettyPrec applicationPrecedence e1
+    = (if p > miniApplicationPrecedence then PP.parens else id) . PP.align $ PP.hcat
+      [ prettyPrec miniApplicationPrecedence e1
       , PP.space
-      , prettyPrec applicationPrecedence1 e2
+      , prettyPrec miniApplicationPrecedence1 e2
       ]
   prettyPrec p (ELet_ flag letDefs e)
     = (if p > 0 then PP.parens else id) . PP.align $ PP.hcat
