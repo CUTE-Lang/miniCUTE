@@ -1,5 +1,8 @@
-{-# LANGUAGE TemplateHaskell #-}
-module Minicute.Utils.TH where
+module Minicute.Utils.TH
+  ( qqMiniMainL
+  , qqMiniMain
+  , qqRawCode
+  ) where
 
 import Data.Char
 import Data.List
@@ -7,6 +10,7 @@ import Data.List.Extra
 import Data.String.Minicute
 import Language.Haskell.TH
 import Language.Haskell.TH.Quote
+import Language.Haskell.TH.Syntax
 import Minicute.Parser.Parser
 import Text.Megaparsec
 
@@ -38,33 +42,16 @@ qqRawCode
     }
 
 qqMiniMainLExp :: String -> Q Exp
-qqMiniMainLExp = parseCaseExp . parseExp . qqRawCodeExp
-  where
-    parseExp :: Q Exp -> Q Exp
-    parseExp e
-      = [| parse mainProgramL "" $(e) |]
-    parseCaseExp :: Q Exp -> Q Exp
-    parseCaseExp e
-      = [| case $(e) of
-             Right result -> result
-             Left err -> error (errorBundlePretty err)
-        |]
+qqMiniMainLExp = lift . either (error . errorBundlePretty) id . parse mainProgramL "" . normalizeCode
 
 qqMiniMainExp :: String -> Q Exp
-qqMiniMainExp = parseCaseExp . parseExp . qqRawCodeExp
-  where
-    parseExp :: Q Exp -> Q Exp
-    parseExp e
-      = [| parse mainProgram "" $(e) |]
-    parseCaseExp :: Q Exp -> Q Exp
-    parseCaseExp e
-      = [| case $(e) of
-             Right result -> result
-             Left err -> error (errorBundlePretty err)
-        |]
+qqMiniMainExp = lift . either (error . errorBundlePretty) id . parse mainProgram "" . normalizeCode
 
 qqRawCodeExp :: String -> Q Exp
-qqRawCodeExp = litE . stringL . updateString . toUnix
+qqRawCodeExp = lift . normalizeCode
+
+normalizeCode :: String -> String
+normalizeCode = updateString . toUnix
   where
     updateString = dropEnd 1 . unlines . adjustIndent . trimEndEmptyLines . trimStartEmptyLines . lines
 
