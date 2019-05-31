@@ -12,14 +12,7 @@
 {-# LANGUAGE PatternSynonyms #-}
 module Minicute.Types.Minicute.Expression
   ( module Minicute.Data.Fix
-
-
-  , Identifier
-
-
-  , IsRecursive( .. )
-  , pattern Recursive
-  , pattern NonRecursive
+  , module Minicute.Types.Minicute.Common
 
 
   , LetDefinition_
@@ -116,32 +109,13 @@ import GHC.Generics
 import GHC.Show ( appPrec, appPrec1 )
 import Language.Haskell.TH.Syntax
 import Minicute.Data.Fix
+import Minicute.Types.Minicute.Common
 import Minicute.Types.Minicute.Precedence
 import Data.Text.Prettyprint.Doc ( Pretty(..) )
-import Data.Text.Prettyprint.Doc.Minicute ( PrettyPrec(..) )
+import Data.Text.Prettyprint.Doc.Minicute
 
-import qualified Data.Set as Set
 import qualified Data.Text.Prettyprint.Doc as PP
-
-type Identifier = String
-
-
-newtype IsRecursive = IsRecursive { isRecursive :: Bool }
-  deriving ( Generic
-           , Typeable
-           , Data
-           , Lift
-           , Eq
-           , Ord
-           )
-pattern Recursive = IsRecursive True
-pattern NonRecursive = IsRecursive False
-{-# COMPLETE Recursive, NonRecursive #-}
-
-instance Show IsRecursive where
-  showsPrec _ Recursive = showString "Recursive"
-  showsPrec _ NonRecursive = showString "NonRecursive"
-
+import qualified Data.Set as Set
 
 type LetDefinition_ expr_ a = (a, expr_ a)
 type LetDefinition a = LetDefinition_ Expression a
@@ -489,28 +463,6 @@ _annotation = lens getter setter
     getter (AnnotatedExpression_ (ann, _)) = ann
     setter (AnnotatedExpression_ (_, expr)) ann = AnnotatedExpression_ (ann, expr)
 {-# INLINEABLE _annotation #-}
-
--- |
--- TODO: move this into an other module
-binaryPrecedenceTable :: PrecedenceTable
-binaryPrecedenceTable = filter (isInfix . snd) defaultPrecedenceTable
-{-# INLINEABLE binaryPrecedenceTable #-}
-
-prettyBinaryExpressionPrec :: (Pretty a, PrettyPrec (expr_ a)) => Int -> Identifier -> expr_ a -> expr_ a -> PP.Doc ann
-prettyBinaryExpressionPrec p op e1 e2
-  = (if p > opP then PP.parens else id) $ PP.hsep
-    [ prettyPrec leftP e1
-    , pretty op
-    , prettyPrec rightP e2
-    ]
-  where
-    (leftP, opP, rightP)
-      = case lookup op binaryPrecedenceTable of
-          Just (PInfixN opP') -> (opP' + 1, opP', opP' + 1)
-          Just (PInfixL opP') -> (opP', opP', opP' + 1)
-          Just (PInfixR opP') -> (opP' + 1, opP', opP')
-          _ -> (applicationPrecedence1, applicationPrecedence, applicationPrecedence1)
-{-# INLINEABLE prettyBinaryExpressionPrec #-}
 
 prettyIndent :: PP.Doc ann -> PP.Doc ann
 prettyIndent = PP.indent 2

@@ -1,11 +1,34 @@
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE DeriveLift #-}
-module Minicute.Types.Minicute.Precedence where
+module Minicute.Types.Minicute.Precedence
+  ( module Minicute.Types.Minicute.Common
+
+
+  , Precedence(..)
+
+  , PrecedenceTable
+  , PrecedenceTableEntry
+
+  , isInfix
+
+  , defaultPrecedenceTable
+  , binaryPrecedenceTable
+
+  , applicationPrecedence
+  , applicationPrecedence1
+
+  , prettyBinaryExpressionPrec
+  ) where
 
 import Data.Data
+import Data.Text.Prettyprint.Doc ( Pretty(..) )
+import Data.Text.Prettyprint.Doc.Minicute
 import GHC.Generics
 import Language.Haskell.TH.Syntax
+import Minicute.Types.Minicute.Common
+
+import qualified Data.Text.Prettyprint.Doc as PP
 
 data Precedence
   = PInfixN { precedence :: Int }
@@ -23,7 +46,7 @@ data Precedence
            , Read
            )
 
-type PrecedenceTableEntry = (String, Precedence)
+type PrecedenceTableEntry = (Identifier, Precedence)
 type PrecedenceTable = [PrecedenceTableEntry]
 
 isInfix :: Precedence -> Bool
@@ -50,6 +73,10 @@ defaultPrecedenceTable
     , ("/", PInfixL 50)
     ]
 
+binaryPrecedenceTable :: PrecedenceTable
+binaryPrecedenceTable = filter (isInfix . snd) defaultPrecedenceTable
+{-# INLINEABLE binaryPrecedenceTable #-}
+
 applicationPrecedence :: Int
 applicationPrecedence = 100
 {-# INLINEABLE applicationPrecedence #-}
@@ -57,3 +84,20 @@ applicationPrecedence = 100
 applicationPrecedence1 :: Int
 applicationPrecedence1 = 101
 {-# INLINEABLE applicationPrecedence1 #-}
+
+
+prettyBinaryExpressionPrec :: (Pretty a, PrettyPrec (expr_ a)) => Int -> Identifier -> expr_ a -> expr_ a -> PP.Doc ann
+prettyBinaryExpressionPrec p op e1 e2
+  = (if p > opP then PP.parens else id) $ PP.hsep
+    [ prettyPrec leftP e1
+    , pretty op
+    , prettyPrec rightP e2
+    ]
+  where
+    (leftP, opP, rightP)
+      = case lookup op binaryPrecedenceTable of
+          Just (PInfixN opP') -> (opP' + 1, opP', opP' + 1)
+          Just (PInfixL opP') -> (opP', opP', opP' + 1)
+          Just (PInfixR opP') -> (opP' + 1, opP', opP')
+          _ -> (applicationPrecedence1, applicationPrecedence, applicationPrecedence1)
+{-# INLINEABLE prettyBinaryExpressionPrec #-}
