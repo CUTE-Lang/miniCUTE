@@ -249,8 +249,16 @@ createOperatorTable_ cVar cUn cBar = (fmap . fmap) (createOperator_ cVar cUn cBa
 {-# INLINEABLE createOperatorTable_ #-}
 
 createOperator_ :: (MonadParser e s m) => (Identifier -> expr) -> (expr -> expr -> expr) -> (expr -> expr -> expr -> expr) -> PrecedenceTableEntry -> CombExpr.Operator m expr
-createOperator_ cVar _ cBin (op, PInfixN _) = CombExpr.InfixN ((L.symbol op <?> "binary operator") $> cBin (cVar op))
-createOperator_ cVar _ cBin (op, PInfixL _) = CombExpr.InfixL ((L.symbol op <?> "binary operator") $> cBin (cVar op))
-createOperator_ cVar _ cBin (op, PInfixR _) = CombExpr.InfixR ((L.symbol op <?> "binary operator") $> cBin (cVar op))
-createOperator_ cVar cUn _ (op, PPrefix _) = CombExpr.Prefix ((L.symbol op <?> "binary operator") $> cUn (cVar op))
-createOperator_ cVar cUn _ (op, PPostfix _) = CombExpr.Postfix ((L.symbol op <?> "binary operator") $> cUn (cVar op))
+createOperator_ cVar _ cBin (op, PInfixN _) = CombExpr.InfixN (createOperatorBinParser_ cVar cBin op)
+createOperator_ cVar _ cBin (op, PInfixL _) = CombExpr.InfixL (createOperatorBinParser_ cVar cBin op)
+createOperator_ cVar _ cBin (op, PInfixR _) = CombExpr.InfixR (createOperatorBinParser_ cVar cBin op)
+createOperator_ cVar cUn _ (op, PPrefix _) = CombExpr.Prefix (createOperatorUnParser_ cVar cUn op)
+createOperator_ cVar cUn _ (op, PPostfix _) = CombExpr.Postfix (createOperatorUnParser_ cVar cUn op)
+
+createOperatorBinParser_ :: (MonadParser e s m) => (Identifier -> expr) -> (expr -> expr -> expr -> expr) -> Identifier -> m (expr -> expr -> expr)
+createOperatorBinParser_ cVar cBin op = (L.symbol op <?> "binary operator") $> cBin (cVar op)
+{-# INLINEABLE createOperatorBinParser_ #-}
+
+createOperatorUnParser_ :: (MonadParser e s m) => (Identifier -> expr) -> (expr -> expr -> expr) -> Identifier -> m (expr -> expr)
+createOperatorUnParser_ cVar cUn op = (L.symbol op <?> "unary operator") $> cUn (cVar op)
+{-# INLINEABLE createOperatorUnParser_ #-}
