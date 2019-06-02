@@ -654,7 +654,7 @@ matchMainProgramLTestCases
             , []
             , ELMatch
               (ELConstructor 1 0)
-              [ (1, [], ELInteger 5)
+              [ MatchCaseL 1 [] (ELInteger 5)
               ]
             )
           ]
@@ -673,9 +673,9 @@ matchMainProgramLTestCases
             , []
             , ELMatch
               (ELConstructor 2 0)
-              [ (1, [], ELInteger 5)
-              , (2, [], ELInteger 3)
-              , (4, [], ELVariable "g")
+              [ MatchCaseL 1 [] (ELInteger 5)
+              , MatchCaseL 2 [] (ELInteger 3)
+              , MatchCaseL 4 [] (ELVariable "g")
               ]
             )
           ]
@@ -693,8 +693,8 @@ matchMainProgramLTestCases
             , []
             , ELMatch
               (ELApplication2 (ELConstructor 2 2) (ELInteger 5) (ELInteger 4))
-              [ (1, ["x", "y"], ELVariable "x")
-              , (2, ["a", "b"], ELVariable "b")
+              [ MatchCaseL 1 ["x", "y"] (ELVariable "x")
+              , MatchCaseL 2 ["a", "b"] (ELVariable "b")
               ]
             )
           ]
@@ -713,8 +713,8 @@ matchMainProgramLTestCases
             , []
             , ELMatch
               (ELApplication2 (ELConstructor 2 2) (ELInteger 5) (ELInteger 4))
-              [ (1, ["x", "y"], ELVariable "x")
-              , (2, ["a", "b"], ELVariable "b")
+              [ MatchCaseL 1 ["x", "y"] (ELVariable "x")
+              , MatchCaseL 2 ["a", "b"] (ELVariable "b")
               ]
             )
           , ( "g"
@@ -846,7 +846,7 @@ complexMainProgramLTestCases
             , ELApplication2
               (ELVariable "+")
               (ELInteger 5)
-              (ELMatch (ELConstructor 1 0) [(1, [], ELInteger 5)])
+              (ELMatch (ELConstructor 1 0) [MatchCaseL 1 [] (ELInteger 5)])
             )
           ]
         )

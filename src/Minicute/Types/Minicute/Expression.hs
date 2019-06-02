@@ -1,12 +1,8 @@
 {-# OPTIONS_GHC -fno-warn-missing-pattern-synonym-signatures #-}
--- |
--- TODO: remove the following option
-{-# OPTIONS_GHC -fno-warn-orphans #-}
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE DeriveLift #-}
 {-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE LiberalTypeSynonyms #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE PatternSynonyms #-}
 module Minicute.Types.Minicute.Expression
@@ -28,13 +24,15 @@ module Minicute.Types.Minicute.Expression
   , _letDefinitionBody
 
 
-  , MatchCase_
+  , MatchCase_( .. )
 
   , MatchCase
   , MainMatchCase
+  , pattern MatchCase
 
   , MatchCaseL
   , MainMatchCaseL
+  , pattern MatchCaseL
 
   , _matchCaseTag
   , _matchCaseArguments
@@ -134,15 +132,31 @@ _letDefinitionBody = _letDefinition . _2
 {-# INLINEABLE _letDefinitionBody #-}
 
 
-type MatchCase_ expr_ a = (Int, [a], expr_ a)
+newtype MatchCase_ expr_ a
+  = MatchCase_ (Int, [a], expr_ a)
+  deriving ( Generic
+           , Typeable
+           , Data
+           , Lift
+           , Eq
+           , Ord
+           , Show
+           )
+
 type MatchCase a = MatchCase_ Expression a
 type MainMatchCase = MatchCase Identifier
+pattern MatchCase :: Int -> [a] -> Expression a -> MatchCase a
+pattern MatchCase tag argBinders expr = MatchCase_ (tag, argBinders, expr)
+{-# COMPLETE MatchCase #-}
 
 type MatchCaseL a = MatchCase_ ExpressionL a
 type MainMatchCaseL = MatchCaseL Identifier
+pattern MatchCaseL :: Int -> [a] -> ExpressionL a -> MatchCaseL a
+pattern MatchCaseL tag argBinders expr = MatchCase_ (tag, argBinders, expr)
+{-# COMPLETE MatchCaseL #-}
 
-instance {-# OVERLAPS #-} (Pretty a, Pretty (expr_ a)) => Pretty (MatchCase_ expr_ a) where
-  pretty (tag, argBinders, bodyExpr)
+instance (Pretty a, Pretty (expr_ a)) => Pretty (MatchCase_ expr_ a) where
+  pretty (MatchCase_ (tag, argBinders, bodyExpr))
     = PP.fuse PP.Shallow . PP.hcat
       $ [ PP.angles (pretty tag)
         , if null argBinders
@@ -153,16 +167,22 @@ instance {-# OVERLAPS #-} (Pretty a, Pretty (expr_ a)) => Pretty (MatchCase_ exp
         , pretty bodyExpr
         ]
 
+_matchCase :: Lens (MatchCase_ expr_ a) (MatchCase_ expr_' a) (Int, [a], expr_ a) (Int, [a], expr_' a)
+_matchCase = lens getter setter
+  where
+    getter (MatchCase_ mCase) = mCase
+    setter _ = MatchCase_
+
 _matchCaseTag :: Lens' (MatchCase_ expr_ a) Int
-_matchCaseTag = _1
+_matchCaseTag = _matchCase . _1
 {-# INLINEABLE _matchCaseTag #-}
 
 _matchCaseArguments :: Lens' (MatchCase_ expr_ a) [a]
-_matchCaseArguments = _2
+_matchCaseArguments = _matchCase . _2
 {-# INLINEABLE _matchCaseArguments #-}
 
 _matchCaseBody :: Lens (MatchCase_ expr_ a) (MatchCase_ expr_' a) (expr_ a) (expr_' a)
-_matchCaseBody = _3
+_matchCaseBody = _matchCase . _3
 {-# INLINEABLE _matchCaseBody #-}
 
 

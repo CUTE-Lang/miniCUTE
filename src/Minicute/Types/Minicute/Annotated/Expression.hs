@@ -1,13 +1,9 @@
 {-# OPTIONS_GHC -fno-warn-missing-pattern-synonym-signatures #-}
--- |
--- TODO: remove the following option
-{-# OPTIONS_GHC -fno-warn-orphans #-}
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE DeriveLift #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE KindSignatures #-}
-{-# LANGUAGE LiberalTypeSynonyms #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE PatternSynonyms #-}
 module Minicute.Types.Minicute.Annotated.Expression
@@ -23,6 +19,15 @@ module Minicute.Types.Minicute.Annotated.Expression
   , AnnotatedLetDefinitionL
   , MainAnnotatedLetDefinitionL
   , pattern AnnotatedLetDefinitionL
+
+
+  , AnnotatedMatchCase
+  , MainAnnotatedMatchCase
+  , pattern AnnotatedMatchCase
+
+  , AnnotatedMatchCaseL
+  , MainAnnotatedMatchCaseL
+  , pattern AnnotatedMatchCaseL
 
 
   , AnnotatedExpression_( .. )
@@ -84,6 +89,20 @@ type MainAnnotatedLetDefinitionL ann = AnnotatedLetDefinitionL ann Identifier
 pattern AnnotatedLetDefinitionL :: a -> AnnotatedExpressionL ann a -> AnnotatedLetDefinitionL ann a
 pattern AnnotatedLetDefinitionL a expr = LetDefinition_ (a, expr)
 {-# COMPLETE AnnotatedLetDefinitionL #-}
+
+
+type AnnotatedMatchCase ann a = MatchCase_ (AnnotatedExpression ann) a
+type MainAnnotatedMatchCase ann = AnnotatedMatchCase ann Identifier
+pattern AnnotatedMatchCase :: Int -> [a] -> AnnotatedExpression ann a -> AnnotatedMatchCase ann a
+pattern AnnotatedMatchCase tag argBinders expr = MatchCase_ (tag, argBinders, expr)
+{-# COMPLETE AnnotatedMatchCase #-}
+
+type AnnotatedMatchCaseL ann a = MatchCase_ (AnnotatedExpressionL ann) a
+type MainAnnotatedMatchCaseL ann = AnnotatedMatchCaseL ann Identifier
+pattern AnnotatedMatchCaseL :: Int -> [a] -> AnnotatedExpressionL ann a -> AnnotatedMatchCaseL ann a
+pattern AnnotatedMatchCaseL tag argBinders expr = MatchCase_ (tag, argBinders, expr)
+{-# COMPLETE AnnotatedMatchCaseL #-}
+
 
 newtype AnnotatedExpression_ ann wExpr (expr_ :: * -> *) a
   = AnnotatedExpression_ (ann, wExpr expr_ a)

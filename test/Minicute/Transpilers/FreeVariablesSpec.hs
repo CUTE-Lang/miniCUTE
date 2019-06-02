@@ -149,13 +149,14 @@ testCases =
         , ["x"]
         , ELMatch
           (ELVariable "x")
-          [ ( 1
-            , []
-            , ELInteger 4
-            )
-          , ( 2
-            , ["h", "t"]
-            , ELApplication2
+          [ MatchCaseL
+            1
+            []
+            (ELInteger 4)
+          , MatchCaseL
+            2
+            ["h", "t"]
+            ( ELApplication2
               (ELVariable "+")
               (ELVariable "h")
               (ELApplication (ELVariable "f") (ELVariable "t"))
@@ -169,13 +170,14 @@ testCases =
         , AELMatch
           (Set.singleton "x")
           (AELVariable (Set.singleton "x") "x")
-          [ ( 1
-            , []
-            , AELInteger Set.empty 4
-            )
-          , ( 2
-            , ["h", "t"]
-            , AELApplication2
+          [ AnnotatedMatchCaseL
+            1
+            []
+            (AELInteger Set.empty 4)
+          , AnnotatedMatchCaseL
+            2
+            ["h", "t"]
+            ( AELApplication2
               (Set.fromList ["h", "t"])
               (Set.singleton "h")
               (AELVariable Set.empty "+")

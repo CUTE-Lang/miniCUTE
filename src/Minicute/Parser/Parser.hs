@@ -166,10 +166,12 @@ matchExpression_ pA pExpr
 
 matchCase_ :: (MonadParser e s m) => WithPrecedence m a -> WithPrecedence m (expr_ a) -> WithPrecedence m (MatchCase_ expr_ a)
 matchCase_ pA pExpr
-  = (,,)
-    <$> Comb.between (L.symbol "<") (L.symbol ">") L.integer
-    <*> many pA <* L.symbol "->"
-    <*> pExpr
+  = MatchCase_
+    <$> ( (,,)
+          <$> Comb.between (L.symbol "<") (L.symbol ">") L.integer
+          <*> many pA <* L.symbol "->"
+          <*> pExpr
+        )
     <?> "match case"
 {-# INLINEABLE matchCase_ #-}
 
