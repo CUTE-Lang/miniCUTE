@@ -223,6 +223,7 @@ instance {-# OVERLAPS #-} (Show a) => Show (Expression a) where
 
 instance (Pretty a, PrettyPrec (expr_ a)) => Pretty (Expression_ expr_ a) where
   pretty = prettyPrec0
+  {-# INLINABLE pretty #-}
 
 instance (Pretty a, PrettyPrec (expr_ a)) => PrettyPrec (Expression_ expr_ a) where
   prettyPrec _ (EInteger_ n) = pretty n
@@ -267,6 +268,7 @@ instance (Pretty a, PrettyPrec (expr_ a)) => PrettyPrec (Expression_ expr_ a) wh
 
 instance (Pretty a) => Pretty (Expression a) where
   pretty = prettyPrec0
+  {-# INLINABLE pretty #-}
 
 instance (Pretty a) => PrettyPrec (Expression a) where
   prettyPrec p (EApplication2 (EVariable op) e1 e2)
@@ -327,6 +329,7 @@ instance {-# OVERLAPS #-} (Show a) => Show (ExpressionL a) where
 
 instance (Pretty a, PrettyPrec (expr_ a)) => Pretty (ExpressionL_ expr_ a) where
   pretty = prettyPrec0
+  {-# INLINABLE pretty #-}
 
 instance (Pretty a, PrettyPrec (expr_ a)) => PrettyPrec (ExpressionL_ expr_ a) where
   prettyPrec p (ELExpression_ expr_) = prettyPrec p expr_
@@ -341,6 +344,7 @@ instance (Pretty a, PrettyPrec (expr_ a)) => PrettyPrec (ExpressionL_ expr_ a) w
 
 instance (Pretty a) => Pretty (ExpressionL a) where
   pretty = prettyPrec0
+  {-# INLINABLE pretty #-}
 
 instance (Pretty a) => PrettyPrec (ExpressionL a) where
   prettyPrec p (ELApplication2 (ELVariable op) e1 e2)
@@ -465,6 +469,7 @@ _annotation = lens getter setter
 
 prettyIndent :: PP.Doc ann -> PP.Doc ann
 prettyIndent = PP.indent 2
+{-# INLINEABLE prettyIndent #-}
 
 -- |
 -- TODO: move this into a separated module
