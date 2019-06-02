@@ -84,7 +84,6 @@ import Minicute.Types.Minicute.Common
 import Minicute.Types.Minicute.Precedence
 
 import qualified Data.Text.Prettyprint.Doc as PP
-import qualified Data.Set as Set
 
 type LetDefinition_ expr_ a = (a, expr_ a)
 type LetDefinition a = LetDefinition_ Expression a
@@ -329,9 +328,3 @@ instance (Pretty a) => PrettyPrec (ExpressionL a) where
 prettyIndent :: PP.Doc ann -> PP.Doc ann
 prettyIndent = PP.indent 2
 {-# INLINEABLE prettyIndent #-}
-
--- |
--- TODO: move this into a separated module
-instance (Pretty a) => Pretty (Set.Set a) where
-  pretty set
-    = PP.braces (PP.braces (PP.hsep . PP.punctuate PP.comma . fmap pretty . Set.toList $ set))
