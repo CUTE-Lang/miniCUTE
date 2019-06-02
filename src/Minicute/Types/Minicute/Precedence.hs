@@ -88,11 +88,11 @@ miniApplicationPrecedence1 = 101
 
 prettyBinaryExpressionPrec :: (Pretty a, PrettyPrec (expr_ a)) => Int -> Identifier -> expr_ a -> expr_ a -> PP.Doc ann
 prettyBinaryExpressionPrec p op e1 e2
-  = (if p > opP then PP.parens else id) $ PP.hsep
-    [ prettyPrec leftP e1
-    , pretty op
-    , prettyPrec rightP e2
-    ]
+  = (if p > opP then PP.parens else id) . PP.hsep
+    $ [ prettyPrec leftP e1
+      , pretty op
+      , prettyPrec rightP e2
+      ]
   where
     (leftP, opP, rightP)
       = case lookup op binaryPrecedenceTable of
