@@ -1,6 +1,7 @@
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE DeriveLift #-}
+{-# LANGUAGE OverloadedStrings #-}
 module Minicute.Types.Minicute.Precedence
   ( module Minicute.Types.Minicute.Common
 
@@ -46,7 +47,7 @@ data Precedence
            , Read
            )
 
-type PrecedenceTableEntry = (Identifier, Precedence)
+type PrecedenceTableEntry = (String, Precedence)
 type PrecedenceTable = [PrecedenceTableEntry]
 
 isInfix :: Precedence -> Bool
@@ -86,7 +87,7 @@ miniApplicationPrecedence1 = 101
 {-# INLINEABLE miniApplicationPrecedence1 #-}
 
 
-prettyBinaryExpressionPrec :: (Pretty a, PrettyPrec (expr_ a)) => Int -> Identifier -> expr_ a -> expr_ a -> PP.Doc ann
+prettyBinaryExpressionPrec :: (Pretty a, PrettyPrec (expr_ a)) => Int -> String -> expr_ a -> expr_ a -> PP.Doc ann
 prettyBinaryExpressionPrec p op e1 e2
   = (if p > opP then PP.parens else id) . PP.hsep
     $ [ prettyPrec leftP e1

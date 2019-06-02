@@ -18,7 +18,7 @@ import Control.Lens.Operators
 import Control.Lens.Type
 import Control.Monad.Reader
 import Minicute.Data.Fix
-import Minicute.Types.Minicute.Program
+import Minicute.Types.Minicute.Annotated.Program
 
 import qualified Data.Set as Set
 import qualified Data.Set.Lens as Set
@@ -44,8 +44,8 @@ formFreeVariablesL :: Getter a Identifier -> ProgramL a -> ProgramLWithFreeVaria
 formFreeVariablesL _a
   = _supercombinators . each %~ formFreeVariablesSc
     where
-      formFreeVariablesSc (binder, args, body)
-        = (binder, args, runReader (formFVsEL _a body) $ args ^. setFrom (each . _a))
+      formFreeVariablesSc (SupercombinatorL binder args body)
+        = AnnotatedSupercombinatorL binder args (runReader (formFVsEL _a body) $ args ^. setFrom (each . _a))
 
       {-# INLINEABLE formFreeVariablesSc #-}
 {-# INLINEABLE formFreeVariablesL #-}

@@ -1,4 +1,6 @@
 {- HLINT ignore "Redundant do" -}
+{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE QuasiQuotes #-}
 module Minicute.Transpilers.FreeVariablesSpec
   ( spec
   ) where
@@ -8,7 +10,8 @@ import Test.Hspec
 import Control.Monad
 import Data.Tuple.Extra
 import Minicute.Transpilers.FreeVariables
-import Minicute.Types.Minicute.Program
+import Minicute.Types.Minicute.Annotated.Program
+import Minicute.Utils.TH
 
 import qualified Data.Set as Set
 
@@ -33,49 +36,46 @@ type TestCase = (TestName, TestBeforeContent, TestAfterContent)
 testCases :: [TestCase]
 testCases =
   [ ( "empty program"
-    , ProgramL
-      []
+    , [qqMiniMainL||]
     , AnnotatedProgramL
       []
     )
 
   , ( "program of a top-level definition with a single argument"
-    , ProgramL
-      [ ( "f"
-        , ["x"]
-        , ELApplication2 (ELVariable "+") (ELVariable "x") (ELVariable "x")
-        )
-      ]
+    , [qqMiniMainL|
+                  f x = x + x
+      |]
     , AnnotatedProgramL
-      [ ( "f"
-        , ["x"]
-        , AELApplication2 (Set.singleton "x") (Set.singleton "x") (AELVariable Set.empty "+") (AELVariable (Set.singleton "x") "x") (AELVariable (Set.singleton "x") "x")
+      [ AnnotatedSupercombinatorL
+        "f"
+        ["x"]
+        ( AELApplication2
+          (Set.singleton "x")
+          (Set.singleton "x")
+          (AELVariable Set.empty "+")
+          (AELVariable (Set.singleton "x") "x")
+          (AELVariable (Set.singleton "x") "x")
         )
       ]
     )
 
   , ( "program of a top-level definition of a let expression with a single let definition"
-    , ProgramL
-      [ ( "f"
-        , []
-        , ELLet
-          NonRecursive
-          [ ( "g"
-            , ELApplication (ELVariable "h") (ELInteger 4)
-            )
-          ]
-          (ELVariable "g")
-        )
-      ]
+    , [qqMiniMainL|
+                  f = let
+                        g = h 4
+                      in
+                        g
+      |]
     , AnnotatedProgramL
-      [ ( "f"
-        , []
-        , AELLet
+      [ AnnotatedSupercombinatorL
+        "f"
+        []
+        ( AELLet
           Set.empty
           NonRecursive
-          [ ( "g"
-            , AELApplication Set.empty (AELVariable Set.empty "h") (AELInteger Set.empty 4)
-            )
+          [ AnnotatedLetDefinitionL
+            "g"
+            (AELApplication Set.empty (AELVariable Set.empty "h") (AELInteger Set.empty 4))
           ]
           (AELVariable (Set.singleton "g") "g")
         )
@@ -83,47 +83,30 @@ testCases =
     )
 
   , ( "program of a top-level definition of a let expression with multiple let definitions"
-    , ProgramL
-      [ ( "f"
-        , []
-        , ELLet
-          NonRecursive
-          [ ( "g1"
-            , ELApplication (ELVariable "h") (ELInteger 4)
-            )
-          , ( "g2"
-            , ELApplication (ELVariable "h") (ELInteger 8)
-            )
-          , ( "g3"
-            , ELApplication2 (ELVariable "-") (ELInteger 8) (ELInteger 4)
-            )
-          ]
-          ( ELApplication2
-            (ELVariable "/")
-            ( ELApplication2
-              (ELVariable "*")
-              (ELVariable "g1")
-              (ELVariable "g2")
-            )
-            (ELVariable "g3")
-          )
-        )
-      ]
+    , [qqMiniMainL|
+                  f = let
+                        g1 = h 4;
+                        g2 = h 8;
+                        g3 = 8 - 4
+                      in
+                        (g1 * g2) / g3
+      |]
     , AnnotatedProgramL
-      [ ( "f"
-        , []
-        , AELLet
+      [ AnnotatedSupercombinatorL
+        "f"
+        []
+        ( AELLet
           Set.empty
           NonRecursive
-          [ ( "g1"
-            , AELApplication Set.empty (AELVariable Set.empty "h") (AELInteger Set.empty 4)
-            )
-          , ( "g2"
-            , AELApplication Set.empty (AELVariable Set.empty "h") (AELInteger Set.empty 8)
-            )
-          , ( "g3"
-            , AELApplication2 Set.empty Set.empty (AELVariable Set.empty "-") (AELInteger Set.empty 8) (AELInteger Set.empty 4)
-            )
+          [ AnnotatedLetDefinitionL
+            "g1"
+            (AELApplication Set.empty (AELVariable Set.empty "h") (AELInteger Set.empty 4))
+          , AnnotatedLetDefinitionL
+            "g2"
+            (AELApplication Set.empty (AELVariable Set.empty "h") (AELInteger Set.empty 8))
+          , AnnotatedLetDefinitionL
+            "g3"
+            (AELApplication2 Set.empty Set.empty (AELVariable Set.empty "-") (AELInteger Set.empty 8) (AELInteger Set.empty 4))
           ]
           ( AELApplication2
             (Set.fromList ["g1", "g2", "g3"])
@@ -143,38 +126,26 @@ testCases =
     )
 
   , ( "program of a top-level definition of a match expression"
-    , ProgramL
-      [ ( "f"
-        , ["x"]
-        , ELMatch
-          (ELVariable "x")
-          [ ( 1
-            , []
-            , ELInteger 4
-            )
-          , ( 2
-            , ["h", "t"]
-            , ELApplication2
-              (ELVariable "+")
-              (ELVariable "h")
-              (ELApplication (ELVariable "f") (ELVariable "t"))
-            )
-          ]
-        )
-      ]
+    , [qqMiniMainL|
+                  f x = match x with
+                          <1> -> 4;
+                          <2> h t -> h + f t
+      |]
     , AnnotatedProgramL
-      [ ( "f"
-        , ["x"]
-        , AELMatch
+      [ AnnotatedSupercombinatorL
+        "f"
+        ["x"]
+        ( AELMatch
           (Set.singleton "x")
           (AELVariable (Set.singleton "x") "x")
-          [ ( 1
-            , []
-            , AELInteger Set.empty 4
-            )
-          , ( 2
-            , ["h", "t"]
-            , AELApplication2
+          [ AnnotatedMatchCaseL
+            1
+            []
+            (AELInteger Set.empty 4)
+          , AnnotatedMatchCaseL
+            2
+            ["h", "t"]
+            ( AELApplication2
               (Set.fromList ["h", "t"])
               (Set.singleton "h")
               (AELVariable Set.empty "+")
@@ -187,16 +158,23 @@ testCases =
     )
 
   , ( "program of a top-level definition of a lambda expression"
-    , ProgramL
-      [ ( "f"
-        , []
-        , ELLambda ["x"] (ELApplication2 (ELVariable "+") (ELInteger 4) (ELVariable "x"))
-        )
-      ]
+    , [qqMiniMainL|
+                  f = \x -> 4 + x
+      |]
     , AnnotatedProgramL
-      [ ( "f"
-        , []
-        , AELLambda Set.empty ["x"] (AELApplication2 (Set.singleton "x") Set.empty (AELVariable Set.empty "+") (AELInteger Set.empty 4) (AELVariable (Set.singleton "x") "x"))
+      [ AnnotatedSupercombinatorL
+        "f"
+        []
+        ( AELLambda
+          Set.empty
+          ["x"]
+          ( AELApplication2
+            (Set.singleton "x")
+            Set.empty
+            (AELVariable Set.empty "+")
+            (AELInteger Set.empty 4)
+            (AELVariable (Set.singleton "x") "x")
+          )
         )
       ]
     )

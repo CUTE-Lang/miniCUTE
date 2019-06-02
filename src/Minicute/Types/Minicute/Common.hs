@@ -3,7 +3,7 @@
 {-# LANGUAGE DeriveLift #-}
 {-# LANGUAGE PatternSynonyms #-}
 module Minicute.Types.Minicute.Common
-  ( Identifier
+  ( Identifier( .. )
 
 
   , IsRecursive( .. )
@@ -12,11 +12,29 @@ module Minicute.Types.Minicute.Common
   ) where
 
 import Data.Data
+import Data.String ( IsString(..) )
+import Data.Text.Prettyprint.Doc ( Pretty(..) )
 import GHC.Generics
 import Language.Haskell.TH.Syntax
 
-type Identifier = String
+newtype Identifier
+  = Identifier String
+  deriving ( Generic
+           , Typeable
+           , Data
+           , Lift
+           , Eq
+           , Ord
+           )
 
+instance Show Identifier where
+  showsPrec _ (Identifier v) = showString v
+
+instance IsString Identifier where
+  fromString = Identifier
+
+instance Pretty Identifier where
+  pretty (Identifier v) = pretty v
 
 newtype IsRecursive = IsRecursive { isRecursive :: Bool }
   deriving ( Generic

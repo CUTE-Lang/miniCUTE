@@ -1,6 +1,7 @@
 {- HLINT ignore "Redundant do" -}
 {-# OPTIONS_GHC -fno-warn-type-defaults #-}
 {-# LANGUAGE BinaryLiterals #-}
+{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TypeFamilies #-}
 module Minicute.Parser.LexerSpec
   ( spec
