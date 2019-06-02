@@ -480,7 +480,7 @@ letAndLetrecMainProgramLTestCases
             , []
             , ELLet
               NonRecursive
-              [ ("x", ELInteger 5)
+              [ LetDefinitionL "x" (ELInteger 5)
               ]
               (ELVariable "x")
             )
@@ -499,7 +499,7 @@ letAndLetrecMainProgramLTestCases
             , []
             , ELLet
               Recursive
-              [ ("x", ELInteger 5)
+              [ LetDefinitionL "x" (ELInteger 5)
               ]
               (ELVariable "x")
             )
@@ -519,8 +519,8 @@ letAndLetrecMainProgramLTestCases
             , []
             , ELLet
               NonRecursive
-              [ ("x", ELInteger 5)
-              , ("y", ELInteger 4)
+              [ LetDefinitionL "x" (ELInteger 5)
+              , LetDefinitionL "y" (ELInteger 4)
               ]
               (ELApplication2 (ELVariable "+") (ELVariable "x") (ELVariable "y"))
             )
@@ -541,9 +541,9 @@ letAndLetrecMainProgramLTestCases
             , []
             , ELLet
               Recursive
-              [ ("x", ELInteger 5)
-              , ("y", ELApplication2 (ELVariable "+") (ELVariable "x") (ELVariable "x"))
-              , ("z", ELApplication2 (ELVariable "*") (ELVariable "x") (ELVariable "y"))
+              [ LetDefinitionL "x" (ELInteger 5)
+              , LetDefinitionL "y" (ELApplication2 (ELVariable "+") (ELVariable "x") (ELVariable "x"))
+              , LetDefinitionL "z" (ELApplication2 (ELVariable "*") (ELVariable "x") (ELVariable "y"))
               ]
               (ELVariable "z")
             )
@@ -564,7 +564,7 @@ letAndLetrecMainProgramLTestCases
             , []
             , ELLet
               NonRecursive
-              [ ("x", ELLet NonRecursive [ ("k", ELInteger 5) ] (ELVariable "k"))
+              [ LetDefinitionL "x" (ELLet NonRecursive [ LetDefinitionL "k" (ELInteger 5) ] (ELVariable "k"))
               ]
               (ELVariable "x")
             )
@@ -581,7 +581,7 @@ letAndLetrecMainProgramLTestCases
             , []
             , ELLet
               NonRecursive
-              [ ("x", ELLet Recursive [ ("k", ELInteger 5) ] (ELVariable "k"))
+              [ LetDefinitionL "x" (ELLet Recursive [ LetDefinitionL "k" (ELInteger 5) ] (ELVariable "k"))
               ]
               (ELVariable "x")
             )
@@ -598,7 +598,7 @@ letAndLetrecMainProgramLTestCases
             , []
             , ELLet
               Recursive
-              [ ("x", ELLet NonRecursive [ ("k", ELInteger 5) ] (ELVariable "k"))
+              [ LetDefinitionL "x" (ELLet NonRecursive [ LetDefinitionL "k" (ELInteger 5) ] (ELVariable "k"))
               ]
               (ELVariable "x")
             )
@@ -619,7 +619,7 @@ letAndLetrecMainProgramLTestCases
             , []
             , ELLet
               Recursive
-              [ ("x", ELLet Recursive [ ("k", ELInteger 5) ] (ELVariable "k"))
+              [ LetDefinitionL "x" (ELLet Recursive [ LetDefinitionL "k" (ELInteger 5) ] (ELVariable "k"))
               ]
               (ELVariable "x")
             )
@@ -830,7 +830,7 @@ complexMainProgramLTestCases
             , ELApplication2
               (ELVariable "+")
               (ELInteger 5)
-              (ELLet NonRecursive [("k", ELInteger 5)] (ELVariable "k"))
+              (ELLet NonRecursive [LetDefinitionL "k" (ELInteger 5)] (ELVariable "k"))
             )
           ]
         )

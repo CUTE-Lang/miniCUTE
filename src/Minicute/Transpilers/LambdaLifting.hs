@@ -31,7 +31,7 @@ replaceLambdaEL (AELLet _ flag lDefs expr) = ELLet flag (lDefs & each . _letDefi
 replaceLambdaEL (AELMatch _ expr mCases) = ELMatch (replaceLambdaEL expr) (mCases & each . _matchCaseBody %~ replaceLambdaEL)
 replaceLambdaEL (AELLambda fvs args expr) = foldl' ELApplication annon (ELVariable <$> fvsList)
   where
-    annon = ELLet NonRecursive [("annon", annonBody)] (ELVariable "annon")
+    annon = ELLet NonRecursive [LetDefinitionL "annon" annonBody] (ELVariable "annon")
     annonBody = ELLambda (fvsList <> args) (replaceLambdaEL expr)
     fvsList = Set.toList fvs
 
@@ -48,7 +48,7 @@ liftAnnonsEL (ELApplication e1 e2) = (scs1 <> scs2, EApplication e1' e2')
   where
     (scs1, e1') = liftAnnonsEL e1
     (scs2, e2') = liftAnnonsEL e2
-liftAnnonsEL (ELLet NonRecursive [(v1, ELLambda args e)] (ELVariable v2))
+liftAnnonsEL (ELLet NonRecursive [LetDefinitionL v1 (ELLambda args e)] (ELVariable v2))
   | v1 == v2 = (pure (v2, args, e') <> scs, EVariable v2)
   | otherwise = error "liftAnnonsEL: wrong annonymous pattern is created"
   where

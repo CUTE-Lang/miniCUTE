@@ -61,9 +61,9 @@ testCases =
         , []
         , ELLet
           NonRecursive
-          [ ( "g"
-            , ELApplication (ELVariable "h") (ELInteger 4)
-            )
+          [ LetDefinitionL
+            "g"
+            (ELApplication (ELVariable "h") (ELInteger 4))
           ]
           (ELVariable "g")
         )
@@ -74,9 +74,9 @@ testCases =
         , AELLet
           Set.empty
           NonRecursive
-          [ ( "g"
-            , AELApplication Set.empty (AELVariable Set.empty "h") (AELInteger Set.empty 4)
-            )
+          [ AnnotatedLetDefinitionL
+            "g"
+            (AELApplication Set.empty (AELVariable Set.empty "h") (AELInteger Set.empty 4))
           ]
           (AELVariable (Set.singleton "g") "g")
         )
@@ -89,15 +89,15 @@ testCases =
         , []
         , ELLet
           NonRecursive
-          [ ( "g1"
-            , ELApplication (ELVariable "h") (ELInteger 4)
-            )
-          , ( "g2"
-            , ELApplication (ELVariable "h") (ELInteger 8)
-            )
-          , ( "g3"
-            , ELApplication2 (ELVariable "-") (ELInteger 8) (ELInteger 4)
-            )
+          [ LetDefinitionL
+            "g1"
+            (ELApplication (ELVariable "h") (ELInteger 4))
+          , LetDefinitionL
+            "g2"
+            (ELApplication (ELVariable "h") (ELInteger 8))
+          , LetDefinitionL
+            "g3"
+            (ELApplication2 (ELVariable "-") (ELInteger 8) (ELInteger 4))
           ]
           ( ELApplication2
             (ELVariable "/")
@@ -116,15 +116,15 @@ testCases =
         , AELLet
           Set.empty
           NonRecursive
-          [ ( "g1"
-            , AELApplication Set.empty (AELVariable Set.empty "h") (AELInteger Set.empty 4)
-            )
-          , ( "g2"
-            , AELApplication Set.empty (AELVariable Set.empty "h") (AELInteger Set.empty 8)
-            )
-          , ( "g3"
-            , AELApplication2 Set.empty Set.empty (AELVariable Set.empty "-") (AELInteger Set.empty 8) (AELInteger Set.empty 4)
-            )
+          [ AnnotatedLetDefinitionL
+            "g1"
+            (AELApplication Set.empty (AELVariable Set.empty "h") (AELInteger Set.empty 4))
+          , AnnotatedLetDefinitionL
+            "g2"
+            (AELApplication Set.empty (AELVariable Set.empty "h") (AELInteger Set.empty 8))
+          , AnnotatedLetDefinitionL
+            "g3"
+            (AELApplication2 Set.empty Set.empty (AELVariable Set.empty "-") (AELInteger Set.empty 8) (AELInteger Set.empty 4))
           ]
           ( AELApplication2
             (Set.fromList ["g1", "g2", "g3"])

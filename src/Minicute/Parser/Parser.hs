@@ -131,9 +131,11 @@ letExpression_ pA pExpr flag
 
 letDefinition_ :: (MonadParser e s m) => WithPrecedence m a -> WithPrecedence m (expr_ a) -> WithPrecedence m (LetDefinition_ expr_ a)
 letDefinition_ pA pExpr
-  = (,)
-    <$> pA <* L.symbol "="
-    <*> pExpr
+  = LetDefinition_
+    <$> ( (,)
+          <$> pA <* L.symbol "="
+          <*> pExpr
+        )
     <?> "let definition"
 {-# INLINEABLE letDefinition_ #-}
 

@@ -14,13 +14,15 @@ module Minicute.Types.Minicute.Expression
   , module Minicute.Types.Minicute.Common
 
 
-  , LetDefinition_
+  , LetDefinition_( .. )
 
   , LetDefinition
   , MainLetDefinition
+  , pattern LetDefinition
 
   , LetDefinitionL
   , MainLetDefinitionL
+  , pattern LetDefinitionL
 
   , _letDefinitionBinder
   , _letDefinitionBody
@@ -71,6 +73,7 @@ module Minicute.Types.Minicute.Expression
   , pattern ELExpression
   ) where
 
+import Control.Lens.Lens ( lens )
 import Control.Lens.Tuple
 import Control.Lens.Type
 import Data.Data
@@ -85,27 +88,49 @@ import Minicute.Types.Minicute.Precedence
 
 import qualified Data.Text.Prettyprint.Doc as PP
 
-type LetDefinition_ expr_ a = (a, expr_ a)
+newtype LetDefinition_ expr_ a
+  = LetDefinition_ (a, expr_ a)
+  deriving ( Generic
+           , Typeable
+           , Data
+           , Lift
+           , Eq
+           , Ord
+           , Show
+           )
+
 type LetDefinition a = LetDefinition_ Expression a
 type MainLetDefinition = LetDefinition Identifier
+pattern LetDefinition :: a -> Expression a -> LetDefinition a
+pattern LetDefinition a expr = LetDefinition_ (a, expr)
+{-# COMPLETE LetDefinition #-}
 
 type LetDefinitionL a = LetDefinition_ ExpressionL a
 type MainLetDefinitionL = LetDefinitionL Identifier
+pattern LetDefinitionL :: a -> ExpressionL a -> LetDefinitionL a
+pattern LetDefinitionL a expr = LetDefinition_ (a, expr)
+{-# COMPLETE LetDefinitionL #-}
 
-instance {-# OVERLAPS #-} (Pretty a, Pretty (expr_ a)) => Pretty (LetDefinition_ expr_ a) where
-  pretty (binder, bodyExpr)
+instance (Pretty a, Pretty (expr_ a)) => Pretty (LetDefinition_ expr_ a) where
+  pretty (LetDefinition_ (binder, bodyExpr))
     = PP.hsep
       [ pretty binder
       , PP.equals
       , pretty bodyExpr
       ]
 
+_letDefinition ::Lens (LetDefinition_ expr_ a) (LetDefinition_ expr_' a) (a, expr_ a) (a, expr_' a)
+_letDefinition = lens getter setter
+  where
+    getter (LetDefinition_ lDef) = lDef
+    setter _ = LetDefinition_
+
 _letDefinitionBinder :: Lens' (LetDefinition_ expr_ a) a
-_letDefinitionBinder = _1
+_letDefinitionBinder = _letDefinition . _1
 {-# INLINEABLE _letDefinitionBinder #-}
 
 _letDefinitionBody :: Lens (LetDefinition_ expr_ a) (LetDefinition_ expr_' a) (expr_ a) (expr_' a)
-_letDefinitionBody = _2
+_letDefinitionBody = _letDefinition . _2
 {-# INLINEABLE _letDefinitionBody #-}
 
 

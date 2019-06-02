@@ -16,6 +16,15 @@ module Minicute.Types.Minicute.Annotated.Expression
   , module Minicute.Types.Minicute.Expression
 
 
+  , AnnotatedLetDefinition
+  , MainAnnotatedLetDefinition
+  , pattern AnnotatedLetDefinition
+
+  , AnnotatedLetDefinitionL
+  , MainAnnotatedLetDefinitionL
+  , pattern AnnotatedLetDefinitionL
+
+
   , AnnotatedExpression_( .. )
 
   , AnnotatedExpression
@@ -64,6 +73,17 @@ import Minicute.Types.Minicute.Precedence
 
 import qualified Data.Text.Prettyprint.Doc as PP
 
+type AnnotatedLetDefinition ann a = LetDefinition_ (AnnotatedExpression ann) a
+type MainAnnotatedLetDefinition ann = AnnotatedLetDefinition ann Identifier
+pattern AnnotatedLetDefinition :: a -> AnnotatedExpression ann a -> AnnotatedLetDefinition ann a
+pattern AnnotatedLetDefinition a expr = LetDefinition_ (a, expr)
+{-# COMPLETE AnnotatedLetDefinition #-}
+
+type AnnotatedLetDefinitionL ann a = LetDefinition_ (AnnotatedExpressionL ann) a
+type MainAnnotatedLetDefinitionL ann = AnnotatedLetDefinitionL ann Identifier
+pattern AnnotatedLetDefinitionL :: a -> AnnotatedExpressionL ann a -> AnnotatedLetDefinitionL ann a
+pattern AnnotatedLetDefinitionL a expr = LetDefinition_ (a, expr)
+{-# COMPLETE AnnotatedLetDefinitionL #-}
 
 newtype AnnotatedExpression_ ann wExpr (expr_ :: * -> *) a
   = AnnotatedExpression_ (ann, wExpr expr_ a)
