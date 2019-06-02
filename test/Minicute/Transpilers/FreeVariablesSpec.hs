@@ -9,7 +9,7 @@ import Test.Hspec
 import Control.Monad
 import Data.Tuple.Extra
 import Minicute.Transpilers.FreeVariables
-import Minicute.Types.Minicute.Program
+import Minicute.Types.Minicute.Annotated.Program
 
 import qualified Data.Set as Set
 

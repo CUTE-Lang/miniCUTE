@@ -21,12 +21,6 @@ module Minicute.Types.Minicute.Program
   , SupercombinatorL
   , MainSupercombinatorL
 
-  , AnnotatedSupercombinator
-  , MainAnnotatedSupercombinator
-
-  , AnnotatedSupercombinatorL
-  , MainAnnotatedSupercombinatorL
-
   , _supercombinatorBinder
   , _supercombinatorArguments
   , _supercombinatorBody
@@ -42,16 +36,6 @@ module Minicute.Types.Minicute.Program
   , ProgramL
   , MainProgramL
   , pattern ProgramL
-
-
-  , AnnotatedProgram
-  , MainAnnotatedProgram
-  , pattern AnnotatedProgram
-
-
-  , AnnotatedProgramL
-  , MainAnnotatedProgramL
-  , pattern AnnotatedProgramL
 
 
   , _supercombinators
@@ -76,12 +60,6 @@ type MainSupercombinator = Supercombinator Identifier
 
 type SupercombinatorL a = Supercombinator_ ExpressionL a
 type MainSupercombinatorL = SupercombinatorL Identifier
-
-type AnnotatedSupercombinator ann a = Supercombinator_ (AnnotatedExpression ann) a
-type MainAnnotatedSupercombinator ann = AnnotatedSupercombinator ann Identifier
-
-type AnnotatedSupercombinatorL ann a = Supercombinator_ (AnnotatedExpressionL ann) a
-type MainAnnotatedSupercombinatorL ann = AnnotatedSupercombinatorL ann Identifier
 
 instance {-# OVERLAPS #-} (Pretty a, Pretty (expr a)) => Pretty (Supercombinator_ expr a) where
   pretty (scId, argBinders, expr)
@@ -127,7 +105,8 @@ pattern Program sc = Program_ sc
 {-# COMPLETE Program #-}
 
 instance {-# OVERLAPS #-} (Show a) => Show (Program a) where
-  showsPrec = showProgram_ "Program "
+  showsPrec p (Program_ scs)
+    = showParen (p > appPrec) $ showString "Program " . showsPrec appPrec1 scs
 
 instance (Pretty a, Pretty (expr a)) => Pretty (Program_ expr a) where
   pretty (Program_ scs) = PP.vcat . PP.punctuate PP.semi . fmap pretty $ scs
@@ -139,31 +118,8 @@ pattern ProgramL sc = Program_ sc
 {-# COMPLETE ProgramL #-}
 
 instance {-# OVERLAPS #-} (Show a) => Show (ProgramL a) where
-  showsPrec = showProgram_ "ProgramL "
-
-
-type AnnotatedProgram ann = Program_ (AnnotatedExpression ann)
-type MainAnnotatedProgram ann = AnnotatedProgram ann Identifier
-pattern AnnotatedProgram sc = Program_ sc
-{-# COMPLETE AnnotatedProgram #-}
-
-instance {-# OVERLAPS #-} (Show ann, Show a) => Show (AnnotatedProgram ann a) where
-  showsPrec = showProgram_ "AnnotatedProgram "
-
-
-type AnnotatedProgramL ann = Program_ (AnnotatedExpressionL ann)
-type MainAnnotatedProgramL ann = AnnotatedProgramL ann Identifier
-pattern AnnotatedProgramL sc = Program_ sc
-{-# COMPLETE AnnotatedProgramL #-}
-
-instance {-# OVERLAPS #-} (Show ann, Show a) => Show (AnnotatedProgramL ann a) where
-  showsPrec = showProgram_ "AnnotatedProgramL "
-
-showProgram_ :: (Show a, Show (expr a)) => String -> Int -> Program_ expr a -> ShowS
-showProgram_ name p (Program_ scs)
-  = showParen (p > appPrec)
-    $ showString name . showsPrec appPrec1 scs
-{-# INLINEABLE showProgram_ #-}
+  showsPrec p (Program_ scs)
+    = showParen (p > appPrec) $ showString "ProgramL " . showsPrec appPrec1 scs
 
 _supercombinators :: Lens (Program_ expr a) (Program_ expr' a') [Supercombinator_ expr a] [Supercombinator_ expr' a']
 _supercombinators = lens getter setter

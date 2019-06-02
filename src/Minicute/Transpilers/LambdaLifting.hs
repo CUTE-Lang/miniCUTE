@@ -7,7 +7,7 @@ import Data.List
 import Data.Tuple
 import Minicute.Transpilers.FreeVariables
 import Minicute.Transpilers.VariablesRenaming
-import Minicute.Types.Minicute.Program
+import Minicute.Types.Minicute.Annotated.Program
 
 import qualified Data.Set as Set
 
