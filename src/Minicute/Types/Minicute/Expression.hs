@@ -47,6 +47,7 @@ module Minicute.Types.Minicute.Expression
   , pattern EInteger
   , pattern EConstructor
   , pattern EVariable
+  , pattern EVariableIdentifier
   , pattern EApplication
   , pattern EApplication2
   , pattern EApplication3
@@ -61,6 +62,7 @@ module Minicute.Types.Minicute.Expression
   , pattern ELInteger
   , pattern ELConstructor
   , pattern ELVariable
+  , pattern ELVariableIdentifier
   , pattern ELApplication
   , pattern ELApplication2
   , pattern ELApplication3
@@ -78,6 +80,7 @@ module Minicute.Types.Minicute.Expression
   , pattern AEInteger
   , pattern AEConstructor
   , pattern AEVariable
+  , pattern AEVariableIdentifier
   , pattern AEApplication
   , pattern AEApplication2
   , pattern AEApplication3
@@ -90,6 +93,7 @@ module Minicute.Types.Minicute.Expression
   , pattern AELInteger
   , pattern AELConstructor
   , pattern AELVariable
+  , pattern AELVariableIdentifier
   , pattern AELApplication
   , pattern AELApplication2
   , pattern AELApplication3
@@ -105,14 +109,14 @@ import Control.Lens.Lens ( lens )
 import Control.Lens.Tuple
 import Control.Lens.Type
 import Data.Data
+import Data.Text.Prettyprint.Doc ( Pretty(..) )
+import Data.Text.Prettyprint.Doc.Minicute
 import GHC.Generics
 import GHC.Show ( appPrec, appPrec1 )
 import Language.Haskell.TH.Syntax
 import Minicute.Data.Fix
 import Minicute.Types.Minicute.Common
 import Minicute.Types.Minicute.Precedence
-import Data.Text.Prettyprint.Doc ( Pretty(..) )
-import Data.Text.Prettyprint.Doc.Minicute
 
 import qualified Data.Text.Prettyprint.Doc as PP
 import qualified Data.Set as Set
@@ -194,12 +198,14 @@ type MainExpression = Expression Identifier
 pattern EInteger n = Fix2 (EInteger_ n)
 pattern EConstructor tag args = Fix2 (EConstructor_ tag args)
 pattern EVariable v = Fix2 (EVariable_ v)
+pattern EVariableIdentifier v = Fix2 (EVariable_ (Identifier v))
 pattern EApplication e1 e2 = Fix2 (EApplication_ e1 e2)
 pattern EApplication2 e1 e2 e3 = EApplication (EApplication e1 e2) e3
 pattern EApplication3 e1 e2 e3 e4 = EApplication (EApplication2 e1 e2 e3) e4
 pattern ELet flag lds e = Fix2 (ELet_ flag lds e)
 pattern EMatch e mcs = Fix2 (EMatch_ e mcs)
 {-# COMPLETE EInteger, EConstructor, EVariable, EApplication, ELet, EMatch #-}
+{-# COMPLETE EInteger, EConstructor, EVariableIdentifier, EApplication, ELet, EMatch #-}
 
 instance {-# OVERLAPS #-} (Show a) => Show (Expression a) where
   showsPrec p (EInteger n)
@@ -271,7 +277,7 @@ instance (Pretty a) => Pretty (Expression a) where
   {-# INLINABLE pretty #-}
 
 instance (Pretty a) => PrettyPrec (Expression a) where
-  prettyPrec p (EApplication2 (EVariable op) e1 e2)
+  prettyPrec p (EApplication2 (EVariableIdentifier op) e1 e2)
     | op `elem` fmap fst binaryPrecedenceTable
     = prettyBinaryExpressionPrec p op e1 e2
   prettyPrec p expr = prettyPrec p (unFix2 expr)
@@ -294,6 +300,7 @@ type MainExpressionL = ExpressionL Identifier
 pattern ELInteger n = ELExpression (EInteger_ n)
 pattern ELConstructor tag args = ELExpression (EConstructor_ tag args)
 pattern ELVariable v = ELExpression (EVariable_ v)
+pattern ELVariableIdentifier v = ELExpression (EVariable_ (Identifier v))
 pattern ELApplication e1 e2 = ELExpression (EApplication_ e1 e2)
 pattern ELApplication2 e1 e2 e3 = ELApplication (ELApplication e1 e2) e3
 pattern ELApplication3 e1 e2 e3 e4 = ELApplication (ELApplication2 e1 e2 e3) e4
@@ -301,6 +308,7 @@ pattern ELLet flag lds e = ELExpression (ELet_ flag lds e)
 pattern ELMatch e mcs = ELExpression (EMatch_ e mcs)
 pattern ELLambda as e = Fix2 (ELLambda_ as e)
 {-# COMPLETE ELInteger, ELConstructor, ELVariable, ELApplication, ELLet, ELMatch, ELLambda #-}
+{-# COMPLETE ELInteger, ELConstructor, ELVariableIdentifier, ELApplication, ELLet, ELMatch, ELLambda #-}
 pattern ELExpression e = Fix2 (ELExpression_ e)
 {-# COMPLETE ELExpression, ELLambda #-}
 
@@ -347,7 +355,7 @@ instance (Pretty a) => Pretty (ExpressionL a) where
   {-# INLINABLE pretty #-}
 
 instance (Pretty a) => PrettyPrec (ExpressionL a) where
-  prettyPrec p (ELApplication2 (ELVariable op) e1 e2)
+  prettyPrec p (ELApplication2 (ELVariableIdentifier op) e1 e2)
     | op `elem` fmap fst binaryPrecedenceTable
     = prettyBinaryExpressionPrec p op e1 e2
   prettyPrec p expr = prettyPrec p (unFix2 expr)
@@ -371,12 +379,14 @@ pattern AnnotatedExpression ann expr = Fix2 (AnnotatedExpression_ (ann, expr))
 pattern AEInteger ann n = AnnotatedExpression ann (EInteger_ n)
 pattern AEConstructor ann tag args = AnnotatedExpression ann (EConstructor_ tag args)
 pattern AEVariable ann v = AnnotatedExpression ann (EVariable_ v)
+pattern AEVariableIdentifier ann v = AnnotatedExpression ann (EVariable_ (Identifier v))
 pattern AEApplication ann e1 e2 = AnnotatedExpression ann (EApplication_ e1 e2)
 pattern AEApplication2 ann2 ann1 e1 e2 e3 = AEApplication ann2 (AEApplication ann1 e1 e2) e3
 pattern AEApplication3 ann3 ann2 ann1 e1 e2 e3 e4 = AEApplication ann3 (AEApplication2 ann2 ann1 e1 e2 e3) e4
 pattern AELet ann flag lds e = AnnotatedExpression ann (ELet_ flag lds e)
 pattern AEMatch ann e mcs = AnnotatedExpression ann (EMatch_ e mcs)
 {-# COMPLETE AEInteger, AEConstructor, AEVariable, AEApplication, AELet, AEMatch #-}
+{-# COMPLETE AEInteger, AEConstructor, AEVariableIdentifier, AEApplication, AELet, AEMatch #-}
 
 instance {-# OVERLAPS #-} (Show ann, Show a) => Show (AnnotatedExpression ann a) where
   showsPrec p (AEInteger ann n)
@@ -405,7 +415,7 @@ instance (Pretty ann, Pretty a, Pretty (wExpr expr_ a)) => Pretty (AnnotatedExpr
 instance (Pretty ann, Pretty a, Pretty (wExpr expr_ a)) => PrettyPrec (AnnotatedExpression_ ann wExpr expr_ a)
 
 instance (Pretty ann, Pretty a) => Pretty (AnnotatedExpression ann a) where
-  pretty (AEApplication2 ann2 ann1 (AEVariable annOp op) e1 e2)
+  pretty (AEApplication2 ann2 ann1 (AEVariableIdentifier annOp op) e1 e2)
     | op `elem` fmap fst binaryPrecedenceTable
     = PP.parens ((PP.hsep . PP.punctuate PP.comma . fmap pretty $ [ann2, ann1, annOp]) PP.<> PP.comma PP.<+> prettyBinaryExpressionPrec 0 op e1 e2)
   pretty expr = pretty (unFix2 expr)
@@ -419,6 +429,7 @@ pattern AnnotatedExpressionL ann expr = Fix2 (AnnotatedExpression_ (ann, expr))
 pattern AELInteger ann n = AELExpression ann (EInteger_ n)
 pattern AELConstructor ann tag args = AELExpression ann (EConstructor_ tag args)
 pattern AELVariable ann v = AELExpression ann (EVariable_ v)
+pattern AELVariableIdentifier ann v = AELExpression ann (EVariable_ (Identifier v))
 pattern AELApplication ann e1 e2 = AELExpression ann (EApplication_ e1 e2)
 pattern AELApplication2 ann2 ann1 e1 e2 e3 = AELApplication ann2 (AELApplication ann1 e1 e2) e3
 pattern AELApplication3 ann3 ann2 ann1 e1 e2 e3 e4 = AELApplication ann3 (AELApplication2 ann2 ann1 e1 e2 e3) e4
@@ -426,6 +437,7 @@ pattern AELLet ann flag lds e = AELExpression ann (ELet_ flag lds e)
 pattern AELMatch ann e mcs = AELExpression ann (EMatch_ e mcs)
 pattern AELLambda ann as e = AnnotatedExpressionL ann (ELLambda_ as e)
 {-# COMPLETE AELInteger, AELConstructor, AELVariable, AELApplication, AELLet, AELMatch, AELLambda #-}
+{-# COMPLETE AELInteger, AELConstructor, AELVariableIdentifier, AELApplication, AELLet, AELMatch, AELLambda #-}
 pattern AELExpression ann expr = AnnotatedExpressionL ann (ELExpression_ expr)
 {-# COMPLETE AELExpression, AELLambda #-}
 
@@ -453,7 +465,7 @@ instance {-# OVERLAPS #-} (Show ann, Show a) => Show (AnnotatedExpressionL ann a
       $ showString "AELLambda " . showsPrec appPrec1 ann . showString " " . showsPrec appPrec1 as . showString " " . showsPrec appPrec1 e
 
 instance (Pretty ann, Pretty a) => Pretty (AnnotatedExpressionL ann a) where
-  pretty (AELApplication2 ann2 ann1 (AELVariable annOp op) e1 e2)
+  pretty (AELApplication2 ann2 ann1 (AELVariableIdentifier annOp op) e1 e2)
     | op `elem` fmap fst binaryPrecedenceTable
     = PP.parens ((PP.hsep . PP.punctuate PP.comma . fmap pretty $ [ann2, ann1, annOp]) PP.<> PP.comma PP.<+> prettyBinaryExpressionPrec 0 op e1 e2)
   pretty expr = pretty (unFix2 expr)

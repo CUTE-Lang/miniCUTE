@@ -1,3 +1,4 @@
+{-# LANGUAGE OverloadedStrings #-}
 module Minicute.Transpilers.LambdaLifting where
 
 import Control.Lens.Each

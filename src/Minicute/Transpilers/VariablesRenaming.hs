@@ -1,3 +1,4 @@
+{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 module Minicute.Transpilers.VariablesRenaming
@@ -177,8 +178,8 @@ nextIdGeneratorState = (+ 1)
 {-# INLINABLE nextIdGeneratorState #-}
 
 generateId :: Identifier -> State IdGeneratorState Identifier
-generateId identifier = do
+generateId (Identifier n) = do
   st <- get
   put (nextIdGeneratorState st)
-  return (identifier <> show st)
+  return (Identifier (n <> show st))
 {-# INLINABLE generateId #-}

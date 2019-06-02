@@ -1,5 +1,6 @@
 {- HLINT ignore "Redundant do" -}
 {-# OPTIONS_GHC -fno-warn-type-defaults #-}
+{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE QuasiQuotes #-}
 module Minicute.Parser.ParserSpec
   ( spec

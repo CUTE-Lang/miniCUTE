@@ -1,4 +1,5 @@
 {- HLINT ignore "Redundant do" -}
+{-# LANGUAGE OverloadedStrings #-}
 module Minicute.Transpilers.FreeVariablesSpec
   ( spec
   ) where
