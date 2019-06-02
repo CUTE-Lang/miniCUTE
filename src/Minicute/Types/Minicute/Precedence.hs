@@ -5,7 +5,7 @@ module Minicute.Types.Minicute.Precedence
   ( module Minicute.Types.Minicute.Common
 
 
-  , Precedence(..)
+  , Precedence( .. )
 
   , PrecedenceTable
   , PrecedenceTableEntry
@@ -22,7 +22,7 @@ module Minicute.Types.Minicute.Precedence
   ) where
 
 import Data.Data
-import Data.Text.Prettyprint.Doc ( Pretty(..) )
+import Data.Text.Prettyprint.Doc ( Pretty( .. ) )
 import Data.Text.Prettyprint.Doc.Minicute
 import GHC.Generics
 import Language.Haskell.TH.Syntax

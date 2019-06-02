@@ -65,7 +65,7 @@ import GHC.Generics
 import GHC.Show ( appPrec, appPrec1 )
 import Language.Haskell.TH.Syntax
 import Minicute.Types.Minicute.Expression
-import Data.Text.Prettyprint.Doc ( Pretty(..) )
+import Data.Text.Prettyprint.Doc ( Pretty( .. ) )
 
 import qualified Data.Text.Prettyprint.Doc as PP
 
