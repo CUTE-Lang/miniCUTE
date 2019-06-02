@@ -3,10 +3,8 @@
 -- TODO: remove the following option
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 {-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE LiberalTypeSynonyms #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE PatternSynonyms #-}
-{-# LANGUAGE RankNTypes #-}
 module Minicute.Types.Minicute.Annotated.Program
   ( module Minicute.Types.Minicute.Annotated.Expression
   , module Minicute.Types.Minicute.Program
@@ -14,9 +12,11 @@ module Minicute.Types.Minicute.Annotated.Program
 
   , AnnotatedSupercombinator
   , MainAnnotatedSupercombinator
+  , pattern AnnotatedSupercombinator
 
   , AnnotatedSupercombinatorL
   , MainAnnotatedSupercombinatorL
+  , pattern AnnotatedSupercombinatorL
 
 
   , AnnotatedProgram
@@ -35,9 +35,15 @@ import Minicute.Types.Minicute.Program
 
 type AnnotatedSupercombinator ann a = Supercombinator_ (AnnotatedExpression ann) a
 type MainAnnotatedSupercombinator ann = AnnotatedSupercombinator ann Identifier
+pattern AnnotatedSupercombinator :: Identifier -> [a] -> AnnotatedExpression ann a -> AnnotatedSupercombinator ann a
+pattern AnnotatedSupercombinator scId argBinders expr = Supercombinator_ (scId, argBinders, expr)
+{-# COMPLETE AnnotatedSupercombinator #-}
 
 type AnnotatedSupercombinatorL ann a = Supercombinator_ (AnnotatedExpressionL ann) a
 type MainAnnotatedSupercombinatorL ann = AnnotatedSupercombinatorL ann Identifier
+pattern AnnotatedSupercombinatorL :: Identifier -> [a] -> AnnotatedExpressionL ann a -> AnnotatedSupercombinatorL ann a
+pattern AnnotatedSupercombinatorL scId argBinders expr = Supercombinator_ (scId, argBinders, expr)
+{-# COMPLETE AnnotatedSupercombinatorL #-}
 
 
 type AnnotatedProgram ann = Program_ (AnnotatedExpression ann)

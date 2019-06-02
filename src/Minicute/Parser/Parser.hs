@@ -77,10 +77,12 @@ precedenceTable = return defaultPrecedenceTable
 
 supercombinator_ :: (MonadParser e s m) => WithPrecedence m a -> WithPrecedence m (expr a) -> WithPrecedence m (Supercombinator_ expr a)
 supercombinator_ pA pExpr
-  = (,,)
-    <$> identifier
-    <*> many pA <* L.symbol "="
-    <*> pExpr
+  = Supercombinator_
+    <$> ( (,,)
+          <$> identifier
+          <*> many pA <* L.symbol "="
+          <*> pExpr
+        )
 {-# INLINEABLE supercombinator_ #-}
 
 

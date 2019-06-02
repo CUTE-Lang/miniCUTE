@@ -49,7 +49,7 @@ liftAnnonsEL (ELApplication e1 e2) = (scs1 <> scs2, EApplication e1' e2')
     (scs1, e1') = liftAnnonsEL e1
     (scs2, e2') = liftAnnonsEL e2
 liftAnnonsEL (ELLet NonRecursive [LetDefinitionL v1 (ELLambda args e)] (ELVariable v2))
-  | v1 == v2 = (pure (v2, args, e') <> scs, EVariable v2)
+  | v1 == v2 = (pure (Supercombinator v2 args e') <> scs, EVariable v2)
   | otherwise = error "liftAnnonsEL: wrong annonymous pattern is created"
   where
     (scs, e') = liftAnnonsEL e

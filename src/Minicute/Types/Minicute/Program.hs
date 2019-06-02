@@ -1,25 +1,22 @@
 {-# OPTIONS_GHC -fno-warn-missing-pattern-synonym-signatures #-}
--- |
--- TODO: remove the following option
-{-# OPTIONS_GHC -fno-warn-orphans #-}
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE DeriveLift #-}
 {-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE LiberalTypeSynonyms #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE PatternSynonyms #-}
-{-# LANGUAGE RankNTypes #-}
 module Minicute.Types.Minicute.Program
   ( module Minicute.Types.Minicute.Expression
 
-  , Supercombinator_
+  , Supercombinator_( .. )
 
   , Supercombinator
   , MainSupercombinator
+  , pattern Supercombinator
 
   , SupercombinatorL
   , MainSupercombinatorL
+  , pattern SupercombinatorL
 
   , _supercombinatorBinder
   , _supercombinatorArguments
@@ -53,16 +50,31 @@ import Data.Text.Prettyprint.Doc ( Pretty( .. ) )
 
 import qualified Data.Text.Prettyprint.Doc as PP
 
-type Supercombinator_ expr a = (Identifier, [a], expr a)
+newtype Supercombinator_ expr a
+  = Supercombinator_ (Identifier, [a], expr a)
+  deriving ( Generic
+           , Typeable
+           , Data
+           , Lift
+           , Eq
+           , Ord
+           , Show
+           )
 
 type Supercombinator a = Supercombinator_ Expression a
 type MainSupercombinator = Supercombinator Identifier
+pattern Supercombinator :: Identifier -> [a] -> Expression a -> Supercombinator a
+pattern Supercombinator scId argBinders expr = Supercombinator_ (scId, argBinders, expr)
+{-# COMPLETE Supercombinator #-}
 
 type SupercombinatorL a = Supercombinator_ ExpressionL a
 type MainSupercombinatorL = SupercombinatorL Identifier
+pattern SupercombinatorL :: Identifier -> [a] -> ExpressionL a -> SupercombinatorL a
+pattern SupercombinatorL scId argBinders expr = Supercombinator_ (scId, argBinders, expr)
+{-# COMPLETE SupercombinatorL #-}
 
-instance {-# OVERLAPS #-} (Pretty a, Pretty (expr a)) => Pretty (Supercombinator_ expr a) where
-  pretty (scId, argBinders, expr)
+instance (Pretty a, Pretty (expr a)) => Pretty (Supercombinator_ expr a) where
+  pretty (Supercombinator_ (scId, argBinders, expr))
     = PP.hcat
       [ pretty scId
       , if null argBinders
@@ -75,16 +87,22 @@ instance {-# OVERLAPS #-} (Pretty a, Pretty (expr a)) => Pretty (Supercombinator
       , pretty expr
       ]
 
+_supercombinator :: Lens (Supercombinator_ expr1 a) (Supercombinator_ expr2 a) (Identifier, [a], expr1 a) (Identifier, [a], expr2 a)
+_supercombinator = lens getter setter
+  where
+    getter (Supercombinator_ sc) = sc
+    setter _ = Supercombinator_
+
 _supercombinatorBinder :: Lens' (Supercombinator_ expr a) Identifier
-_supercombinatorBinder = _1
+_supercombinatorBinder = _supercombinator . _1
 {-# INLINEABLE _supercombinatorBinder #-}
 
 _supercombinatorArguments :: Lens' (Supercombinator_ expr a) [a]
-_supercombinatorArguments = _2
+_supercombinatorArguments = _supercombinator . _2
 {-# INLINEABLE _supercombinatorArguments #-}
 
 _supercombinatorBody :: Lens (Supercombinator_ expr1 a) (Supercombinator_ expr2 a) (expr1 a) (expr2 a)
-_supercombinatorBody = _3
+_supercombinatorBody = _supercombinator . _3
 {-# INLINEABLE _supercombinatorBody #-}
 
 
