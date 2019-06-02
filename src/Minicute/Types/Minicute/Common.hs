@@ -35,3 +35,4 @@ pattern NonRecursive = IsRecursive False
 instance Show IsRecursive where
   showsPrec _ Recursive = showString "Recursive"
   showsPrec _ NonRecursive = showString "NonRecursive"
+  {-# INLINABLE showsPrec #-}
