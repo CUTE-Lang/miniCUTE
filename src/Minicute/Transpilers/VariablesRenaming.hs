@@ -9,6 +9,7 @@ import Control.Lens.Each
 import Control.Lens.Iso ( coerced )
 import Control.Lens.Operators
 import Control.Lens.Type
+import Control.Lens.Wrapped ( _Wrapped )
 import Control.Monad.State
 import Control.Monad.Reader
 import Data.Function
@@ -30,7 +31,7 @@ renameVariablesL _a
 
 renameVariables_ :: Lens' a Identifier -> Renamer (expr a) -> Renamer (Program_ expr a)
 renameVariables_ _a rExpr
-  = _supercombinators %%~ renameScs
+  = _Wrapped %%~ renameScs
   where
     renameScs scs = do
       scsBinders' <- traverse renameScBinder scsBinders
