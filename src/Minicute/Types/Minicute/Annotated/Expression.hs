@@ -3,9 +3,12 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE DeriveLift #-}
 {-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE KindSignatures #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE PatternSynonyms #-}
+{-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE TypeFamilies #-}
 module Minicute.Types.Minicute.Annotated.Expression
   ( module Minicute.Data.Fix
   , module Minicute.Types.Minicute.Common
@@ -61,10 +64,13 @@ module Minicute.Types.Minicute.Annotated.Expression
   , pattern AELExpression
 
   , _annotation
+  , _annotated
   ) where
 
-import Control.Lens.Lens ( lens )
+import Control.Lens.TH
+import Control.Lens.Tuple
 import Control.Lens.Type
+import Control.Lens.Wrapped ( _Wrapped )
 import Data.Data
 import Data.Text.Prettyprint.Doc ( Pretty(..) )
 import Data.Text.Prettyprint.Doc.Minicute
@@ -215,9 +221,12 @@ instance (Pretty ann, Pretty a) => Pretty (AnnotatedExpressionL ann a) where
 
 instance (Pretty ann, Pretty a) => PrettyPrec (AnnotatedExpressionL ann a)
 
+makeWrapped ''AnnotatedExpression_
+
 _annotation :: Lens (AnnotatedExpression_ ann wExpr expr_ a) (AnnotatedExpression_ ann' wExpr expr_ a) ann ann'
-_annotation = lens getter setter
-  where
-    getter (AnnotatedExpression_ (ann, _)) = ann
-    setter (AnnotatedExpression_ (_, expr)) ann = AnnotatedExpression_ (ann, expr)
+_annotation = _Wrapped . _1
 {-# INLINEABLE _annotation #-}
+
+_annotated :: Lens (AnnotatedExpression_ ann wExpr expr_ a) (AnnotatedExpression_ ann wExpr' expr_' a') (wExpr expr_ a) (wExpr' expr_' a')
+_annotated = _Wrapped . _2
+{-# INLINEABLE _annotated #-}

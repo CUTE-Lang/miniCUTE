@@ -1,4 +1,5 @@
 {-# LANGUAGE RankNTypes #-}
+{-# LANGUAGE TypeFamilies #-}
 module Minicute.Transpilers.FreeVariables
   ( ProgramLWithFreeVariables
   , MainProgramLWithFreeVariables
@@ -13,11 +14,10 @@ module Minicute.Transpilers.FreeVariables
 
 import Control.Lens.Each
 import Control.Lens.Getter ( Getting, to )
-import Control.Lens.Iso ( coerced )
 import Control.Lens.Operators
 import Control.Lens.Type
+import Control.Lens.Wrapped ( _Wrapped )
 import Control.Monad.Reader
-import Minicute.Data.Fix
 import Minicute.Types.Minicute.Annotated.Program
 
 import qualified Data.Set as Set
@@ -42,10 +42,12 @@ formFreeVariablesMainL = formFreeVariablesL id
 
 formFreeVariablesL :: Getter a Identifier -> ProgramL a -> ProgramLWithFreeVariables a
 formFreeVariablesL _a
-  = _supercombinators . each %~ formFreeVariablesSc
+  = _Wrapped . each %~ formFreeVariablesSc
     where
-      formFreeVariablesSc (SupercombinatorL binder args body)
-        = AnnotatedSupercombinatorL binder args (runReader (formFVsEL _a body) $ args ^. setFrom (each . _a))
+      formFreeVariablesSc sc
+        = sc & _supercombinatorBody %~ flip runReader scArgsSet . formFVsEL _a
+        where
+          scArgsSet = sc ^. _supercombinatorArguments . setFrom (each . _a)
 
       {-# INLINEABLE formFreeVariablesSc #-}
 {-# INLINEABLE formFreeVariablesL #-}
@@ -57,16 +59,11 @@ type FVELEnvironment = Set.Set Identifier
 type FVFormer e e' = e -> Reader FVELEnvironment e'
 
 formFVsEL :: Getter a Identifier -> FVFormer (ExpressionL a) (ExpressionLWithFreeVariables a)
-formFVsEL _a = coerced %~ formFVsEL_ _a _fv (formFVsEL _a)
-  where
-    _fv :: Lens' (AnnotatedExpressionL FreeVariables a) FreeVariables
-    _fv = coerced . (_annotation :: Lens' (Fix2' ExpressionLWithFreeVariables_ a) FreeVariables)
+formFVsEL _a = _Wrapped %%~ formFVsEL_ _a (_Wrapped . _annotation) (formFVsEL _a)
 
 formFVsEL_ :: Getter a Identifier -> Getter (aExpr_ a) FreeVariables -> FVFormer (expr_ a) (aExpr_ a) -> FVFormer (ExpressionL_ expr_ a) (ExpressionLWithFreeVariables_ aExpr_ a)
-formFVsEL_ _a _fv fExpr (ELExpression_ expr_) = liftAnnExpr <$> formFVsE_ _a _fv fExpr expr_
-  where
-    liftAnnExpr (AnnotatedExpression_ (ann, aExpr'))
-      = AnnotatedExpression_ (ann, ELExpression_ aExpr')
+formFVsEL_ _a _fv fExpr (ELExpression_ expr_)
+  = formFVsE_ _a _fv fExpr expr_ <&> _annotated %~ ELExpression_
 formFVsEL_ _a _fv fExpr (ELLambda_ args expr) = do
   expr' <- local (argIdSet <>) . fExpr $ expr
 

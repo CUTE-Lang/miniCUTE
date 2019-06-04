@@ -1,7 +1,11 @@
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE DeriveLift #-}
+{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE PatternSynonyms #-}
+{-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE TypeFamilies #-}
 module Minicute.Types.Minicute.Common
   ( Identifier( .. )
 
@@ -11,6 +15,7 @@ module Minicute.Types.Minicute.Common
   , pattern NonRecursive
   ) where
 
+import Control.Lens.TH
 import Data.Data
 import Data.String ( IsString(..) )
 import Data.Text.Prettyprint.Doc ( Pretty(..) )
@@ -54,3 +59,7 @@ instance Show IsRecursive where
   showsPrec _ Recursive = showString "Recursive"
   showsPrec _ NonRecursive = showString "NonRecursive"
   {-# INLINABLE showsPrec #-}
+
+makeWrapped ''Identifier
+
+makeWrapped ''IsRecursive

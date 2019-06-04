@@ -1,8 +1,12 @@
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE DeriveLift #-}
+{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE UndecidableInstances #-}
 {-# LANGUAGE StandaloneDeriving #-}
+{-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE TypeFamilies #-}
 module Minicute.Data.Fix
   ( Fix( .. )
   , Fix'
@@ -11,6 +15,7 @@ module Minicute.Data.Fix
   , Fix2'
   ) where
 
+import Control.Lens.TH
 import Data.Data
 import Data.Function
 import GHC.Generics
@@ -75,3 +80,8 @@ instance (Read (f (Fix2 f) a)) => Read (Fix2 f a) where
           | ("Fix2", s') <- lex s
           , (m, s'') <- readsPrec appPrec1 s'
           ]
+
+
+makeWrapped ''Fix
+
+makeWrapped ''Fix2

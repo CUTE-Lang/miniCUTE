@@ -3,6 +3,7 @@ module Minicute.Transpilers.LambdaLifting where
 
 import Control.Lens.Each
 import Control.Lens.Operators
+import Control.Lens.Wrapped ( _Wrapped )
 import Data.List
 import Data.Tuple
 import Minicute.Transpilers.FreeVariables
@@ -20,7 +21,7 @@ lambdaLifting :: MainProgramL -> MainProgram
 lambdaLifting = liftAnnons . renameVariablesMainL . replaceLambda . formFreeVariablesMainL
 
 replaceLambda :: MainProgramLWithFreeVariables -> MainProgramL
-replaceLambda = _supercombinators . each . _supercombinatorBody %~ replaceLambdaEL
+replaceLambda = _Wrapped . each . _supercombinatorBody %~ replaceLambdaEL
 
 replaceLambdaEL :: MainExpressionLWithFreeVariables -> MainExpressionL
 replaceLambdaEL (AELInteger _ n) = ELInteger n
@@ -36,7 +37,7 @@ replaceLambdaEL (AELLambda fvs args expr) = foldl' ELApplication annon (ELVariab
     fvsList = Set.toList fvs
 
 liftAnnons :: MainProgramL -> MainProgram
-liftAnnons = _supercombinators %~ concatMap liftAnnonsSc
+liftAnnons = _Wrapped %~ concatMap liftAnnonsSc
   where
     liftAnnonsSc = uncurry (:) . swap . (_supercombinatorBody %%~ liftAnnonsEL)
 
