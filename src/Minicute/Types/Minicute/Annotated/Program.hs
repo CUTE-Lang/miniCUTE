@@ -33,13 +33,13 @@ import GHC.Show ( appPrec, appPrec1 )
 import Minicute.Types.Minicute.Annotated.Expression
 import Minicute.Types.Minicute.Program
 
-type AnnotatedSupercombinator ann a = Supercombinator_ (AnnotatedExpression ann) a
+type AnnotatedSupercombinator ann = Supercombinator_ (AnnotatedExpression ann)
 type MainAnnotatedSupercombinator ann = AnnotatedSupercombinator ann Identifier
 pattern AnnotatedSupercombinator :: Identifier -> [a] -> AnnotatedExpression ann a -> AnnotatedSupercombinator ann a
 pattern AnnotatedSupercombinator scId argBinders expr = Supercombinator_ (scId, argBinders, expr)
 {-# COMPLETE AnnotatedSupercombinator #-}
 
-type AnnotatedSupercombinatorL ann a = Supercombinator_ (AnnotatedExpressionL ann) a
+type AnnotatedSupercombinatorL ann = Supercombinator_ (AnnotatedExpressionL ann)
 type MainAnnotatedSupercombinatorL ann = AnnotatedSupercombinatorL ann Identifier
 pattern AnnotatedSupercombinatorL :: Identifier -> [a] -> AnnotatedExpressionL ann a -> AnnotatedSupercombinatorL ann a
 pattern AnnotatedSupercombinatorL scId argBinders expr = Supercombinator_ (scId, argBinders, expr)
@@ -48,6 +48,7 @@ pattern AnnotatedSupercombinatorL scId argBinders expr = Supercombinator_ (scId,
 
 type AnnotatedProgram ann = Program_ (AnnotatedExpression ann)
 type MainAnnotatedProgram ann = AnnotatedProgram ann Identifier
+pattern AnnotatedProgram :: [AnnotatedSupercombinator ann a] -> AnnotatedProgram ann a
 pattern AnnotatedProgram sc = Program_ sc
 {-# COMPLETE AnnotatedProgram #-}
 
@@ -58,6 +59,7 @@ instance {-# OVERLAPS #-} (Show ann, Show a) => Show (AnnotatedProgram ann a) wh
 
 type AnnotatedProgramL ann = Program_ (AnnotatedExpressionL ann)
 type MainAnnotatedProgramL ann = AnnotatedProgramL ann Identifier
+pattern AnnotatedProgramL :: [AnnotatedSupercombinatorL ann a] -> AnnotatedProgramL ann a
 pattern AnnotatedProgramL sc = Program_ sc
 {-# COMPLETE AnnotatedProgramL #-}
 

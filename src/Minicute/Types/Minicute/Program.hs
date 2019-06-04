@@ -62,13 +62,13 @@ newtype Supercombinator_ expr a
            , Show
            )
 
-type Supercombinator a = Supercombinator_ Expression a
+type Supercombinator = Supercombinator_ Expression
 type MainSupercombinator = Supercombinator Identifier
 pattern Supercombinator :: Identifier -> [a] -> Expression a -> Supercombinator a
 pattern Supercombinator scId argBinders expr = Supercombinator_ (scId, argBinders, expr)
 {-# COMPLETE Supercombinator #-}
 
-type SupercombinatorL a = Supercombinator_ ExpressionL a
+type SupercombinatorL = Supercombinator_ ExpressionL
 type MainSupercombinatorL = SupercombinatorL Identifier
 pattern SupercombinatorL :: Identifier -> [a] -> ExpressionL a -> SupercombinatorL a
 pattern SupercombinatorL scId argBinders expr = Supercombinator_ (scId, argBinders, expr)
@@ -102,6 +102,7 @@ newtype Program_ expr a
 
 type Program = Program_ Expression
 type MainProgram = Program Identifier
+pattern Program :: [Supercombinator a] -> Program a
 pattern Program sc = Program_ sc
 {-# COMPLETE Program #-}
 
@@ -115,6 +116,7 @@ instance (Pretty a, Pretty (expr a)) => Pretty (Program_ expr a) where
 
 type ProgramL = Program_ ExpressionL
 type MainProgramL = ProgramL Identifier
+pattern ProgramL :: [SupercombinatorL a] -> ProgramL a
 pattern ProgramL sc = Program_ sc
 {-# COMPLETE ProgramL #-}
 
