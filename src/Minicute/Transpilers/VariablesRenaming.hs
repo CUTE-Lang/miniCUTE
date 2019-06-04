@@ -4,14 +4,12 @@ module Minicute.Transpilers.VariablesRenaming
   ) where
 
 import Control.Lens.Each
-import Control.Lens.Iso ( coerced )
 import Control.Lens.Lens ( ALens', cloneLens )
 import Control.Lens.Operators
 import Control.Lens.Wrapped ( _Wrapped )
 import Control.Monad.State
 import Control.Monad.Reader
 import Data.Function
-import Minicute.Data.Fix
 import Minicute.Types.Minicute.Program
 
 import qualified Data.Map as Map
@@ -69,7 +67,7 @@ renameVariables_ _a rExpr
     {-# INLINABLE renameScBinder #-}
 
 renameVariablesEL :: ALens' a Identifier -> Renamer (ExpressionL a)
-renameVariablesEL _a = coerced %~ renameVariablesEL_ _a (renameVariablesEL _a)
+renameVariablesEL _a = _Wrapped %%~ renameVariablesEL_ _a (renameVariablesEL _a)
 {-# INLINABLE renameVariablesEL #-}
 
 renameVariablesEL_ :: ALens' a Identifier -> Renamer (expr_ a) -> Renamer (ExpressionL_ expr_ a)

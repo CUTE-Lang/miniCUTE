@@ -14,12 +14,10 @@ module Minicute.Transpilers.FreeVariables
 
 import Control.Lens.Each
 import Control.Lens.Getter ( Getting, to )
-import Control.Lens.Iso ( coerced )
 import Control.Lens.Operators
 import Control.Lens.Type
 import Control.Lens.Wrapped ( _Wrapped )
 import Control.Monad.Reader
-import Minicute.Data.Fix
 import Minicute.Types.Minicute.Annotated.Program
 
 import qualified Data.Set as Set
@@ -61,7 +59,7 @@ type FVELEnvironment = Set.Set Identifier
 type FVFormer e e' = e -> Reader FVELEnvironment e'
 
 formFVsEL :: Getter a Identifier -> FVFormer (ExpressionL a) (ExpressionLWithFreeVariables a)
-formFVsEL _a = coerced %~ formFVsEL_ _a (_Wrapped . _annotation) (formFVsEL _a)
+formFVsEL _a = _Wrapped %%~ formFVsEL_ _a (_Wrapped . _annotation) (formFVsEL _a)
 
 formFVsEL_ :: Getter a Identifier -> Getter (aExpr_ a) FreeVariables -> FVFormer (expr_ a) (aExpr_ a) -> FVFormer (ExpressionL_ expr_ a) (ExpressionLWithFreeVariables_ aExpr_ a)
 formFVsEL_ _a _fv fExpr (ELExpression_ expr_)
