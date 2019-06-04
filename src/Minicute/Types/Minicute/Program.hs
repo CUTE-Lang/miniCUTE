@@ -3,8 +3,11 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE DeriveLift #-}
 {-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE PatternSynonyms #-}
+{-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE TypeFamilies #-}
 module Minicute.Types.Minicute.Program
   ( module Minicute.Types.Minicute.Expression
 
@@ -33,14 +36,12 @@ module Minicute.Types.Minicute.Program
   , ProgramL
   , MainProgramL
   , pattern ProgramL
-
-
-  , _supercombinators
   ) where
 
-import Control.Lens.Lens ( lens )
+import Control.Lens.TH
 import Control.Lens.Tuple
 import Control.Lens.Type
+import Control.Lens.Wrapped
 import Data.Data
 import GHC.Generics
 import GHC.Show ( appPrec, appPrec1 )
@@ -61,13 +62,13 @@ newtype Supercombinator_ expr a
            , Show
            )
 
-type Supercombinator a = Supercombinator_ Expression a
+type Supercombinator = Supercombinator_ Expression
 type MainSupercombinator = Supercombinator Identifier
 pattern Supercombinator :: Identifier -> [a] -> Expression a -> Supercombinator a
 pattern Supercombinator scId argBinders expr = Supercombinator_ (scId, argBinders, expr)
 {-# COMPLETE Supercombinator #-}
 
-type SupercombinatorL a = Supercombinator_ ExpressionL a
+type SupercombinatorL = Supercombinator_ ExpressionL
 type MainSupercombinatorL = SupercombinatorL Identifier
 pattern SupercombinatorL :: Identifier -> [a] -> ExpressionL a -> SupercombinatorL a
 pattern SupercombinatorL scId argBinders expr = Supercombinator_ (scId, argBinders, expr)
@@ -87,24 +88,6 @@ instance (Pretty a, Pretty (expr a)) => Pretty (Supercombinator_ expr a) where
       , pretty expr
       ]
 
-_supercombinator :: Lens (Supercombinator_ expr1 a) (Supercombinator_ expr2 a) (Identifier, [a], expr1 a) (Identifier, [a], expr2 a)
-_supercombinator = lens getter setter
-  where
-    getter (Supercombinator_ sc) = sc
-    setter _ = Supercombinator_
-
-_supercombinatorBinder :: Lens' (Supercombinator_ expr a) Identifier
-_supercombinatorBinder = _supercombinator . _1
-{-# INLINEABLE _supercombinatorBinder #-}
-
-_supercombinatorArguments :: Lens' (Supercombinator_ expr a) [a]
-_supercombinatorArguments = _supercombinator . _2
-{-# INLINEABLE _supercombinatorArguments #-}
-
-_supercombinatorBody :: Lens (Supercombinator_ expr1 a) (Supercombinator_ expr2 a) (expr1 a) (expr2 a)
-_supercombinatorBody = _supercombinator . _3
-{-# INLINEABLE _supercombinatorBody #-}
-
 
 newtype Program_ expr a
   = Program_ [Supercombinator_ expr a]
@@ -119,6 +102,7 @@ newtype Program_ expr a
 
 type Program = Program_ Expression
 type MainProgram = Program Identifier
+pattern Program :: [Supercombinator a] -> Program a
 pattern Program sc = Program_ sc
 {-# COMPLETE Program #-}
 
@@ -132,6 +116,7 @@ instance (Pretty a, Pretty (expr a)) => Pretty (Program_ expr a) where
 
 type ProgramL = Program_ ExpressionL
 type MainProgramL = ProgramL Identifier
+pattern ProgramL :: [SupercombinatorL a] -> ProgramL a
 pattern ProgramL sc = Program_ sc
 {-# COMPLETE ProgramL #-}
 
@@ -139,9 +124,20 @@ instance {-# OVERLAPS #-} (Show a) => Show (ProgramL a) where
   showsPrec p (Program_ scs)
     = showParen (p > appPrec) $ showString "ProgramL " . showsPrec appPrec1 scs
 
-_supercombinators :: Lens (Program_ expr a) (Program_ expr' a') [Supercombinator_ expr a] [Supercombinator_ expr' a']
-_supercombinators = lens getter setter
-  where
-    getter (Program_ scs) = scs
-    setter _ = Program_
-{-# INLINEABLE _supercombinators #-}
+
+makeWrapped ''Supercombinator_
+
+_supercombinatorBinder :: Lens' (Supercombinator_ expr a) Identifier
+_supercombinatorBinder = _Wrapped . _1
+{-# INLINEABLE _supercombinatorBinder #-}
+
+_supercombinatorArguments :: Lens' (Supercombinator_ expr a) [a]
+_supercombinatorArguments = _Wrapped . _2
+{-# INLINEABLE _supercombinatorArguments #-}
+
+_supercombinatorBody :: Lens (Supercombinator_ expr1 a) (Supercombinator_ expr2 a) (expr1 a) (expr2 a)
+_supercombinatorBody = _Wrapped . _3
+{-# INLINEABLE _supercombinatorBody #-}
+
+
+makeWrapped ''Program_

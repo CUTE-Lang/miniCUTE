@@ -3,8 +3,11 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE DeriveLift #-}
 {-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE PatternSynonyms #-}
+{-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE TypeFamilies #-}
 module Minicute.Types.Minicute.Expression
   ( module Minicute.Data.Fix
   , module Minicute.Types.Minicute.Common
@@ -71,9 +74,10 @@ module Minicute.Types.Minicute.Expression
   , pattern ELExpression
   ) where
 
-import Control.Lens.Lens ( lens )
+import Control.Lens.TH
 import Control.Lens.Tuple
 import Control.Lens.Type
+import Control.Lens.Wrapped ( _Wrapped )
 import Data.Data
 import Data.Text.Prettyprint.Doc ( Pretty(..) )
 import Data.Text.Prettyprint.Doc.Minicute
@@ -117,20 +121,6 @@ instance (Pretty a, Pretty (expr_ a)) => Pretty (LetDefinition_ expr_ a) where
       , pretty bodyExpr
       ]
 
-_letDefinition ::Lens (LetDefinition_ expr_ a) (LetDefinition_ expr_' a) (a, expr_ a) (a, expr_' a)
-_letDefinition = lens getter setter
-  where
-    getter (LetDefinition_ lDef) = lDef
-    setter _ = LetDefinition_
-
-_letDefinitionBinder :: Lens' (LetDefinition_ expr_ a) a
-_letDefinitionBinder = _letDefinition . _1
-{-# INLINEABLE _letDefinitionBinder #-}
-
-_letDefinitionBody :: Lens (LetDefinition_ expr_ a) (LetDefinition_ expr_' a) (expr_ a) (expr_' a)
-_letDefinitionBody = _letDefinition . _2
-{-# INLINEABLE _letDefinitionBody #-}
-
 
 newtype MatchCase_ expr_ a
   = MatchCase_ (Int, [a], expr_ a)
@@ -166,24 +156,6 @@ instance (Pretty a, Pretty (expr_ a)) => Pretty (MatchCase_ expr_ a) where
         , " -> "
         , pretty bodyExpr
         ]
-
-_matchCase :: Lens (MatchCase_ expr_ a) (MatchCase_ expr_' a) (Int, [a], expr_ a) (Int, [a], expr_' a)
-_matchCase = lens getter setter
-  where
-    getter (MatchCase_ mCase) = mCase
-    setter _ = MatchCase_
-
-_matchCaseTag :: Lens' (MatchCase_ expr_ a) Int
-_matchCaseTag = _matchCase . _1
-{-# INLINEABLE _matchCaseTag #-}
-
-_matchCaseArguments :: Lens' (MatchCase_ expr_ a) [a]
-_matchCaseArguments = _matchCase . _2
-{-# INLINEABLE _matchCaseArguments #-}
-
-_matchCaseBody :: Lens (MatchCase_ expr_ a) (MatchCase_ expr_' a) (expr_ a) (expr_' a)
-_matchCaseBody = _matchCase . _3
-{-# INLINEABLE _matchCaseBody #-}
 
 
 data Expression_ expr_ a
@@ -287,7 +259,7 @@ instance (Pretty a) => Pretty (Expression a) where
 
 instance (Pretty a) => PrettyPrec (Expression a) where
   prettyPrec p (EApplication2 (EVariableIdentifier op) e1 e2)
-    | op `elem` fmap fst binaryPrecedenceTable
+    | op `elem` binaryOperatorNames
     = prettyBinaryExpressionPrec p op e1 e2
   prettyPrec p expr = prettyPrec p (unFix2 expr)
 
@@ -365,7 +337,7 @@ instance (Pretty a) => Pretty (ExpressionL a) where
 
 instance (Pretty a) => PrettyPrec (ExpressionL a) where
   prettyPrec p (ELApplication2 (ELVariableIdentifier op) e1 e2)
-    | op `elem` fmap fst binaryPrecedenceTable
+    | op `elem` binaryOperatorNames
     = prettyBinaryExpressionPrec p op e1 e2
   prettyPrec p expr = prettyPrec p (unFix2 expr)
 
@@ -373,3 +345,29 @@ instance (Pretty a) => PrettyPrec (ExpressionL a) where
 prettyIndent :: PP.Doc ann -> PP.Doc ann
 prettyIndent = PP.indent 2
 {-# INLINEABLE prettyIndent #-}
+
+
+makeWrapped ''LetDefinition_
+
+_letDefinitionBinder :: Lens' (LetDefinition_ expr_ a) a
+_letDefinitionBinder = _Wrapped . _1
+{-# INLINEABLE _letDefinitionBinder #-}
+
+_letDefinitionBody :: Lens (LetDefinition_ expr_ a) (LetDefinition_ expr_' a) (expr_ a) (expr_' a)
+_letDefinitionBody = _Wrapped . _2
+{-# INLINEABLE _letDefinitionBody #-}
+
+
+makeWrapped ''MatchCase_
+
+_matchCaseTag :: Lens' (MatchCase_ expr_ a) Int
+_matchCaseTag = _Wrapped . _1
+{-# INLINEABLE _matchCaseTag #-}
+
+_matchCaseArguments :: Lens' (MatchCase_ expr_ a) [a]
+_matchCaseArguments = _Wrapped . _2
+{-# INLINEABLE _matchCaseArguments #-}
+
+_matchCaseBody :: Lens (MatchCase_ expr_ a) (MatchCase_ expr_' a) (expr_ a) (expr_' a)
+_matchCaseBody = _Wrapped . _3
+{-# INLINEABLE _matchCaseBody #-}

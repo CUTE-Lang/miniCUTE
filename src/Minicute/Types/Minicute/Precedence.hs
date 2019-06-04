@@ -15,6 +15,7 @@ module Minicute.Types.Minicute.Precedence
 
   , defaultPrecedenceTable
   , binaryPrecedenceTable
+  , binaryOperatorNames
 
   , miniApplicationPrecedence
   , miniApplicationPrecedence1
@@ -47,7 +48,8 @@ data Precedence
            , Read
            )
 
-type PrecedenceTableEntry = (String, Precedence)
+type OperatorName = String
+type PrecedenceTableEntry = (OperatorName, Precedence)
 type PrecedenceTable = [PrecedenceTableEntry]
 
 isInfix :: Precedence -> Bool
@@ -78,6 +80,10 @@ binaryPrecedenceTable :: PrecedenceTable
 binaryPrecedenceTable = filter (isInfix . snd) defaultPrecedenceTable
 {-# INLINEABLE binaryPrecedenceTable #-}
 
+binaryOperatorNames :: [OperatorName]
+binaryOperatorNames = fst <$> binaryPrecedenceTable
+{-# INLINEABLE binaryOperatorNames #-}
+
 miniApplicationPrecedence :: Int
 miniApplicationPrecedence = 100
 {-# INLINEABLE miniApplicationPrecedence #-}
@@ -87,7 +93,7 @@ miniApplicationPrecedence1 = 101
 {-# INLINEABLE miniApplicationPrecedence1 #-}
 
 
-prettyBinaryExpressionPrec :: (Pretty a, PrettyPrec (expr_ a)) => Int -> String -> expr_ a -> expr_ a -> PP.Doc ann
+prettyBinaryExpressionPrec :: (Pretty a, PrettyPrec (expr_ a)) => Int -> OperatorName -> expr_ a -> expr_ a -> PP.Doc ann
 prettyBinaryExpressionPrec p op e1 e2
   = (if p > opP then PP.parens else id) . PP.hsep
     $ [ prettyPrec leftP e1
