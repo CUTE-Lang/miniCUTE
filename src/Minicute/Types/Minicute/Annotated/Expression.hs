@@ -64,6 +64,7 @@ module Minicute.Types.Minicute.Annotated.Expression
   , pattern AELExpression
 
   , _annotation
+  , _annotated
   ) where
 
 import Control.Lens.TH
@@ -225,3 +226,7 @@ makeWrapped ''AnnotatedExpression_
 _annotation :: Lens (AnnotatedExpression_ ann wExpr expr_ a) (AnnotatedExpression_ ann' wExpr expr_ a) ann ann'
 _annotation = _Wrapped . _1
 {-# INLINEABLE _annotation #-}
+
+_annotated :: Lens (AnnotatedExpression_ ann wExpr expr_ a) (AnnotatedExpression_ ann wExpr' expr_' a') (wExpr expr_ a) (wExpr' expr_' a')
+_annotated = _Wrapped . _2
+{-# INLINEABLE _annotated #-}

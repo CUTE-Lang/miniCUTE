@@ -16,7 +16,6 @@ import Control.Lens.Each
 import Control.Lens.Getter ( Getting, to )
 import Control.Lens.Iso ( coerced )
 import Control.Lens.Operators
-import Control.Lens.Tuple
 import Control.Lens.Type
 import Control.Lens.Wrapped ( _Wrapped )
 import Control.Monad.Reader
@@ -66,9 +65,7 @@ formFVsEL _a = coerced %~ formFVsEL_ _a (_Wrapped . _annotation) (formFVsEL _a)
 
 formFVsEL_ :: Getter a Identifier -> Getter (aExpr_ a) FreeVariables -> FVFormer (expr_ a) (aExpr_ a) -> FVFormer (ExpressionL_ expr_ a) (ExpressionLWithFreeVariables_ aExpr_ a)
 formFVsEL_ _a _fv fExpr (ELExpression_ expr_)
-  = liftAnnExpr <$> formFVsE_ _a _fv fExpr expr_
-  where
-    liftAnnExpr = _Wrapped . _2 %~ ELExpression_
+  = formFVsE_ _a _fv fExpr expr_ <&> _annotated %~ ELExpression_
 formFVsEL_ _a _fv fExpr (ELLambda_ args expr) = do
   expr' <- local (argIdSet <>) . fExpr $ expr
 
