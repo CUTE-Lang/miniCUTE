@@ -15,6 +15,8 @@ module Minicute.Types.Minicute.Precedence
 
   , defaultPrecedenceTable
   , binaryPrecedenceTable
+  , binaryIntegerPrecendenceTable
+  , binaryDataPrecendenceTable
 
   , miniApplicationPrecedence
   , miniApplicationPrecedence1
@@ -63,21 +65,30 @@ isInfix _ = False
 -- Where do I need to check this condition?
 defaultPrecedenceTable :: PrecedenceTable
 defaultPrecedenceTable
+  = binaryPrecedenceTable
+
+binaryPrecedenceTable :: PrecedenceTable
+binaryPrecedenceTable
+  = binaryDataPrecendenceTable
+    <> binaryIntegerPrecendenceTable
+
+binaryIntegerPrecendenceTable :: PrecedenceTable
+binaryIntegerPrecendenceTable
+  = [ ("+", PInfixL 40)
+    , ("-", PInfixL 40)
+    , ("*", PInfixL 50)
+    , ("/", PInfixL 50)
+    ]
+
+binaryDataPrecendenceTable :: PrecedenceTable
+binaryDataPrecendenceTable
   = [ (">=", PInfixL 10)
     , (">", PInfixL 10)
     , ("<=", PInfixL 10)
     , ("<", PInfixL 10)
     , ("==", PInfixL 10)
     , ("!=", PInfixL 10)
-    , ("+", PInfixL 40)
-    , ("-", PInfixL 40)
-    , ("*", PInfixL 50)
-    , ("/", PInfixL 50)
     ]
-
-binaryPrecedenceTable :: PrecedenceTable
-binaryPrecedenceTable = filter (isInfix . snd) defaultPrecedenceTable
-{-# INLINEABLE binaryPrecedenceTable #-}
 
 miniApplicationPrecedence :: Int
 miniApplicationPrecedence = 100
