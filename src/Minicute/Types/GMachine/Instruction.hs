@@ -60,7 +60,7 @@ transpileSE env (EVariable v)
   | Just index <- Map.lookup v env = [ICopyArgument index]
   | otherwise = [IMakeGlobal v]
 transpileSE env (EApplication2 (EVariableIdentifier op) e1 e2)
-  | op `elem` binaryOperatorNames
+  | Just _ <- lookup op binaryPrecedenceTable
   = transpileSE env e1 <> transpileSE (addEnvOffset1 env) e2 <> [IPrimitive (getPrimitiveOperator op)]
 transpileSE env (EApplication e1 e2)
   = transpileSE env e1 <> transpileSE (addEnvOffset1 env) e2 <> [IMakeApplication]
