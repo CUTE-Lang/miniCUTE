@@ -99,13 +99,13 @@ pattern AnnotatedLetDefinitionL a expr = LetDefinition_ (a, expr)
 
 type AnnotatedMatchCase ann a = MatchCase_ (AnnotatedExpression ann) a
 type MainAnnotatedMatchCase ann = AnnotatedMatchCase ann Identifier
-pattern AnnotatedMatchCase :: Int -> [a] -> AnnotatedExpression ann a -> AnnotatedMatchCase ann a
+pattern AnnotatedMatchCase :: Integer -> [a] -> AnnotatedExpression ann a -> AnnotatedMatchCase ann a
 pattern AnnotatedMatchCase tag argBinders expr = MatchCase_ (tag, argBinders, expr)
 {-# COMPLETE AnnotatedMatchCase #-}
 
 type AnnotatedMatchCaseL ann a = MatchCase_ (AnnotatedExpressionL ann) a
 type MainAnnotatedMatchCaseL ann = AnnotatedMatchCaseL ann Identifier
-pattern AnnotatedMatchCaseL :: Int -> [a] -> AnnotatedExpressionL ann a -> AnnotatedMatchCaseL ann a
+pattern AnnotatedMatchCaseL :: Integer -> [a] -> AnnotatedExpressionL ann a -> AnnotatedMatchCaseL ann a
 pattern AnnotatedMatchCaseL tag argBinders expr = MatchCase_ (tag, argBinders, expr)
 {-# COMPLETE AnnotatedMatchCaseL #-}
 

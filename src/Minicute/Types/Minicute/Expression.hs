@@ -123,7 +123,7 @@ instance (Pretty a, Pretty (expr_ a)) => Pretty (LetDefinition_ expr_ a) where
 
 
 newtype MatchCase_ expr_ a
-  = MatchCase_ (Int, [a], expr_ a)
+  = MatchCase_ (Integer, [a], expr_ a)
   deriving ( Generic
            , Typeable
            , Data
@@ -135,13 +135,13 @@ newtype MatchCase_ expr_ a
 
 type MatchCase a = MatchCase_ Expression a
 type MainMatchCase = MatchCase Identifier
-pattern MatchCase :: Int -> [a] -> Expression a -> MatchCase a
+pattern MatchCase :: Integer -> [a] -> Expression a -> MatchCase a
 pattern MatchCase tag argBinders expr = MatchCase_ (tag, argBinders, expr)
 {-# COMPLETE MatchCase #-}
 
 type MatchCaseL a = MatchCase_ ExpressionL a
 type MainMatchCaseL = MatchCaseL Identifier
-pattern MatchCaseL :: Int -> [a] -> ExpressionL a -> MatchCaseL a
+pattern MatchCaseL :: Integer -> [a] -> ExpressionL a -> MatchCaseL a
 pattern MatchCaseL tag argBinders expr = MatchCase_ (tag, argBinders, expr)
 {-# COMPLETE MatchCaseL #-}
 
@@ -160,7 +160,7 @@ instance (Pretty a, Pretty (expr_ a)) => Pretty (MatchCase_ expr_ a) where
 
 data Expression_ expr_ a
   = EInteger_ Integer
-  | EConstructor_ Int Int
+  | EConstructor_ Integer Integer
   | EVariable_ Identifier
   | EApplication_ (expr_ a) (expr_ a)
   | ELet_ IsRecursive [LetDefinition_ expr_ a] (expr_ a)
@@ -360,7 +360,7 @@ _letDefinitionBody = _Wrapped . _2
 
 makeWrapped ''MatchCase_
 
-_matchCaseTag :: Lens' (MatchCase_ expr_ a) Int
+_matchCaseTag :: Lens' (MatchCase_ expr_ a) Integer
 _matchCaseTag = _Wrapped . _1
 {-# INLINEABLE _matchCaseTag #-}
 
