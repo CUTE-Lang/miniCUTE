@@ -124,15 +124,6 @@ data PrimitiveOperator
   | POSub
   | POMul
   | PODiv
-
-  | PONeg
-
-  | POEq
-  | PONe
-  | POLt
-  | POLe
-  | POGt
-  | POGe
   deriving ( Eq
            , Ord
            , Show
