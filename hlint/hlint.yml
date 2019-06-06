@@ -1,6 +1,9 @@
 # For more information about this file, see
 # https://github.com/ndmitchell/hlint/blob/master/data/hlint.yaml
 
+- ignore:
+    name: Use record patterns
+
 # enabled rules
 - group:
     name: generalise

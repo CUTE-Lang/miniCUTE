@@ -99,13 +99,13 @@ pattern AnnotatedLetDefinitionL a expr = LetDefinition_ (a, expr)
 
 type AnnotatedMatchCase ann a = MatchCase_ (AnnotatedExpression ann) a
 type MainAnnotatedMatchCase ann = AnnotatedMatchCase ann Identifier
-pattern AnnotatedMatchCase :: Int -> [a] -> AnnotatedExpression ann a -> AnnotatedMatchCase ann a
+pattern AnnotatedMatchCase :: Integer -> [a] -> AnnotatedExpression ann a -> AnnotatedMatchCase ann a
 pattern AnnotatedMatchCase tag argBinders expr = MatchCase_ (tag, argBinders, expr)
 {-# COMPLETE AnnotatedMatchCase #-}
 
 type AnnotatedMatchCaseL ann a = MatchCase_ (AnnotatedExpressionL ann) a
 type MainAnnotatedMatchCaseL ann = AnnotatedMatchCaseL ann Identifier
-pattern AnnotatedMatchCaseL :: Int -> [a] -> AnnotatedExpressionL ann a -> AnnotatedMatchCaseL ann a
+pattern AnnotatedMatchCaseL :: Integer -> [a] -> AnnotatedExpressionL ann a -> AnnotatedMatchCaseL ann a
 pattern AnnotatedMatchCaseL tag argBinders expr = MatchCase_ (tag, argBinders, expr)
 {-# COMPLETE AnnotatedMatchCaseL #-}
 
@@ -168,8 +168,8 @@ instance (Pretty ann, Pretty a, Pretty (wExpr expr_ a)) => PrettyPrec (Annotated
 
 instance (Pretty ann, Pretty a) => Pretty (AnnotatedExpression ann a) where
   pretty (AEApplication2 ann2 ann1 (AEVariableIdentifier annOp op) e1 e2)
-    | op `elem` binaryOperatorNames
-    = PP.parens ((PP.hsep . PP.punctuate PP.comma . fmap pretty $ [ann2, ann1, annOp]) PP.<> PP.comma PP.<+> prettyBinaryExpressionPrec 0 op e1 e2)
+    | Just opPrec <- lookup op binaryPrecedenceTable
+    = PP.parens ((PP.hsep . PP.punctuate PP.comma . fmap pretty $ [ann2, ann1, annOp]) PP.<> PP.comma PP.<+> prettyBinaryExpressionPrec 0 op opPrec e1 e2)
   pretty expr = pretty (unFix2 expr)
 
 instance (Pretty ann, Pretty a) => PrettyPrec (AnnotatedExpression ann a)
@@ -221,8 +221,8 @@ instance {-# OVERLAPS #-} (Show ann, Show a) => Show (AnnotatedExpressionL ann a
 
 instance (Pretty ann, Pretty a) => Pretty (AnnotatedExpressionL ann a) where
   pretty (AELApplication2 ann2 ann1 (AELVariableIdentifier annOp op) e1 e2)
-    | op `elem` binaryOperatorNames
-    = PP.parens ((PP.hsep . PP.punctuate PP.comma . fmap pretty $ [ann2, ann1, annOp]) PP.<> PP.comma PP.<+> prettyBinaryExpressionPrec 0 op e1 e2)
+    | Just opPrec <- lookup op binaryPrecedenceTable
+    = PP.parens ((PP.hsep . PP.punctuate PP.comma . fmap pretty $ [ann2, ann1, annOp]) PP.<> PP.comma PP.<+> prettyBinaryExpressionPrec 0 op opPrec e1 e2)
   pretty expr = pretty (unFix2 expr)
 
 instance (Pretty ann, Pretty a) => PrettyPrec (AnnotatedExpressionL ann a)

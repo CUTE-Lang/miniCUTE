@@ -15,7 +15,8 @@ module Minicute.Types.Minicute.Precedence
 
   , defaultPrecedenceTable
   , binaryPrecedenceTable
-  , binaryOperatorNames
+  , binaryIntegerPrecendenceTable
+  , binaryDataPrecendenceTable
 
   , miniApplicationPrecedence
   , miniApplicationPrecedence1
@@ -64,25 +65,30 @@ isInfix _ = False
 -- Where do I need to check this condition?
 defaultPrecedenceTable :: PrecedenceTable
 defaultPrecedenceTable
+  = binaryPrecedenceTable
+
+binaryPrecedenceTable :: PrecedenceTable
+binaryPrecedenceTable
+  = binaryDataPrecendenceTable
+    <> binaryIntegerPrecendenceTable
+
+binaryIntegerPrecendenceTable :: PrecedenceTable
+binaryIntegerPrecendenceTable
+  = [ ("+", PInfixL 40)
+    , ("-", PInfixL 40)
+    , ("*", PInfixL 50)
+    , ("/", PInfixL 50)
+    ]
+
+binaryDataPrecendenceTable :: PrecedenceTable
+binaryDataPrecendenceTable
   = [ (">=", PInfixL 10)
     , (">", PInfixL 10)
     , ("<=", PInfixL 10)
     , ("<", PInfixL 10)
     , ("==", PInfixL 10)
     , ("!=", PInfixL 10)
-    , ("+", PInfixL 40)
-    , ("-", PInfixL 40)
-    , ("*", PInfixL 50)
-    , ("/", PInfixL 50)
     ]
-
-binaryPrecedenceTable :: PrecedenceTable
-binaryPrecedenceTable = filter (isInfix . snd) defaultPrecedenceTable
-{-# INLINEABLE binaryPrecedenceTable #-}
-
-binaryOperatorNames :: [OperatorName]
-binaryOperatorNames = fst <$> binaryPrecedenceTable
-{-# INLINEABLE binaryOperatorNames #-}
 
 miniApplicationPrecedence :: Int
 miniApplicationPrecedence = 100
@@ -93,8 +99,8 @@ miniApplicationPrecedence1 = 101
 {-# INLINEABLE miniApplicationPrecedence1 #-}
 
 
-prettyBinaryExpressionPrec :: (Pretty a, PrettyPrec (expr_ a)) => Int -> OperatorName -> expr_ a -> expr_ a -> PP.Doc ann
-prettyBinaryExpressionPrec p op e1 e2
+prettyBinaryExpressionPrec :: (Pretty a, PrettyPrec (expr_ a)) => Int -> String -> Precedence -> expr_ a -> expr_ a -> PP.Doc ann
+prettyBinaryExpressionPrec p op opPrec e1 e2
   = (if p > opP then PP.parens else id) . PP.hsep
     $ [ prettyPrec leftP e1
       , pretty op
@@ -102,9 +108,9 @@ prettyBinaryExpressionPrec p op e1 e2
       ]
   where
     (leftP, opP, rightP)
-      = case lookup op binaryPrecedenceTable of
-          Just (PInfixN opP') -> (opP' + 1, opP', opP' + 1)
-          Just (PInfixL opP') -> (opP', opP', opP' + 1)
-          Just (PInfixR opP') -> (opP' + 1, opP', opP')
+      = case opPrec of
+          PInfixN opP' -> (opP' + 1, opP', opP' + 1)
+          PInfixL opP' -> (opP', opP', opP' + 1)
+          PInfixR opP' -> (opP' + 1, opP', opP')
           _ -> (miniApplicationPrecedence1, miniApplicationPrecedence, miniApplicationPrecedence1)
 {-# INLINEABLE prettyBinaryExpressionPrec #-}
