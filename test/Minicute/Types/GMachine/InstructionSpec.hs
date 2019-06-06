@@ -64,6 +64,7 @@ testCases
       , [ ( "f"
           , 1
           , [ ICopyArgument 1
+            , IEval
             , IUpdate 2
             , IPop 2
             , IUnwind
@@ -82,6 +83,7 @@ testCases
           , [ IMakeGlobal "g"
             , IMakeInteger 4
             , IMakeApplication
+            , IEval
             , IUpdate 1
             , IPop 1
             , IUnwind
@@ -90,6 +92,7 @@ testCases
         , ( "g"
           , 1
           , [ ICopyArgument 1
+            , IEval
             , IUpdate 2
             , IPop 2
             , IUnwind
@@ -108,6 +111,7 @@ testCases
           , [ IMakeConstructor 1 1
             , IMakeInteger 4
             , IMakeApplication
+            , IEval
             , IUpdate 1
             , IPop 1
             , IUnwind
@@ -118,6 +122,7 @@ testCases
           , [ IMakeConstructor 3 2
             , ICopyArgument 2
             , IMakeApplication
+            , IEval
             , IUpdate 2
             , IPop 2
             , IUnwind
