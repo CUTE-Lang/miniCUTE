@@ -130,4 +130,38 @@ testCases
           )
         ]
       )
+
+    , ( "program with an arithmetic operation"
+      , [qqMiniMain|
+                   f = 2 + 3
+        |]
+      , [ ( "f"
+          , 0
+          , [ IPushBasicValue 2
+            , IPushBasicValue 3
+            , IPrimitive POAdd
+            , IUpdateAsInteger 0
+            ]
+          )
+        ]
+      )
+
+    , ( "program with multiple arithmetic operations"
+      , [qqMiniMain|
+                   f = 2 + 3 * 4 + 7
+        |]
+      , [ ( "f"
+          , 0
+          , [ IPushBasicValue 2
+            , IPushBasicValue 3
+            , IPushBasicValue 4
+            , IPrimitive POMul
+            , IPrimitive POAdd
+            , IPushBasicValue 7
+            , IPrimitive POAdd
+            , IUpdateAsInteger 0
+            ]
+          )
+        ]
+      )
     ]
