@@ -164,4 +164,36 @@ testCases
           )
         ]
       )
+
+    , ( "program with a arithmetic operation in an application"
+      , [qqMiniMain|
+                   f = g (3 * 4);
+                   g x = x;
+        |]
+      , [ ( "f"
+          , 0
+          , [ IMakeGlobal "g"
+            , IMakeGlobal "*"
+            , IMakeInteger 3
+            , IMakeApplication
+            , IMakeInteger 4
+            , IMakeApplication
+            , IMakeApplication
+            , IEval
+            , IUpdate 1
+            , IPop 1
+            , IUnwind
+            ]
+          )
+        , ( "g"
+          , 1
+          , [ ICopyArgument 1
+            , IEval
+            , IUpdate 2
+            , IPop 2
+            , IUnwind
+            ]
+          )
+        ]
+      )
     ]
