@@ -36,7 +36,7 @@ transpileSc sc = (scBinder, scArgsLength, scInsts)
 
     scInsts = sc ^. _supercombinatorBody & transpileRE scArgsEnv
 
-    scArgsEnv = Map.fromList $ zip scArgs [1..]
+    scArgsEnv = Map.fromList $ zip scArgs [0..]
     scArgsLength = length scArgs
     scArgs = sc ^. _supercombinatorArguments
 

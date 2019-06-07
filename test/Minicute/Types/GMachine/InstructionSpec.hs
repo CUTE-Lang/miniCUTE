@@ -63,7 +63,7 @@ testCases
         |]
       , [ ( "f"
           , 1
-          , [ ICopyArgument 1
+          , [ ICopyArgument 0
             , IEval
             , IUpdate 2
             , IPop 2
@@ -80,8 +80,8 @@ testCases
         |]
       , [ ( "f"
           , 2
-          , [ ICopyArgument 2
-            , ICopyArgument 2
+          , [ ICopyArgument 1
+            , ICopyArgument 1
             , IMakeApplication
             , IEval
             , IUpdate 3
@@ -91,10 +91,10 @@ testCases
           )
         , ( "g"
           , 3
-          , [ ICopyArgument 1
-            , ICopyArgument 4
-            , IMakeApplication
+          , [ ICopyArgument 0
             , ICopyArgument 3
+            , IMakeApplication
+            , ICopyArgument 2
             , IMakeApplication
             , IEval
             , IUpdate 4
@@ -123,7 +123,7 @@ testCases
           )
         , ( "g"
           , 1
-          , [ ICopyArgument 1
+          , [ ICopyArgument 0
             , IEval
             , IUpdate 2
             , IPop 2
@@ -152,7 +152,7 @@ testCases
         , ( "g"
           , 1
           , [ IMakeConstructor 3 2
-            , ICopyArgument 2
+            , ICopyArgument 1
             , IMakeApplication
             , IEval
             , IUpdate 2
@@ -219,7 +219,7 @@ testCases
           )
         , ( "g"
           , 1
-          , [ ICopyArgument 1
+          , [ ICopyArgument 0
             , IEval
             , IUpdate 2
             , IPop 2
