@@ -73,6 +73,38 @@ testCases
         ]
       )
 
+    , ( "program with arguments"
+      , [qqMiniMain|
+                   f x y = y x;
+                   g a b c = a c b
+        |]
+      , [ ( "f"
+          , 2
+          , [ ICopyArgument 2
+            , ICopyArgument 2
+            , IMakeApplication
+            , IEval
+            , IUpdate 3
+            , IPop 3
+            , IUnwind
+            ]
+          )
+        , ( "g"
+          , 3
+          , [ ICopyArgument 1
+            , ICopyArgument 4
+            , IMakeApplication
+            , ICopyArgument 3
+            , IMakeApplication
+            , IEval
+            , IUpdate 4
+            , IPop 4
+            , IUnwind
+            ]
+          )
+        ]
+      )
+
     , ( "program with a simple application"
       , [qqMiniMain|
                    f = g 4;
