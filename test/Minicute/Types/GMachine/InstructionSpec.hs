@@ -63,10 +63,42 @@ testCases
         |]
       , [ ( "f"
           , 1
-          , [ ICopyArgument 1
+          , [ ICopyArgument 0
             , IEval
             , IUpdate 2
             , IPop 2
+            , IUnwind
+            ]
+          )
+        ]
+      )
+
+    , ( "program with arguments"
+      , [qqMiniMain|
+                   f x y = y x;
+                   g a b c = a c b
+        |]
+      , [ ( "f"
+          , 2
+          , [ ICopyArgument 1
+            , ICopyArgument 1
+            , IMakeApplication
+            , IEval
+            , IUpdate 3
+            , IPop 3
+            , IUnwind
+            ]
+          )
+        , ( "g"
+          , 3
+          , [ ICopyArgument 0
+            , ICopyArgument 3
+            , IMakeApplication
+            , ICopyArgument 2
+            , IMakeApplication
+            , IEval
+            , IUpdate 4
+            , IPop 4
             , IUnwind
             ]
           )
@@ -91,7 +123,7 @@ testCases
           )
         , ( "g"
           , 1
-          , [ ICopyArgument 1
+          , [ ICopyArgument 0
             , IEval
             , IUpdate 2
             , IPop 2
@@ -120,7 +152,7 @@ testCases
         , ( "g"
           , 1
           , [ IMakeConstructor 3 2
-            , ICopyArgument 2
+            , ICopyArgument 1
             , IMakeApplication
             , IEval
             , IUpdate 2
@@ -160,6 +192,38 @@ testCases
             , IPushBasicValue 7
             , IPrimitive POAdd
             , IUpdateAsInteger 0
+            ]
+          )
+        ]
+      )
+
+    , ( "program with a arithmetic operation in an application"
+      , [qqMiniMain|
+                   f = g (3 * 4);
+                   g x = x;
+        |]
+      , [ ( "f"
+          , 0
+          , [ IMakeGlobal "g"
+            , IMakeGlobal "*"
+            , IMakeInteger 3
+            , IMakeApplication
+            , IMakeInteger 4
+            , IMakeApplication
+            , IMakeApplication
+            , IEval
+            , IUpdate 1
+            , IPop 1
+            , IUnwind
+            ]
+          )
+        , ( "g"
+          , 1
+          , [ ICopyArgument 0
+            , IEval
+            , IUpdate 2
+            , IPop 2
+            , IUnwind
             ]
           )
         ]
