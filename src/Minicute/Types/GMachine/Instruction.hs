@@ -125,6 +125,7 @@ data Instruction
   Stack based operations
   -}
   | IPop Int
+  | IDig Int
   | IUpdate Int
   | ICopyArgument Int
 
