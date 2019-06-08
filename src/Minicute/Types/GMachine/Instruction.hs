@@ -44,13 +44,13 @@ transpileSc sc = (scBinder, scArgsLength, scInsts)
 Transpiler for a _R_oot _E_xpression.
 -}
 transpileRE :: TranspileEEnv -> MainExpression -> GMachineExpression
-transpileRE env (EInteger n) = [IPushBasicValue n, IUpdateAsInteger (getEnvSize env)]
-transpileRE env (EConstructor tag 0) = [IPushBasicValue tag, IUpdateAsConstructor (getEnvSize env)]
+transpileRE env (EInteger n) = [IPushBasicValue n, IUpdateAsInteger (getEnvSize env), IReturn]
+transpileRE env (EConstructor tag 0) = [IPushBasicValue tag, IUpdateAsConstructor (getEnvSize env), IReturn]
 transpileRE env e@(EApplication2 (EVariableIdentifier op) _ _)
   | Just _ <- lookup op binaryIntegerPrecendenceTable
-  = transpilePE env e <> [IUpdateAsInteger (getEnvSize env)]
+  = transpilePE env e <> [IUpdateAsInteger (getEnvSize env), IReturn]
   | Just _ <- lookup op binaryDataPrecendenceTable
-  = transpilePE env e <> [IUpdateAsConstructor (getEnvSize env)]
+  = transpilePE env e <> [IUpdateAsConstructor (getEnvSize env), IReturn]
 -- Should following really use a strict expression?
 transpileRE env e = transpileSE env e <> [IUpdate envSize1, IPop envSize1, IUnwind]
   where
