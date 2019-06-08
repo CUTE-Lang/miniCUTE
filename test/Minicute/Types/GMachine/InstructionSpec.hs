@@ -46,12 +46,14 @@ testCases
           , 0
           , [ IPushBasicValue 5
             , IUpdateAsInteger 0
+            , IReturn
             ]
           )
         , ( "g"
           , 0
           , [ IPushBasicValue 9
             , IUpdateAsConstructor 0
+            , IReturn
             ]
           )
         ]
@@ -173,6 +175,7 @@ testCases
             , IPushBasicValue 3
             , IPrimitive POAdd
             , IUpdateAsInteger 0
+            , IReturn
             ]
           )
         ]
@@ -192,6 +195,7 @@ testCases
             , IPushBasicValue 7
             , IPrimitive POAdd
             , IUpdateAsInteger 0
+            , IReturn
             ]
           )
         ]
