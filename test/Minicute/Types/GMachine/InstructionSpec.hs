@@ -319,4 +319,63 @@ testCases
           )
         ]
       )
+
+    , ( "program with a letrec expression with a definition"
+      , [qqMiniMain|
+                   f = letrec
+                         x = 4
+                       in
+                         x
+        |]
+      , [ ( "f"
+          , 0
+          , [ IMakePlaceholders 1
+            , IMakeInteger 4
+            , IUpdate 1
+            , ICopyArgument 0
+            , IEval
+            , IUpdate 2
+            , IPop 2
+            , IUnwind
+            ]
+          )
+        ]
+      )
+
+    , ( "program with a letrec expression with definitions"
+      , [qqMiniMain|
+                   f = letrec
+                         x = 2 + y;
+                         y = x - 3;
+                       in
+                         x / y
+        |]
+      , [ ( "f"
+          , 0
+          , [ IMakePlaceholders 2
+            , IMakeGlobal "+"
+            , IMakeInteger 2
+            , IMakeApplication
+            , ICopyArgument 1
+            , IMakeApplication
+            , IUpdate 2
+            , IMakeGlobal "-"
+            , ICopyArgument 2
+            , IMakeApplication
+            , IMakeInteger 3
+            , IMakeApplication
+            , IUpdate 2
+            , ICopyArgument 1
+            , IEval
+            , IPushExtractedValue
+            , ICopyArgument 0
+            , IEval
+            , IPushExtractedValue
+            , IPrimitive PODiv
+            , IUpdateAsInteger 2
+            , IReturn
+            ]
+          )
+        ]
+      )
     ]
