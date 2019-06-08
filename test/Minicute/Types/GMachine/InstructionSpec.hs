@@ -46,12 +46,14 @@ testCases
           , 0
           , [ IPushBasicValue 5
             , IUpdateAsInteger 0
+            , IReturn
             ]
           )
         , ( "g"
           , 0
           , [ IPushBasicValue 9
             , IUpdateAsConstructor 0
+            , IReturn
             ]
           )
         ]
@@ -173,6 +175,7 @@ testCases
             , IPushBasicValue 3
             , IPrimitive POAdd
             , IUpdateAsInteger 0
+            , IReturn
             ]
           )
         ]
@@ -192,6 +195,7 @@ testCases
             , IPushBasicValue 7
             , IPrimitive POAdd
             , IUpdateAsInteger 0
+            , IReturn
             ]
           )
         ]
@@ -224,6 +228,93 @@ testCases
             , IUpdate 2
             , IPop 2
             , IUnwind
+            ]
+          )
+        ]
+      )
+
+    , ( "program with a let expression returning an integer"
+      , [qqMiniMain|
+                   f = let
+                         x = 4
+                       in
+                         3
+        |]
+      , [ ( "f"
+          , 0
+          , [ IMakeInteger 4
+            , IPushBasicValue 3
+            , IUpdateAsInteger 1
+            , IReturn
+            ]
+          )
+        ]
+      )
+
+    , ( "program with a let expression of a definition"
+      , [qqMiniMain|
+                   f = let
+                         x = 4
+                       in
+                         x
+        |]
+      , [ ( "f"
+          , 0
+          , [ IMakeInteger 4
+            , ICopyArgument 0
+            , IEval
+            , IUpdate 2
+            , IPop 2
+            , IUnwind
+            ]
+          )
+        ]
+      )
+
+    , ( "program with a let expression of definitions"
+      , [qqMiniMain|
+                   f = let
+                         x = 4;
+                         y = 3
+                       in
+                         x * y
+        |]
+      , [ ( "f"
+          , 0
+          , [ IMakeInteger 4
+            , IMakeInteger 3
+            , ICopyArgument 1
+            , IEval
+            , IPushExtractedValue
+            , ICopyArgument 0
+            , IEval
+            , IPushExtractedValue
+            , IPrimitive POMul
+            , IUpdateAsInteger 2
+            , IReturn
+            ]
+          )
+        ]
+      )
+
+    , ( "program with a let expression in an arithmetic expression"
+      , [qqMiniMain|
+                   f = 5 + (let
+                              x = 4
+                            in
+                              x)
+        |]
+      , [ ( "f"
+          , 0
+          , [ IPushBasicValue 5
+            , IMakeInteger 4
+            , ICopyArgument 0
+            , IEval
+            , IPushExtractedValue
+            , IPop 1
+            , IPrimitive POAdd
+            , IUpdateAsInteger 0
+            , IReturn
             ]
           )
         ]
