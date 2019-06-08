@@ -151,6 +151,7 @@ data Instruction
   | IMakeConstructor Integer Integer
   | IMakeApplication
   | IMakeGlobal Identifier
+  | IMakePlaceholders Int
 
   {-|
   Stack based operations
