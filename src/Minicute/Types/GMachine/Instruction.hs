@@ -109,7 +109,7 @@ Transpiler for a _let_ expression.
 -}
 transpileLet :: Transpiler MainExpression -> Transpiler (IsRecursive, [MainLetDefinition], MainExpression)
 transpileLet transpileBody env (flag, lDefs, body)
-  | isRecursive flag = error "Not yet implemented"
+  | isRecursive flag = transpileLetRecDefs env' lDefs <> bodyInst
   | otherwise = transpileLetDefs env lDefs <> bodyInst
   where
     bodyInst = transpileBody env' body
@@ -121,6 +121,13 @@ transpileLetDefs env lDefs
   where
     envs = iterate addEnvOffset1 env
     lDefsBodies = lDefs ^.. each . _letDefinitionBody
+
+transpileLetRecDefs :: Transpiler [MainLetDefinition]
+transpileLetRecDefs env lDefs
+  = [IMakePlaceholders len] <> concatMap ((<> [IUpdate len]) . transpileNE env) lDefsBodies
+  where
+    lDefsBodies = lDefs ^.. each . _letDefinitionBody
+    len = length lDefs
 
 updateLetEnv :: [MainLetDefinition] -> TranspileEEnv -> TranspileEEnv
 updateLetEnv lDefs env = envOfLDefs <> addEnvOffset len env
