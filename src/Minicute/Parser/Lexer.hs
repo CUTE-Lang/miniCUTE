@@ -3,10 +3,14 @@
 {-# LANGUAGE TypeFamilies #-}
 module Minicute.Parser.Lexer
   ( betweenRoundBrackets
+
+  , gMachineIdentifier
+
   , identifier
   , keyword
   , symbol
   , integer
+
   , spacesConsumer
   ) where
 
@@ -25,6 +29,13 @@ import qualified Text.Megaparsec.Char.Lexer as MPTL
 betweenRoundBrackets :: (MonadParser e s m) => m a -> m a
 betweenRoundBrackets = between (symbol "(") (symbol ")")
 {-# INLINEABLE betweenRoundBrackets #-}
+
+
+gMachineIdentifier :: (MonadParser e s m) => m Identifier
+gMachineIdentifier = Identifier <$> lexeme (many (satisfy (anyCond (/= ';') Char.isSpace)))
+  where
+    anyCond p1 p2 x = p1 x || p2 x
+
 
 -- |
 -- I need to check whether identifier is a keyword or not
