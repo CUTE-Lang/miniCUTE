@@ -2,7 +2,7 @@
 {-# OPTIONS_GHC -fno-warn-type-defaults #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE QuasiQuotes #-}
-module Minicute.Parser.ParserSpec
+module Minicute.Parser.Minicute.ParserSpec
   ( spec
   ) where
 
@@ -16,7 +16,7 @@ import Minicute.Types.Minicute.Program
 import Minicute.Utils.TH
 import Text.Megaparsec
 
-import qualified Minicute.Parser.Parser as P
+import qualified Minicute.Parser.Minicute.Parser as P
 
 spec :: Spec
 spec = do

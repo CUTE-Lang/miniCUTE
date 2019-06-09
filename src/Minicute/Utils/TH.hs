@@ -11,7 +11,7 @@ import Data.String.Minicute
 import Language.Haskell.TH
 import Language.Haskell.TH.Quote
 import Language.Haskell.TH.Syntax
-import Minicute.Parser.Parser
+import Minicute.Parser.Minicute.Parser
 import Text.Megaparsec
 
 qqMiniMainL :: QuasiQuoter

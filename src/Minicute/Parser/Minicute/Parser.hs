@@ -1,6 +1,6 @@
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE TypeFamilies #-}
-module Minicute.Parser.Parser
+module Minicute.Parser.Minicute.Parser
   ( Parser
 
   , MainProgramL
