@@ -27,7 +27,7 @@ type WithPrecedence m = ReaderT PrecedenceTable m
 
 
 mainProgramL :: Parser MainProgramL
-mainProgramL = programL identifier
+mainProgramL = programL L.identifier
 {-# INLINEABLE mainProgramL #-}
 
 programL :: (MonadParser e s m) => WithPrecedence m a -> m (ProgramL a)
@@ -49,7 +49,7 @@ expressionL pA = go
 
 
 mainProgram :: Parser MainProgram
-mainProgram = program identifier
+mainProgram = program L.identifier
 {-# INLINEABLE mainProgram #-}
 
 program :: (MonadParser e s m) => WithPrecedence m a -> m (Program a)
@@ -88,7 +88,7 @@ supercombinator_ :: (MonadParser e s m) => WithPrecedence m a -> WithPrecedence 
 supercombinator_ pA pExpr
   = Supercombinator_
     <$> ( (,,)
-          <$> identifier
+          <$> L.identifier
           <*> many pA <* L.symbol "="
           <*> pExpr
         )
@@ -233,7 +233,7 @@ integerExpression_ = EInteger_ <$> L.integer <?> "integer"
 {-# INLINEABLE integerExpression_ #-}
 
 variableExpression_ :: (MonadParser e s m) => m (Expression_ expr_ a)
-variableExpression_ = EVariable_ <$> identifier <?> "variable"
+variableExpression_ = EVariable_ <$> L.identifier <?> "variable"
 {-# INLINEABLE variableExpression_ #-}
 
 -- |
@@ -255,9 +255,6 @@ constructorExpression_
     {-# INLINEABLE endingSymbols #-}
 {-# INLINEABLE constructorExpression_ #-}
 
-
-identifier :: (MonadParser e s m) => m Identifier
-identifier = Identifier <$> L.identifier
 
 separator :: (MonadParser e s m) => m ()
 separator = L.symbol ";"

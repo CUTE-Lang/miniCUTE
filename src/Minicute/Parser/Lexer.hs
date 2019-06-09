@@ -15,6 +15,7 @@ import Data.List
 import Data.List.Extra
 import Data.Proxy
 import Minicute.Parser.Types
+import Minicute.Types.Minicute.Common
 import Text.Megaparsec hiding ( State )
 
 import qualified Data.Char as Char
@@ -28,13 +29,13 @@ betweenRoundBrackets = between (symbol "(") (symbol ")")
 -- |
 -- I need to check whether identifier is a keyword or not
 -- since I don't want to introduce additional separator for @match ... with@
-identifier :: (MonadParser e s m) => m s
+identifier :: (MonadParser e s m) => m Identifier
 identifier = try identifier' <?> "identifier"
   where
     identifier' = do
       pos <- getOffset
       i <- lexeme (cons <$> identifierFirstChar <*> many identifierRestChar)
-      checkKeywords pos i
+      Identifier <$> checkKeywords pos i
 
     checkKeywords pos i
       | i `elem` keywordList = do
