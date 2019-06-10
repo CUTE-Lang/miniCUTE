@@ -190,15 +190,43 @@ data Instruction
   | IPrimitive PrimitiveOperator
 
   {-|
-  Node unwinding operations
+  Node inspecting operations
   -}
   | IUnwind
+  | IDestruct Integer
 
   {-|
   Dump related operations
   -}
   | IEval
   | IReturn
+
+  {-|
+  Match related operations
+  -}
+  | IMatch MatchTable
+  deriving ( Generic
+           , Typeable
+           , Data
+           , Lift
+           , Eq
+           , Ord
+           , Show
+           )
+
+newtype MatchTable
+  = MatchTable [MatchEntry]
+  deriving ( Generic
+           , Typeable
+           , Data
+           , Lift
+           , Eq
+           , Ord
+           , Show
+           )
+
+newtype MatchEntry
+  = MatchEntry (Integer, GMachineExpression)
   deriving ( Generic
            , Typeable
            , Data
