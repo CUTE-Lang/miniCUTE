@@ -59,6 +59,7 @@ testCases
     , ( "program with an argument"
       , [qqMiniMain|
                    f x = x;
+                   g x = $C{3;0};
         |]
       , [qqGMachine|
                    f<1> {
@@ -67,6 +68,11 @@ testCases
                      Update 2;
                      Pop 2;
                      Unwind;
+                   }
+                   g<1> {
+                     PushBasicValue 3;
+                     UpdateAsConstructor 1;
+                     Return;
                    }
         |]
       )
@@ -87,9 +93,9 @@ testCases
                      Unwind;
                    }
                    g<3> {
-                     CopyArgument 0;
-                     CopyArgument 3;
-                     MakeApplication;
+                       CopyArgument 0;
+                       CopyArgument 3;
+                       MakeApplication;
                      CopyArgument 2;
                      MakeApplication;
                      Eval;
@@ -173,11 +179,11 @@ testCases
         |]
       , [qqGMachine|
                    f<0> {
-                     PushBasicValue 2;
-                     PushBasicValue 3;
-                     PushBasicValue 4;
-                     Primitive *;
-                     Primitive +;
+                       PushBasicValue 2;
+                         PushBasicValue 3;
+                         PushBasicValue 4;
+                         Primitive *;
+                       Primitive +;
                      PushBasicValue 7;
                      Primitive +;
                      UpdateAsInteger 0;
@@ -194,11 +200,11 @@ testCases
       , [qqGMachine|
                    f<0> {
                      MakeGlobal g;
-                     MakeGlobal *;
-                     MakeInteger 3;
-                     MakeApplication;
-                     MakeInteger 4;
-                     MakeApplication;
+                         MakeGlobal *;
+                         MakeInteger 3;
+                         MakeApplication;
+                       MakeInteger 4;
+                       MakeApplication;
                      MakeApplication;
                      Eval;
                      Update 1;
@@ -263,12 +269,12 @@ testCases
                    f<0> {
                      MakeInteger 4;
                      MakeInteger 3;
-                     CopyArgument 1;
-                     Eval;
-                     PushExtractedValue;
-                     CopyArgument 0;
-                     Eval;
-                     PushExtractedValue;
+                       CopyArgument 1;
+                       Eval;
+                       PushExtractedValue;
+                       CopyArgument 0;
+                       Eval;
+                       PushExtractedValue;
                      Primitive *;
                      UpdateAsInteger 2;
                      Return;
@@ -286,11 +292,11 @@ testCases
       , [qqGMachine|
                    f<0> {
                      PushBasicValue 5;
-                     MakeInteger 4;
-                     CopyArgument 0;
-                     Eval;
-                     PushExtractedValue;
-                     Pop 1;
+                       MakeInteger 4;
+                       CopyArgument 0;
+                       Eval;
+                       PushExtractedValue;
+                       Pop 1;
                      Primitive +;
                      UpdateAsInteger 0;
                      Return;
@@ -330,24 +336,24 @@ testCases
       , [qqGMachine|
                    f<0> {
                      MakePlaceholders 2;
-                     MakeGlobal +;
-                     MakeInteger 2;
-                     MakeApplication;
+                       MakeGlobal +;
+                       MakeInteger 2;
+                       MakeApplication;
                      CopyArgument 1;
                      MakeApplication;
                      Update 2;
-                     MakeGlobal -;
-                     CopyArgument 2;
-                     MakeApplication;
+                       MakeGlobal -;
+                       CopyArgument 2;
+                       MakeApplication;
                      MakeInteger 3;
                      MakeApplication;
                      Update 2;
-                     CopyArgument 1;
-                     Eval;
-                     PushExtractedValue;
-                     CopyArgument 0;
-                     Eval;
-                     PushExtractedValue;
+                       CopyArgument 1;
+                       Eval;
+                       PushExtractedValue;
+                       CopyArgument 0;
+                       Eval;
+                       PushExtractedValue;
                      Primitive /;
                      UpdateAsInteger 2;
                      Return;
