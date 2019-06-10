@@ -8,6 +8,7 @@ import Control.Lens.Each
 import Control.Lens.Operators
 import Control.Lens.Wrapped ( _Wrapped )
 import Data.Data
+import Data.List
 import GHC.Generics
 import Language.Haskell.TH.Syntax
 import Minicute.Types.Minicute.Precedence
@@ -61,6 +62,7 @@ transpileRE env e@(EApplication2 (EVariableIdentifier op) _ _)
   | Just _ <- lookup op binaryDataPrecendenceTable
   = transpilePE env e <> [IUpdateAsConstructor (getEnvSize env), IReturn]
 transpileRE env (ELet flag lDefs body) = transpileLet transpileRE env (flag, lDefs, body)
+transpileRE env (EMatch body mCases) = transpileMatch transpileSE (const transpileRE) env (body, mCases)
 -- Should following really use a strict expression?
 transpileRE env e = transpileSE env e <> [IUpdate envSize1, IPop envSize1, IUnwind]
   where
@@ -141,6 +143,29 @@ updateLetEnv lDefs env = envOfLDefs <> addEnvOffset len env
     envOfLDefs = Map.fromList (zip lDefsBinders [len - 1, len - 2 .. 0])
     lDefsBinders = lDefs ^.. each . _letDefinitionBinder
     len = length lDefs
+
+{-|
+Transpiler for a _match_ expression.
+-}
+transpileMatch :: Transpiler MainExpression -> (Integer -> Transpiler MainExpression) -> Transpiler (MainExpression, [MainMatchCase])
+transpileMatch transpileBody transpileCase env (body, mCases) = bodyInst <> [IMatch (makeMatchTable transpileCase env mCases)]
+  where
+    bodyInst = transpileBody env body
+
+makeMatchTable :: (Integer -> Transpiler MainExpression) -> TranspileEEnv -> [MainMatchCase] -> MatchTable
+makeMatchTable transpileCase env = MatchTable . fmap (makeMatchEntry transpileCase env)
+
+makeMatchEntry :: (Integer -> Transpiler MainExpression) -> TranspileEEnv -> MainMatchCase -> MatchEntry
+makeMatchEntry transpileCase env mCase = MatchEntry (caseTag, caseInst)
+  where
+    caseInst = [IDestruct caseArgsLen] <> transpileCase caseArgsLen env' caseBody
+    caseBody = mCase ^. _matchCaseBody
+    caseTag = mCase ^. _matchCaseTag
+
+    env' = Map.fromList (zip caseArgs [0..]) <> addEnvOffset (fromInteger caseArgsLen) env
+
+    caseArgsLen = genericLength caseArgs
+    caseArgs = mCase ^. _matchCaseArguments
 
 type TranspileEEnv = Map.Map Identifier Int
 
