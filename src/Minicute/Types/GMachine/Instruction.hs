@@ -1,9 +1,15 @@
+{-# LANGUAGE DeriveDataTypeable #-}
+{-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE DeriveLift #-}
 {-# LANGUAGE OverloadedStrings #-}
 module Minicute.Types.GMachine.Instruction where
 
 import Control.Lens.Each
 import Control.Lens.Operators
 import Control.Lens.Wrapped ( _Wrapped )
+import Data.Data
+import GHC.Generics
+import Language.Haskell.TH.Syntax
 import Minicute.Types.Minicute.Precedence
 import Minicute.Types.Minicute.Program
 
@@ -193,7 +199,11 @@ data Instruction
   -}
   | IEval
   | IReturn
-  deriving ( Eq
+  deriving ( Generic
+           , Typeable
+           , Data
+           , Lift
+           , Eq
            , Ord
            , Show
            )
@@ -203,7 +213,11 @@ data PrimitiveOperator
   | POSub
   | POMul
   | PODiv
-  deriving ( Eq
+  deriving ( Generic
+           , Typeable
+           , Data
+           , Lift
+           , Eq
            , Ord
            , Show
            )

@@ -14,7 +14,7 @@ import Minicute.Utils.TH
 import Text.Megaparsec
 
 import qualified Data.Text.Prettyprint.Doc.Minicute as PP
-import qualified Minicute.Parser.Parser as P
+import qualified Minicute.Parser.Minicute.Parser as P
 
 spec :: Spec
 spec = do

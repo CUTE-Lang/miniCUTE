@@ -33,8 +33,8 @@ testCases
   = [ ( "empty program"
       , [qqMiniMain|
         |]
-      , [
-        ]
+      , [qqGMachine|
+        |]
       )
 
     , ( "program with constant top-level definition"
@@ -42,37 +42,39 @@ testCases
                    f = 5;
                    g = $C{9;0}
         |]
-      , [ ( "f"
-          , 0
-          , [ IPushBasicValue 5
-            , IUpdateAsInteger 0
-            , IReturn
-            ]
-          )
-        , ( "g"
-          , 0
-          , [ IPushBasicValue 9
-            , IUpdateAsConstructor 0
-            , IReturn
-            ]
-          )
-        ]
+      , [qqGMachine|
+                   f<0> {
+                     PushBasicValue 5;
+                     UpdateAsInteger 0;
+                     Return;
+                   }
+                   g<0> {
+                     PushBasicValue 9;
+                     UpdateAsConstructor 0;
+                     Return;
+                   }
+        |]
       )
 
     , ( "program with an argument"
       , [qqMiniMain|
                    f x = x;
+                   g x = $C{3;0};
         |]
-      , [ ( "f"
-          , 1
-          , [ ICopyArgument 0
-            , IEval
-            , IUpdate 2
-            , IPop 2
-            , IUnwind
-            ]
-          )
-        ]
+      , [qqGMachine|
+                   f<1> {
+                     CopyArgument 0;
+                     Eval;
+                     Update 2;
+                     Pop 2;
+                     Unwind;
+                   }
+                   g<1> {
+                     PushBasicValue 3;
+                     UpdateAsConstructor 1;
+                     Return;
+                   }
+        |]
       )
 
     , ( "program with arguments"
@@ -80,31 +82,28 @@ testCases
                    f x y = y x;
                    g a b c = a c b
         |]
-      , [ ( "f"
-          , 2
-          , [ ICopyArgument 1
-            , ICopyArgument 1
-            , IMakeApplication
-            , IEval
-            , IUpdate 3
-            , IPop 3
-            , IUnwind
-            ]
-          )
-        , ( "g"
-          , 3
-          , [ ICopyArgument 0
-            , ICopyArgument 3
-            , IMakeApplication
-            , ICopyArgument 2
-            , IMakeApplication
-            , IEval
-            , IUpdate 4
-            , IPop 4
-            , IUnwind
-            ]
-          )
-        ]
+      , [qqGMachine|
+                   f<2> {
+                     CopyArgument 1;
+                     CopyArgument 1;
+                     MakeApplication;
+                     Eval;
+                     Update 3;
+                     Pop 3;
+                     Unwind;
+                   }
+                   g<3> {
+                       CopyArgument 0;
+                       CopyArgument 3;
+                       MakeApplication;
+                     CopyArgument 2;
+                     MakeApplication;
+                     Eval;
+                     Update 4;
+                     Pop 4;
+                     Unwind;
+                   }
+        |]
       )
 
     , ( "program with a simple application"
@@ -112,27 +111,24 @@ testCases
                    f = g 4;
                    g x = x;
         |]
-      , [ ( "f"
-          , 0
-          , [ IMakeGlobal "g"
-            , IMakeInteger 4
-            , IMakeApplication
-            , IEval
-            , IUpdate 1
-            , IPop 1
-            , IUnwind
-            ]
-          )
-        , ( "g"
-          , 1
-          , [ ICopyArgument 0
-            , IEval
-            , IUpdate 2
-            , IPop 2
-            , IUnwind
-            ]
-          )
-        ]
+      , [qqGMachine|
+                   f<0> {
+                     MakeGlobal g;
+                     MakeInteger 4;
+                     MakeApplication;
+                     Eval;
+                     Update 1;
+                     Pop 1;
+                     Unwind;
+                   }
+                   g<1> {
+                     CopyArgument 0;
+                     Eval;
+                     Update 2;
+                     Pop 2;
+                     Unwind;
+                   }
+        |]
       )
 
     , ( "program with a constructor application"
@@ -140,65 +136,60 @@ testCases
                    f = $C{1;1} 4;
                    g x = $C{3;2} x
         |]
-      , [ ( "f"
-          , 0
-          , [ IMakeConstructor 1 1
-            , IMakeInteger 4
-            , IMakeApplication
-            , IEval
-            , IUpdate 1
-            , IPop 1
-            , IUnwind
-            ]
-          )
-        , ( "g"
-          , 1
-          , [ IMakeConstructor 3 2
-            , ICopyArgument 1
-            , IMakeApplication
-            , IEval
-            , IUpdate 2
-            , IPop 2
-            , IUnwind
-            ]
-          )
-        ]
+      , [qqGMachine|
+                   f<0> {
+                     MakeConstructor 1 1;
+                     MakeInteger 4;
+                     MakeApplication;
+                     Eval;
+                     Update 1;
+                     Pop 1;
+                     Unwind;
+                   }
+                   g<1> {
+                     MakeConstructor 3 2;
+                     CopyArgument 1;
+                     MakeApplication;
+                     Eval;
+                     Update 2;
+                     Pop 2;
+                     Unwind;
+                   }
+        |]
       )
 
     , ( "program with an arithmetic operation"
       , [qqMiniMain|
                    f = 2 + 3
         |]
-      , [ ( "f"
-          , 0
-          , [ IPushBasicValue 2
-            , IPushBasicValue 3
-            , IPrimitive POAdd
-            , IUpdateAsInteger 0
-            , IReturn
-            ]
-          )
-        ]
+      , [qqGMachine|
+                   f<0> {
+                     PushBasicValue 2;
+                     PushBasicValue 3;
+                     Primitive +;
+                     UpdateAsInteger 0;
+                     Return;
+                   }
+        |]
       )
 
     , ( "program with multiple arithmetic operations"
       , [qqMiniMain|
                    f = 2 + 3 * 4 + 7
         |]
-      , [ ( "f"
-          , 0
-          , [ IPushBasicValue 2
-            , IPushBasicValue 3
-            , IPushBasicValue 4
-            , IPrimitive POMul
-            , IPrimitive POAdd
-            , IPushBasicValue 7
-            , IPrimitive POAdd
-            , IUpdateAsInteger 0
-            , IReturn
-            ]
-          )
-        ]
+      , [qqGMachine|
+                   f<0> {
+                       PushBasicValue 2;
+                         PushBasicValue 3;
+                         PushBasicValue 4;
+                         Primitive *;
+                       Primitive +;
+                     PushBasicValue 7;
+                     Primitive +;
+                     UpdateAsInteger 0;
+                     Return;
+                   }
+        |]
       )
 
     , ( "program with a arithmetic operation in an application"
@@ -206,31 +197,28 @@ testCases
                    f = g (3 * 4);
                    g x = x;
         |]
-      , [ ( "f"
-          , 0
-          , [ IMakeGlobal "g"
-            , IMakeGlobal "*"
-            , IMakeInteger 3
-            , IMakeApplication
-            , IMakeInteger 4
-            , IMakeApplication
-            , IMakeApplication
-            , IEval
-            , IUpdate 1
-            , IPop 1
-            , IUnwind
-            ]
-          )
-        , ( "g"
-          , 1
-          , [ ICopyArgument 0
-            , IEval
-            , IUpdate 2
-            , IPop 2
-            , IUnwind
-            ]
-          )
-        ]
+      , [qqGMachine|
+                   f<0> {
+                     MakeGlobal g;
+                         MakeGlobal *;
+                         MakeInteger 3;
+                         MakeApplication;
+                       MakeInteger 4;
+                       MakeApplication;
+                     MakeApplication;
+                     Eval;
+                     Update 1;
+                     Pop 1;
+                     Unwind;
+                   }
+                   g<1> {
+                     CopyArgument 0;
+                     Eval;
+                     Update 2;
+                     Pop 2;
+                     Unwind;
+                   }
+        |]
       )
 
     , ( "program with a let expression returning an integer"
@@ -240,15 +228,14 @@ testCases
                        in
                          3
         |]
-      , [ ( "f"
-          , 0
-          , [ IMakeInteger 4
-            , IPushBasicValue 3
-            , IUpdateAsInteger 1
-            , IReturn
-            ]
-          )
-        ]
+      , [qqGMachine|
+                   f<0> {
+                     MakeInteger 4;
+                     PushBasicValue 3;
+                     UpdateAsInteger 1;
+                     Return;
+                   }
+        |]
       )
 
     , ( "program with a let expression of a definition"
@@ -258,17 +245,16 @@ testCases
                        in
                          x
         |]
-      , [ ( "f"
-          , 0
-          , [ IMakeInteger 4
-            , ICopyArgument 0
-            , IEval
-            , IUpdate 2
-            , IPop 2
-            , IUnwind
-            ]
-          )
-        ]
+      , [qqGMachine|
+                   f<0> {
+                     MakeInteger 4;
+                     CopyArgument 0;
+                     Eval;
+                     Update 2;
+                     Pop 2;
+                     Unwind;
+                   }
+        |]
       )
 
     , ( "program with a let expression of definitions"
@@ -279,22 +265,21 @@ testCases
                        in
                          x * y
         |]
-      , [ ( "f"
-          , 0
-          , [ IMakeInteger 4
-            , IMakeInteger 3
-            , ICopyArgument 1
-            , IEval
-            , IPushExtractedValue
-            , ICopyArgument 0
-            , IEval
-            , IPushExtractedValue
-            , IPrimitive POMul
-            , IUpdateAsInteger 2
-            , IReturn
-            ]
-          )
-        ]
+      , [qqGMachine|
+                   f<0> {
+                     MakeInteger 4;
+                     MakeInteger 3;
+                       CopyArgument 1;
+                       Eval;
+                       PushExtractedValue;
+                       CopyArgument 0;
+                       Eval;
+                       PushExtractedValue;
+                     Primitive *;
+                     UpdateAsInteger 2;
+                     Return;
+                   }
+        |]
       )
 
     , ( "program with a let expression in an arithmetic expression"
@@ -304,20 +289,19 @@ testCases
                             in
                               x)
         |]
-      , [ ( "f"
-          , 0
-          , [ IPushBasicValue 5
-            , IMakeInteger 4
-            , ICopyArgument 0
-            , IEval
-            , IPushExtractedValue
-            , IPop 1
-            , IPrimitive POAdd
-            , IUpdateAsInteger 0
-            , IReturn
-            ]
-          )
-        ]
+      , [qqGMachine|
+                   f<0> {
+                     PushBasicValue 5;
+                       MakeInteger 4;
+                       CopyArgument 0;
+                       Eval;
+                       PushExtractedValue;
+                       Pop 1;
+                     Primitive +;
+                     UpdateAsInteger 0;
+                     Return;
+                   }
+        |]
       )
 
     , ( "program with a letrec expression with a definition"
@@ -327,19 +311,18 @@ testCases
                        in
                          x
         |]
-      , [ ( "f"
-          , 0
-          , [ IMakePlaceholders 1
-            , IMakeInteger 4
-            , IUpdate 1
-            , ICopyArgument 0
-            , IEval
-            , IUpdate 2
-            , IPop 2
-            , IUnwind
-            ]
-          )
-        ]
+      , [qqGMachine|
+                   f<0> {
+                     MakePlaceholders 1;
+                     MakeInteger 4;
+                     Update 1;
+                     CopyArgument 0;
+                     Eval;
+                     Update 2;
+                     Pop 2;
+                     Unwind;
+                   }
+        |]
       )
 
     , ( "program with a letrec expression with definitions"
@@ -350,32 +333,31 @@ testCases
                        in
                          x / y
         |]
-      , [ ( "f"
-          , 0
-          , [ IMakePlaceholders 2
-            , IMakeGlobal "+"
-            , IMakeInteger 2
-            , IMakeApplication
-            , ICopyArgument 1
-            , IMakeApplication
-            , IUpdate 2
-            , IMakeGlobal "-"
-            , ICopyArgument 2
-            , IMakeApplication
-            , IMakeInteger 3
-            , IMakeApplication
-            , IUpdate 2
-            , ICopyArgument 1
-            , IEval
-            , IPushExtractedValue
-            , ICopyArgument 0
-            , IEval
-            , IPushExtractedValue
-            , IPrimitive PODiv
-            , IUpdateAsInteger 2
-            , IReturn
-            ]
-          )
-        ]
+      , [qqGMachine|
+                   f<0> {
+                     MakePlaceholders 2;
+                       MakeGlobal +;
+                       MakeInteger 2;
+                       MakeApplication;
+                     CopyArgument 1;
+                     MakeApplication;
+                     Update 2;
+                       MakeGlobal -;
+                       CopyArgument 2;
+                       MakeApplication;
+                     MakeInteger 3;
+                     MakeApplication;
+                     Update 2;
+                       CopyArgument 1;
+                       Eval;
+                       PushExtractedValue;
+                       CopyArgument 0;
+                       Eval;
+                       PushExtractedValue;
+                     Primitive /;
+                     UpdateAsInteger 2;
+                     Return;
+                   }
+        |]
       )
     ]

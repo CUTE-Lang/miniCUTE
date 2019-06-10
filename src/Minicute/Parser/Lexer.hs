@@ -3,10 +3,14 @@
 {-# LANGUAGE TypeFamilies #-}
 module Minicute.Parser.Lexer
   ( betweenRoundBrackets
+
+  , gMachineIdentifier
+
   , identifier
   , keyword
   , symbol
   , integer
+
   , spacesConsumer
   ) where
 
@@ -15,6 +19,7 @@ import Data.List
 import Data.List.Extra
 import Data.Proxy
 import Minicute.Parser.Types
+import Minicute.Types.Minicute.Common
 import Text.Megaparsec hiding ( State )
 
 import qualified Data.Char as Char
@@ -25,16 +30,23 @@ betweenRoundBrackets :: (MonadParser e s m) => m a -> m a
 betweenRoundBrackets = between (symbol "(") (symbol ")")
 {-# INLINEABLE betweenRoundBrackets #-}
 
+
+gMachineIdentifier :: (MonadParser e s m) => m Identifier
+gMachineIdentifier = Identifier <$> lexeme (many (satisfy (anyCond (/= ';') Char.isSpace)))
+  where
+    anyCond p1 p2 x = p1 x || p2 x
+
+
 -- |
 -- I need to check whether identifier is a keyword or not
 -- since I don't want to introduce additional separator for @match ... with@
-identifier :: (MonadParser e s m) => m s
+identifier :: (MonadParser e s m) => m Identifier
 identifier = try identifier' <?> "identifier"
   where
     identifier' = do
       pos <- getOffset
       i <- lexeme (cons <$> identifierFirstChar <*> many identifierRestChar)
-      checkKeywords pos i
+      Identifier <$> checkKeywords pos i
 
     checkKeywords pos i
       | i `elem` keywordList = do

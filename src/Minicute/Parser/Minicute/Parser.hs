@@ -1,6 +1,6 @@
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE TypeFamilies #-}
-module Minicute.Parser.Parser
+module Minicute.Parser.Minicute.Parser
   ( Parser
 
   , MainProgramL
@@ -9,11 +9,13 @@ module Minicute.Parser.Parser
   , MainProgram
   , mainProgram
   ) where
-import Control.Monad.Reader ( runReaderT, mapReaderT, ask )
+
+import Control.Monad.Reader ( ReaderT, runReaderT, mapReaderT, ask )
 import Data.List.Extra
 import Data.Functor
 import Minicute.Data.Fix
 import Minicute.Parser.Types
+import Minicute.Types.Minicute.Precedence
 import Minicute.Types.Minicute.Program
 import Text.Megaparsec
 
@@ -21,11 +23,16 @@ import qualified Control.Monad.Combinators as Comb
 import qualified Control.Monad.Combinators.Expr as CombExpr
 import qualified Minicute.Parser.Lexer as L
 
+type WithPrecedence m = ReaderT PrecedenceTable m
+
+
 mainProgramL :: Parser MainProgramL
-mainProgramL = programL identifier
+mainProgramL = programL L.identifier
+{-# INLINEABLE mainProgramL #-}
 
 programL :: (MonadParser e s m) => WithPrecedence m a -> m (ProgramL a)
 programL pA = program_ pA (expressionL pA)
+{-# INLINEABLE programL #-}
 
 
 expressionL :: (MonadParser e s m) => WithPrecedence m a -> WithPrecedence m (ExpressionL a)
@@ -42,10 +49,12 @@ expressionL pA = go
 
 
 mainProgram :: Parser MainProgram
-mainProgram = program identifier
+mainProgram = program L.identifier
+{-# INLINEABLE mainProgram #-}
 
 program :: (MonadParser e s m) => WithPrecedence m a -> m (Program a)
 program pA = program_ pA (expression pA)
+{-# INLINEABLE program #-}
 
 
 expression :: (MonadParser e s m) => WithPrecedence m a -> WithPrecedence m (Expression a)
@@ -79,7 +88,7 @@ supercombinator_ :: (MonadParser e s m) => WithPrecedence m a -> WithPrecedence 
 supercombinator_ pA pExpr
   = Supercombinator_
     <$> ( (,,)
-          <$> identifier
+          <$> L.identifier
           <*> many pA <* L.symbol "="
           <*> pExpr
         )
@@ -224,7 +233,7 @@ integerExpression_ = EInteger_ <$> L.integer <?> "integer"
 {-# INLINEABLE integerExpression_ #-}
 
 variableExpression_ :: (MonadParser e s m) => m (Expression_ expr_ a)
-variableExpression_ = EVariable_ <$> identifier <?> "variable"
+variableExpression_ = EVariable_ <$> L.identifier <?> "variable"
 {-# INLINEABLE variableExpression_ #-}
 
 -- |
@@ -246,9 +255,6 @@ constructorExpression_
     {-# INLINEABLE endingSymbols #-}
 {-# INLINEABLE constructorExpression_ #-}
 
-
-identifier :: (MonadParser e s m) => m Identifier
-identifier = Identifier <$> L.identifier
 
 separator :: (MonadParser e s m) => m ()
 separator = L.symbol ";"
