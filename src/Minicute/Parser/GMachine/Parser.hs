@@ -12,22 +12,25 @@ import Minicute.Parser.Types
 import Minicute.Types.GMachine.Instruction
 import Text.Megaparsec
 
-import qualified Control.Monad.Combinators as Comb
 import qualified Minicute.Parser.Lexer as L
 
 gMachineProgram :: Parser GMachineProgram
-gMachineProgram = Comb.many gMachineSupercombinator
+gMachineProgram = many gMachineSupercombinator
 
 gMachineSupercombinator :: Parser GMachineSupercombinator
 gMachineSupercombinator
   = (,,)
     <$> L.identifier
-    <*> Comb.between (L.symbol "<") (L.symbol ">") L.integer
-    <*> Comb.between (L.symbol "{") (L.symbol "}") gMachineExpression
+    <*> between (L.symbol "<") (L.symbol ">") L.integer
+    <*> between (L.symbol "{") (L.symbol "}") gMachineExpression
 
 gMachineExpression :: Parser GMachineExpression
-gMachineExpression = Comb.endBy instruction separator
+gMachineExpression = endBy instruction separator
 
+{-|
+Add a more appropriate lexer instead of 'symbol'.
+'symbol' does not check whether following character is a space or not.
+-}
 instruction :: Parser Instruction
 instruction
   = choice
@@ -52,9 +55,12 @@ instruction
     , L.symbol "Primitive" >> IPrimitive <$> primitiveOperator
 
     , L.symbol "Unwind" $> IUnwind
+    , L.symbol "Destruct" >> IDestruct <$> L.integer
 
     , L.symbol "Eval" $> IEval
     , L.symbol "Return" $> IReturn
+
+    , L.symbol "Match" >> IMatch <$> matchTable
     ]
 
 primitiveOperator :: Parser PrimitiveOperator
@@ -65,6 +71,18 @@ primitiveOperator
     , L.symbol "*" $> POMul
     , L.symbol "/" $> PODiv
     ]
+
+matchTable :: Parser MatchTable
+matchTable
+  = MatchTable <$> between (L.symbol "{") (L.symbol "}") (many matchEntry)
+
+matchEntry :: Parser MatchEntry
+matchEntry
+  = MatchEntry
+    <$> ( (,)
+          <$> L.integer <* L.symbol "->"
+          <*> gMachineExpression
+        )
 
 
 separator :: (MonadParser e s m) => m ()

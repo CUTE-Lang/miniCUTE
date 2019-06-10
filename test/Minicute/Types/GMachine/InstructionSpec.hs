@@ -360,4 +360,63 @@ testCases
                    }
         |]
       )
+
+    , ( "program with a match expression 1"
+      , [qqMiniMain|
+                   f = match $C{1;0} with
+                         <1> -> 0;
+                         <2> h t -> h;
+        |]
+      , [qqGMachine|
+                   f<0> {
+                     MakeConstructor 1 0;
+                     Match {
+                       1 ->
+                         Destruct 0;
+                         PushBasicValue 0;
+                         UpdateAsInteger 0;
+                         Return;
+                       2 ->
+                         Destruct 2;
+                         CopyArgument 0;
+                         Eval;
+                         Update 3;
+                         Pop 3;
+                         Unwind;
+                     };
+                   }
+        |]
+      )
+
+    , ( "program with a match expression 2"
+      , [qqMiniMain|
+                   f = match $C{2;2} 2 $C{1;0} with
+                         <1> -> 0;
+                         <2> h t -> h;
+        |]
+      , [qqGMachine|
+                   f<0> {
+                       MakeConstructor 2 2;
+                       MakeInteger 2;
+                       MakeApplication;
+                     MakeConstructor 1 0;
+                     MakeApplication;
+                     Eval;
+                     Match {
+                       1 ->
+                         Destruct 0;
+                         PushBasicValue 0;
+                         UpdateAsInteger 0;
+                         Return;
+                       2 ->
+                         Destruct 2;
+                         CopyArgument 0;
+                         Eval;
+                         Update 3;
+                         Pop 3;
+                         Unwind;
+                     };
+                   }
+        |]
+      )
     ]
