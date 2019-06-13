@@ -36,7 +36,7 @@ __TODO: This part should be extracted into separated module.__
 
     -- *** Transpilers for an Expression
   , TranspilerE
-  , TranspileEEnv
+  , TranspilerEEnv
   , transpileRE
   , transpileSE
   , transpileNE
@@ -109,7 +109,7 @@ transpileSc sc = (scBinder, scArgsLength, scInsts)
     scArgsLength = length scArgs
     scArgs = sc ^. _supercombinatorArguments
 
-type TranspilerE a = TranspileEEnv -> a -> GMachineExpression
+type TranspilerE a = TranspilerEEnv -> a -> GMachineExpression
 
 {-|
 Transpiler for a __R__oot __E__xpression.
@@ -198,7 +198,7 @@ transpileLetRecDefs env lDefs
     lDefsBodies = lDefs ^.. each . _letDefinitionBody
     len = length lDefs
 
-updateLetEnv :: [MainLetDefinition] -> TranspileEEnv -> TranspileEEnv
+updateLetEnv :: [MainLetDefinition] -> TranspilerEEnv -> TranspilerEEnv
 updateLetEnv lDefs env = envOfLDefs <> addEnvOffset len env
   where
     envOfLDefs = Map.fromList (zip lDefsBinders [len - 1, len - 2 .. 0])
@@ -213,10 +213,10 @@ transpileMatch transpileBody transpileCase env (body, mCases) = bodyInst <> [IMa
   where
     bodyInst = transpileBody env body
 
-makeMatchTable :: (Integer -> TranspilerE MainExpression) -> TranspileEEnv -> [MainMatchCase] -> MatchTable
+makeMatchTable :: (Integer -> TranspilerE MainExpression) -> TranspilerEEnv -> [MainMatchCase] -> MatchTable
 makeMatchTable transpileCase env = MatchTable . fmap (makeMatchEntry transpileCase env)
 
-makeMatchEntry :: (Integer -> TranspilerE MainExpression) -> TranspileEEnv -> MainMatchCase -> MatchEntry
+makeMatchEntry :: (Integer -> TranspilerE MainExpression) -> TranspilerEEnv -> MainMatchCase -> MatchEntry
 makeMatchEntry transpileCase env mCase = MatchEntry (caseTag, caseInst)
   where
     caseInst = [IDestruct caseArgsLen] <> transpileCase caseArgsLen env' caseBody
@@ -228,18 +228,18 @@ makeMatchEntry transpileCase env mCase = MatchEntry (caseTag, caseInst)
     caseArgsLen = genericLength caseArgs
     caseArgs = mCase ^. _matchCaseArguments
 
-type TranspileEEnv = Map.Map Identifier Int
+type TranspilerEEnv = Map.Map Identifier Int
 
-getEnvSize1 :: TranspileEEnv -> Int
+getEnvSize1 :: TranspilerEEnv -> Int
 getEnvSize1 = (+ 1) . getEnvSize
 
-getEnvSize :: TranspileEEnv -> Int
+getEnvSize :: TranspilerEEnv -> Int
 getEnvSize = Map.size
 
-addEnvOffset1 :: TranspileEEnv -> TranspileEEnv
+addEnvOffset1 :: TranspilerEEnv -> TranspilerEEnv
 addEnvOffset1 = Map.map (+ 1)
 
-addEnvOffset :: Int -> TranspileEEnv -> TranspileEEnv
+addEnvOffset :: Int -> TranspilerEEnv -> TranspilerEEnv
 addEnvOffset n = Map.map (+ n)
 
 {- $abstractStructure
