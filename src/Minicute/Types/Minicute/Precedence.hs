@@ -8,6 +8,7 @@ module Minicute.Types.Minicute.Precedence
 
   , Precedence( .. )
 
+  , OperatorName
   , PrecedenceTable
   , PrecedenceTableEntry
 

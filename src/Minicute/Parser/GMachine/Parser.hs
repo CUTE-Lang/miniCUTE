@@ -28,8 +28,8 @@ gMachineExpression :: Parser GMachineExpression
 gMachineExpression = endBy instruction separator
 
 {-|
-Add a more appropriate lexer instead of 'symbol'.
-'symbol' does not check whether following character is a space or not.
+Add a more appropriate lexer instead of 'L.symbol'.
+'L.symbol' does not check whether following character is a space or not.
 -}
 instruction :: Parser Instruction
 instruction
