@@ -237,7 +237,7 @@ variableExpression_ = EVariable_ <$> L.identifier <?> "variable"
 {-# INLINEABLE variableExpression_ #-}
 
 -- |
--- The 'startingSymbols' do not use `try` because
+-- The @startingSymbols@ do not use 'try' because
 -- the keyword starts with a character that is illegal for identifiers.
 constructorExpression_ :: (MonadParser e s m) => m (Expression_ expr_ a)
 constructorExpression_

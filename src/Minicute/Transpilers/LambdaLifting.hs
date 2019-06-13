@@ -12,11 +12,15 @@ import Minicute.Types.Minicute.Annotated.Program
 
 import qualified Data.Set as Set
 
--- |
--- Following function is based on the book
--- "Hughes, R. J. M. (1983) Design and Implementation of Programming Languages"
--- For an alternative implementation, see
--- "Johnsson, T. (1985) Lambda Lifting: Transforming Programs to Recursive Equations"
+{- |
+Following function is based on the book
+
+- Hughes, R. J. M. (__1983__) /Design and Implementation of Programming Languages/
+
+For an alternative implementation, see
+
+- Johnsson, T. (__1985__) /Lambda Lifting: Transforming Programs to Recursive Equations/
+-}
 lambdaLifting :: MainProgramL -> MainProgram
 lambdaLifting = liftAnnons . renameVariablesMainL . replaceLambda . formFreeVariablesMainL
 
