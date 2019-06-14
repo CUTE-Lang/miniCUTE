@@ -15,7 +15,8 @@ import Text.Megaparsec
 
 import qualified Minicute.Parser.Lexer as L
 
--- TODO: Update these tests to use QuickCheck
+-- |
+-- __TODO: Update these tests to use QuickCheck__
 spec :: Spec
 spec = do
   describe "integer lexer" $ do

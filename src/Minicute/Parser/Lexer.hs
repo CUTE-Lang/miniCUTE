@@ -37,10 +37,8 @@ gMachineIdentifier = Identifier <$> lexeme (many (satisfy (anyCond (/= ';') Char
     anyCond p1 p2 x = p1 x || p2 x
 
 
-{-|
-I need to check whether identifier is a keyword or not
-since I don't want to introduce additional separator for let definitions.
--}
+-- I need to check whether identifier is a keyword or not
+-- since I don't want to introduce additional separator for let definitions.
 identifier :: (MonadParser e s m) => m Identifier
 identifier = try identifier' <?> "identifier"
   where

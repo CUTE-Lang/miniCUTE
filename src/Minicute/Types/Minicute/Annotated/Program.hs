@@ -1,6 +1,6 @@
 {-# OPTIONS_GHC -fno-warn-missing-pattern-synonym-signatures #-}
 -- |
--- TODO: remove the following option
+-- __TODO: remove the /-fno-warn-orphans/ option__
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE OverloadedStrings #-}

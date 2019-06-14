@@ -27,10 +27,9 @@ gMachineSupercombinator
 gMachineExpression :: Parser GMachineExpression
 gMachineExpression = endBy instruction separator
 
-{-|
-Add a more appropriate lexer instead of 'L.symbol'.
-'L.symbol' does not check whether following character is a space or not.
--}
+-- |
+-- __TODO: Add a more appropriate lexer instead of 'L.symbol'.__
+-- 'L.symbol' does not check whether following character is a space or not.
 instruction :: Parser Instruction
 instruction
   = choice

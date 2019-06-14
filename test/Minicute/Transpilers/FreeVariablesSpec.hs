@@ -31,8 +31,8 @@ type TestAfterContent = ProgramLWithFreeVariables Identifier
 type TestCase = (TestName, TestBeforeContent, TestAfterContent)
 
 -- |
--- TODO - Introduce quosiquoter for 'AnnotatedProgramL' and update
--- these test cases
+-- __TODO: Introduce quosiquoter for 'AnnotatedProgramL' and update__
+-- __these test cases__
 testCases :: [TestCase]
 testCases =
   [ ( "empty program"

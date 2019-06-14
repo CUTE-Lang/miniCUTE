@@ -153,8 +153,9 @@ formFVsE_ _a _fv fExpr (EMatch_ expr mCases) = do
     mCasesArgumentSets = mCases ^.. each . _matchCaseArguments . setFrom (each . _a)
 
 -- |
--- TODO - move this definition into a separate utility module.
--- TODO - add an hlint rule from 'Set.fromList $ a ^.. b' to 'a ^. setFrom b'
+-- __TODO: move this definition into a separate utility module.__
+--
+-- __TODO: add an hlint rule from 'Set.fromList $ a ^.. b' to 'a ^. setFrom b'__
 setFrom :: Getting (Set.Set a) s a -> Getter s (Set.Set a)
 setFrom = to . Set.setOf
 {-# INLINABLE setFrom #-}
