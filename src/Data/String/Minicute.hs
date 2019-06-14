@@ -1,5 +1,16 @@
+-- |
+-- String functions used in miniCUTE compiler
 module Data.String.Minicute where
 
+-- |
+-- Normalize a multi-line input string into a unix-style multi-line string.
+--
+-- >>> toUnix "\r\n"
+-- "\n"
+-- >>> toUnix "\r"
+-- "\n"
+-- >>> toUnix "abcde\r\nfghij\n"
+-- "abcde\nfghij\n"
 toUnix :: String -> String
 toUnix ('\r' : '\n' : cs) = '\n' : toUnix cs
 toUnix ('\r' : cs) = '\n' : toUnix cs

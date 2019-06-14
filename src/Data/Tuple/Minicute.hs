@@ -1,6 +1,8 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE FunctionalDependencies #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
+-- |
+-- Tuple functions used in miniCUTE compiler
 module Data.Tuple.Minicute where
 
 -- * TupleConverters
