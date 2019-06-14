@@ -1,5 +1,10 @@
 {-# LANGUAGE OverloadedStrings #-}
-module Minicute.Transpilers.LambdaLifting where
+-- |
+-- Transpilers to lift all lambda expressions as
+-- supercombinators (top-level function definitions)
+module Minicute.Transpilers.LambdaLifting
+  ( lambdaLifting
+  ) where
 
 import Control.Lens.Each
 import Control.Lens.Operators

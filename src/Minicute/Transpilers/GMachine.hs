@@ -1,6 +1,6 @@
 {-# OPTIONS_HADDOCK not-home #-}
 -- |
--- The transpiler from a miniCUTE program to a G-Machine program
+-- Transpilers from a miniCUTE program to a G-Machine program
 module Minicute.Transpilers.GMachine
   ( module Minicute.Types.GMachine.Instruction
   , module Minicute.Types.Minicute.Program

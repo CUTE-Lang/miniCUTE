@@ -1,4 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
+-- |
+-- Transpilers to rename variables to avoid name collision.
 module Minicute.Transpilers.VariablesRenaming
   ( renameVariablesMainL
   ) where
@@ -14,6 +16,8 @@ import Minicute.Types.Minicute.Program
 
 import qualified Data.Map as Map
 
+-- |
+-- A transpiler to rename variables in 'MainProgramL'
 renameVariablesMainL :: MainProgramL -> MainProgramL
 renameVariablesMainL = renameVariablesL id
 {-# INLINABLE renameVariablesMainL #-}
