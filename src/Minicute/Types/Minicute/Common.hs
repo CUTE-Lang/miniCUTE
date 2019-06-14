@@ -6,6 +6,8 @@
 {-# LANGUAGE PatternSynonyms #-}
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TypeFamilies #-}
+-- |
+-- Common basic types used to define many other types
 module Minicute.Types.Minicute.Common
   ( Identifier( .. )
 
@@ -22,6 +24,8 @@ import Data.Text.Prettyprint.Doc ( Pretty(..) )
 import GHC.Generics
 import Language.Haskell.TH.Syntax
 
+-- |
+-- miniCUTE identifier type.
 newtype Identifier
   = Identifier String
   deriving ( Generic
@@ -41,6 +45,8 @@ instance IsString Identifier where
 instance Pretty Identifier where
   pretty (Identifier v) = pretty v
 
+-- |
+-- @IsRecursive@ represents recursiveness of let/letrec expressions.
 newtype IsRecursive = IsRecursive { isRecursive :: Bool }
   deriving ( Generic
            , Typeable
@@ -49,8 +55,12 @@ newtype IsRecursive = IsRecursive { isRecursive :: Bool }
            , Eq
            , Ord
            )
+-- |
+-- Utility pattern for the recursive case of 'IsRecursive'
 pattern Recursive :: IsRecursive
 pattern Recursive = IsRecursive True
+-- |
+-- Utility pattern for the non-recursive case of 'IsRecursive'
 pattern NonRecursive :: IsRecursive
 pattern NonRecursive = IsRecursive False
 {-# COMPLETE Recursive, NonRecursive #-}

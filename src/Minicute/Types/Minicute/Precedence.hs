@@ -2,6 +2,8 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE DeriveLift #-}
 {-# LANGUAGE OverloadedStrings #-}
+-- |
+-- Types for precedences of primitive operators in miniCUTE
 module Minicute.Types.Minicute.Precedence
   ( module Minicute.Types.Minicute.Common
 
@@ -34,6 +36,8 @@ import Minicute.Types.Minicute.Common
 
 import qualified Data.Text.Prettyprint.Doc as PP
 
+-- |
+-- Precedence of a unary/binary operator
 data Precedence
   = PInfixN { precedence :: Int }
   | PInfixL { precedence :: Int }
@@ -50,10 +54,18 @@ data Precedence
            , Read
            )
 
+-- |
+-- Name of an operator
 type OperatorName = String
+-- |
+-- Precedence character of an operator
 type PrecedenceTableEntry = (OperatorName, Precedence)
+-- |
+-- Precedence characters of operators
 type PrecedenceTable = [PrecedenceTableEntry]
 
+-- |
+-- Check whether the input operator is infix (i.e. binary).
 isInfix :: Precedence -> Bool
 isInfix (PInfixN _) = True
 isInfix (PInfixL _) = True
@@ -62,17 +74,23 @@ isInfix _ = False
 {-# INLINEABLE isInfix #-}
 
 -- |
+-- All predefined precedences.
+--
 -- All precedences should be smaller than 'miniApplicationPrecedence'.
 -- Where do I need to check this condition?
 defaultPrecedenceTable :: PrecedenceTable
 defaultPrecedenceTable
   = binaryPrecedenceTable
 
+-- |
+-- All predefined precedences of binary operators.
 binaryPrecedenceTable :: PrecedenceTable
 binaryPrecedenceTable
   = binaryDataPrecendenceTable
     <> binaryIntegerPrecendenceTable
 
+-- |
+-- All predefined precedences of binary integer operators.
 binaryIntegerPrecendenceTable :: PrecedenceTable
 binaryIntegerPrecendenceTable
   = [ ("+", PInfixL 40)
@@ -81,6 +99,8 @@ binaryIntegerPrecendenceTable
     , ("/", PInfixL 50)
     ]
 
+-- |
+-- All predefined precedences of binary data structure operators.
 binaryDataPrecendenceTable :: PrecedenceTable
 binaryDataPrecendenceTable
   = [ (">=", PInfixL 10)
@@ -91,15 +111,23 @@ binaryDataPrecendenceTable
     , ("!=", PInfixL 10)
     ]
 
+-- |
+-- The maximum precedence value in miniCUTE.
 miniApplicationPrecedence :: Int
 miniApplicationPrecedence = 100
 {-# INLINEABLE miniApplicationPrecedence #-}
 
+-- |
+-- The supremum precedence value in miniCUTE.
 miniApplicationPrecedence1 :: Int
 miniApplicationPrecedence1 = 101
 {-# INLINEABLE miniApplicationPrecedence1 #-}
 
 
+-- |
+-- @prettyBinaryExpressionPrec p op opPrec e1 e2@ make a document that includes
+-- e1, op and e2 in the order, and pass appropriate precedences @p1@ and @p2@ to
+-- @prettyPrec p1 e1@ and @prettyPrec p2 e2@ to give proper parenthesis.
 prettyBinaryExpressionPrec :: (Pretty a, PrettyPrec (expr_ a)) => Int -> String -> Precedence -> expr_ a -> expr_ a -> PP.Doc ann
 prettyBinaryExpressionPrec p op opPrec e1 e2
   = (if p > opP then PP.parens else id) . PP.hsep
