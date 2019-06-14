@@ -7,6 +7,8 @@
 {-# LANGUAGE StandaloneDeriving #-}
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TypeFamilies #-}
+-- |
+-- Definition for type-level fixpoints with various arguments.
 module Minicute.Data.Fix
   ( Fix( .. )
   , Fix'
@@ -23,10 +25,14 @@ import GHC.Read ( lex )
 import GHC.Show ( appPrec, appPrec1 )
 import Language.Haskell.TH.Syntax
 
+-- |
+-- The type-level fixpoint with no extra arguments.
 newtype Fix f = Fix { unFix :: Fix' f }
   deriving ( Generic
            , Typeable
            )
+-- |
+-- The internal type of 'Fix'.
 type Fix' f = f (Fix f)
 
 deriving instance (Typeable f, Data (f (Fix f))) => Data (Fix f)
@@ -52,10 +58,14 @@ instance (Read (f (Fix f))) => Read (Fix f) where
           , (m, s'') <- readsPrec appPrec1 s'
           ]
 
+-- |
+-- The type-level fixpoint with an extra argument.
 newtype Fix2 f a = Fix2 { unFix2 :: Fix2' f a }
   deriving ( Generic
            , Typeable
            )
+-- |
+-- The internal type of 'Fix2'.
 type Fix2' f a = f (Fix2 f) a
 
 deriving instance (Typeable f, Typeable a, Data (f (Fix2 f) a)) => Data (Fix2 f a)
