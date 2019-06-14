@@ -1,3 +1,5 @@
+-- |
+-- Utilities for miniCUTE compiler using TemplateHaskell
 module Minicute.Utils.TH
   ( qqMiniMainL
   , qqMiniMain
@@ -18,6 +20,8 @@ import Minicute.Parser.Minicute.Parser
 import Minicute.Parser.GMachine.Parser
 import Text.Megaparsec
 
+-- |
+-- parse quoted string as a 'MainProgramL'.
 qqMiniMainL :: QuasiQuoter
 qqMiniMainL
   = QuasiQuoter
@@ -27,6 +31,8 @@ qqMiniMainL
     , quoteDec = const . fail $ "qqMiniMainLExp cannot be used as a declaration"
     }
 
+-- |
+-- parse quoted string as a 'MainProgram'.
 qqMiniMain :: QuasiQuoter
 qqMiniMain
   = QuasiQuoter
@@ -37,6 +43,8 @@ qqMiniMain
     }
 
 
+-- |
+-- parse quoted string as a 'GMachineProgram'.
 qqGMachine :: QuasiQuoter
 qqGMachine
   = QuasiQuoter
@@ -47,6 +55,8 @@ qqGMachine
     }
 
 
+-- |
+-- parse quoted string as an indented code text.
 qqRawCode :: QuasiQuoter
 qqRawCode
   = QuasiQuoter
