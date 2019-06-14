@@ -1,5 +1,7 @@
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE TypeFamilies #-}
+-- |
+-- Parser functions for miniCUTE
 module Minicute.Parser.Minicute.Parser
   ( Parser
 
@@ -26,6 +28,8 @@ import qualified Minicute.Parser.Lexer as L
 type WithPrecedence m = ReaderT PrecedenceTable m
 
 
+-- |
+-- A parser for 'MainProgramL'
 mainProgramL :: Parser MainProgramL
 mainProgramL = programL L.identifier
 {-# INLINEABLE mainProgramL #-}
@@ -48,6 +52,8 @@ expressionL pA = go
 {-# INLINEABLE expressionL #-}
 
 
+-- |
+-- A parser for 'MainProgram'
 mainProgram :: Parser MainProgram
 mainProgram = program L.identifier
 {-# INLINEABLE mainProgram #-}

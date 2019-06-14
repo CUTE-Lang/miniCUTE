@@ -1,6 +1,8 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TypeFamilies #-}
+-- |
+-- Common lexer functions used in miniCUTE compiler
 module Minicute.Parser.Lexer
   ( betweenRoundBrackets
 
@@ -26,11 +28,16 @@ import qualified Data.Char as Char
 import qualified Text.Megaparsec.Char as MPT
 import qualified Text.Megaparsec.Char.Lexer as MPTL
 
+-- |
+-- @betweenRoundBrackets p@ parses @"("@, and then @p@, and finally @")"@.
 betweenRoundBrackets :: (MonadParser e s m) => m a -> m a
 betweenRoundBrackets = between (symbol "(") (symbol ")")
 {-# INLINEABLE betweenRoundBrackets #-}
 
 
+-- |
+-- @gMachineIdentifier@ parses any character sequences not containing @';'@ or
+-- space characters as an 'Identifier'.
 gMachineIdentifier :: (MonadParser e s m) => m Identifier
 gMachineIdentifier = Identifier <$> lexeme (many (satisfy (anyCond (/= ';') Char.isSpace)))
   where
@@ -39,6 +46,11 @@ gMachineIdentifier = Identifier <$> lexeme (many (satisfy (anyCond (/= ';') Char
 
 -- I need to check whether identifier is a keyword or not
 -- since I don't want to introduce additional separator for let definitions.
+-- |
+-- @identifier@ parses any character sequences starting with @identifierFirstChar@ followed by @identifierRestChar@.
+-- For example, this function parses @"_abc"@, @"ab4"@, and @"a_ef_3"@ successfully.
+--
+-- For more examples, see the test module for this function.
 identifier :: (MonadParser e s m) => m Identifier
 identifier = try identifier' <?> "identifier"
   where
@@ -64,6 +76,10 @@ identifierRestChar :: (MonadParser e s m) => m (Token s)
 identifierRestChar = MPT.alphaNumChar <|> single '_'
 {-# INLINEABLE identifierRestChar #-}
 
+-- |
+-- @keyword@ parses any keywords.
+--
+-- The keywords are @let@, @letrec@, @in@, @match@, @with@, and @$C@.
 keyword :: (MonadParser e s m) => Tokens s -> m (Tokens s)
 keyword k
   | k `elem` keywordList = lexeme (chunk k <* notFollowedBy identifierRestChar)
@@ -80,10 +96,18 @@ keywordList
     , "$C"
     ]
 
+-- |
+-- @symbol str@ parses @str@ and ignore the result.
 symbol :: forall e s m. (MonadParser e s m) => Tokens s -> m ()
 symbol = void . MPTL.symbol spacesConsumer
 {-# INLINEABLE symbol #-}
 
+-- |
+-- @integer@ parses a decimal integer with no prefix,
+-- binary integer with @"0b"@ or @"0B"@ prefix,
+-- octal integer with @"0o"@ or @"0O"@ prefix,
+-- decimal integer with @"0d"@ or @"0D"@ prefix,
+-- hexadecimal integer with @"0x"@ or @"0X"@ prefix.
 integer :: (MonadParser e s m, Integral a) => m a
 integer
   = lexeme
@@ -121,6 +145,8 @@ lexeme :: (MonadParser e s m) => m a -> m a
 lexeme = MPTL.lexeme spacesConsumer
 {-# INLINEABLE lexeme #-}
 
+-- |
+-- @spacesConsumer@ consumes all consecutive spaces and ignore the result.
 spacesConsumer :: (MonadParser e s m) => m ()
 spacesConsumer = hidden MPT.space
 {-# INLINEABLE spacesConsumer #-}
