@@ -1,5 +1,7 @@
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE TypeFamilies #-}
+-- |
+-- Transpilers to extract free variable information of expressions
 module Minicute.Transpilers.FreeVariables
   ( ProgramLWithFreeVariables
   , MainProgramLWithFreeVariables
@@ -23,23 +25,34 @@ import Minicute.Types.Minicute.Annotated.Program
 import qualified Data.Set as Set
 import qualified Data.Set.Lens as Set
 
+-- |
+-- 'ProgramL' annotated with 'FreeVariables'
 type ProgramLWithFreeVariables = AnnotatedProgramL FreeVariables
+-- |
+-- 'MainProgramL' annotated with 'FreeVariables'
 type MainProgramLWithFreeVariables = MainAnnotatedProgramL FreeVariables
+-- |
+-- 'ExpressionL' annotated with 'FreeVariables'
 type ExpressionLWithFreeVariables = AnnotatedExpressionL FreeVariables
+-- |
+-- 'MainExpressionL' annotated with 'FreeVariables'
 type MainExpressionLWithFreeVariables = MainAnnotatedExpressionL FreeVariables
 
 type ExpressionWithFreeVariables_ = AnnotatedExpression_ FreeVariables Expression_
 type ExpressionLWithFreeVariables_ = AnnotatedExpression_ FreeVariables ExpressionL_
 
 -- |
--- Set of identifiers those are free variables of
--- annotated expression
+-- A set of identifiers that are free in the annotated expression
 type FreeVariables = Set.Set Identifier
 
+-- |
+-- A transpiler to create free variable information for 'MainProgramL'
 formFreeVariablesMainL :: MainProgramL -> MainProgramLWithFreeVariables
 formFreeVariablesMainL = formFreeVariablesL id
 {-# INLINEABLE formFreeVariablesMainL #-}
 
+-- |
+-- A transpiler to create free variable information for 'ProgramL'
 formFreeVariablesL :: Getter a Identifier -> ProgramL a -> ProgramLWithFreeVariables a
 formFreeVariablesL _a
   = _Wrapped . each %~ formFreeVariablesSc
@@ -153,8 +166,9 @@ formFVsE_ _a _fv fExpr (EMatch_ expr mCases) = do
     mCasesArgumentSets = mCases ^.. each . _matchCaseArguments . setFrom (each . _a)
 
 -- |
--- TODO - move this definition into a separate utility module.
--- TODO - add an hlint rule from 'Set.fromList $ a ^.. b' to 'a ^. setFrom b'
+-- __TODO: move this definition into a separate utility module.__
+--
+-- __TODO: add an hlint rule from 'Set.fromList $ a ^.. b' to 'a ^. setFrom b'__
 setFrom :: Getting (Set.Set a) s a -> Getter s (Set.Set a)
 setFrom = to . Set.setOf
 {-# INLINABLE setFrom #-}

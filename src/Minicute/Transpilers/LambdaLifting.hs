@@ -1,5 +1,10 @@
 {-# LANGUAGE OverloadedStrings #-}
-module Minicute.Transpilers.LambdaLifting where
+-- |
+-- Transpilers to lift all lambda expressions as
+-- supercombinators (top-level function definitions)
+module Minicute.Transpilers.LambdaLifting
+  ( lambdaLifting
+  ) where
 
 import Control.Lens.Each
 import Control.Lens.Operators
@@ -12,15 +17,14 @@ import Minicute.Types.Minicute.Annotated.Program
 
 import qualified Data.Set as Set
 
-{- |
-Following function is based on the book
-
-- Hughes, R. J. M. (__1983__) /Design and Implementation of Programming Languages/
-
-For an alternative implementation, see
-
-- Johnsson, T. (__1985__) /Lambda Lifting: Transforming Programs to Recursive Equations/
--}
+-- |
+-- Following function is based on the book
+--
+-- - Hughes, R. J. M. (__1983__) /Design and Implementation of Programming Languages/
+--
+-- For an alternative implementation, see
+--
+-- - Johnsson, T. (__1985__) /Lambda Lifting: Transforming Programs to Recursive Equations/
 lambdaLifting :: MainProgramL -> MainProgram
 lambdaLifting = liftAnnons . renameVariablesMainL . replaceLambda . formFreeVariablesMainL
 

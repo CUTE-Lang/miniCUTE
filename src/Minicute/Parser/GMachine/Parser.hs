@@ -1,5 +1,7 @@
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE TypeFamilies #-}
+-- |
+-- Parser functions for G-Machine
 module Minicute.Parser.GMachine.Parser
   ( Parser
 
@@ -14,6 +16,8 @@ import Text.Megaparsec
 
 import qualified Minicute.Parser.Lexer as L
 
+-- |
+-- A parser for a G-Machine program.
 gMachineProgram :: Parser GMachineProgram
 gMachineProgram = many gMachineSupercombinator
 
@@ -27,10 +31,9 @@ gMachineSupercombinator
 gMachineExpression :: Parser GMachineExpression
 gMachineExpression = endBy instruction separator
 
-{-|
-Add a more appropriate lexer instead of 'L.symbol'.
-'L.symbol' does not check whether following character is a space or not.
--}
+-- |
+-- __TODO: Add a more appropriate lexer instead of 'L.symbol'.__
+-- 'L.symbol' does not check whether following character is a space or not.
 instruction :: Parser Instruction
 instruction
   = choice

@@ -9,6 +9,8 @@
 {-# LANGUAGE PatternSynonyms #-}
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TypeFamilies #-}
+-- |
+-- Types for annotated expressions
 module Minicute.Types.Minicute.Annotated.Expression
   ( module Minicute.Data.Fix
   , module Minicute.Types.Minicute.Common
@@ -84,32 +86,66 @@ import Minicute.Types.Minicute.Precedence
 
 import qualified Data.Text.Prettyprint.Doc as PP
 
+-- |
+-- @AnnotatedLetDefinition ann a@ is a 'LetDefinition' annotated with @ann@.
 type AnnotatedLetDefinition ann a = LetDefinition_ (AnnotatedExpression ann) a
+-- |
+-- @MainAnnotatedLetDefinition ann@ is a 'MainLetDefinition' annotated with @ann@.
 type MainAnnotatedLetDefinition ann = AnnotatedLetDefinition ann Identifier
+-- |
+-- Utility pattern for 'AnnotatedLetDefinition'
 pattern AnnotatedLetDefinition :: a -> AnnotatedExpression ann a -> AnnotatedLetDefinition ann a
 pattern AnnotatedLetDefinition a expr = LetDefinition_ (a, expr)
 {-# COMPLETE AnnotatedLetDefinition #-}
 
+-- |
+-- @AnnotatedLetDefinitionL ann a@ is a 'LetDefinitionL' annotated with @ann@.
 type AnnotatedLetDefinitionL ann a = LetDefinition_ (AnnotatedExpressionL ann) a
+-- |
+-- @MainAnnotatedLetDefinitionL ann@ is a 'MainLetDefinitionL' annotated with @ann@.
 type MainAnnotatedLetDefinitionL ann = AnnotatedLetDefinitionL ann Identifier
+-- |
+-- Utility pattern for 'AnnotatedLetDefinitionL'
 pattern AnnotatedLetDefinitionL :: a -> AnnotatedExpressionL ann a -> AnnotatedLetDefinitionL ann a
 pattern AnnotatedLetDefinitionL a expr = LetDefinition_ (a, expr)
 {-# COMPLETE AnnotatedLetDefinitionL #-}
 
 
+-- |
+-- @AnnotatedMatchCase ann a@ is a 'MatchCase' annotated with @ann@.
 type AnnotatedMatchCase ann a = MatchCase_ (AnnotatedExpression ann) a
+-- |
+-- @MainAnnotatedMatchCase ann@ is a 'MainMatchCase' annotated with @ann@.
 type MainAnnotatedMatchCase ann = AnnotatedMatchCase ann Identifier
+-- |
+-- Utility pattern for 'AnnotatedMatchCase'
 pattern AnnotatedMatchCase :: Integer -> [a] -> AnnotatedExpression ann a -> AnnotatedMatchCase ann a
 pattern AnnotatedMatchCase tag argBinders expr = MatchCase_ (tag, argBinders, expr)
 {-# COMPLETE AnnotatedMatchCase #-}
 
+-- |
+-- @AnnotatedMatchCaseL ann a@ is a 'MatchCaseL' annotated with @ann@.
 type AnnotatedMatchCaseL ann a = MatchCase_ (AnnotatedExpressionL ann) a
+-- |
+-- @MainAnnotatedMatchCaseL ann a@ is a 'MainMatchCaseL' annotated with @ann@.
 type MainAnnotatedMatchCaseL ann = AnnotatedMatchCaseL ann Identifier
+-- |
+-- Utility pattern for 'AnnotatedMatchCaseL'
 pattern AnnotatedMatchCaseL :: Integer -> [a] -> AnnotatedExpressionL ann a -> AnnotatedMatchCaseL ann a
 pattern AnnotatedMatchCaseL tag argBinders expr = MatchCase_ (tag, argBinders, expr)
 {-# COMPLETE AnnotatedMatchCaseL #-}
 
 
+-- |
+-- An internal type for an annotated expression.
+--
+-- [@ann@] a type for the annotation.
+--
+-- [@wExpr@] a structure of the expression ('Expression_' or 'ExpressionL_').
+--
+-- [@expr_@] a recursive part of the expression.
+--
+-- [@a@] an identifier type of the expression.
 newtype AnnotatedExpression_ ann wExpr (expr_ :: * -> *) a
   = AnnotatedExpression_ (ann, wExpr expr_ a)
   deriving ( Generic
@@ -121,21 +157,48 @@ newtype AnnotatedExpression_ ann wExpr (expr_ :: * -> *) a
            , Show
            )
 
+-- |
+-- @AnnotatedExpression ann a@ is an 'Expression' annotated with @ann@.
 type AnnotatedExpression ann = Fix2 (AnnotatedExpression_ ann Expression_)
+-- |
+-- @MainAnnotatedExpression ann@ is a 'MainExpression' annotated with @ann@.
 type MainAnnotatedExpression ann = AnnotatedExpression ann Identifier
+
+-- |
+-- @AnnotatedExpression ann expr@ is @expr@ annotated with @ann@.
 pattern AnnotatedExpression ann expr = AnnotatedExpressionFix2 (AnnotatedExpression_ (ann, expr))
 {-# COMPLETE AnnotatedExpression #-}
+
+-- |
+-- Annotated 'EInteger'.
 pattern AEInteger ann n = AnnotatedExpression ann (EInteger_ n)
+-- |
+-- Annotated 'EConstructor'.
 pattern AEConstructor ann tag args = AnnotatedExpression ann (EConstructor_ tag args)
+-- |
+-- Annotated 'EVariable'.
 pattern AEVariable ann v = AnnotatedExpression ann (EVariable_ v)
+-- |
+-- Annotated 'EVariableIdentifier'.
 pattern AEVariableIdentifier ann v = AnnotatedExpression ann (EVariable_ (Identifier v))
+-- |
+-- Annotated 'EApplication'.
 pattern AEApplication ann e1 e2 = AnnotatedExpression ann (EApplication_ e1 e2)
+-- |
+-- Annotated 'EApplication2'.
 pattern AEApplication2 ann2 ann1 e1 e2 e3 = AEApplication ann2 (AEApplication ann1 e1 e2) e3
+-- |
+-- Annotated 'EApplication3'.
 pattern AEApplication3 ann3 ann2 ann1 e1 e2 e3 e4 = AEApplication ann3 (AEApplication2 ann2 ann1 e1 e2 e3) e4
+-- |
+-- Annotated 'ELet'.
 pattern AELet ann flag lds e = AnnotatedExpression ann (ELet_ flag lds e)
+-- |
+-- Annotated 'EMatch'.
 pattern AEMatch ann e mcs = AnnotatedExpression ann (EMatch_ e mcs)
 {-# COMPLETE AEInteger, AEConstructor, AEVariable, AEApplication, AELet, AEMatch #-}
 {-# COMPLETE AEInteger, AEConstructor, AEVariableIdentifier, AEApplication, AELet, AEMatch #-}
+
 pattern AnnotatedExpressionFix2 :: AnnotatedExpression_ ann Expression_ (AnnotatedExpression ann) a -> AnnotatedExpression ann a
 pattern AnnotatedExpressionFix2 e = Fix2 e
 {-# COMPLETE AnnotatedExpressionFix2 #-}
@@ -174,24 +237,56 @@ instance (Pretty ann, Pretty a) => Pretty (AnnotatedExpression ann a) where
 
 instance (Pretty ann, Pretty a) => PrettyPrec (AnnotatedExpression ann a)
 
+-- |
+-- @AnnotatedExpressionL ann a@ is an 'ExpressionL' annotated with @ann@.
 type AnnotatedExpressionL ann = Fix2 (AnnotatedExpression_ ann ExpressionL_)
+-- |
+-- @MainAnnotatedExpressionL ann@ is a 'MainExpressionL' annotated with @ann@.
 type MainAnnotatedExpressionL ann = AnnotatedExpressionL ann Identifier
+
+-- |
+-- @AnnotatedExpressionL ann expr@ is @expr@ annotated by @ann@.
 pattern AnnotatedExpressionL ann expr = AnnotatedExpressionLFix2 (AnnotatedExpression_ (ann, expr))
 {-# COMPLETE AnnotatedExpressionL #-}
+
+-- |
+-- Annotated 'ELInteger'.
 pattern AELInteger ann n = AELExpression ann (EInteger_ n)
+-- |
+-- Annotated 'ELConstructor'.
 pattern AELConstructor ann tag args = AELExpression ann (EConstructor_ tag args)
+-- |
+-- Annotated 'ELVariable'.
 pattern AELVariable ann v = AELExpression ann (EVariable_ v)
+-- |
+-- Annotated 'ELVariableIdentifier'.
 pattern AELVariableIdentifier ann v = AELExpression ann (EVariable_ (Identifier v))
+-- |
+-- Annotated 'ELApplication'.
 pattern AELApplication ann e1 e2 = AELExpression ann (EApplication_ e1 e2)
+-- |
+-- Annotated 'ELApplication2'.
 pattern AELApplication2 ann2 ann1 e1 e2 e3 = AELApplication ann2 (AELApplication ann1 e1 e2) e3
+-- |
+-- Annotated 'ELApplication3'.
 pattern AELApplication3 ann3 ann2 ann1 e1 e2 e3 e4 = AELApplication ann3 (AELApplication2 ann2 ann1 e1 e2 e3) e4
+-- |
+-- Annotated 'ELLet'.
 pattern AELLet ann flag lds e = AELExpression ann (ELet_ flag lds e)
+-- |
+-- Annotated 'ELMatch'.
 pattern AELMatch ann e mcs = AELExpression ann (EMatch_ e mcs)
+-- |
+-- Annotated 'ELLambda'.
 pattern AELLambda ann as e = AnnotatedExpressionL ann (ELLambda_ as e)
 {-# COMPLETE AELInteger, AELConstructor, AELVariable, AELApplication, AELLet, AELMatch, AELLambda #-}
 {-# COMPLETE AELInteger, AELConstructor, AELVariableIdentifier, AELApplication, AELLet, AELMatch, AELLambda #-}
+
+-- |
+-- Annotated 'ELExpression'.
 pattern AELExpression ann expr = AnnotatedExpressionL ann (ELExpression_ expr)
 {-# COMPLETE AELExpression, AELLambda #-}
+
 pattern AnnotatedExpressionLFix2 :: AnnotatedExpression_ ann ExpressionL_ (AnnotatedExpressionL ann) a -> AnnotatedExpressionL ann a
 pattern AnnotatedExpressionLFix2 e = Fix2 e
 {-# COMPLETE AnnotatedExpressionLFix2 #-}
@@ -229,10 +324,14 @@ instance (Pretty ann, Pretty a) => PrettyPrec (AnnotatedExpressionL ann a)
 
 makeWrapped ''AnnotatedExpression_
 
+-- |
+-- 'Lens' to extract the annotation of 'AnnotatedExpression_'.
 _annotation :: Lens (AnnotatedExpression_ ann wExpr expr_ a) (AnnotatedExpression_ ann' wExpr expr_ a) ann ann'
 _annotation = _Wrapped . _1
 {-# INLINEABLE _annotation #-}
 
+-- |
+-- 'Lens' to extract the expression of 'AnnotatedExpression_'.
 _annotated :: Lens (AnnotatedExpression_ ann wExpr expr_ a) (AnnotatedExpression_ ann wExpr' expr_' a') (wExpr expr_ a) (wExpr' expr_' a')
 _annotated = _Wrapped . _2
 {-# INLINEABLE _annotated #-}
