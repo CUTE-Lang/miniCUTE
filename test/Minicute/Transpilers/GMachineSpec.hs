@@ -1,7 +1,7 @@
 {- HLINT ignore "Redundant do" -}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE QuasiQuotes #-}
-module Minicute.Types.GMachine.InstructionSpec
+module Minicute.Transpilers.GMachineSpec
   ( spec
   ) where
 
@@ -9,6 +9,7 @@ import Test.Hspec
 
 import Control.Monad
 import Data.Tuple.Extra
+import Minicute.Transpilers.GMachine
 import Minicute.Types.GMachine.Instruction
 import Minicute.Types.Minicute.Program
 import Minicute.Utils.TH
