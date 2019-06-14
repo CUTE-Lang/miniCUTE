@@ -62,7 +62,7 @@ testCases
         |]
       , [qqGMachine|
                    f<1> {
-                     CopyArgument 0;
+                     Copy 0;
                      Eval;
                      Update 2;
                      Pop 2;
@@ -83,8 +83,8 @@ testCases
         |]
       , [qqGMachine|
                    f<2> {
-                     CopyArgument 1;
-                     CopyArgument 1;
+                     Copy 1;
+                     Copy 1;
                      MakeApplication;
                      Eval;
                      Update 3;
@@ -92,10 +92,10 @@ testCases
                      Unwind;
                    }
                    g<3> {
-                       CopyArgument 0;
-                       CopyArgument 3;
+                       Copy 0;
+                       Copy 3;
                        MakeApplication;
-                     CopyArgument 2;
+                     Copy 2;
                      MakeApplication;
                      Eval;
                      Update 4;
@@ -121,7 +121,7 @@ testCases
                      Unwind;
                    }
                    g<1> {
-                     CopyArgument 0;
+                     Copy 0;
                      Eval;
                      Update 2;
                      Pop 2;
@@ -147,7 +147,7 @@ testCases
                    }
                    g<1> {
                      MakeConstructor 3 2;
-                     CopyArgument 1;
+                     Copy 1;
                      MakeApplication;
                      Eval;
                      Update 2;
@@ -211,7 +211,7 @@ testCases
                      Unwind;
                    }
                    g<1> {
-                     CopyArgument 0;
+                     Copy 0;
                      Eval;
                      Update 2;
                      Pop 2;
@@ -247,7 +247,7 @@ testCases
       , [qqGMachine|
                    f<0> {
                      MakeInteger 4;
-                     CopyArgument 0;
+                     Copy 0;
                      Eval;
                      Update 2;
                      Pop 2;
@@ -268,10 +268,10 @@ testCases
                    f<0> {
                      MakeInteger 4;
                      MakeInteger 3;
-                       CopyArgument 1;
+                       Copy 1;
                        Eval;
                        PushExtractedValue;
-                       CopyArgument 0;
+                       Copy 0;
                        Eval;
                        PushExtractedValue;
                      Primitive *;
@@ -292,7 +292,7 @@ testCases
                    f<0> {
                      PushBasicValue 5;
                        MakeInteger 4;
-                       CopyArgument 0;
+                       Copy 0;
                        Eval;
                        PushExtractedValue;
                        Pop 1;
@@ -315,7 +315,7 @@ testCases
                      MakePlaceholders 1;
                      MakeInteger 4;
                      Update 1;
-                     CopyArgument 0;
+                     Copy 0;
                      Eval;
                      Update 2;
                      Pop 2;
@@ -338,19 +338,19 @@ testCases
                        MakeGlobal +;
                        MakeInteger 2;
                        MakeApplication;
-                     CopyArgument 1;
+                     Copy 1;
                      MakeApplication;
                      Update 2;
                        MakeGlobal -;
-                       CopyArgument 2;
+                       Copy 2;
                        MakeApplication;
                      MakeInteger 3;
                      MakeApplication;
                      Update 2;
-                       CopyArgument 1;
+                       Copy 1;
                        Eval;
                        PushExtractedValue;
-                       CopyArgument 0;
+                       Copy 0;
                        Eval;
                        PushExtractedValue;
                      Primitive /;
@@ -377,7 +377,7 @@ testCases
                          Return;
                        2 ->
                          Destruct 2;
-                         CopyArgument 0;
+                         Copy 0;
                          Eval;
                          Update 3;
                          Pop 3;
@@ -409,7 +409,7 @@ testCases
                          Return;
                        2 ->
                          Destruct 2;
-                         CopyArgument 0;
+                         Copy 0;
                          Eval;
                          Update 3;
                          Pop 3;

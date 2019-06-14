@@ -107,7 +107,7 @@ transpileNE _ (EInteger n) = [IMakeInteger n]
 transpileNE _ (EConstructor tag 0) = [IMakeStructure tag 0]
 transpileNE _ (EConstructor tag arity) = [IMakeConstructor tag arity]
 transpileNE env (EVariable v)
-  | Just index <- Map.lookup v env = [ICopyArgument index]
+  | Just index <- Map.lookup v env = [ICopy index]
   | otherwise = [IMakeGlobal v]
 transpileNE env (EApplication e1 e2)
   = transpileNE env e1 <> transpileNE (addEnvOffset1 env) e2 <> [IMakeApplication]

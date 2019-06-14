@@ -125,9 +125,9 @@ type GMachineExpression = [Instruction]
 --     > -----------------------------------------------------------------------------------------------------------
 --     > (            codes,          addr_1 : ... : addr_n : addrs, values, heap[addr_n: NIndirect addr_0], global)
 -- 
--- - __ICopyArgument__
+-- - __ICopy__
 -- 
---     > (ICopyArgument n : codes,          addr_0 : addr_1 : ... : addr_n : addrs, values, heap, global)
+--     > (ICopy n : codes,          addr_0 : addr_1 : ... : addr_n : addrs, values, heap, global)
 --     > ------------------------------------------------------------------------------------------------
 --     > (                  codes, addr_n : addr_0 : addr_1 : ... : addr_n : addrs, values, heap, global)
 -- 
@@ -266,7 +266,7 @@ data Instruction
   | IPop Int
   | IDig Int
   | IUpdate Int
-  | ICopyArgument Int
+  | ICopy Int
 
   -- Value stack based operations
   | IPushBasicValue Integer

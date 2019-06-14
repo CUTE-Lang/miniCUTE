@@ -47,7 +47,7 @@ instruction
     , L.symbol "Pop" >> IPop <$> L.integer
     , L.symbol "Dig" >> IDig <$> L.integer
     , try (L.symbol "Update" >> IUpdate <$> L.integer)
-    , L.symbol "CopyArgument" >> ICopyArgument <$> L.integer
+    , L.symbol "Copy" >> ICopy <$> L.integer
 
     , L.symbol "PushBasicValue" >> IPushBasicValue <$> L.integer
     , L.symbol "PushExtractedValue" $> IPushExtractedValue
