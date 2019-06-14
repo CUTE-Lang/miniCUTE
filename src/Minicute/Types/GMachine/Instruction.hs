@@ -1,6 +1,8 @@
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE DeriveLift #-}
+-- |
+-- Instructions and other helper types for G-Machine
 module Minicute.Types.GMachine.Instruction
   ( -- * G-Machine Architecture
 
@@ -27,14 +29,22 @@ import GHC.Generics
 import Language.Haskell.TH.Syntax
 import Minicute.Types.Minicute.Precedence
 
+-- |
+-- A G-Machine program.
 type GMachineProgram = [GMachineSupercombinator]
 -- |
+-- A G-Machine top-level definition.
+--
+-- It contains
+--
 -- [@Identifier@] The identifier for the Supercombinator.
 --
 -- [@Int@] The arity of the Supercombinator.
 --
 -- [@GMachineExpression@] The code for the Supercombinator.
 type GMachineSupercombinator = (Identifier, Int, GMachineExpression)
+-- |
+-- A G-Machine expression
 type GMachineExpression = [Instruction]
 
 -- $abstractStructure
@@ -179,6 +189,8 @@ type GMachineExpression = [Instruction]
 -- 
 -- __TODO: Add rest of operation semantics.__
 
+-- |
+-- A G-Machine instruction
 data Instruction
   -- Basic node creating operations
   = IMakeInteger Integer
@@ -223,6 +235,10 @@ data Instruction
            , Show
            )
 
+-- |
+-- Table expressing a match expression.
+--
+-- [@[MatchEntry\]@] cases in the match expression.
 newtype MatchTable
   = MatchTable [MatchEntry]
   deriving ( Generic
@@ -234,6 +250,12 @@ newtype MatchTable
            , Show
            )
 
+-- |
+-- Entry expressing a @match@ case.
+--
+-- [@Integer@] the tag of the case.
+--
+-- [@GMachineExpression@] the instructions of the case.
 newtype MatchEntry
   = MatchEntry (Integer, GMachineExpression)
   deriving ( Generic
@@ -245,6 +267,8 @@ newtype MatchEntry
            , Show
            )
 
+-- |
+-- Primitive operations done in the value stack.
 data PrimitiveOperator
   = POAdd
   | POSub
