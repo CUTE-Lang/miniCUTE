@@ -51,9 +51,9 @@ instruction
     , L.symbol "PushBasicValue" >> IPushBasicValue <$> L.integer
     , L.symbol "PushExtractedValue" $> IPushExtractedValue
     , L.symbol "WrapAsInteger" $> IWrapAsInteger
-    , L.symbol "WrapAsConstructor" $> IWrapAsConstructor
+    , L.symbol "WrapAsStructure" $> IWrapAsStructure
     , L.symbol "UpdateAsInteger" >> IUpdateAsInteger <$> L.integer
-    , L.symbol "UpdateAsConstructor" >> IUpdateAsConstructor <$> L.integer
+    , L.symbol "UpdateAsStructure" >> IUpdateAsStructure <$> L.integer
 
     , L.symbol "Primitive" >> IPrimitive <$> primitiveOperator
 

@@ -138,7 +138,7 @@ type GMachineExpression = [Instruction]
 --     > ---------------------------------------------------------------------------------------
 --     > (                      codes,        addrs, v : values, heap,                   global)
 -- 
---     > (IPushExtractedValue : codes, addr : addrs,     values, heap[addr: NStructure v 0], global)
+--     > (IPushExtractedValue : codes, addr : addrs,     values, heap[addr: NStructure v []], global)
 --     > -------------------------------------------------------------------------------------------
 --     > (                      codes,        addrs, v : values, heap,                       global)
 -- 
@@ -148,13 +148,11 @@ type GMachineExpression = [Instruction]
 --     > ----------------------------------------------------------------------------------
 --     > (                 codes, addr : addrs,     values, heap[addr: NInteger v], global)
 -- 
--- - __IWrapAsConstructor__
+-- - __IWrapAsStructure__
 -- 
---     __TODO: Rename this instruction.__
--- 
---     > (IWrapAsConstructor : codes,        addrs, v : values, heap,                       global)
---     > ------------------------------------------------------------------------------------------
---     > (                     codes, addr : addrs,     values, heap[addr: NStructure v 0], global)
+--     > (IWrapAsStructure : codes,        addrs, v : values, heap,                       global)
+--     > ----------------------------------------------------------------------------------------
+--     > (                   codes, addr : addrs,     values, heap[addr: NStructure v []], global)
 -- 
 -- - __IUpdateAsInteger__
 -- 
@@ -162,13 +160,11 @@ type GMachineExpression = [Instruction]
 --     > ------------------------------------------------------------------------------------------------------------------
 --     > (                     codes, addr_0 : addr_1 : ... : addr_n : addrs,     values, heap[addr_n: NInteger v], global)
 -- 
--- - __IUpdateAsConstructor__
+-- - __IUpdateAsStructure__
 -- 
---     __TODO: Rename this instruction.__
--- 
---     > (IUpdateAsConstructor n : codes, addr_0 : addr_1 : ... : addr_n : addrs, v : values, heap,                         global)
---     > --------------------------------------------------------------------------------------------------------------------------
---     > (                         codes, addr_0 : addr_1 : ... : addr_n : addrs,     values, heap[addr_n: NStructure v 0], global)
+--     > (IUpdateAsStructure n : codes, addr_0 : addr_1 : ... : addr_n : addrs, v : values, heap,                         global)
+--     > ------------------------------------------------------------------------------------------------------------------------
+--     > (                       codes, addr_0 : addr_1 : ... : addr_n : addrs,     values, heap[addr_n: NStructure v []], global)
 -- 
 -- === Primitive Operations
 -- - __IPrimitive__
@@ -209,9 +205,9 @@ data Instruction
   | IPushBasicValue Integer
   | IPushExtractedValue
   | IWrapAsInteger
-  | IWrapAsConstructor
+  | IWrapAsStructure
   | IUpdateAsInteger Int
-  | IUpdateAsConstructor Int
+  | IUpdateAsStructure Int
 
   -- Primitive operations
   | IPrimitive PrimitiveOperator

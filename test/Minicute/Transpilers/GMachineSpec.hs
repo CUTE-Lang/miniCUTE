@@ -51,7 +51,7 @@ testCases
                    }
                    g<0> {
                      PushBasicValue 9;
-                     UpdateAsConstructor 0;
+                     UpdateAsStructure 0;
                      Return;
                    }
         |]
@@ -72,7 +72,7 @@ testCases
                    }
                    g<1> {
                      PushBasicValue 3;
-                     UpdateAsConstructor 1;
+                     UpdateAsStructure 1;
                      Return;
                    }
         |]

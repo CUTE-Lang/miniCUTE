@@ -58,12 +58,12 @@ transpileSc sc = (scBinder, scArgsLength, scInsts)
 -- Transpiler for a __R__oot __E__xpression.
 transpileRE :: TranspilerE MainExpression
 transpileRE env (EInteger n) = [IPushBasicValue n, IUpdateAsInteger (getEnvSize env), IReturn]
-transpileRE env (EConstructor tag 0) = [IPushBasicValue tag, IUpdateAsConstructor (getEnvSize env), IReturn]
+transpileRE env (EConstructor tag 0) = [IPushBasicValue tag, IUpdateAsStructure (getEnvSize env), IReturn]
 transpileRE env e@(EApplication2 (EVariableIdentifier op) _ _)
   | Just _ <- lookup op binaryIntegerPrecendenceTable
   = transpilePE env e <> [IUpdateAsInteger (getEnvSize env), IReturn]
   | Just _ <- lookup op binaryDataPrecendenceTable
-  = transpilePE env e <> [IUpdateAsConstructor (getEnvSize env), IReturn]
+  = transpilePE env e <> [IUpdateAsStructure (getEnvSize env), IReturn]
 transpileRE env (ELet flag lDefs body) = transpileLet transpileRE env (flag, lDefs, body)
 transpileRE env (EMatch body mCases) = transpileMatch transpileSE (const transpileRE) env (body, mCases)
 -- Should following really use a strict expression?
@@ -83,7 +83,7 @@ transpileSE env e@(EApplication2 (EVariableIdentifier op) _ _)
   | Just _ <- lookup op binaryIntegerPrecendenceTable
   = transpilePE env e <> [IWrapAsInteger]
   | Just _ <- lookup op binaryDataPrecendenceTable
-  = transpilePE env e <> [IWrapAsConstructor]
+  = transpilePE env e <> [IWrapAsStructure]
 transpileSE env e = transpileNE env e <> [IEval]
 
 -- |
