@@ -368,7 +368,7 @@ testCases
         |]
       , [qqGMachine|
                    f<0> {
-                     MakeConstructor 1 0;
+                     MakeStructure 1 0;
                      Match {
                        1 ->
                          Destruct 0;
@@ -398,7 +398,7 @@ testCases
                        MakeConstructor 2 2;
                        MakeInteger 2;
                        MakeApplication;
-                     MakeConstructor 1 0;
+                     MakeStructure 1 0;
                      MakeApplication;
                      Eval;
                      Match {
