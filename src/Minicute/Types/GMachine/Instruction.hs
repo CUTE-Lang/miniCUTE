@@ -74,15 +74,15 @@ type GMachineExpression = [Instruction]
 -- 
 -- - __IMakeConstructor__
 -- 
---     > (IMakeConstructor t a : codes,        addrs, values, heap,                         global)
+--     > (IMakeConstructor t n : codes,        addrs, values, heap,                         global)
 --     > ------------------------------------------------------------------------------------------
---     > (                       codes, addr : addrs, values, heap[addr: NConstructor t a], global)
+--     > (                       codes, addr : addrs, values, heap[addr: NConstructor t n], global)
 -- 
 -- - __IMakeStructure__
 --
---     > (IMakeStructure t n : codes, addr_0 : addr_1 : ... : addr_(n - 1) : addrs, values, heap,                                                          global)
---     > ---------------------------------------------------------------------------------------------------------------------------------------------------------
---     > (                     codes,                                 addr : addrs, values, heap[addr: NStructure t [addr_0 : addr_1 : ... : addr_(n-1)]], global)
+--     > (IMakeStructure t n : codes, addr_0 : addr_1 : ... : addr_(n - 1) : addrs, values, heap,                                                       global)
+--     > ------------------------------------------------------------------------------------------------------------------------------------------------------
+--     > (                     codes,                                 addr : addrs, values, heap[addr: NStructure t [addr_0, addr_1, ..., addr_(n-1)]], global)
 --
 -- - __IMakeApplication__
 -- 
@@ -188,7 +188,67 @@ type GMachineExpression = [Instruction]
 --     >
 --     > v' = R v
 --     > (when op represents a unary operation R)
--- 
+--
+-- === Node Inspecting Operations
+-- - __IUnwind__
+--
+--     > ([IUnwind], addr : addrs, values, heap[addr: NInteger n], global)
+--     > -----------------------------------------------------------------
+--     > /Not Yet Possible/
+--
+--     > ([IUnwind], addr : addrs, values, heap[addr: NStructure t fAddrs], global)
+--     > --------------------------------------------------------------------------
+--     > /Not Yet Possible/
+--
+--     > ([IUnwind],          addr : addrs, values, heap[addr: NApplication addr_1 addr_0], global)
+--     > ------------------------------------------------------------------------------------------
+--     > ([IUnwind], addr_1 : addr : addrs, values, heap,                                   global)
+--
+--     > ([IUnwind],  addr : addrs, values, heap[addr: NIndirect addr'], global)
+--     > -----------------------------------------------------------------------
+--     > ([IUnwind], addr' : addrs, values, heap,                        global)
+--
+--     > (                             [IUnwind],    addr_0 : addr_1 : ... : addr_n : addrs, values, heap[addr_0: NConstructor t n], global)
+--     > -----------------------------------------------------------------------------------------------------------------------------------
+--     > (IRearrange (n - 1) : constructorCode t,             addr_1 : ... : addr_n : addrs, values, heap,                           global)
+--
+--     > ([IUnwind], addr_0 : addr_1 : ... : addr_m : addrs, values, heap[addr_0: NConstructor t n], global)
+--     > ---------------------------------------------------------------------------------------------------
+--     > /Not Yet Possible/
+--     >
+--     > (when m < n)
+--
+--     > ([IUnwind],  addr_0 : addr_1 : ... : addr_n : addrs, values, heap[addr: NGlobal n codes'], global)
+--     > --------------------------------------------------------------------------------------------------
+--     > ([IUnwind],                            addr : addrs, values, heap,                         global)
+--
+--     > ([IUnwind], addr_0 : addr_1 : ... : addr_m : addrs, values, heap[addr_0: NGlobal n codes], global)
+--     > --------------------------------------------------------------------------------------------------
+--     > /Not Yet Possible/
+--     >
+--     > (when m < n)
+--
+--     > (                 [IUnwind],    addr_0 : addr_1 : ... : addr_n : addrs, values, heap[addr_0: NGlobal n codes], global)
+--     > ----------------------------------------------------------------------------------------------------------------------
+--     > (IRearrange (n - 1) : codes,             addr_1 : ... : addr_n : addrs, values, heap,                          global)
+--
+-- - __IDestruct__
+--
+--     > (IDestruct n : codes,                               addr : addrs, values, heap[addr: NStructure t [addr_0, addr_1, ..., addr_(n-1)]], global)
+--     > ---------------------------------------------------------------------------------------------------------------------------------------------
+--     > (              codes, addr_0 : addr_1 : ... : addr_(n-1) : addrs, values, heap,                                                       global)
+--
+-- === Virtual Operations
+-- Following operations are not real constructors of 'Instruction'.
+-- These exist only for semantic purposes.
+--
+-- - __IRearrange__
+--
+--     > (IRearrange n : codes,             addr_0 : addr_1 : ... : addr_n : addrs, values, heap[addr_/i/: NApplication addr_/i/'' addr_/i/'], global)
+--     > ---------------------------------------------------------------------------------------------------------------------------------------------
+--     > (               codes, addr_0' : addr_1' : ... : addr_n' : addr_n : addrs, values, heap',                                             global)
+--
+--
 -- __TODO: Add rest of operation semantics.__
 
 -- |
