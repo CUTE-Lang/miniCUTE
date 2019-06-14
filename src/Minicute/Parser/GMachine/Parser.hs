@@ -39,6 +39,7 @@ instruction
   = choice
     [ L.symbol "MakeInteger" >> IMakeInteger <$> L.integer
     , L.symbol "MakeConstructor" >> IMakeConstructor <$> L.integer <*> L.integer
+    , L.symbol "MakeStructure" >> IMakeStructure <$> L.integer <*> L.integer
     , L.symbol "MakeApplication" $> IMakeApplication
     , L.symbol "MakeGlobal" >> IMakeGlobal <$> L.gMachineIdentifier
     , L.symbol "MakePlaceholders" >> IMakePlaceholders <$> L.integer

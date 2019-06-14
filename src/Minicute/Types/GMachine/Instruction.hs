@@ -78,6 +78,12 @@ type GMachineExpression = [Instruction]
 --     > ------------------------------------------------------------------------------------------
 --     > (                       codes, addr : addrs, values, heap[addr: NConstructor t a], global)
 -- 
+-- - __IMakeStructure__
+--
+--     > (IMakeStructure t n : codes, addr_0 : addr_1 : ... : addr_(n - 1) : addrs, values, heap,                                                          global)
+--     > ---------------------------------------------------------------------------------------------------------------------------------------------------------
+--     > (                     codes,                                 addr : addrs, values, heap[addr: NStructure t [addr_0 : addr_1 : ... : addr_(n-1)]], global)
+--
 -- - __IMakeApplication__
 -- 
 --     > (IMakeApplication : codes, addr_0 : addr_1 : addrs, values, heap,                                   global)
@@ -191,6 +197,7 @@ data Instruction
   -- Basic node creating operations
   = IMakeInteger Integer
   | IMakeConstructor Integer Integer
+  | IMakeStructure Integer Integer
   | IMakeApplication
   | IMakeGlobal Identifier
   | IMakePlaceholders Int
