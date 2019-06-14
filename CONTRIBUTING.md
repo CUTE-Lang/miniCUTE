@@ -1,6 +1,6 @@
 # How to Contribute
 
-Thank you for having interest in this repository. You may came to this page to know how you can fix your inconvenience. To contribute/improve codes in this project, you should follow next steps.
+Thank you for having interest in this repository. You may come to this page to know how you can fix your inconvenience. To contribute/improve codes of this project, you should follow next steps.
 
 ## 1. Download this Project
 
