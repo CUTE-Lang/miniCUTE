@@ -61,6 +61,8 @@ type GMachineExpression = [Instruction]
 -- [@NodeHeap@] a heap of G-Machine nodes.
 --
 -- [@GlobalEnvironment@] a map from identifiers to addresses of corresponding nodes.
+--
+-- __TODO: Add @EvalDump@, which dumps @CurrentCode@, @AddressStack@, @ValueStack@__
 
 -- $operationalSemantics
 -- Any unspecified cases mean erratic state.
