@@ -61,132 +61,196 @@ type GMachineExpression = [Instruction]
 -- [@NodeHeap@] a heap of G-Machine nodes.
 --
 -- [@GlobalEnvironment@] a map from identifiers to addresses of corresponding nodes.
+--
+-- __TODO: Add @EvalDump@, which dumps @CurrentCode@, @AddressStack@, @ValueStack@__
 
 -- $operationalSemantics
 -- Any unspecified cases mean erratic state.
--- 
+--
 -- === Basic Node Creating Operations
 -- - __IMakeInteger__
--- 
+--
 --     > (IMakeInteger n : codes,        addrs, values, heap,                   global)
 --     > ------------------------------------------------------------------------------
 --     > (                 codes, addr : addrs, values, heap[addr: NInteger n], global)
--- 
+--
 -- - __IMakeConstructor__
--- 
---     > (IMakeConstructor t a : codes,        addrs, values, heap,                         global)
+--
+--     > (IMakeConstructor t n : codes,        addrs, values, heap,                         global)
 --     > ------------------------------------------------------------------------------------------
---     > (                       codes, addr : addrs, values, heap[addr: NConstructor t a], global)
--- 
+--     > (                       codes, addr : addrs, values, heap[addr: NConstructor t n], global)
+--
+-- - __IMakeStructure__
+--
+--     > (IMakeStructure t n : codes, addr_0 : addr_1 : ... : addr_(n - 1) : addrs, values, heap,                                                       global)
+--     > ------------------------------------------------------------------------------------------------------------------------------------------------------
+--     > (                     codes,                                 addr : addrs, values, heap[addr: NStructure t [addr_0, addr_1, ..., addr_(n-1)]], global)
+--
 -- - __IMakeApplication__
--- 
+--
 --     > (IMakeApplication : codes, addr_0 : addr_1 : addrs, values, heap,                                   global)
 --     > -----------------------------------------------------------------------------------------------------------
 --     > (                   codes,            addr : addrs, values, heap[addr: NApplication addr_1 addr_0], global)
--- 
+--
 -- - __IMakeGlobal__
--- 
+--
 --     > (IMakeGlobal id : codes,        addrs, values, heap, global[id: addr])
 --     > ----------------------------------------------------------------------
 --     > (                 codes, addr : addrs, values, heap, global[id: addr])
--- 
+--
 -- - __IMakePlaceholders__
--- 
+--
 --     > (IMakePlaceholders n : codes,                                  addrs, values, heap,  global)
 --     > --------------------------------------------------------------------------------------------
 --     > (                      codes, addr_0 : addr_1 : ... : addr_n : addrs, values, heap', global)
 --     >
 --     > heap' = heap[addr_0: NEmpty, addr_1: NEmpty, ..., addr_n: NEmpty]
--- 
+--
 --     Do we need to add @NEmpty@ or just use @NIndirect nullAddr@?
--- 
+--
 -- === Address Stack Based Operations
 -- - __IPop__
--- 
+--
 --     > (IPop n : codes, addr_0 : addr_1 : ... : addr_(n - 1) : addrs, values, heap, global)
 --     > ------------------------------------------------------------------------------------
 --     > (         codes,                                        addrs, values, heap, global)
--- 
+--
 -- - __IDig__
--- 
+--
 --     > (IDig n : codes, addr_0 : addr_1 : ... : addr_n : addrs, values, heap, global)
 --     > ------------------------------------------------------------------------------
 --     > (         codes,                         addr_0 : addrs, values, heap, global)
--- 
+--
 -- - __IUpdate__
--- 
+--
 --     > (IUpdate n : codes, addr_0 : addr_1 : ... : addr_n : addrs, values, heap,                           global)
 --     > -----------------------------------------------------------------------------------------------------------
 --     > (            codes,          addr_1 : ... : addr_n : addrs, values, heap[addr_n: NIndirect addr_0], global)
--- 
--- - __ICopyArgument__
--- 
---     > (ICopyArgument n : codes,          addr_0 : addr_1 : ... : addr_n : addrs, values, heap, global)
+--
+-- - __ICopy__
+--
+--     > (ICopy n : codes,          addr_0 : addr_1 : ... : addr_n : addrs, values, heap, global)
 --     > ------------------------------------------------------------------------------------------------
 --     > (                  codes, addr_n : addr_0 : addr_1 : ... : addr_n : addrs, values, heap, global)
--- 
+--
 -- === Value Stack Based Operations
 -- - __IPushBasicValue__
--- 
+--
 --     > (IPushBasicValue v : codes, addrs,     values, heap, global)
 --     > ------------------------------------------------------------
 --     > (                    codes, addrs, v : values, heap, global)
--- 
+--
 -- - __IPushExtractedValue__
--- 
+--
 --     > (IPushExtractedValue : codes, addr : addrs,     values, heap[addr: NInteger v], global)
 --     > ---------------------------------------------------------------------------------------
 --     > (                      codes,        addrs, v : values, heap,                   global)
--- 
---     > (IPushExtractedValue : codes, addr : addrs,     values, heap[addr: NStructure v 0], global)
+--
+--     > (IPushExtractedValue : codes, addr : addrs,     values, heap[addr: NStructure v []], global)
 --     > -------------------------------------------------------------------------------------------
 --     > (                      codes,        addrs, v : values, heap,                       global)
--- 
+--
 -- - __IWrapAsInteger__
--- 
+--
 --     > (IWrapAsInteger : codes,        addrs, v : values, heap,                   global)
 --     > ----------------------------------------------------------------------------------
 --     > (                 codes, addr : addrs,     values, heap[addr: NInteger v], global)
--- 
--- - __IWrapAsConstructor__
--- 
---     __TODO: Rename this instruction.__
--- 
---     > (IWrapAsConstructor : codes,        addrs, v : values, heap,                       global)
---     > ------------------------------------------------------------------------------------------
---     > (                     codes, addr : addrs,     values, heap[addr: NStructure v 0], global)
--- 
+--
+-- - __IWrapAsStructure__
+--
+--     > (IWrapAsStructure : codes,        addrs, v : values, heap,                       global)
+--     > ----------------------------------------------------------------------------------------
+--     > (                   codes, addr : addrs,     values, heap[addr: NStructure v []], global)
+--
 -- - __IUpdateAsInteger__
--- 
+--
 --     > (IUpdateAsInteger n : codes, addr_0 : addr_1 : ... : addr_n : addrs, v : values, heap,                     global)
 --     > ------------------------------------------------------------------------------------------------------------------
 --     > (                     codes, addr_0 : addr_1 : ... : addr_n : addrs,     values, heap[addr_n: NInteger v], global)
--- 
--- - __IUpdateAsConstructor__
--- 
---     __TODO: Rename this instruction.__
--- 
---     > (IUpdateAsConstructor n : codes, addr_0 : addr_1 : ... : addr_n : addrs, v : values, heap,                         global)
---     > --------------------------------------------------------------------------------------------------------------------------
---     > (                         codes, addr_0 : addr_1 : ... : addr_n : addrs,     values, heap[addr_n: NStructure v 0], global)
--- 
+--
+-- - __IUpdateAsStructure__
+--
+--     > (IUpdateAsStructure n : codes, addr_0 : addr_1 : ... : addr_n : addrs, v : values, heap,                         global)
+--     > ------------------------------------------------------------------------------------------------------------------------
+--     > (                       codes, addr_0 : addr_1 : ... : addr_n : addrs,     values, heap[addr_n: NStructure v []], global)
+--
 -- === Primitive Operations
 -- - __IPrimitive__
--- 
+--
 --     > (IPrimitive op : codes, addrs, v_0 : v_1 : values, heap, global)
 --     > ----------------------------------------------------------------
 --     > (                codes, addrs,        v' : values, heap, global)
 --     >
 --     > v' = v_0 R v1
 --     > (when op represents a binary operation R)
--- 
+--
 --     > (IPrimitive op : codes, addrs,  v : values, heap, global)
 --     > ---------------------------------------------------------
 --     > (                codes, addrs, v' : values, heap, global)
 --     >
 --     > v' = R v
 --     > (when op represents a unary operation R)
--- 
+--
+-- === Node Inspecting Operations
+-- - __IUnwind__
+--
+--     > ([IUnwind], addr : addrs, values, heap[addr: NInteger n], global)
+--     > -----------------------------------------------------------------
+--     > /Not Yet Possible/
+--
+--     > ([IUnwind], addr : addrs, values, heap[addr: NStructure t fAddrs], global)
+--     > --------------------------------------------------------------------------
+--     > /Not Yet Possible/
+--
+--     > ([IUnwind],          addr : addrs, values, heap[addr: NApplication addr_1 addr_0], global)
+--     > ------------------------------------------------------------------------------------------
+--     > ([IUnwind], addr_1 : addr : addrs, values, heap,                                   global)
+--
+--     > ([IUnwind],  addr : addrs, values, heap[addr: NIndirect addr'], global)
+--     > -----------------------------------------------------------------------
+--     > ([IUnwind], addr' : addrs, values, heap,                        global)
+--
+--     > (                             [IUnwind],    addr_0 : addr_1 : ... : addr_n : addrs, values, heap[addr_0: NConstructor t n], global)
+--     > -----------------------------------------------------------------------------------------------------------------------------------
+--     > (IRearrange (n - 1) : constructorCode t,             addr_1 : ... : addr_n : addrs, values, heap,                           global)
+--
+--     > ([IUnwind], addr_0 : addr_1 : ... : addr_m : addrs, values, heap[addr_0: NConstructor t n], global)
+--     > ---------------------------------------------------------------------------------------------------
+--     > /Not Yet Possible/
+--     >
+--     > (when m < n)
+--
+--     > ([IUnwind],  addr_0 : addr_1 : ... : addr_n : addrs, values, heap[addr: NGlobal n codes'], global)
+--     > --------------------------------------------------------------------------------------------------
+--     > ([IUnwind],                            addr : addrs, values, heap,                         global)
+--
+--     > ([IUnwind], addr_0 : addr_1 : ... : addr_m : addrs, values, heap[addr_0: NGlobal n codes], global)
+--     > --------------------------------------------------------------------------------------------------
+--     > /Not Yet Possible/
+--     >
+--     > (when m < n)
+--
+--     > (                 [IUnwind],    addr_0 : addr_1 : ... : addr_n : addrs, values, heap[addr_0: NGlobal n codes], global)
+--     > ----------------------------------------------------------------------------------------------------------------------
+--     > (IRearrange (n - 1) : codes,             addr_1 : ... : addr_n : addrs, values, heap,                          global)
+--
+-- - __IDestruct__
+--
+--     > (IDestruct n : codes,                               addr : addrs, values, heap[addr: NStructure t [addr_0, addr_1, ..., addr_(n-1)]], global)
+--     > ---------------------------------------------------------------------------------------------------------------------------------------------
+--     > (              codes, addr_0 : addr_1 : ... : addr_(n-1) : addrs, values, heap,                                                       global)
+--
+-- === Virtual Operations
+-- Following operations are not real constructors of 'Instruction'.
+-- These exist only for semantic purposes.
+--
+-- - __IRearrange__
+--
+--     > (IRearrange n : codes,             addr_0 : addr_1 : ... : addr_n : addrs, values, heap[addr_/i/: NApplication addr_/i/'' addr_/i/'], global)
+--     > ---------------------------------------------------------------------------------------------------------------------------------------------
+--     > (               codes, addr_0' : addr_1' : ... : addr_n' : addr_n : addrs, values, heap',                                             global)
+--
+--
 -- __TODO: Add rest of operation semantics.__
 
 -- |
@@ -195,6 +259,7 @@ data Instruction
   -- Basic node creating operations
   = IMakeInteger Integer
   | IMakeConstructor Integer Integer
+  | IMakeStructure Integer Integer
   | IMakeApplication
   | IMakeGlobal Identifier
   | IMakePlaceholders Int
@@ -203,15 +268,15 @@ data Instruction
   | IPop Int
   | IDig Int
   | IUpdate Int
-  | ICopyArgument Int
+  | ICopy Int
 
   -- Value stack based operations
   | IPushBasicValue Integer
   | IPushExtractedValue
   | IWrapAsInteger
-  | IWrapAsConstructor
+  | IWrapAsStructure
   | IUpdateAsInteger Int
-  | IUpdateAsConstructor Int
+  | IUpdateAsStructure Int
 
   -- Primitive operations
   | IPrimitive PrimitiveOperator

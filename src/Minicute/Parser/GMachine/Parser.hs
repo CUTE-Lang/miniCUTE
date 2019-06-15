@@ -39,6 +39,7 @@ instruction
   = choice
     [ L.symbol "MakeInteger" >> IMakeInteger <$> L.integer
     , L.symbol "MakeConstructor" >> IMakeConstructor <$> L.integer <*> L.integer
+    , L.symbol "MakeStructure" >> IMakeStructure <$> L.integer <*> L.integer
     , L.symbol "MakeApplication" $> IMakeApplication
     , L.symbol "MakeGlobal" >> IMakeGlobal <$> L.gMachineIdentifier
     , L.symbol "MakePlaceholders" >> IMakePlaceholders <$> L.integer
@@ -46,14 +47,14 @@ instruction
     , L.symbol "Pop" >> IPop <$> L.integer
     , L.symbol "Dig" >> IDig <$> L.integer
     , try (L.symbol "Update" >> IUpdate <$> L.integer)
-    , L.symbol "CopyArgument" >> ICopyArgument <$> L.integer
+    , L.symbol "Copy" >> ICopy <$> L.integer
 
     , L.symbol "PushBasicValue" >> IPushBasicValue <$> L.integer
     , L.symbol "PushExtractedValue" $> IPushExtractedValue
     , L.symbol "WrapAsInteger" $> IWrapAsInteger
-    , L.symbol "WrapAsConstructor" $> IWrapAsConstructor
+    , L.symbol "WrapAsStructure" $> IWrapAsStructure
     , L.symbol "UpdateAsInteger" >> IUpdateAsInteger <$> L.integer
-    , L.symbol "UpdateAsConstructor" >> IUpdateAsConstructor <$> L.integer
+    , L.symbol "UpdateAsStructure" >> IUpdateAsStructure <$> L.integer
 
     , L.symbol "Primitive" >> IPrimitive <$> primitiveOperator
 
