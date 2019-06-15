@@ -64,6 +64,7 @@ type GMachineExpression = [Instruction]
 --
 -- [@GlobalEnvironment@] a map from identifiers to addresses of corresponding nodes.
 --
+-- __TODO: make this G-Machine be parallel__
 
 -- $operationalSemantics
 -- Any unspecified cases mean erratic state.
@@ -197,11 +198,11 @@ type GMachineExpression = [Instruction]
 --
 --     > ([IUnwind], addr : addrs, values, dump, heap[addr: NInteger n], global)
 --     > -----------------------------------------------------------------------
---     > /Not Yet Possible/
+--     > /Not Yet Determined/
 --
 --     > ([IUnwind], addr : addrs, values, dump, heap[addr: NStructure t fAddrs], global)
 --     > --------------------------------------------------------------------------------
---     > /Not Yet Possible/
+--     > /Not Yet Determined/
 --
 --     > ([IUnwind],          addr : addrs, values, dump, heap[addr: NApplication addr_1 addr_0], global)
 --     > ------------------------------------------------------------------------------------------------
