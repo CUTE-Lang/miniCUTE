@@ -221,9 +221,9 @@ type GMachineExpression = [Instruction]
 --     >
 --     > (when m < n)
 --
---     > ([IUnwind],  addr_0 : addr_1 : ... : addr_n : addrs, values, dump, heap[addr: NGlobal n codes'], global)
---     > --------------------------------------------------------------------------------------------------------
---     > ([IUnwind],                            addr : addrs, values, dump, heap,                         global)
+--     > ([IUnwind],  addr_0 : addr_1 : ... : addr_n : addrs, values, dump, heap[addr_0: NGlobal n codes'], global)
+--     > ----------------------------------------------------------------------------------------------------------
+--     > (   codes',           addr_1 : ... : addr_n : addrs, values, dump, heap,                           global)
 --
 --     > ([IUnwind], addr_0 : addr_1 : ... : addr_m : addrs, values, dump, heap[addr_0: NGlobal n codes], global)
 --     > --------------------------------------------------------------------------------------------------------
