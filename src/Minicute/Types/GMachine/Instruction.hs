@@ -196,13 +196,13 @@ type GMachineExpression = [Instruction]
 -- === Node Inspecting Operations
 -- - __IUnwind__
 --
---     > ([IUnwind], addr : addrs, values, dump, heap[addr: NInteger n], global)
---     > -----------------------------------------------------------------------
---     > /Not Yet Determined/
+--     > ([IUnwind],  addr : addrs,  values, (codes', addrs', values') : dump, heap[addr: NInteger n], global)
+--     > -----------------------------------------------------------------------------------------------------
+--     > (   codes', addr : addrs', values',                             dump, heap,                   global)
 --
---     > ([IUnwind], addr : addrs, values, dump, heap[addr: NStructure t fAddrs], global)
---     > --------------------------------------------------------------------------------
---     > /Not Yet Determined/
+--     > ([IUnwind],  addr : addrs,  values, (codes', addrs', values') : dump, heap[addr: NStructure t fAddrs], global)
+--     > --------------------------------------------------------------------------------------------------------------
+--     > (   codes', addr : addrs', values',                             dump, heap,                            global)
 --
 --     > ([IUnwind],          addr : addrs, values, dump, heap[addr: NApplication addr_1 addr_0], global)
 --     > ------------------------------------------------------------------------------------------------
@@ -216,9 +216,9 @@ type GMachineExpression = [Instruction]
 --     > -----------------------------------------------------------------------------------------------------------------------------------------
 --     > (IRearrange (n - 1) : constructorCode t,             addr_1 : ... : addr_n : addrs, values, dump, heap,                           global)
 --
---     > ([IUnwind], addr_0 : addr_1 : ... : addr_m : addrs, values, dump, heap[addr_0: NConstructor t n], global)
---     > ---------------------------------------------------------------------------------------------------------
---     > /Not Yet Possible/
+--     > ([IUnwind], [addr_0, addr_1, ..., addr_m], values, dump, heap[addr_0: NConstructor t n], global)
+--     > ------------------------------------------------------------------------------------------------
+--     > ( [Return], [addr_0, addr_1, ..., addr_m], values, dump, heap,                           global)
 --     >
 --     > (when m < n)
 --
@@ -226,9 +226,9 @@ type GMachineExpression = [Instruction]
 --     > ----------------------------------------------------------------------------------------------------------
 --     > (   codes',           addr_1 : ... : addr_n : addrs, values, dump, heap,                           global)
 --
---     > ([IUnwind], addr_0 : addr_1 : ... : addr_m : addrs, values, dump, heap[addr_0: NGlobal n codes'], global)
---     > ---------------------------------------------------------------------------------------------------------
---     > /Not Yet Possible/
+--     > ([IUnwind], [addr_0, addr_1, ..., addr_m], values, dump, heap[addr_0: NGlobal n codes'], global)
+--     > ------------------------------------------------------------------------------------------------
+--     > ( [Return], [addr_0, addr_1, ..., addr_m], values, dump, heap,                           global)
 --     >
 --     > (when m < n)
 --
@@ -242,6 +242,28 @@ type GMachineExpression = [Instruction]
 --     > ---------------------------------------------------------------------------------------------------------------------------------------------------
 --     > (              codes, addr_0 : addr_1 : ... : addr_(n-1) : addrs, values, dump, heap,                                                       global)
 --
+-- === Dump Related Operations
+--
+-- - __IEval__
+--
+--     > (IEval : codes, addr : addrs, values,                          dump, heap, global)
+--     > ----------------------------------------------------------------------------------
+--     > (    [IUnwind],       [addr],     [], (codes, addrs, values) : dump, heap, global)
+--
+-- - __IReturn__
+--
+--     > ([IReturn], [addr_0, addr_1, ..., addr_n],  values, (codes', addrs', values'): dump, heap, global)
+--     > --------------------------------------------------------------------------------------------------
+--     > (   codes',               addr_n : addrs', values',                            dump, heap, global)
+--
+-- === Match Operations
+--
+-- - __IMatch__
+--
+--     > (IMatch table[t: caseCode] : codes, addr : addrs, values, dump, heap[addr: NStructure t fAddrs], global)
+--     > --------------------------------------------------------------------------------------------------------
+--     > (                caseCode <> codes, addr : addrs, values, dump, heap,                            global)
+--
 -- === Virtual Operations
 -- Following operations are not real constructors of 'Instruction'.
 -- These exist only for semantic purposes.
@@ -251,9 +273,6 @@ type GMachineExpression = [Instruction]
 --     > (IRearrange n : codes,             addr_0 : addr_1 : ... : addr_n : addrs, values, dump, heap[addr_/i/: NApplication addr_/i/'' addr_/i/'], global)
 --     > ---------------------------------------------------------------------------------------------------------------------------------------------------
 --     > (               codes, addr_0' : addr_1' : ... : addr_n' : addr_n : addrs, values, dump, heap',                                             global)
---
---
--- __TODO: Add rest of operation semantics.__
 
 -- |
 -- A G-Machine instruction
