@@ -85,7 +85,7 @@ type GMachineExpression = [Instruction]
 --
 --     > (IMakeStructure t n : codes, addr_0 : addr_1 : ... : addr_(n - 1) : addrs, values, dump, heap,                                                       global)
 --     > ------------------------------------------------------------------------------------------------------------------------------------------------------------
---     > (                     codes,                                 addr : addrs, values, dump, heap[addr: NStructure t [addr_0, addr_1, ..., addr_(n-1)]], global)
+--     > (                     codes,                                 addr : addrs, values, dump, heap[addr: NStructure t [addr_(n-1), ..., addr_1, addr_0]], global)
 --
 -- - __IMakeApplication__
 --
@@ -237,7 +237,7 @@ type GMachineExpression = [Instruction]
 --
 -- - __IDestruct__
 --
---     > (IDestruct n : codes,                               addr : addrs, values, dump, heap[addr: NStructure t [addr_0, addr_1, ..., addr_(n-1)]], global)
+--     > (IDestruct n : codes,                               addr : addrs, values, dump, heap[addr: NStructure t [addr_(n-1), ..., addr_1, addr_0]], global)
 --     > ---------------------------------------------------------------------------------------------------------------------------------------------------
 --     > (              codes, addr_0 : addr_1 : ... : addr_(n-1) : addrs, values, dump, heap,                                                       global)
 --
