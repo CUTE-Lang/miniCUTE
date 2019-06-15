@@ -226,15 +226,15 @@ type GMachineExpression = [Instruction]
 --     > ----------------------------------------------------------------------------------------------------------
 --     > (   codes',           addr_1 : ... : addr_n : addrs, values, dump, heap,                           global)
 --
---     > ([IUnwind], addr_0 : addr_1 : ... : addr_m : addrs, values, dump, heap[addr_0: NGlobal n codes], global)
---     > --------------------------------------------------------------------------------------------------------
+--     > ([IUnwind], addr_0 : addr_1 : ... : addr_m : addrs, values, dump, heap[addr_0: NGlobal n codes'], global)
+--     > ---------------------------------------------------------------------------------------------------------
 --     > /Not Yet Possible/
 --     >
 --     > (when m < n)
 --
---     > (                 [IUnwind],    addr_0 : addr_1 : ... : addr_n : addrs, values, dump, heap[addr_0: NGlobal n codes], global)
---     > ----------------------------------------------------------------------------------------------------------------------------
---     > (IRearrange (n - 1) : codes,             addr_1 : ... : addr_n : addrs, values, dump, heap,                          global)
+--     > (                  [IUnwind],    addr_0 : addr_1 : ... : addr_n : addrs, values, dump, heap[addr_0: NGlobal n codes'], global)
+--     > ------------------------------------------------------------------------------------------------------------------------------
+--     > (IRearrange (n - 1) : codes',             addr_1 : ... : addr_n : addrs, values, dump, heap,                           global)
 --
 -- - __IDestruct__
 --
