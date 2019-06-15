@@ -66,20 +66,20 @@ type GMachineExpression = [Instruction]
 
 -- $operationalSemantics
 -- Any unspecified cases mean erratic state.
--- 
+--
 -- === Basic Node Creating Operations
 -- - __IMakeInteger__
--- 
+--
 --     > (IMakeInteger n : codes,        addrs, values, heap,                   global)
 --     > ------------------------------------------------------------------------------
 --     > (                 codes, addr : addrs, values, heap[addr: NInteger n], global)
--- 
+--
 -- - __IMakeConstructor__
--- 
+--
 --     > (IMakeConstructor t n : codes,        addrs, values, heap,                         global)
 --     > ------------------------------------------------------------------------------------------
 --     > (                       codes, addr : addrs, values, heap[addr: NConstructor t n], global)
--- 
+--
 -- - __IMakeStructure__
 --
 --     > (IMakeStructure t n : codes, addr_0 : addr_1 : ... : addr_(n - 1) : addrs, values, heap,                                                       global)
@@ -87,103 +87,103 @@ type GMachineExpression = [Instruction]
 --     > (                     codes,                                 addr : addrs, values, heap[addr: NStructure t [addr_0, addr_1, ..., addr_(n-1)]], global)
 --
 -- - __IMakeApplication__
--- 
+--
 --     > (IMakeApplication : codes, addr_0 : addr_1 : addrs, values, heap,                                   global)
 --     > -----------------------------------------------------------------------------------------------------------
 --     > (                   codes,            addr : addrs, values, heap[addr: NApplication addr_1 addr_0], global)
--- 
+--
 -- - __IMakeGlobal__
--- 
+--
 --     > (IMakeGlobal id : codes,        addrs, values, heap, global[id: addr])
 --     > ----------------------------------------------------------------------
 --     > (                 codes, addr : addrs, values, heap, global[id: addr])
--- 
+--
 -- - __IMakePlaceholders__
--- 
+--
 --     > (IMakePlaceholders n : codes,                                  addrs, values, heap,  global)
 --     > --------------------------------------------------------------------------------------------
 --     > (                      codes, addr_0 : addr_1 : ... : addr_n : addrs, values, heap', global)
 --     >
 --     > heap' = heap[addr_0: NEmpty, addr_1: NEmpty, ..., addr_n: NEmpty]
--- 
+--
 --     Do we need to add @NEmpty@ or just use @NIndirect nullAddr@?
--- 
+--
 -- === Address Stack Based Operations
 -- - __IPop__
--- 
+--
 --     > (IPop n : codes, addr_0 : addr_1 : ... : addr_(n - 1) : addrs, values, heap, global)
 --     > ------------------------------------------------------------------------------------
 --     > (         codes,                                        addrs, values, heap, global)
--- 
+--
 -- - __IDig__
--- 
+--
 --     > (IDig n : codes, addr_0 : addr_1 : ... : addr_n : addrs, values, heap, global)
 --     > ------------------------------------------------------------------------------
 --     > (         codes,                         addr_0 : addrs, values, heap, global)
--- 
+--
 -- - __IUpdate__
--- 
+--
 --     > (IUpdate n : codes, addr_0 : addr_1 : ... : addr_n : addrs, values, heap,                           global)
 --     > -----------------------------------------------------------------------------------------------------------
 --     > (            codes,          addr_1 : ... : addr_n : addrs, values, heap[addr_n: NIndirect addr_0], global)
--- 
+--
 -- - __ICopy__
--- 
+--
 --     > (ICopy n : codes,          addr_0 : addr_1 : ... : addr_n : addrs, values, heap, global)
 --     > ------------------------------------------------------------------------------------------------
 --     > (                  codes, addr_n : addr_0 : addr_1 : ... : addr_n : addrs, values, heap, global)
--- 
+--
 -- === Value Stack Based Operations
 -- - __IPushBasicValue__
--- 
+--
 --     > (IPushBasicValue v : codes, addrs,     values, heap, global)
 --     > ------------------------------------------------------------
 --     > (                    codes, addrs, v : values, heap, global)
--- 
+--
 -- - __IPushExtractedValue__
--- 
+--
 --     > (IPushExtractedValue : codes, addr : addrs,     values, heap[addr: NInteger v], global)
 --     > ---------------------------------------------------------------------------------------
 --     > (                      codes,        addrs, v : values, heap,                   global)
--- 
+--
 --     > (IPushExtractedValue : codes, addr : addrs,     values, heap[addr: NStructure v []], global)
 --     > -------------------------------------------------------------------------------------------
 --     > (                      codes,        addrs, v : values, heap,                       global)
--- 
+--
 -- - __IWrapAsInteger__
--- 
+--
 --     > (IWrapAsInteger : codes,        addrs, v : values, heap,                   global)
 --     > ----------------------------------------------------------------------------------
 --     > (                 codes, addr : addrs,     values, heap[addr: NInteger v], global)
--- 
+--
 -- - __IWrapAsStructure__
--- 
+--
 --     > (IWrapAsStructure : codes,        addrs, v : values, heap,                       global)
 --     > ----------------------------------------------------------------------------------------
 --     > (                   codes, addr : addrs,     values, heap[addr: NStructure v []], global)
--- 
+--
 -- - __IUpdateAsInteger__
--- 
+--
 --     > (IUpdateAsInteger n : codes, addr_0 : addr_1 : ... : addr_n : addrs, v : values, heap,                     global)
 --     > ------------------------------------------------------------------------------------------------------------------
 --     > (                     codes, addr_0 : addr_1 : ... : addr_n : addrs,     values, heap[addr_n: NInteger v], global)
--- 
+--
 -- - __IUpdateAsStructure__
--- 
+--
 --     > (IUpdateAsStructure n : codes, addr_0 : addr_1 : ... : addr_n : addrs, v : values, heap,                         global)
 --     > ------------------------------------------------------------------------------------------------------------------------
 --     > (                       codes, addr_0 : addr_1 : ... : addr_n : addrs,     values, heap[addr_n: NStructure v []], global)
--- 
+--
 -- === Primitive Operations
 -- - __IPrimitive__
--- 
+--
 --     > (IPrimitive op : codes, addrs, v_0 : v_1 : values, heap, global)
 --     > ----------------------------------------------------------------
 --     > (                codes, addrs,        v' : values, heap, global)
 --     >
 --     > v' = v_0 R v1
 --     > (when op represents a binary operation R)
--- 
+--
 --     > (IPrimitive op : codes, addrs,  v : values, heap, global)
 --     > ---------------------------------------------------------
 --     > (                codes, addrs, v' : values, heap, global)
