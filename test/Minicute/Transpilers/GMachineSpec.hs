@@ -78,25 +78,19 @@ testCases
 
     , ( "program with arguments"
       , [qqMiniMain|
-                   f x y = y x;
-                   g a b c = a c b
+                   f x y = x;
+                   g a b c = b
         |]
       , [qqGMachine|
                    f<2> {
-                     Copy 1;
-                     Copy 1;
-                     MakeApplication;
+                     Copy 0;
                      Eval;
                      Update 3;
                      Pop 3;
                      Unwind;
                    }
                    g<3> {
-                       Copy 0;
-                       Copy 3;
-                       MakeApplication;
-                     Copy 2;
-                     MakeApplication;
+                     Copy 1;
                      Eval;
                      Update 4;
                      Pop 4;
