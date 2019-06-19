@@ -4,7 +4,7 @@ module Main
 
 import Data.Text.Prettyprint.Doc.Minicute ( prettyShow )
 import Minicute.Parser.Minicute.Parser ( mainProgramL )
-import Minicute.Transpilers.LambdaLifting ( lambdaLifting )
+import Minicute.Transpilers.Lifting.Lambda ( lambdaLifting )
 import System.Environment
 import System.IO
 import Text.Megaparsec ( errorBundlePretty, parse )
