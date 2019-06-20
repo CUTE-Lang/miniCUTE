@@ -74,11 +74,12 @@ import Control.Lens.Tuple
 import Control.Lens.Type
 import Control.Lens.Wrapped ( _Wrapped )
 import Data.Data
+import Data.Kind ( Type )
 import Data.Text.Prettyprint.Doc ( Pretty(..) )
 import Data.Text.Prettyprint.Doc.Minicute
 import GHC.Generics
 import GHC.Show ( appPrec, appPrec1 )
-import Language.Haskell.TH.Syntax
+import Language.Haskell.TH.Syntax ( Lift )
 import Minicute.Data.Fix
 import Minicute.Types.Minicute.Common
 import Minicute.Types.Minicute.Expression
@@ -146,7 +147,7 @@ pattern AnnotatedMatchCaseL tag argBinders expr = MatchCase_ (tag, argBinders, e
 -- [@expr_@] a recursive part of the expression.
 --
 -- [@a@] an identifier type of the expression.
-newtype AnnotatedExpression_ ann wExpr (expr_ :: * -> *) a
+newtype AnnotatedExpression_ ann wExpr (expr_ :: Type -> Type) a
   = AnnotatedExpression_ (ann, wExpr expr_ a)
   deriving ( Generic
            , Typeable
