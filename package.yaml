@@ -48,6 +48,7 @@ library:
     - src
   ghc-options:
     - -Wall
+    - -Wstar-is-type
   dependencies:
     - containers >= 0.6 && < 0.7
     - extra >= 1.6 && < 2
