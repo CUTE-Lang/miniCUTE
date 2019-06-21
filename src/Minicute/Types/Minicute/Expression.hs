@@ -315,8 +315,8 @@ instance (Pretty a) => Pretty (Expression a) where
 
 instance (Pretty a) => PrettyPrec (Expression a) where
   prettyPrec p (EApplication2 (EVariableIdentifier op) e1 e2)
-    | Just opPrec <- lookup op binaryPrecedenceTable
-    = prettyBinaryExpressionPrec p op opPrec e1 e2
+    | Just opP <- lookup op binaryPrecedenceTable
+    = prettyBinaryExpressionPrec p opP (pretty op) (`prettyPrec` e1) (`prettyPrec` e2)
   prettyPrec p expr = prettyPrec p (unFix2 expr)
 
 
@@ -421,8 +421,8 @@ instance (Pretty a) => Pretty (ExpressionL a) where
 
 instance (Pretty a) => PrettyPrec (ExpressionL a) where
   prettyPrec p (ELApplication2 (ELVariableIdentifier op) e1 e2)
-    | Just opPrec <- lookup op binaryPrecedenceTable
-    = prettyBinaryExpressionPrec p op opPrec e1 e2
+    | Just opP <- lookup op binaryPrecedenceTable
+    = prettyBinaryExpressionPrec p opP (pretty op) (`prettyPrec` e1) (`prettyPrec` e2)
   prettyPrec p expr = prettyPrec p (unFix2 expr)
 
 
