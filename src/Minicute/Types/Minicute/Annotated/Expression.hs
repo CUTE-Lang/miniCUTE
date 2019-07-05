@@ -224,19 +224,21 @@ instance {-# OVERLAPS #-} (Show ann, Show a) => Show (AnnotatedExpression ann a)
     = showParen (p > appPrec)
       $ showString "AEMatch " . showsPrec appPrec1 ann . showString " " . showsPrec appPrec1 e . showString " " . showsPrec appPrec1 mcs
 
-instance (Pretty ann, Pretty a, Pretty (wExpr expr_ a)) => Pretty (AnnotatedExpression_ ann wExpr expr_ a) where
-  pretty (AnnotatedExpression_ (ann, expr))
-    = PP.parens (pretty ann PP.<> PP.comma PP.<+> pretty expr)
+instance (Pretty ann, Pretty a, PrettyPrec (wExpr expr_ a)) => Pretty (AnnotatedExpression_ ann wExpr expr_ a) where
+  pretty = prettyPrec0
 
-instance (Pretty ann, Pretty a, Pretty (wExpr expr_ a)) => PrettyPrec (AnnotatedExpression_ ann wExpr expr_ a)
+instance (Pretty ann, Pretty a, PrettyPrec (wExpr expr_ a)) => PrettyPrec (AnnotatedExpression_ ann wExpr expr_ a) where
+  prettyPrec p (AnnotatedExpression_ (ann, expr))
+    = prettyPrec p expr PP.<> PP.braces (pretty ann)
 
 instance (Pretty ann, Pretty a) => Pretty (AnnotatedExpression ann a) where
-  pretty (AEApplication2 ann2 ann1 (AEVariableIdentifier annOp op) e1 e2)
-    | Just opPrec <- lookup op binaryPrecedenceTable
-    = PP.parens ((PP.hsep . PP.punctuate PP.comma . fmap pretty $ [ann2, ann1, annOp]) PP.<> PP.comma PP.<+> prettyBinaryExpressionPrec 0 op opPrec e1 e2)
-  pretty expr = pretty (unFix2 expr)
+  pretty = prettyPrec0
 
-instance (Pretty ann, Pretty a) => PrettyPrec (AnnotatedExpression ann a)
+instance (Pretty ann, Pretty a) => PrettyPrec (AnnotatedExpression ann a) where
+  prettyPrec p (AEApplication2 ann2 ann1 (AEVariableIdentifier annOp op) e1 e2)
+    | Just opP <- lookup op binaryPrecedenceTable
+    = prettyAnnotatedBinaryExpressionPrec p opP ann2 ann1 annOp op (`prettyPrec` e1) (`prettyPrec` e2)
+  prettyPrec p expr = prettyPrec p (unFix2 expr)
 
 -- |
 -- @AnnotatedExpressionL ann a@ is an 'ExpressionL' annotated with @ann@.
@@ -316,12 +318,20 @@ instance {-# OVERLAPS #-} (Show ann, Show a) => Show (AnnotatedExpressionL ann a
       $ showString "AELLambda " . showsPrec appPrec1 ann . showString " " . showsPrec appPrec1 as . showString " " . showsPrec appPrec1 e
 
 instance (Pretty ann, Pretty a) => Pretty (AnnotatedExpressionL ann a) where
-  pretty (AELApplication2 ann2 ann1 (AELVariableIdentifier annOp op) e1 e2)
-    | Just opPrec <- lookup op binaryPrecedenceTable
-    = PP.parens ((PP.hsep . PP.punctuate PP.comma . fmap pretty $ [ann2, ann1, annOp]) PP.<> PP.comma PP.<+> prettyBinaryExpressionPrec 0 op opPrec e1 e2)
-  pretty expr = pretty (unFix2 expr)
+  pretty = prettyPrec0
 
-instance (Pretty ann, Pretty a) => PrettyPrec (AnnotatedExpressionL ann a)
+instance (Pretty ann, Pretty a) => PrettyPrec (AnnotatedExpressionL ann a) where
+  prettyPrec p (AELApplication2 ann2 ann1 (AELVariableIdentifier annOp op) e1 e2)
+    | Just opP <- lookup op binaryPrecedenceTable
+    = prettyAnnotatedBinaryExpressionPrec p opP ann2 ann1 annOp op (`prettyPrec` e1) (`prettyPrec` e2)
+  prettyPrec p expr = prettyPrec p (unFix2 expr)
+
+prettyAnnotatedBinaryExpressionPrec :: (Pretty ann) => Int -> Precedence -> ann -> ann -> ann -> String -> (Int -> PP.Doc docAnn) -> (Int -> PP.Doc docAnn) -> PP.Doc docAnn
+prettyAnnotatedBinaryExpressionPrec _ opP ann2 ann1 annOp op e1DocF e2DocF
+  = prettyBinaryExpressionPrec miniApplicationPrecedence1 opP opDoc e1DocF e2DocF
+    PP.<> PP.braces (pretty ann1 PP.<> PP.comma PP.<+> pretty ann2)
+  where
+    opDoc = pretty op PP.<> PP.braces (pretty annOp)
 
 makeWrapped ''AnnotatedExpression_
 

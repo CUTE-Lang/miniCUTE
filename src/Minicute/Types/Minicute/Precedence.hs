@@ -28,8 +28,6 @@ module Minicute.Types.Minicute.Precedence
   ) where
 
 import Data.Data
-import Data.Text.Prettyprint.Doc ( Pretty( .. ) )
-import Data.Text.Prettyprint.Doc.Minicute
 import GHC.Generics
 import Language.Haskell.TH.Syntax
 import Minicute.Types.Minicute.Common
@@ -128,12 +126,12 @@ miniApplicationPrecedence1 = 101
 -- @prettyBinaryExpressionPrec p op opPrec e1 e2@ make a document that includes
 -- e1, op and e2 in the order, and pass appropriate precedences @p1@ and @p2@ to
 -- @prettyPrec p1 e1@ and @prettyPrec p2 e2@ to give proper parenthesis.
-prettyBinaryExpressionPrec :: (Pretty a, PrettyPrec (expr_ a)) => Int -> String -> Precedence -> expr_ a -> expr_ a -> PP.Doc ann
-prettyBinaryExpressionPrec p op opPrec e1 e2
+prettyBinaryExpressionPrec :: Int -> Precedence -> PP.Doc ann -> (Int -> PP.Doc ann) -> (Int -> PP.Doc ann) -> PP.Doc ann
+prettyBinaryExpressionPrec p opPrec opDoc e1DocF e2DocF
   = (if p > opP then PP.parens else id) . PP.hsep
-    $ [ prettyPrec leftP e1
-      , pretty op
-      , prettyPrec rightP e2
+    $ [ e1DocF leftP
+      , opDoc
+      , e2DocF rightP
       ]
   where
     (leftP, opP, rightP)
