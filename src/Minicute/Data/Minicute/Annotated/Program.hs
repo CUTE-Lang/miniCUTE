@@ -7,9 +7,9 @@
 -- Types for annotated programs
 --
 -- __TODO: remove the /-fno-warn-orphans/ option__
-module Minicute.Types.Minicute.Annotated.Program
-  ( module Minicute.Types.Minicute.Annotated.Expression
-  , module Minicute.Types.Minicute.Program
+module Minicute.Data.Minicute.Annotated.Program
+  ( module Minicute.Data.Minicute.Annotated.Expression
+  , module Minicute.Data.Minicute.Program
 
 
   , AnnotatedSupercombinator
@@ -32,8 +32,8 @@ module Minicute.Types.Minicute.Annotated.Program
   ) where
 
 import GHC.Show ( appPrec, appPrec1 )
-import Minicute.Types.Minicute.Annotated.Expression
-import Minicute.Types.Minicute.Program
+import Minicute.Data.Minicute.Annotated.Expression
+import Minicute.Data.Minicute.Program
 
 -- |
 -- @AnnotatedSupercombinator ann a@ is a @Supercombinator@ annotated by @ann@.

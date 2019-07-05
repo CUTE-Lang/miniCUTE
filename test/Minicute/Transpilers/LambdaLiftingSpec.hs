@@ -9,7 +9,7 @@ import Test.Hspec
 import Control.Monad
 import Data.Tuple.Extra
 import Minicute.Transpilers.LambdaLifting
-import Minicute.Types.Minicute.Program
+import Minicute.Data.Minicute.Program
 import Minicute.Utils.TH
 
 spec :: Spec

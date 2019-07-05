@@ -10,7 +10,7 @@ module Minicute.Parser.LexerSpec
 import Test.Hspec
 import Test.Hspec.Megaparsec
 
-import Minicute.Parser.Types ( Parser )
+import Minicute.Parser.Common ( Parser )
 import Text.Megaparsec
 
 import qualified Minicute.Parser.Lexer as L

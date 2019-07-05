@@ -2,13 +2,13 @@
 -- |
 -- Transpilers from a miniCUTE program to a G-Machine program
 module Minicute.Transpilers.GMachine
-  ( module Minicute.Types.GMachine.Instruction
-  , module Minicute.Types.Minicute.Program
+  ( module Minicute.Data.GMachine.Instruction
+  , module Minicute.Data.Minicute.Program
   , transpileProgram
 
   , initialCode
   ) where
 
 import Minicute.Internal.Transpilers.GMachine
-import Minicute.Types.GMachine.Instruction
-import Minicute.Types.Minicute.Program
+import Minicute.Data.GMachine.Instruction
+import Minicute.Data.Minicute.Program

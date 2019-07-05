@@ -20,8 +20,8 @@ import Control.Monad ( void )
 import Data.List
 import Data.List.Extra
 import Data.Proxy
-import Minicute.Parser.Types
-import Minicute.Types.Minicute.Common
+import Minicute.Parser.Common
+import Minicute.Data.Minicute.Common
 import Text.Megaparsec hiding ( State )
 
 import qualified Data.Char as Char

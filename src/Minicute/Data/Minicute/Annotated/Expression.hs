@@ -11,10 +11,10 @@
 {-# LANGUAGE TypeFamilies #-}
 -- |
 -- Types for annotated expressions
-module Minicute.Types.Minicute.Annotated.Expression
+module Minicute.Data.Minicute.Annotated.Expression
   ( module Minicute.Data.Fix
-  , module Minicute.Types.Minicute.Common
-  , module Minicute.Types.Minicute.Expression
+  , module Minicute.Data.Minicute.Common
+  , module Minicute.Data.Minicute.Expression
 
 
   , AnnotatedLetDefinition
@@ -81,9 +81,9 @@ import GHC.Generics
 import GHC.Show ( appPrec, appPrec1 )
 import Language.Haskell.TH.Syntax ( Lift )
 import Minicute.Data.Fix
-import Minicute.Types.Minicute.Common
-import Minicute.Types.Minicute.Expression
-import Minicute.Types.Minicute.Precedence
+import Minicute.Data.Minicute.Common
+import Minicute.Data.Minicute.Expression
+import Minicute.Data.Minicute.Precedence
 
 import qualified Data.Text.Prettyprint.Doc as PP
 
