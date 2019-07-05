@@ -10,8 +10,8 @@
 {-# LANGUAGE TypeFamilies #-}
 -- |
 -- Types for miniCUTE programs
-module Minicute.Types.Minicute.Program
-  ( module Minicute.Types.Minicute.Expression
+module Minicute.Data.Minicute.Program
+  ( module Minicute.Data.Minicute.Expression
 
   , Supercombinator_( .. )
 
@@ -48,7 +48,7 @@ import Data.Data
 import GHC.Generics
 import GHC.Show ( appPrec, appPrec1 )
 import Language.Haskell.TH.Syntax
-import Minicute.Types.Minicute.Expression
+import Minicute.Data.Minicute.Expression
 import Data.Text.Prettyprint.Doc ( Pretty( .. ) )
 
 import qualified Data.Text.Prettyprint.Doc as PP

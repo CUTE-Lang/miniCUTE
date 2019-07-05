@@ -12,7 +12,7 @@ import Test.Hspec.Megaparsec
 import Control.Monad
 import Data.Tuple.Minicute ( tupleUnzip2 )
 import Data.Void
-import Minicute.Types.Minicute.Program
+import Minicute.Data.Minicute.Program
 import Minicute.Utils.TH
 import Text.Megaparsec
 

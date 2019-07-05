@@ -3,7 +3,7 @@
 {-# LANGUAGE DeriveLift #-}
 -- |
 -- Instructions and other helper types for G-Machine
-module Minicute.Types.GMachine.Instruction
+module Minicute.Data.GMachine.Instruction
   ( -- * G-Machine Architecture
 
     -- ** Abstract Structure
@@ -27,7 +27,7 @@ module Minicute.Types.GMachine.Instruction
 import Data.Data
 import GHC.Generics
 import Language.Haskell.TH.Syntax
-import Minicute.Types.Minicute.Precedence
+import Minicute.Data.Minicute.Precedence
 
 -- |
 -- A G-Machine program.

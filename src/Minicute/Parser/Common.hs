@@ -2,7 +2,7 @@
 {-# LANGUAGE TypeFamilies #-}
 -- |
 -- Common types for parsers
-module Minicute.Parser.Types
+module Minicute.Parser.Common
   ( MonadParser
 
   , Parser

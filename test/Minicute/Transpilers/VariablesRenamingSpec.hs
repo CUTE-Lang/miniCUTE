@@ -11,7 +11,7 @@ import Control.Lens
 import Data.List
 import Data.Tuple.Extra
 import Minicute.Transpilers.VariablesRenaming
-import Minicute.Types.Minicute.Program
+import Minicute.Data.Minicute.Program
 import Minicute.Utils.TH
 
 import qualified Data.Set as Set

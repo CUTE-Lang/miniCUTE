@@ -10,9 +10,9 @@
 {-# LANGUAGE TypeFamilies #-}
 -- |
 -- Types for a miniCUTE expression
-module Minicute.Types.Minicute.Expression
+module Minicute.Data.Minicute.Expression
   ( module Minicute.Data.Fix
-  , module Minicute.Types.Minicute.Common
+  , module Minicute.Data.Minicute.Common
 
 
   , LetDefinition_( .. )
@@ -87,8 +87,8 @@ import GHC.Generics
 import GHC.Show ( appPrec, appPrec1 )
 import Language.Haskell.TH.Syntax
 import Minicute.Data.Fix
-import Minicute.Types.Minicute.Common
-import Minicute.Types.Minicute.Precedence
+import Minicute.Data.Minicute.Common
+import Minicute.Data.Minicute.Precedence
 
 import qualified Data.Text.Prettyprint.Doc as PP
 

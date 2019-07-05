@@ -12,7 +12,7 @@ import Control.Lens.Wrapped ( _Wrapped )
 import Control.Monad.State
 import Control.Monad.Reader
 import Data.Function
-import Minicute.Types.Minicute.Program
+import Minicute.Data.Minicute.Program
 
 import qualified Data.Map as Map
 

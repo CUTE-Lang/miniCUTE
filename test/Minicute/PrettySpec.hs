@@ -9,7 +9,7 @@ import Test.Hspec.Megaparsec
 
 import Control.Monad
 import Data.Either
-import Minicute.Types.Minicute.Program
+import Minicute.Data.Minicute.Program
 import Minicute.Utils.TH
 import Text.Megaparsec
 

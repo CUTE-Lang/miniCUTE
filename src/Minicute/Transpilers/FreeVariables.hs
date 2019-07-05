@@ -20,7 +20,7 @@ import Control.Lens.Operators
 import Control.Lens.Type
 import Control.Lens.Wrapped ( _Wrapped )
 import Control.Monad.Reader
-import Minicute.Types.Minicute.Annotated.Program
+import Minicute.Data.Minicute.Annotated.Program
 
 import qualified Data.Set as Set
 import qualified Data.Set.Lens as Set

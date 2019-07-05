@@ -8,9 +8,9 @@ import Control.Lens.Each
 import Control.Lens.Operators
 import Control.Lens.Wrapped ( _Wrapped )
 import Data.List
-import Minicute.Types.GMachine.Instruction
-import Minicute.Types.Minicute.Precedence
-import Minicute.Types.Minicute.Program
+import Minicute.Data.GMachine.Instruction
+import Minicute.Data.Minicute.Precedence
+import Minicute.Data.Minicute.Program
 
 import qualified Data.Map as Map
 
