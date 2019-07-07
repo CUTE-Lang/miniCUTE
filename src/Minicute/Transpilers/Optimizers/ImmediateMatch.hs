@@ -1,5 +1,5 @@
 -- |
--- Optimizers to remove immediate match.
+-- Optimizers to remove immediate matches.
 module Minicute.Transpilers.Optimizers.ImmediateMatch
   ( immediateMatchMainL
   ) where
@@ -12,12 +12,12 @@ import Data.List
 import Minicute.Data.Minicute.Program
 
 -- |
--- An optimizer to remove immediate match in a whole program.
+-- An optimizer to remove immediate matches in a whole program.
 immediateMatchMainL :: MainProgramL -> MainProgramL
 immediateMatchMainL = _Wrapped . each . _supercombinatorBody %~ immediateMatchMainEL
 
 -- |
--- An optimizer to remove immediate match in an expression.
+-- An optimizer to remove immediate matches in an expression.
 --
 -- __TODO: use uniplate to remove boilerplate__
 immediateMatchMainEL :: MainExpressionL -> MainExpressionL
