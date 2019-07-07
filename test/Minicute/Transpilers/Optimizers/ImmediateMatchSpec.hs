@@ -44,6 +44,7 @@ testCases
                           5
         |]
       )
+
     , ( "program with a two-argument constructor"
       , [qqMiniMainL|
                     f = let
@@ -52,6 +53,30 @@ testCases
                           match x with
                             <1> -> 5;
                             <2> h t -> h
+        |]
+      , [qqMiniMainL|
+                    f = let
+                          x = $C{2;2} 1 $C{1;0}
+                        in
+                          let
+                            h = 1;
+                            t = $C{1;0}
+                          in
+                            h
+        |]
+      )
+
+    , ( "program with nested optimizable matches"
+      , [qqMiniMainL|
+                    f = let
+                          x = $C{2;2} 1 $C{1;0}
+                        in
+                          match x with
+                            <1> -> 5;
+                            <2> h t ->
+                              match t with
+                                <1> -> h;
+                                <2> th tt -> h + th
         |]
       , [qqMiniMainL|
                     f = let

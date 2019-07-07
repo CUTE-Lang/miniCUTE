@@ -37,7 +37,7 @@ immediateMatchMainEL (ELLet flag lDefs (ELMatch (ELVariable v) mCases))
       innerExpr = immediateMatchMainEL (vMCase ^. _matchCaseBody)
       expr
         = if not (null matchLDefs)
-          then ELLet NonRecursive matchLDefs innerExpr
+          then immediateMatchMainEL (ELLet NonRecursive matchLDefs innerExpr)
           else innerExpr
     in
       ELLet flag lDefs expr
