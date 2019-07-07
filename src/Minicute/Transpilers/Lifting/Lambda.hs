@@ -2,7 +2,7 @@
 -- |
 -- Transpilers to lift all lambda expressions as
 -- supercombinators (top-level function definitions)
-module Minicute.Transpilers.LambdaLifting
+module Minicute.Transpilers.Lifting.Lambda
   ( lambdaLifting
   ) where
 
