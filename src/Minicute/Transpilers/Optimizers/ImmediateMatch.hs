@@ -7,7 +7,9 @@ module Minicute.Transpilers.Optimizers.ImmediateMatch
 import Control.Lens.Each
 import Control.Lens.Getter ( to )
 import Control.Lens.Operators
+import Control.Lens.Plated ( transformOf )
 import Control.Lens.Wrapped ( _Wrapped )
+import Data.Data.Lens ( uniplate )
 import Data.List
 import Minicute.Data.Minicute.Program
 
@@ -18,35 +20,25 @@ immediateMatchMainL = _Wrapped . each . _supercombinatorBody %~ immediateMatchMa
 
 -- |
 -- An optimizer to remove immediate matches in an expression.
---
--- __TODO: use uniplate to remove boilerplate__
 immediateMatchMainEL :: MainExpressionL -> MainExpressionL
-immediateMatchMainEL e@(ELInteger _) = e
-immediateMatchMainEL e@(ELConstructor _ _) = e
-immediateMatchMainEL e@(ELVariable _) = e
-immediateMatchMainEL (ELApplication e1 e2)
-  = ELApplication (immediateMatchMainEL e1) (immediateMatchMainEL e2)
-immediateMatchMainEL (ELLet flag lDefs (ELMatch (ELVariable v) mCases))
-  | Just vLDef <- lookupLDefsL v lDefs
-  , Just (tag, argExprs) <- destructDataExpression (vLDef ^. _letDefinitionBody)
-  , Just vMCase <- lookupMCasesL tag mCases
-  = let
-      argBinders = vMCase ^. _matchCaseArguments
-      matchLDefs = zipWith LetDefinitionL argBinders argExprs
+immediateMatchMainEL = transformOf uniplate go
+  where
+    go (ELLet flag lDefs (ELMatch (ELVariable v) mCases))
+      | Just vLDef <- lookupLDefsL v lDefs
+      , Just (tag, argExprs) <- destructDataExpression (vLDef ^. _letDefinitionBody)
+      , Just vMCase <- lookupMCasesL tag mCases
+      = let
+          argBinders = vMCase ^. _matchCaseArguments
+          matchLDefs = zipWith LetDefinitionL argBinders argExprs
 
-      innerExpr = immediateMatchMainEL (vMCase ^. _matchCaseBody)
-      expr
-        = if not (null matchLDefs)
-          then immediateMatchMainEL (ELLet NonRecursive matchLDefs innerExpr)
-          else innerExpr
-    in
-      ELLet flag lDefs expr
-immediateMatchMainEL (ELLet flag lDefs expr)
-  = ELLet flag (lDefs & each . _letDefinitionBody %~ immediateMatchMainEL) (immediateMatchMainEL expr)
-immediateMatchMainEL (ELMatch expr mCases)
-  = ELMatch (immediateMatchMainEL expr) (mCases & each . _matchCaseBody %~ immediateMatchMainEL)
-immediateMatchMainEL (ELLambda args expr)
-  = ELLambda args (immediateMatchMainEL expr)
+          innerExpr = vMCase ^. _matchCaseBody
+          expr
+            = if not (null matchLDefs)
+              then immediateMatchMainEL (ELLet NonRecursive matchLDefs innerExpr)
+              else innerExpr
+        in
+          ELLet flag lDefs expr
+    go e = e
 
 -- |
 -- __TODO: move this into a Util or Data module__
