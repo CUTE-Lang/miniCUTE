@@ -1,0 +1,29 @@
+-- |
+-- Optimizers to remove immediate applications.
+module Minicute.Transpilers.Optimizers.ImmediateApplication
+  ( immediateApplicationMainL
+  ) where
+
+import Control.Lens.Each
+import Control.Lens.Operators
+import Control.Lens.Plated ( transformOf )
+import Control.Lens.Wrapped ( _Wrapped )
+import Data.Data.Lens ( uniplate )
+import Minicute.Data.Minicute.Program
+
+-- |
+-- An optimizer to remove immediate applications in a whole program.
+immediateApplicationMainL :: MainProgramL -> MainProgramL
+immediateApplicationMainL = _Wrapped . each . _supercombinatorBody %~ immediateApplicationMainEL
+
+-- |
+-- An optimizer to remove immediate applications in an expression.
+immediateApplicationMainEL :: MainExpressionL -> MainExpressionL
+immediateApplicationMainEL = transformOf uniplate go
+  where
+    go (ELApplication (ELLambda (v : args') expr) e2)
+      | not (null args') = ELLambda args' expr'
+      | otherwise = expr'
+      where
+        expr' = ELLet NonRecursive [LetDefinitionL v e2] expr
+    go e = e
