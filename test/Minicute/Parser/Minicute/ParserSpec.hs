@@ -56,7 +56,7 @@ simpleMainProgramLTestTemplates :: [(TestContent, MainProgramLTestResult)]
 simpleMainProgramLTestTemplates
   = [ ( [qqRawCode||]
       , Right
-        ( ProgramL
+        ( Program
           [
           ]
         )
@@ -65,11 +65,12 @@ simpleMainProgramLTestTemplates
                   f = 1
         |]
       , Right
-        ( ProgramL
-          [ SupercombinatorL
-            "f"
-            []
-            (ELInteger 1)
+        ( Program
+          [ Supercombinator
+            ( "f"
+            , []
+            , ELInteger 1
+            )
           ]
         )
       )
@@ -77,11 +78,12 @@ simpleMainProgramLTestTemplates
                   f = 1;
         |]
       , Right
-        ( ProgramL
-          [ SupercombinatorL
-            "f"
-            []
-            (ELInteger 1)
+        ( Program
+          [ Supercombinator
+            ( "f"
+            , []
+            , ELInteger 1
+            )
           ]
         )
       )
@@ -89,11 +91,12 @@ simpleMainProgramLTestTemplates
                   f=1;
         |]
       , Right
-        ( ProgramL
-          [ SupercombinatorL
-            "f"
-            []
-            (ELInteger 1)
+        ( Program
+          [ Supercombinator
+            ( "f"
+            , []
+            , ELInteger 1
+            )
           ]
         )
       )
@@ -101,11 +104,12 @@ simpleMainProgramLTestTemplates
                   f= 1;
         |]
       , Right
-        ( ProgramL
-          [ SupercombinatorL
-            "f"
-            []
-            (ELInteger 1)
+        ( Program
+          [ Supercombinator
+            ( "f"
+            , []
+            , ELInteger 1
+            )
           ]
         )
       )
@@ -113,11 +117,12 @@ simpleMainProgramLTestTemplates
                   f= 1 ;
         |]
       , Right
-        ( ProgramL
-          [ SupercombinatorL
-            "f"
-            []
-            (ELInteger 1)
+        ( Program
+          [ Supercombinator
+            ( "f"
+            , []
+            , ELInteger 1
+            )
           ]
         )
       )
@@ -126,15 +131,17 @@ simpleMainProgramLTestTemplates
                   g = 2
         |]
       , Right
-        ( ProgramL
-          [ SupercombinatorL
-            "f"
-            []
-            (ELInteger 1)
-          , SupercombinatorL
-            "g"
-            []
-            (ELInteger 2)
+        ( Program
+          [ Supercombinator
+            ( "f"
+            , []
+            , ELInteger 1
+            )
+          , Supercombinator
+            ( "g"
+            , []
+            , ELInteger 2
+            )
           ]
         )
       )
@@ -143,15 +150,17 @@ simpleMainProgramLTestTemplates
                   g=2 ;
         |]
       , Right
-        ( ProgramL
-          [ SupercombinatorL
-            "f"
-            []
-            (ELInteger 1)
-          , SupercombinatorL
-            "g"
-            []
-            (ELInteger 2)
+        ( Program
+          [ Supercombinator
+            ( "f"
+            , []
+            , ELInteger 1
+            )
+          , Supercombinator
+            ( "g"
+            , []
+            , ELInteger 2
+            )
           ]
         )
       )
@@ -160,15 +169,17 @@ simpleMainProgramLTestTemplates
                   g = 2
         |]
       , Right
-        ( ProgramL
-          [ SupercombinatorL
-            "f"
-            []
-            (ELVariable "g")
-          , SupercombinatorL
-            "g"
-            []
-            (ELInteger 2)
+        ( Program
+          [ Supercombinator
+            ( "f"
+            , []
+            , ELVariable "g"
+            )
+          , Supercombinator
+            ( "g"
+            , []
+            , ELInteger 2
+            )
           ]
         )
       )
@@ -176,11 +187,12 @@ simpleMainProgramLTestTemplates
                   matchx = matchx
         |]
       , Right
-        ( ProgramL
-          [ SupercombinatorL
-            "matchx"
-            []
-            (ELVariable "matchx")
+        ( Program
+          [ Supercombinator
+            ( "matchx"
+            , []
+            , ELVariable "matchx"
+            )
           ]
         )
       )
@@ -223,11 +235,12 @@ arithmeticOperatorMainProgramLTestCases
                   f = 1 + 1
         |]
       , Right
-        ( ProgramL
-          [ SupercombinatorL
-            "f"
-            []
-            (ELApplication2 (ELVariable "+") (ELInteger 1) (ELInteger 1))
+        ( Program
+          [ Supercombinator
+            ( "f"
+            , []
+            , ELApplication2 (ELVariable "+") (ELInteger 1) (ELInteger 1)
+            )
           ]
         )
       )
@@ -237,15 +250,17 @@ arithmeticOperatorMainProgramLTestCases
                   g = 3
         |]
       , Right
-        ( ProgramL
-          [ SupercombinatorL
-            "f"
-            []
-            (ELApplication2 (ELVariable "*") (ELInteger 1) (ELVariable "g"))
-          , SupercombinatorL
-            "g"
-            []
-            (ELInteger 3)
+        ( Program
+          [ Supercombinator
+            ( "f"
+            , []
+            , ELApplication2 (ELVariable "*") (ELInteger 1) (ELVariable "g")
+            )
+          , Supercombinator
+            ( "g"
+            , []
+            , ELInteger 3
+            )
           ]
         )
       )
@@ -254,11 +269,11 @@ arithmeticOperatorMainProgramLTestCases
                   f = 1 + (3 + 4)
         |]
       , Right
-        ( ProgramL
-          [ SupercombinatorL
-            "f"
-            []
-            ( ELApplication2
+        ( Program
+          [ Supercombinator
+            ( "f"
+            , []
+            , ELApplication2
               (ELVariable "+")
               (ELInteger 1)
               (ELApplication2 (ELVariable "+") (ELInteger 3) (ELInteger 4))
@@ -271,11 +286,11 @@ arithmeticOperatorMainProgramLTestCases
                   f = 3 - 2 - 1
         |]
       , Right
-        ( ProgramL
-          [ SupercombinatorL
-            "f"
-            []
-            ( ELApplication2
+        ( Program
+          [ Supercombinator
+            ( "f"
+            , []
+            , ELApplication2
               (ELVariable "-")
               (ELApplication2
                (ELVariable "-")
@@ -291,11 +306,11 @@ arithmeticOperatorMainProgramLTestCases
                   f = 1 * 2 + 3
         |]
       , Right
-        ( ProgramL
-          [ SupercombinatorL
-            "f"
-            []
-            ( ELApplication2
+        ( Program
+          [ Supercombinator
+            ( "f"
+            , []
+            , ELApplication2
               (ELVariable "+")
               (ELApplication2
                (ELVariable "*")
@@ -330,15 +345,17 @@ constructorMainProgramLTestCases
                   g = $C{2;2}
         |]
       , Right
-        ( ProgramL
-          [ SupercombinatorL
-            "f"
-            []
-            (ELConstructor 1 0)
-          , SupercombinatorL
-            "g"
-            []
-            (ELConstructor 2 2)
+        ( Program
+          [ Supercombinator
+            ( "f"
+            , []
+            , ELConstructor 1 0
+            )
+          , Supercombinator
+            ( "g"
+            , []
+            , ELConstructor 2 2
+            )
           ]
         )
       )
@@ -348,15 +365,17 @@ constructorMainProgramLTestCases
                   g = $C{2;3} f
         |]
       , Right
-        ( ProgramL
-          [ SupercombinatorL
-            "f"
-            []
-            (ELApplication (ELConstructor 1 1) (ELInteger 5))
-          , SupercombinatorL
-            "g"
-            []
-            (ELApplication (ELConstructor 2 3) (ELVariable "f"))
+        ( Program
+          [ Supercombinator
+            ( "f"
+            , []
+            , ELApplication (ELConstructor 1 1) (ELInteger 5)
+            )
+          , Supercombinator
+            ( "g"
+            , []
+            , ELApplication (ELConstructor 2 3) (ELVariable "f")
+            )
           ]
         )
       )
@@ -397,11 +416,12 @@ applicationMainProgramLTestCases
                   f = g 5
         |]
       , Right
-        ( ProgramL
-          [ SupercombinatorL
-            "f"
-            []
-            (ELApplication (ELVariable "g") (ELInteger 5))
+        ( Program
+          [ Supercombinator
+            ( "f"
+            , []
+            , ELApplication (ELVariable "g") (ELInteger 5)
+            )
           ]
         )
       )
@@ -410,11 +430,12 @@ applicationMainProgramLTestCases
                   f = g f
         |]
       , Right
-        ( ProgramL
-          [ SupercombinatorL
-            "f"
-            []
-            (ELApplication (ELVariable "g") (ELVariable "f"))
+        ( Program
+          [ Supercombinator
+            ( "f"
+            , []
+            , ELApplication (ELVariable "g") (ELVariable "f")
+            )
           ]
         )
       )
@@ -434,11 +455,12 @@ supercombinatorMainProgramLTestCases
                   f x = x
         |]
       , Right
-        ( ProgramL
-          [ SupercombinatorL
-            "f"
-            ["x"]
-            (ELVariable "x")
+        ( Program
+          [ Supercombinator
+            ( "f"
+            , ["x"]
+            , ELVariable "x"
+            )
           ]
         )
       )
@@ -447,11 +469,12 @@ supercombinatorMainProgramLTestCases
                   f x y = x y
         |]
       , Right
-        ( ProgramL
-          [ SupercombinatorL
-            "f"
-            ["x", "y"]
-            (ELApplication (ELVariable "x") (ELVariable "y"))
+        ( Program
+          [ Supercombinator
+            ( "f"
+            , ["x", "y"]
+            , ELApplication (ELVariable "x") (ELVariable "y")
+            )
           ]
         )
       )
@@ -478,13 +501,13 @@ letAndLetrecMainProgramLTestCases
                   f = let x = 5 in x
         |]
       , Right
-        ( ProgramL
-          [ SupercombinatorL
-            "f"
-            []
-            ( ELLet
+        ( Program
+          [ Supercombinator
+            ( "f"
+            , []
+            , ELLet
               NonRecursive
-              [ LetDefinitionL "x" (ELInteger 5)
+              [ LetDefinition ("x", ELInteger 5)
               ]
               (ELVariable "x")
             )
@@ -498,13 +521,13 @@ letAndLetrecMainProgramLTestCases
                       in x
         |]
       , Right
-        ( ProgramL
-          [ SupercombinatorL
-            "f"
-            []
-            ( ELLet
+        ( Program
+          [ Supercombinator
+            ( "f"
+            , []
+            , ELLet
               Recursive
-              [ LetDefinitionL "x" (ELInteger 5)
+              [ LetDefinition ("x", ELInteger 5)
               ]
               (ELVariable "x")
             )
@@ -519,14 +542,14 @@ letAndLetrecMainProgramLTestCases
                       in x + y
         |]
       , Right
-        ( ProgramL
-          [ SupercombinatorL
-            "f"
-            []
-            ( ELLet
+        ( Program
+          [ Supercombinator
+            ( "f"
+            , []
+            , ELLet
               NonRecursive
-              [ LetDefinitionL "x" (ELInteger 5)
-              , LetDefinitionL "y" (ELInteger 4)
+              [ LetDefinition ("x", ELInteger 5)
+              , LetDefinition ("y", ELInteger 4)
               ]
               (ELApplication2 (ELVariable "+") (ELVariable "x") (ELVariable "y"))
             )
@@ -542,15 +565,15 @@ letAndLetrecMainProgramLTestCases
                       in z
         |]
       , Right
-        ( ProgramL
-          [ SupercombinatorL
-            "f"
-            []
-            ( ELLet
+        ( Program
+          [ Supercombinator
+            ( "f"
+            , []
+            , ELLet
               Recursive
-              [ LetDefinitionL "x" (ELInteger 5)
-              , LetDefinitionL "y" (ELApplication2 (ELVariable "+") (ELVariable "x") (ELVariable "x"))
-              , LetDefinitionL "z" (ELApplication2 (ELVariable "*") (ELVariable "x") (ELVariable "y"))
+              [ LetDefinition ("x", ELInteger 5)
+              , LetDefinition ("y", ELApplication2 (ELVariable "+") (ELVariable "x") (ELVariable "x"))
+              , LetDefinition ("z", ELApplication2 (ELVariable "*") (ELVariable "x") (ELVariable "y"))
               ]
               (ELVariable "z")
             )
@@ -566,13 +589,13 @@ letAndLetrecMainProgramLTestCases
                       in x
         |]
       , Right
-        ( ProgramL
-          [ SupercombinatorL
-            "f"
-            []
-            ( ELLet
+        ( Program
+          [ Supercombinator
+            ( "f"
+            , []
+            , ELLet
               NonRecursive
-              [ LetDefinitionL "x" (ELLet NonRecursive [ LetDefinitionL "k" (ELInteger 5) ] (ELVariable "k"))
+              [ LetDefinition ("x", ELLet NonRecursive [ LetDefinition ("k", ELInteger 5) ] (ELVariable "k"))
               ]
               (ELVariable "x")
             )
@@ -584,13 +607,13 @@ letAndLetrecMainProgramLTestCases
                   f = let x = letrec k = 5 in k; in x
         |]
       , Right
-        ( ProgramL
-          [ SupercombinatorL
-            "f"
-            []
-            ( ELLet
+        ( Program
+          [ Supercombinator
+            ( "f"
+            , []
+            , ELLet
               NonRecursive
-              [ LetDefinitionL "x" (ELLet Recursive [ LetDefinitionL "k" (ELInteger 5) ] (ELVariable "k"))
+              [ LetDefinition ("x", ELLet Recursive [ LetDefinition ("k", ELInteger 5) ] (ELVariable "k"))
               ]
               (ELVariable "x")
             )
@@ -602,13 +625,13 @@ letAndLetrecMainProgramLTestCases
                   f = letrec x = let k = 5; in k in x
         |]
       , Right
-        ( ProgramL
-          [ SupercombinatorL
-            "f"
-            []
-            ( ELLet
+        ( Program
+          [ Supercombinator
+            ( "f"
+            , []
+            , ELLet
               Recursive
-              [ LetDefinitionL "x" (ELLet NonRecursive [ LetDefinitionL "k" (ELInteger 5) ] (ELVariable "k"))
+              [ LetDefinition ("x", ELLet NonRecursive [ LetDefinition ("k", ELInteger 5) ] (ELVariable "k"))
               ]
               (ELVariable "x")
             )
@@ -624,13 +647,13 @@ letAndLetrecMainProgramLTestCases
                       in x
         |]
       , Right
-        ( ProgramL
-          [ SupercombinatorL
-            "f"
-            []
-            ( ELLet
+        ( Program
+          [ Supercombinator
+            ( "f"
+            , []
+            , ELLet
               Recursive
-              [ LetDefinitionL "x" (ELLet Recursive [ LetDefinitionL "k" (ELInteger 5) ] (ELVariable "k"))
+              [ LetDefinition ("x", ELLet Recursive [ LetDefinition ("k", ELInteger 5) ] (ELVariable "k"))
               ]
               (ELVariable "x")
             )
@@ -660,13 +683,13 @@ matchMainProgramLTestCases
                   f = match $C{1;0} with <1> -> 5
         |]
       , Right
-        ( ProgramL
-          [ SupercombinatorL
-            "f"
-            []
-            ( ELMatch
+        ( Program
+          [ Supercombinator
+            ( "f"
+            , []
+            , ELMatch
               (ELConstructor 1 0)
-              [ MatchCaseL 1 [] (ELInteger 5)
+              [ MatchCase (1, [], ELInteger 5)
               ]
             )
           ]
@@ -680,15 +703,15 @@ matchMainProgramLTestCases
                         <4> -> g
         |]
       , Right
-        ( ProgramL
-          [ SupercombinatorL
-            "f"
-            []
-            ( ELMatch
+        ( Program
+          [ Supercombinator
+            ( "f"
+            , []
+            , ELMatch
               (ELConstructor 2 0)
-              [ MatchCaseL 1 [] (ELInteger 5)
-              , MatchCaseL 2 [] (ELInteger 3)
-              , MatchCaseL 4 [] (ELVariable "g")
+              [ MatchCase (1, [], ELInteger 5)
+              , MatchCase (2, [], ELInteger 3)
+              , MatchCase (4, [], ELVariable "g")
               ]
             )
           ]
@@ -701,14 +724,14 @@ matchMainProgramLTestCases
                         <2> a b -> b
         |]
       , Right
-        ( ProgramL
-          [ SupercombinatorL
-            "f"
-            []
-            ( ELMatch
+        ( Program
+          [ Supercombinator
+            ( "f"
+            , []
+            , ELMatch
               (ELApplication2 (ELConstructor 2 2) (ELInteger 5) (ELInteger 4))
-              [ MatchCaseL 1 ["x", "y"] (ELVariable "x")
-              , MatchCaseL 2 ["a", "b"] (ELVariable "b")
+              [ MatchCase (1, ["x", "y"], ELVariable "x")
+              , MatchCase (2, ["a", "b"], ELVariable "b")
               ]
             )
           ]
@@ -722,20 +745,21 @@ matchMainProgramLTestCases
                   g = 1
         |]
       , Right
-        ( ProgramL
-          [ SupercombinatorL
-            "f"
-            []
-            ( ELMatch
+        ( Program
+          [ Supercombinator
+            ( "f"
+            , []
+            , ELMatch
               (ELApplication2 (ELConstructor 2 2) (ELInteger 5) (ELInteger 4))
-              [ MatchCaseL 1 ["x", "y"] (ELVariable "x")
-              , MatchCaseL 2 ["a", "b"] (ELVariable "b")
+              [ MatchCase (1, ["x", "y"], ELVariable "x")
+              , MatchCase (2, ["a", "b"], ELVariable "b")
               ]
             )
-          , SupercombinatorL
-            "g"
-            []
-            (ELInteger 1)
+          , Supercombinator
+            ( "g"
+            , []
+            , ELInteger 1
+            )
           ]
         )
       )
@@ -755,11 +779,11 @@ lambdaMainProgramLTestCases
                   f = \x -> x
         |]
       , Right
-        ( ProgramL
-          [ SupercombinatorL
-            "f"
-            []
-            ( ELLambda
+        ( Program
+          [ Supercombinator
+            ( "f"
+            , []
+            , ELLambda
               ["x"]
               (ELVariable "x")
             )
@@ -771,11 +795,11 @@ lambdaMainProgramLTestCases
                   f = \x y -> x + y
         |]
       , Right
-        ( ProgramL
-          [ SupercombinatorL
-            "f"
-            []
-            ( ELLambda
+        ( Program
+          [ Supercombinator
+            ( "f"
+            , []
+            , ELLambda
               ["x", "y"]
               (ELApplication2 (ELVariable "+") (ELVariable "x") (ELVariable "y"))
             )
@@ -787,11 +811,11 @@ lambdaMainProgramLTestCases
                   f = \x -> \y -> x + y
         |]
       , Right
-        ( ProgramL
-          [ SupercombinatorL
-            "f"
-            []
-            ( ELLambda
+        ( Program
+          [ Supercombinator
+            ( "f"
+            , []
+            , ELLambda
               ["x"]
               ( ELLambda
                 ["y"]
@@ -806,11 +830,11 @@ lambdaMainProgramLTestCases
                   f = (\x -> x) 5
         |]
       , Right
-        ( ProgramL
-          [ SupercombinatorL
-            "f"
-            []
-            ( ELApplication
+        ( Program
+          [ Supercombinator
+            ( "f"
+            , []
+            , ELApplication
               ( ELLambda
                 ["x"]
                 (ELVariable "x")
@@ -843,14 +867,14 @@ complexMainProgramLTestCases
                   f = 5 + (let k = 5 in k)
         |]
       , Right
-        ( ProgramL
-          [ SupercombinatorL
-            "f"
-            []
-            ( ELApplication2
+        ( Program
+          [ Supercombinator
+            ( "f"
+            , []
+            , ELApplication2
               (ELVariable "+")
               (ELInteger 5)
-              (ELLet NonRecursive [LetDefinitionL "k" (ELInteger 5)] (ELVariable "k"))
+              (ELLet NonRecursive [LetDefinition ("k", ELInteger 5)] (ELVariable "k"))
             )
           ]
         )
@@ -860,14 +884,14 @@ complexMainProgramLTestCases
                   f = 5 + (match $C{1;0} with <1> -> 5)
         |]
       , Right
-        ( ProgramL
-          [ SupercombinatorL
-            "f"
-            []
-            ( ELApplication2
+        ( Program
+          [ Supercombinator
+            ( "f"
+            , []
+            , ELApplication2
               (ELVariable "+")
               (ELInteger 5)
-              (ELMatch (ELConstructor 1 0) [MatchCaseL 1 [] (ELInteger 5)])
+              (ELMatch (ELConstructor 1 0) [MatchCase (1, [], ELInteger 5)])
             )
           ]
         )

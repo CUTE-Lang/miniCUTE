@@ -37,7 +37,7 @@ testCases :: [TestCase]
 testCases =
   [ ( "empty program"
     , [qqMiniMainL||]
-    , AnnotatedProgramL
+    , Program
       []
     )
 
@@ -45,11 +45,11 @@ testCases =
     , [qqMiniMainL|
                   f x = x + x
       |]
-    , AnnotatedProgramL
-      [ AnnotatedSupercombinatorL
-        "f"
-        ["x"]
-        ( AELApplication2
+    , Program
+      [ Supercombinator
+        ( "f"
+        , ["x"]
+        , AELApplication2
           (Set.singleton "x")
           (Set.singleton "x")
           (AELVariable Set.empty "+")
@@ -66,16 +66,17 @@ testCases =
                       in
                         g
       |]
-    , AnnotatedProgramL
-      [ AnnotatedSupercombinatorL
-        "f"
-        []
-        ( AELLet
+    , Program
+      [ Supercombinator
+        ( "f"
+        , []
+        , AELLet
           Set.empty
           NonRecursive
-          [ AnnotatedLetDefinitionL
-            "g"
-            (AELApplication Set.empty (AELVariable Set.empty "h") (AELInteger Set.empty 4))
+          [ LetDefinition
+            ( "g"
+            , (AELApplication Set.empty (AELVariable Set.empty "h") (AELInteger Set.empty 4))
+            )
           ]
           (AELVariable (Set.singleton "g") "g")
         )
@@ -91,22 +92,25 @@ testCases =
                       in
                         (g1 * g2) / g3
       |]
-    , AnnotatedProgramL
-      [ AnnotatedSupercombinatorL
-        "f"
-        []
-        ( AELLet
+    , Program
+      [ Supercombinator
+        ( "f"
+        , []
+        , AELLet
           Set.empty
           NonRecursive
-          [ AnnotatedLetDefinitionL
-            "g1"
-            (AELApplication Set.empty (AELVariable Set.empty "h") (AELInteger Set.empty 4))
-          , AnnotatedLetDefinitionL
-            "g2"
-            (AELApplication Set.empty (AELVariable Set.empty "h") (AELInteger Set.empty 8))
-          , AnnotatedLetDefinitionL
-            "g3"
-            (AELApplication2 Set.empty Set.empty (AELVariable Set.empty "-") (AELInteger Set.empty 8) (AELInteger Set.empty 4))
+          [ LetDefinition
+            ( "g1"
+            , (AELApplication Set.empty (AELVariable Set.empty "h") (AELInteger Set.empty 4))
+            )
+          , LetDefinition
+            ( "g2"
+            , (AELApplication Set.empty (AELVariable Set.empty "h") (AELInteger Set.empty 8))
+            )
+          , LetDefinition
+            ( "g3"
+            , (AELApplication2 Set.empty Set.empty (AELVariable Set.empty "-") (AELInteger Set.empty 8) (AELInteger Set.empty 4))
+            )
           ]
           ( AELApplication2
             (Set.fromList ["g1", "g2", "g3"])
@@ -131,21 +135,22 @@ testCases =
                           <1> -> 4;
                           <2> h t -> h + f t
       |]
-    , AnnotatedProgramL
-      [ AnnotatedSupercombinatorL
-        "f"
-        ["x"]
-        ( AELMatch
+    , Program
+      [ Supercombinator
+        ( "f"
+        , ["x"]
+        , AELMatch
           (Set.singleton "x")
           (AELVariable (Set.singleton "x") "x")
-          [ AnnotatedMatchCaseL
-            1
-            []
-            (AELInteger Set.empty 4)
-          , AnnotatedMatchCaseL
-            2
-            ["h", "t"]
-            ( AELApplication2
+          [ MatchCase
+            ( 1
+            , []
+            , (AELInteger Set.empty 4)
+            )
+          , MatchCase
+            ( 2
+            , ["h", "t"]
+            , AELApplication2
               (Set.fromList ["h", "t"])
               (Set.singleton "h")
               (AELVariable Set.empty "+")
@@ -161,11 +166,11 @@ testCases =
     , [qqMiniMainL|
                   f = \x -> 4 + x
       |]
-    , AnnotatedProgramL
-      [ AnnotatedSupercombinatorL
-        "f"
-        []
-        ( AELLambda
+    , Program
+      [ Supercombinator
+        ( "f"
+        , []
+        , AELLambda
           Set.empty
           ["x"]
           ( AELApplication2

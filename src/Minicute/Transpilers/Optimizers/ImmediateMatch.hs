@@ -29,7 +29,7 @@ immediateMatchMainEL = transformOf uniplate go
       , Just vMCase <- lookupMCasesL tag mCases
       = let
           argBinders = vMCase ^. _matchCaseArguments
-          matchLDefs = zipWith LetDefinitionL argBinders argExprs
+          matchLDefs = zipWith (curry LetDefinition) argBinders argExprs
 
           innerExpr = vMCase ^. _matchCaseBody
           expr
@@ -52,10 +52,10 @@ destructDataExpression e = go e []
 
 -- |
 -- __TODO: move this into a Util or Data module__
-lookupMCasesL :: Integer -> [MatchCaseL a] -> Maybe (MatchCaseL a)
+lookupMCasesL :: Integer -> [MatchCase ExpressionL a] -> Maybe (MatchCase ExpressionL a)
 lookupMCasesL tag = find (^. _matchCaseTag . to (== tag))
 
 -- |
 -- __TODO: move this into a Util or Data module__
-lookupLDefsL :: (Eq a) => a -> [LetDefinitionL a] -> Maybe (LetDefinitionL a)
+lookupLDefsL :: (Eq a) => a -> [LetDefinition ExpressionL a] -> Maybe (LetDefinition ExpressionL a)
 lookupLDefsL binder = find (^. _letDefinitionBinder . to (== binder))

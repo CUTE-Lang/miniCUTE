@@ -22,7 +22,7 @@ simpleArithmeticMainEL :: MainExpressionL -> MainExpressionL
 simpleArithmeticMainEL = transformOf uniplate go
   where
     -- __TODO: replace hard-corded op checking__
-    go (ELApplication2 (ELVariableIdentifier op) (ELInteger n1) (ELInteger n2))
+    go (ELApplication2 (ELVariable (Identifier op)) (ELInteger n1) (ELInteger n2))
       | op == "+" = ELInteger (n1 + n2)
       | op == "-" = ELInteger (n1 - n2)
       | op == "*" = ELInteger (n1 * n2)

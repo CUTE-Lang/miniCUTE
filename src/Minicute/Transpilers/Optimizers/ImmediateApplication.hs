@@ -25,5 +25,5 @@ immediateApplicationMainEL = transformOf uniplate go
       | not (null args') = ELLambda args' expr'
       | otherwise = expr'
       where
-        expr' = ELLet NonRecursive [LetDefinitionL v e2] expr
+        expr' = ELLet NonRecursive [LetDefinition (v, e2)] expr
     go e = e

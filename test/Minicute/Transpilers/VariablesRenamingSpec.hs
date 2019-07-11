@@ -94,7 +94,7 @@ testCases
 -- |
 -- This should check any conflicts of identifiers from anywhere.
 haveNoIdentifierConflictMainL :: MainProgramL -> Bool
-haveNoIdentifierConflictMainL (ProgramL scs)
+haveNoIdentifierConflictMainL (Program scs)
   = scIdsNoConflict
   && (and . snd . mapAccumL haveNoIdentifierConflictMainEL scIdSet $ view _supercombinatorBody <$> scs)
   where
