@@ -12,10 +12,10 @@ module Minicute.Data.Minicute.Annotated.Expression
   , module Minicute.Data.Minicute.Expression
 
 
-  , AnnotatedExpressionL( .. )
-  , MainAnnotatedExpressionL
-  , pattern AELApplication2
-  , pattern AELApplication3
+  , AnnotatedExpressionMC( .. )
+  , MainAnnotatedExpressionMC
+  , pattern AEApplication2
+  , pattern AEApplication3
 
   , _annotation
   ) where
@@ -36,23 +36,19 @@ import qualified Data.Text.Prettyprint.Doc as PP
 
 
 -- |
--- An internal type for an annotated expression.
+-- A type for an annotated expression.
 --
 -- [@ann@] a type for the annotation.
 --
--- [@wExpr@] a structure of the expression ('Expression_' or 'ExpressionL_').
---
--- [@expr_@] a recursive part of the expression.
---
 -- [@a@] an identifier type of the expression.
-data AnnotatedExpressionL ann a
-  = AELInteger ann Integer -- ^ @5@
-  | AELConstructor ann Integer Integer -- ^ @$C{t;a}@
-  | AELVariable ann Identifier -- ^ @v@
-  | AELApplication ann (AnnotatedExpressionL ann a) (AnnotatedExpressionL ann a) -- ^ @f 4@
-  | AELLet ann IsRecursive [LetDefinition (AnnotatedExpressionL ann) a] (AnnotatedExpressionL ann a) -- ^ @let x = 4 in x@
-  | AELMatch ann (AnnotatedExpressionL ann a) [MatchCase (AnnotatedExpressionL ann) a] -- ^ @match $C{1;0} with \<1\> -> 4@
-  | AELLambda ann [a] (AnnotatedExpressionL ann a) -- ^ @\\x.x@
+data AnnotatedExpressionMC ann a
+  = AEInteger ann Integer -- ^ @5@
+  | AEConstructor ann Integer Integer -- ^ @$C{t;a}@
+  | AEVariable ann Identifier -- ^ @v@
+  | AEApplication ann (AnnotatedExpressionMC ann a) (AnnotatedExpressionMC ann a) -- ^ @f 4@
+  | AELet ann IsRecursive [LetDefinition (AnnotatedExpressionMC ann) a] (AnnotatedExpressionMC ann a) -- ^ @let x = 4 in x@
+  | AEMatch ann (AnnotatedExpressionMC ann a) [MatchCase (AnnotatedExpressionMC ann) a] -- ^ @match $C{1;0} with \<1\> -> 4@
+  | AELambda ann [a] (AnnotatedExpressionMC ann a) -- ^ @\\x.x@
   deriving ( Generic
            , Typeable
            , Data
@@ -62,22 +58,22 @@ data AnnotatedExpressionL ann a
            , Show
            )
 -- |
--- @MainAnnotatedExpressionL ann@ is a 'MainExpressionL' annotated with @ann@.
-type MainAnnotatedExpressionL ann = AnnotatedExpressionL ann Identifier
+-- @MainAnnotatedExpressionMC ann@ is a 'MainExpressionMC' annotated with @ann@.
+type MainAnnotatedExpressionMC ann = AnnotatedExpressionMC ann Identifier
 
 -- |
--- Annotated 'ELApplication2'.
-pattern AELApplication2 ann2 ann1 e1 e2 e3 = AELApplication ann2 (AELApplication ann1 e1 e2) e3
+-- Annotated 'EApplication2'.
+pattern AEApplication2 ann2 ann1 e1 e2 e3 = AEApplication ann2 (AEApplication ann1 e1 e2) e3
 -- |
--- Annotated 'ELApplication3'.
-pattern AELApplication3 ann3 ann2 ann1 e1 e2 e3 e4 = AELApplication ann3 (AELApplication2 ann2 ann1 e1 e2 e3) e4
+-- Annotated 'EApplication3'.
+pattern AEApplication3 ann3 ann2 ann1 e1 e2 e3 e4 = AEApplication ann3 (AEApplication2 ann2 ann1 e1 e2 e3) e4
 
-instance (Pretty ann, Pretty a) => Pretty (AnnotatedExpressionL ann a) where
+instance (Pretty ann, Pretty a) => Pretty (AnnotatedExpressionMC ann a) where
   pretty = prettyPrec0
 
-instance (Pretty ann, Pretty a) => PrettyPrec (AnnotatedExpressionL ann a) where
-  prettyPrec _ (AELInteger ann n) = pretty n PP.<> PP.braces (pretty ann)
-  prettyPrec _ (AELConstructor ann tag arity)
+instance (Pretty ann, Pretty a) => PrettyPrec (AnnotatedExpressionMC ann a) where
+  prettyPrec _ (AEInteger ann n) = pretty n PP.<> PP.braces (pretty ann)
+  prettyPrec _ (AEConstructor ann tag arity)
     = ( PP.fuse PP.Shallow . PP.hcat
         $ [ "$C"
           , PP.braces . PP.hcat
@@ -87,14 +83,14 @@ instance (Pretty ann, Pretty a) => PrettyPrec (AnnotatedExpressionL ann a) where
               ]
           ]
       ) PP.<> PP.braces (pretty ann)
-  prettyPrec _ (AELVariable ann vId) = pretty vId PP.<> PP.braces (pretty ann)
-  prettyPrec _ (AELApplication2 ann2 ann1 (AELVariable annOp (Identifier op)) e1 e2)
+  prettyPrec _ (AEVariable ann vId) = pretty vId PP.<> PP.braces (pretty ann)
+  prettyPrec _ (AEApplication2 ann2 ann1 (AEVariable annOp (Identifier op)) e1 e2)
     | Just opP <- lookup op binaryPrecedenceTable
     = prettyBinaryExpressionPrec miniApplicationPrecedence1 opP opDoc (`prettyPrec` e1) (`prettyPrec` e2)
       PP.<> PP.braces (pretty ann1 PP.<> PP.comma PP.<+> pretty ann2)
     where
       opDoc = pretty op PP.<> PP.braces (pretty annOp)
-  prettyPrec p (AELApplication ann e1 e2)
+  prettyPrec p (AEApplication ann e1 e2)
     = (if p > miniApplicationPrecedence then PP.parens else id)
       $ ( PP.align . PP.hcat
           $ [ prettyPrec miniApplicationPrecedence e1
@@ -102,7 +98,7 @@ instance (Pretty ann, Pretty a) => PrettyPrec (AnnotatedExpressionL ann a) where
             , prettyPrec miniApplicationPrecedence1 e2
             ]
         ) PP.<> PP.braces (pretty ann)
-  prettyPrec p (AELLet ann flag letDefs e)
+  prettyPrec p (AELet ann flag letDefs e)
     = (if p > 0 then PP.parens else id)
       $ ( PP.align . PP.hcat
           $ [ keyword
@@ -118,7 +114,7 @@ instance (Pretty ann, Pretty a) => PrettyPrec (AnnotatedExpressionL ann a) where
       keyword
         | isRecursive flag = "letrec"
         | otherwise = "let"
-  prettyPrec p (AELMatch ann e matchCases)
+  prettyPrec p (AEMatch ann e matchCases)
     = (if p > 0 then PP.parens else id)
       $ ( PP.align . PP.hcat
           $ [ "match "
@@ -128,7 +124,7 @@ instance (Pretty ann, Pretty a) => PrettyPrec (AnnotatedExpressionL ann a) where
             , prettyIndent . PP.vcat . PP.punctuate PP.semi . fmap pretty $ matchCases
             ]
         ) PP.<> PP.braces (pretty ann)
-  prettyPrec p (AELLambda ann argBinders bodyExpr)
+  prettyPrec p (AELambda ann argBinders bodyExpr)
     = (if p > 0 then PP.parens else id)
       $ ( PP.align . PP.hcat
           $ [ "\\"
@@ -141,23 +137,23 @@ instance (Pretty ann, Pretty a) => PrettyPrec (AnnotatedExpressionL ann a) where
 
 
 -- |
--- 'Lens' to extract the annotation of 'AnnotatedExpressionL'.
-_annotation :: Lens' (AnnotatedExpressionL ann a) ann
+-- 'Lens' to extract the annotation of 'AnnotatedExpressionMC'.
+_annotation :: Lens' (AnnotatedExpressionMC ann a) ann
 _annotation = lens getter setter
   where
-    getter (AELInteger ann _) = ann
-    getter (AELConstructor ann _ _) = ann
-    getter (AELVariable ann _) = ann
-    getter (AELApplication ann _ _) = ann
-    getter (AELLet ann _ _ _) = ann
-    getter (AELMatch ann _ _) = ann
-    getter (AELLambda ann _ _) = ann
+    getter (AEInteger ann _) = ann
+    getter (AEConstructor ann _ _) = ann
+    getter (AEVariable ann _) = ann
+    getter (AEApplication ann _ _) = ann
+    getter (AELet ann _ _ _) = ann
+    getter (AEMatch ann _ _) = ann
+    getter (AELambda ann _ _) = ann
 
-    setter (AELInteger _ n) ann = AELInteger ann n
-    setter (AELConstructor _ t a) ann = AELConstructor ann t a
-    setter (AELVariable _ v) ann = AELVariable ann v
-    setter (AELApplication _ e1 e2) ann = AELApplication ann e1 e2
-    setter (AELLet _ flag lDefs expr) ann = AELLet ann flag lDefs expr
-    setter (AELMatch _ mCases expr) ann = AELMatch ann mCases expr
-    setter (AELLambda _ argBinders expr) ann = AELLambda ann argBinders expr
+    setter (AEInteger _ n) ann = AEInteger ann n
+    setter (AEConstructor _ t a) ann = AEConstructor ann t a
+    setter (AEVariable _ v) ann = AEVariable ann v
+    setter (AEApplication _ e1 e2) ann = AEApplication ann e1 e2
+    setter (AELet _ flag lDefs expr) ann = AELet ann flag lDefs expr
+    setter (AEMatch _ mCases expr) ann = AEMatch ann mCases expr
+    setter (AELambda _ argBinders expr) ann = AELambda ann argBinders expr
 {-# INLINEABLE _annotation #-}

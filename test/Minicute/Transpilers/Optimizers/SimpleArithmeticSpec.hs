@@ -14,28 +14,28 @@ import Minicute.Utils.TH
 
 spec :: Spec
 spec = do
-  describe "simpleArithmeticMainL" $ do
-    forM_ testCases (uncurry3 simpleArithmeticMainLTest)
+  describe "simpleArithmeticMainMC" $ do
+    forM_ testCases (uncurry3 simpleArithmeticMainMCTest)
 
-simpleArithmeticMainLTest :: TestName -> TestBeforeContent -> TestAfterContent -> SpecWith (Arg Expectation)
-simpleArithmeticMainLTest name beforeContent afterContent = do
+simpleArithmeticMainMCTest :: TestName -> TestBeforeContent -> TestAfterContent -> SpecWith (Arg Expectation)
+simpleArithmeticMainMCTest name beforeContent afterContent = do
   it ("immediate applications are optimized in " <> name) $ do
-    simpleArithmeticMainL beforeContent `shouldBe` afterContent
+    simpleArithmeticMainMC beforeContent `shouldBe` afterContent
 
 type TestName = String
-type TestBeforeContent = MainProgramL
-type TestAfterContent = MainProgramL
+type TestBeforeContent = MainProgramMC
+type TestAfterContent = MainProgramMC
 type TestCase = (TestName, TestBeforeContent, TestAfterContent)
 
 testCases :: [TestCase]
 testCases
   = [ ( "program with simple arithmetics as top-level bodies"
-      , [qqMiniMainL|
+      , [qqMiniMainMC|
                     f = 1 + 1;
                     g = 2 * 3 + 1;
                     h = (3 - 2) * 3 - 2 * 3 + 3
         |]
-      , [qqMiniMainL|
+      , [qqMiniMainMC|
                     f = 2;
                     g = 7;
                     h = 0
@@ -43,7 +43,7 @@ testCases
       )
 
     , ( "program with simple arithmetics in let definitions"
-      , [qqMiniMainL|
+      , [qqMiniMainMC|
                     f = let
                           x = 1 + 2
                         in
@@ -57,7 +57,7 @@ testCases
                         in
                           test y x (x + x)
         |]
-      , [qqMiniMainL|
+      , [qqMiniMainMC|
                     f = let
                           x = 3
                         in

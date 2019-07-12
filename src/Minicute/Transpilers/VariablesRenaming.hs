@@ -4,7 +4,7 @@
 -- |
 -- Transpilers to rename variables to avoid name collision.
 module Minicute.Transpilers.VariablesRenaming
-  ( renameVariablesMainL
+  ( renameVariablesMainMC
   ) where
 
 import Control.Lens.Each
@@ -19,13 +19,13 @@ import Minicute.Data.Minicute.Program
 import qualified Data.Map as Map
 
 -- |
--- A transpiler to rename variables in 'MainProgramL'
-renameVariablesMainL :: MainProgramL -> MainProgramL
-renameVariablesMainL = renameVariablesL id
-{-# INLINABLE renameVariablesMainL #-}
+-- A transpiler to rename variables in 'MainProgramMC'
+renameVariablesMainMC :: MainProgramMC -> MainProgramMC
+renameVariablesMainMC = renameVariablesMC id
+{-# INLINABLE renameVariablesMainMC #-}
 
-renameVariablesL :: ALens' a Identifier -> Program (Expression 'MC) a -> Program (Expression 'MC) a
-renameVariablesL _a
+renameVariablesMC :: ALens' a Identifier -> ProgramMC a -> ProgramMC a
+renameVariablesMC _a
   = flip evalState initialIdGeneratorState
     . flip runReaderT initialRenamedRecord
     . renameProgram
@@ -57,7 +57,7 @@ renameVariablesL _a
           where
             scArgs = sc ^. _supercombinatorArguments
 
-            renameScBody = _supercombinatorBody %%~ renameVariablesEL _a
+            renameScBody = _supercombinatorBody %%~ renameVariablesEMC _a
 
             {-# INLINABLE renameScBody #-}
 
@@ -68,16 +68,16 @@ renameVariablesL _a
       | otherwise = renameIdentifier binder
 
     {-# INLINABLE renameScBinder #-}
-{-# INLINABLE renameVariablesL #-}
+{-# INLINABLE renameVariablesMC #-}
 
-renameVariablesEL :: ALens' a Identifier -> Renamer (Expression 'MC a)
-renameVariablesEL _ e@(EInteger _) = return e
-renameVariablesEL _ e@(EConstructor _ _) = return e
-renameVariablesEL _ (EVariable v)
+renameVariablesEMC :: ALens' a Identifier -> Renamer (ExpressionMC a)
+renameVariablesEMC _ e@(EInteger _) = return e
+renameVariablesEMC _ e@(EConstructor _ _) = return e
+renameVariablesEMC _ (EVariable v)
   = asks (EVariable . Map.findWithDefault v v)
-renameVariablesEL _a (EApplication e1 e2)
-  = EApplication <$> renameVariablesEL _a e1 <*> renameVariablesEL _a e2
-renameVariablesEL _a (ELet flag lDefs expr) = do
+renameVariablesEMC _a (EApplication e1 e2)
+  = EApplication <$> renameVariablesEMC _a e1 <*> renameVariablesEMC _a e2
+renameVariablesEMC _a (ELet flag lDefs expr) = do
   record <- ask
   lDefsBinders' <- renameAs _a lDefsBinders
   let
@@ -91,7 +91,7 @@ renameVariablesEL _a (ELet flag lDefs expr) = do
       | isRecursive flag = exprRecord
       | otherwise = record
     renameLDefs = local (const lDefsRecord) . renameLDefsBodies . lDefsUpdateBinders
-    renameExpr = local (const exprRecord) . renameVariablesEL _a
+    renameExpr = local (const exprRecord) . renameVariablesEMC _a
 
     {-# INLINABLE lDefsUpdateBinders #-}
     {-# INLINABLE lDefsBinderRecord #-}
@@ -102,11 +102,11 @@ renameVariablesEL _a (ELet flag lDefs expr) = do
   where
     lDefsBinders = lDefs ^.. each . _letDefinitionBinder
 
-    renameLDefsBodies = each . _letDefinitionBody %%~ renameVariablesEL _a
+    renameLDefsBodies = each . _letDefinitionBody %%~ renameVariablesEMC _a
 
     {-# INLINABLE renameLDefsBodies #-}
-renameVariablesEL _a (EMatch expr mCases)
-  = EMatch <$> renameVariablesEL _a expr <*> renameMCases mCases
+renameVariablesEMC _a (EMatch expr mCases)
+  = EMatch <$> renameVariablesEMC _a expr <*> renameMCases mCases
   where
     renameMCases = traverse renameMCase
     renameMCase mCase = do
@@ -121,16 +121,16 @@ renameVariablesEL _a (EMatch expr mCases)
       where
         mCaseArgs = mCase ^. _matchCaseArguments
 
-        renameMCaseBody = _matchCaseBody %%~ renameVariablesEL _a
+        renameMCaseBody = _matchCaseBody %%~ renameVariablesEMC _a
 
         {-# INLINABLE renameMCaseBody #-}
 
     {-# INLINABLE renameMCases #-}
-renameVariablesEL _a (ELambda args expr) = do
+renameVariablesEMC _a (ELambda args expr) = do
   args' <- renameAs _a args
   let
     argRecord = renamedRecordFromALists _a args args'
-    renameExpr = local (argRecord <>) . renameVariablesEL _a
+    renameExpr = local (argRecord <>) . renameVariablesEMC _a
 
     {-# INLINABLE argRecord #-}
     {-# INLINABLE renameExpr #-}

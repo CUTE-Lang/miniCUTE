@@ -19,22 +19,22 @@ import qualified Minicute.Parser.Minicute.Parser as P
 spec :: Spec
 spec = do
   describe "prettyPrint" $ do
-    forM_ testCases (uncurry programLTest)
+    forM_ testCases (uncurry programMCTest)
 
-programLTest :: TestName -> TestContent -> SpecWith (Arg Expectation)
-programLTest name programString = do
+programMCTest :: TestName -> TestContent -> SpecWith (Arg Expectation)
+programMCTest name programString = do
   describe ("of " <> name) $ do
     it "prints re-parsable text" $ do
-      program <- parseProgramL programString
-      parse P.mainProgramL "" (PP.prettyShow program) `shouldParse` program
+      program <- parseProgramMC programString
+      parse P.mainProgramMC "" (PP.prettyShow program) `shouldParse` program
     it "prints expected text" $ do
-      program <- parseProgramL programString
+      program <- parseProgramMC programString
       PP.prettyShow program `shouldBe` programString
   where
-    parseProgramL :: String -> IO MainProgramL
-    parseProgramL ps = do
-      parse P.mainProgramL "" ps `shouldSatisfy` isRight
-      case parse P.mainProgramL "" ps of
+    parseProgramMC :: String -> IO MainProgramMC
+    parseProgramMC ps = do
+      parse P.mainProgramMC "" ps `shouldSatisfy` isRight
+      case parse P.mainProgramMC "" ps of
         Right program -> return program
         Left e -> error (errorBundlePretty e)
 

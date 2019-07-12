@@ -20,40 +20,40 @@ import qualified Minicute.Parser.Minicute.Parser as P
 
 spec :: Spec
 spec = do
-  describe "mainProgramL parser" $ do
-    forM_ mainProgramLTestCases mainProgramLTest
+  describe "mainProgramMC parser" $ do
+    forM_ mainProgramMCTestCases mainProgramMCTest
 
-mainProgramLTest :: MainProgramLTestCase -> SpecWith (Arg Expectation)
-mainProgramLTest (name, content, Right result) = do
+mainProgramMCTest :: MainProgramMCTestCase -> SpecWith (Arg Expectation)
+mainProgramMCTest (name, content, Right result) = do
   it ("parses " <> name <> " successfully") $ do
-    parse P.mainProgramL "" content `shouldParse` result
-mainProgramLTest (name, content, Left parseError) = do
+    parse P.mainProgramMC "" content `shouldParse` result
+mainProgramMCTest (name, content, Left parseError) = do
   it ("fails to parse " <> name) $ do
-    parse P.mainProgramL "" content `shouldFailWith` parseError
+    parse P.mainProgramMC "" content `shouldFailWith` parseError
 
 type TestName = String
 type TestContent = String
-type MainProgramLTestResult = Either (ParseError String Void) MainProgramL
-type MainProgramLTestCase = (TestName, TestContent, MainProgramLTestResult)
+type MainProgramMCTestResult = Either (ParseError String Void) MainProgramMC
+type MainProgramMCTestCase = (TestName, TestContent, MainProgramMCTestResult)
 
-mainProgramLTestCases :: [MainProgramLTestCase]
-mainProgramLTestCases
-  = simpleMainProgramLTestCases
-    <> arithmeticOperatorMainProgramLTestCases
-    <> constructorMainProgramLTestCases
-    <> applicationMainProgramLTestCases
-    <> supercombinatorMainProgramLTestCases
-    <> letAndLetrecMainProgramLTestCases
-    <> matchMainProgramLTestCases
-    <> lambdaMainProgramLTestCases
-    <> complexMainProgramLTestCases
+mainProgramMCTestCases :: [MainProgramMCTestCase]
+mainProgramMCTestCases
+  = simpleMainProgramMCTestCases
+    <> arithmeticOperatorMainProgramMCTestCases
+    <> constructorMainProgramMCTestCases
+    <> applicationMainProgramMCTestCases
+    <> supercombinatorMainProgramMCTestCases
+    <> letAndLetrecMainProgramMCTestCases
+    <> matchMainProgramMCTestCases
+    <> lambdaMainProgramMCTestCases
+    <> complexMainProgramMCTestCases
   where
-    simpleMainProgramLTestCases
-      = tupleUnzip2 <$> zip simpleLabels simpleMainProgramLTestTemplates
+    simpleMainProgramMCTestCases
+      = tupleUnzip2 <$> zip simpleLabels simpleMainProgramMCTestTemplates
     simpleLabels = ("simple case" <>) . show <$> [0..]
 
-simpleMainProgramLTestTemplates :: [(TestContent, MainProgramLTestResult)]
-simpleMainProgramLTestTemplates
+simpleMainProgramMCTestTemplates :: [(TestContent, MainProgramMCTestResult)]
+simpleMainProgramMCTestTemplates
   = [ ( [qqRawCode||]
       , Right
         ( Program
@@ -228,8 +228,8 @@ simpleMainProgramLTestTemplates
       )
     ]
 
-arithmeticOperatorMainProgramLTestCases :: [MainProgramLTestCase]
-arithmeticOperatorMainProgramLTestCases
+arithmeticOperatorMainProgramMCTestCases :: [MainProgramMCTestCase]
+arithmeticOperatorMainProgramMCTestCases
   = [ ( "addition of two numbers"
       , [qqRawCode|
                   f = 1 + 1
@@ -337,8 +337,8 @@ arithmeticOperatorMainProgramLTestCases
       )
     ]
 
-constructorMainProgramLTestCases :: [MainProgramLTestCase]
-constructorMainProgramLTestCases
+constructorMainProgramMCTestCases :: [MainProgramMCTestCase]
+constructorMainProgramMCTestCases
   = [ ( "basic constructor"
       , [qqRawCode|
                   f = $C{1;0};
@@ -409,8 +409,8 @@ constructorMainProgramLTestCases
       )
     ]
 
-applicationMainProgramLTestCases :: [MainProgramLTestCase]
-applicationMainProgramLTestCases
+applicationMainProgramMCTestCases :: [MainProgramMCTestCase]
+applicationMainProgramMCTestCases
   = [ ( "application of an integer"
       , [qqRawCode|
                   f = g 5
@@ -448,8 +448,8 @@ applicationMainProgramLTestCases
       )
     ]
 
-supercombinatorMainProgramLTestCases :: [MainProgramLTestCase]
-supercombinatorMainProgramLTestCases
+supercombinatorMainProgramMCTestCases :: [MainProgramMCTestCase]
+supercombinatorMainProgramMCTestCases
   = [ ( "supercombinator with an argument"
       , [qqRawCode|
                   f x = x
@@ -494,8 +494,8 @@ supercombinatorMainProgramLTestCases
       )
     ]
 
-letAndLetrecMainProgramLTestCases :: [MainProgramLTestCase]
-letAndLetrecMainProgramLTestCases
+letAndLetrecMainProgramMCTestCases :: [MainProgramMCTestCase]
+letAndLetrecMainProgramMCTestCases
   = [ ( "let with a single definition"
       , [qqRawCode|
                   f = let x = 5 in x
@@ -676,8 +676,8 @@ letAndLetrecMainProgramLTestCases
       )
     ]
 
-matchMainProgramLTestCases :: [MainProgramLTestCase]
-matchMainProgramLTestCases
+matchMainProgramMCTestCases :: [MainProgramMCTestCase]
+matchMainProgramMCTestCases
   = [ ( "match with a single match case"
       , [qqRawCode|
                   f = match $C{1;0} with <1> -> 5
@@ -772,8 +772,8 @@ matchMainProgramLTestCases
       )
     ]
 
-lambdaMainProgramLTestCases :: [MainProgramLTestCase]
-lambdaMainProgramLTestCases
+lambdaMainProgramMCTestCases :: [MainProgramMCTestCase]
+lambdaMainProgramMCTestCases
   = [ ( "lambda with a single argument"
       , [qqRawCode|
                   f = \x -> x
@@ -860,8 +860,8 @@ lambdaMainProgramLTestCases
       )
     ]
 
-complexMainProgramLTestCases :: [MainProgramLTestCase]
-complexMainProgramLTestCases
+complexMainProgramMCTestCases :: [MainProgramMCTestCase]
+complexMainProgramMCTestCases
   = [ ( "indirect right application of let expression"
       , [qqRawCode|
                   f = 5 + (let k = 5 in k)

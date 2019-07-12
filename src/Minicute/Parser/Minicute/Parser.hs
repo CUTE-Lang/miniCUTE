@@ -6,11 +6,11 @@
 module Minicute.Parser.Minicute.Parser
   ( Parser
 
-  , MainProgramL
-  , mainProgramL
+  , MainProgramMC
+  , mainProgramMC
 
-  , MainProgram
-  , mainProgram
+  , MainProgramLLMC
+  , mainProgramLLMC
   ) where
 
 import Control.Monad.Reader ( ReaderT, runReaderT, mapReaderT, ask )
@@ -30,13 +30,13 @@ type WithPrecedence m = ReaderT PrecedenceTable m
 
 
 -- |
--- A parser for 'MainProgramL'
-mainProgramL :: Parser MainProgramL
-mainProgramL = program L.identifier (expressionL L.identifier)
-{-# INLINEABLE mainProgramL #-}
+-- A parser for 'MainProgramMC'
+mainProgramMC :: Parser MainProgramMC
+mainProgramMC = program L.identifier (expressionMC L.identifier)
+{-# INLINEABLE mainProgramMC #-}
 
-expressionL :: (MonadParser e s m) => WithPrecedence m a -> WithPrecedence m (Expression 'MC a)
-expressionL pA = go
+expressionMC :: (MonadParser e s m) => WithPrecedence m a -> WithPrecedence m (ExpressionMC a)
+expressionMC pA = go
   where
     go
       = choice
@@ -47,17 +47,17 @@ expressionL pA = go
         , otherExpressionsByPrec EInteger EVariable EConstructor EApplication go
         ]
         <?> "expression"
-{-# INLINEABLE expressionL #-}
+{-# INLINEABLE expressionMC #-}
 
 
 -- |
--- A parser for 'MainProgram'
-mainProgram :: Parser MainProgram
-mainProgram = program L.identifier (expression L.identifier)
-{-# INLINEABLE mainProgram #-}
+-- A parser for 'MainProgramLLMC'
+mainProgramLLMC :: Parser MainProgramLLMC
+mainProgramLLMC = program L.identifier (expressionLLMC L.identifier)
+{-# INLINEABLE mainProgramLLMC #-}
 
-expression :: (MonadParser e s m) => WithPrecedence m a -> WithPrecedence m (Expression 'LLMC a)
-expression pA = go
+expressionLLMC :: (MonadParser e s m) => WithPrecedence m a -> WithPrecedence m (ExpressionLLMC a)
+expressionLLMC pA = go
   where
     go
       = choice
@@ -67,7 +67,7 @@ expression pA = go
         , otherExpressionsByPrec EInteger EVariable EConstructor EApplication go
         ]
         <?> "expression"
-{-# INLINEABLE expression #-}
+{-# INLINEABLE expressionLLMC #-}
 
 
 program :: (MonadParser e s m) => WithPrecedence m a -> WithPrecedence m (expr a) -> m (Program expr a)

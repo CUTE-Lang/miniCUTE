@@ -19,16 +19,20 @@ module Minicute.Data.Minicute.Expression
 
 
   , LetDefinition( .. )
-  , MainLetDefinition
-  , MainLetDefinitionL
+  , LetDefinitionMC
+  , LetDefinitionLLMC
+  , MainLetDefinitionMC
+  , MainLetDefinitionLLMC
 
   , _letDefinitionBinder
   , _letDefinitionBody
 
 
   , MatchCase( .. )
-  , MainMatchCase
-  , MainMatchCaseL
+  , MatchCaseMC
+  , MatchCaseLLMC
+  , MainMatchCaseMC
+  , MainMatchCaseLLMC
 
   , _matchCaseTag
   , _matchCaseArguments
@@ -36,8 +40,10 @@ module Minicute.Data.Minicute.Expression
 
 
   , Expression( .. )
-  , MainExpression
-  , MainExpressionL
+  , ExpressionMC
+  , ExpressionLLMC
+  , MainExpressionMC
+  , MainExpressionLLMC
   , pattern EApplication2
   , pattern EApplication3
 
@@ -72,11 +78,17 @@ newtype LetDefinition expr a
            , Show
            )
 -- |
--- A let definition for 'MainExpression'.
-type MainLetDefinition = LetDefinition (Expression 'LLMC) Identifier
+-- A let definition for 'ExpressionMC'.
+type LetDefinitionMC = LetDefinition (Expression 'MC)
 -- |
--- A let definition for 'MainExpressionL'.
-type MainLetDefinitionL = LetDefinition (Expression 'MC) Identifier
+-- A let definition for 'ExpressionLLMC'.
+type LetDefinitionLLMC = LetDefinition (Expression 'LLMC)
+-- |
+-- A let definition for 'MainExpressionMC'.
+type MainLetDefinitionMC = LetDefinition (Expression 'MC) Identifier
+-- |
+-- A let definition for 'MainExpressionLLMC'.
+type MainLetDefinitionLLMC = LetDefinition (Expression 'LLMC) Identifier
 
 instance (Pretty a, Pretty (expr a)) => Pretty (LetDefinition expr a) where
   pretty (LetDefinition (binder, expr))
@@ -100,11 +112,17 @@ newtype MatchCase expr a
            , Show
            )
 -- |
--- A match case for 'MainExpression'.
-type MainMatchCase = MatchCase (Expression 'LLMC) Identifier
+-- A match case for 'ExpressionMC'.
+type MatchCaseMC = MatchCase (Expression 'MC)
 -- |
--- A match case for 'MainExpressionL'.
-type MainMatchCaseL = MatchCase (Expression 'MC) Identifier
+-- A match case for 'ExpressionLLMC'.
+type MatchCaseLLMC = MatchCase (Expression 'LLMC)
+-- |
+-- A match case for 'MainExpressionMC'.
+type MainMatchCaseMC = MatchCase (Expression 'MC) Identifier
+-- |
+-- A match case for 'MainExpressionLLMC'.
+type MainMatchCaseLLMC = MatchCase (Expression 'LLMC) Identifier
 
 instance (Pretty a, Pretty (expr a)) => Pretty (MatchCase expr a) where
   pretty (MatchCase (tag, argBinders, expr))
@@ -131,19 +149,18 @@ data Expression (t :: ExpressionLevel) a where
   ELambda :: [a] -> Expression 'MC a -> Expression 'MC a -- ^ @\\x.x@
   deriving ( Typeable
            )
-
-deriving instance (Data a) => Data (Expression 'MC a)
-deriving instance (Lift a) => Lift (Expression t a)
-deriving instance (Eq a) => Eq (Expression t a)
-deriving instance (Ord a) => Ord (Expression t a)
-deriving instance (Show a) => Show (Expression t a)
-
 -- |
--- A basic miniCUTE expression of 'LLMC' with 'Identifier'.
-type MainExpression = Expression 'LLMC Identifier
+-- A basic miniCUTE expression of 'MC'
+type ExpressionMC = Expression 'MC
+-- |
+-- A basic miniCUTE expression of 'MC'
+type ExpressionLLMC = Expression 'LLMC
 -- |
 -- A basic miniCUTE expression of 'MC' with 'Identifier'.
-type MainExpressionL = Expression 'MC Identifier
+type MainExpressionMC = Expression 'MC Identifier
+-- |
+-- A basic miniCUTE expression of 'LLMC' with 'Identifier'.
+type MainExpressionLLMC = Expression 'LLMC Identifier
 
 -- |
 -- A utility pattern for 'Expression' of double application.
@@ -151,6 +168,12 @@ pattern EApplication2 e1 e2 e3 = EApplication (EApplication e1 e2) e3
 -- |
 -- A utility pattern for 'Expression' of triple application.
 pattern EApplication3 e1 e2 e3 e4 = EApplication (EApplication2 e1 e2 e3) e4
+
+deriving instance (Data a) => Data (ExpressionMC a)
+deriving instance (Lift a) => Lift (Expression t a)
+deriving instance (Eq a) => Eq (Expression t a)
+deriving instance (Ord a) => Ord (Expression t a)
+deriving instance (Show a) => Show (Expression t a)
 
 instance (Pretty a) => Pretty (Expression t a) where
   pretty = prettyPrec0

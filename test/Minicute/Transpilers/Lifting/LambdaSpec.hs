@@ -23,36 +23,36 @@ lambdaLiftingTest name beforeContent afterContent = do
     lambdaLifting beforeContent `shouldBe` afterContent
 
 type TestName = String
-type TestBeforeContent = MainProgramL
-type TestAfterContent = MainProgram
+type TestBeforeContent = MainProgramMC
+type TestAfterContent = MainProgramLLMC
 type TestCase = (TestName, TestBeforeContent, TestAfterContent)
 
 testCases :: [TestCase]
 testCases =
   [ ( "empty program"
-    , [qqMiniMainL||]
-    , [qqMiniMain||]
+    , [qqMiniMainMC||]
+    , [qqMiniMainLLMC||]
     )
 
   , ( "program with single lambda as a body of a top-level definition"
-    , [qqMiniMainL|
+    , [qqMiniMainMC|
                   f = \x -> x
       |]
-    , [qqMiniMain|
+    , [qqMiniMainLLMC|
                  f0 = annon1;
                  annon1 x2 = x2
       |]
     )
 
   , ( "program with let expression containing lambdas"
-    , [qqMiniMainL|
+    , [qqMiniMainMC|
                   f = let
                         g = \x -> x;
                         h = \x -> x * x
                       in
                         g 5 + h 4
       |]
-    , [qqMiniMain|
+    , [qqMiniMainLLMC|
                  f0 = let
                         g1 = annon3;
                         h2 = annon5

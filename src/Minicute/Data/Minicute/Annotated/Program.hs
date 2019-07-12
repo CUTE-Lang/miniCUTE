@@ -5,10 +5,12 @@ module Minicute.Data.Minicute.Annotated.Program
   , module Minicute.Data.Minicute.Program
 
 
-  , MainAnnotatedSupercombinatorL
+  , AnnotatedSupercombinatorMC
+  , MainAnnotatedSupercombinatorMC
 
 
-  , MainAnnotatedProgramL
+  , AnnotatedProgramMC
+  , MainAnnotatedProgramMC
   ) where
 
 import Minicute.Data.Minicute.Annotated.Expression
@@ -16,10 +18,16 @@ import Minicute.Data.Minicute.Program
 
 
 -- |
--- @MainAnnotatedSupercombinatorL ann@ is a @MainSupercombinatorL@ annotated by @ann@.
-type MainAnnotatedSupercombinatorL ann = Supercombinator (AnnotatedExpressionL ann) Identifier
+-- @AnnotatedSupercombinatorMC ann@ is a @SupercombinatorMC@ annotated by @ann@.
+type AnnotatedSupercombinatorMC ann = Supercombinator (AnnotatedExpressionMC ann)
+-- |
+-- @MainAnnotatedSupercombinatorMC ann@ is a @MainSupercombinatorMC@ annotated by @ann@.
+type MainAnnotatedSupercombinatorMC ann = Supercombinator (AnnotatedExpressionMC ann) Identifier
 
 
 -- |
--- @MainAnnotatedProgram ann a@ is a @MainProgram@ annotated by @ann@.
-type MainAnnotatedProgramL ann = Program (AnnotatedExpressionL ann) Identifier
+-- @AnnotatedProgramMC ann a@ is a @ProgramMC@ annotated by @ann@.
+type AnnotatedProgramMC ann = Program (AnnotatedExpressionMC ann)
+-- |
+-- @MainAnnotatedProgramMC ann a@ is a @MainProgramMC@ annotated by @ann@.
+type MainAnnotatedProgramMC ann = Program (AnnotatedExpressionMC ann) Identifier

@@ -1,7 +1,7 @@
 -- |
 -- Optimizers to reduce simple arithmetic expressions.
 module Minicute.Transpilers.Optimizers.SimpleArithmetic
-  ( simpleArithmeticMainL
+  ( simpleArithmeticMainMC
   ) where
 
 import Control.Lens.Each
@@ -13,13 +13,13 @@ import Minicute.Data.Minicute.Program
 
 -- |
 -- An optimizer to reduce simple arithmetic expressions in a whole program.
-simpleArithmeticMainL :: MainProgramL -> MainProgramL
-simpleArithmeticMainL = _Wrapped . each . _supercombinatorBody %~ simpleArithmeticMainEL
+simpleArithmeticMainMC :: MainProgramMC -> MainProgramMC
+simpleArithmeticMainMC = _Wrapped . each . _supercombinatorBody %~ simpleArithmeticMainEMC
 
 -- |
 -- An optimizer to reduce simple arithmetic expressions in an expression.
-simpleArithmeticMainEL :: MainExpressionL -> MainExpressionL
-simpleArithmeticMainEL = transformOf uniplate go
+simpleArithmeticMainEMC :: MainExpressionMC -> MainExpressionMC
+simpleArithmeticMainEMC = transformOf uniplate go
   where
     -- __TODO: replace hard-corded op checking__
     go (EApplication2 (EVariable (Identifier op)) (EInteger n1) (EInteger n2))

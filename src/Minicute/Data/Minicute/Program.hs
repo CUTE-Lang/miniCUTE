@@ -14,8 +14,10 @@ module Minicute.Data.Minicute.Program
   ( module Minicute.Data.Minicute.Expression
 
   , Supercombinator( .. )
-  , MainSupercombinator
-  , MainSupercombinatorL
+  , SupercombinatorMC
+  , SupercombinatorLLMC
+  , MainSupercombinatorMC
+  , MainSupercombinatorLLMC
 
   , _supercombinatorBinder
   , _supercombinatorArguments
@@ -23,8 +25,10 @@ module Minicute.Data.Minicute.Program
 
 
   , Program( .. )
-  , MainProgram
-  , MainProgramL
+  , ProgramMC
+  , ProgramLLMC
+  , MainProgramMC
+  , MainProgramLLMC
   ) where
 
 import Control.Lens.TH
@@ -58,11 +62,17 @@ newtype Supercombinator expr a
            , Show
            )
 -- |
--- A supercombinator of 'MainExpression'
-type MainSupercombinator = Supercombinator (Expression 'LLMC) Identifier
+-- A supercombinator of 'ExpressionMC'
+type SupercombinatorMC = Supercombinator (Expression 'MC)
 -- |
--- A supercombinator of 'MainExpressionL'
-type MainSupercombinatorL = Supercombinator (Expression 'MC) Identifier
+-- A supercombinator of 'ExpressionLLMC'
+type SupercombinatorLLMC = Supercombinator (Expression 'LLMC)
+-- |
+-- A supercombinator of 'MainExpressionMC'
+type MainSupercombinatorMC = Supercombinator (Expression 'MC) Identifier
+-- |
+-- A supercombinator of 'MainExpressionLLMC'
+type MainSupercombinatorLLMC = Supercombinator (Expression 'LLMC) Identifier
 
 instance (Pretty a, Pretty (expr a)) => Pretty (Supercombinator expr a) where
   pretty (Supercombinator (scId, argBinders, expr))
@@ -92,11 +102,17 @@ newtype Program expr a
            , Show
            )
 -- |
--- A program of 'MainExpression'
-type MainProgram = Program (Expression 'LLMC) Identifier
+-- A program of 'ExpressionMC'
+type ProgramMC = Program (Expression 'MC)
 -- |
--- 'Program_' of 'MainExpressionL'
-type MainProgramL = Program (Expression 'MC) Identifier
+-- A program of 'ExpressionLLMC'
+type ProgramLLMC = Program (Expression 'LLMC)
+-- |
+-- A program of 'MainExpressionMC'
+type MainProgramMC = Program (Expression 'MC) Identifier
+-- |
+-- A program of 'MainExpressionLLMC'
+type MainProgramLLMC = Program (Expression 'LLMC) Identifier
 
 instance (Pretty a, Pretty (expr a)) => Pretty (Program expr a) where
   pretty (Program scs) = PP.vcat . PP.punctuate PP.semi . fmap pretty $ scs

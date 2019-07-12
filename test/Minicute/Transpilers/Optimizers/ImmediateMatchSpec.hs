@@ -14,30 +14,30 @@ import Minicute.Utils.TH
 
 spec :: Spec
 spec = do
-  describe "immediateMatchMainL" $ do
-    forM_ testCases (uncurry3 immediateMatchMainLTest)
+  describe "immediateMatchMainMC" $ do
+    forM_ testCases (uncurry3 immediateMatchMainMCTest)
 
-immediateMatchMainLTest :: TestName -> TestBeforeContent -> TestAfterContent -> SpecWith (Arg Expectation)
-immediateMatchMainLTest name beforeContent afterContent = do
+immediateMatchMainMCTest :: TestName -> TestBeforeContent -> TestAfterContent -> SpecWith (Arg Expectation)
+immediateMatchMainMCTest name beforeContent afterContent = do
   it ("immediate matchs are optimized in " <> name) $ do
-    immediateMatchMainL beforeContent `shouldBe` afterContent
+    immediateMatchMainMC beforeContent `shouldBe` afterContent
 
 type TestName = String
-type TestBeforeContent = MainProgramL
-type TestAfterContent = MainProgramL
+type TestBeforeContent = MainProgramMC
+type TestAfterContent = MainProgramMC
 type TestCase = (TestName, TestBeforeContent, TestAfterContent)
 
 testCases :: [TestCase]
 testCases
   = [ ( "program with a no argument constructor"
-      , [qqMiniMainL|
+      , [qqMiniMainMC|
                     f = let
                           x = $C{1;0}
                         in
                           match x with
                             <1> -> 5
         |]
-      , [qqMiniMainL|
+      , [qqMiniMainMC|
                     f = let
                           x = $C{1;0}
                         in
@@ -46,7 +46,7 @@ testCases
       )
 
     , ( "program with a two-argument constructor"
-      , [qqMiniMainL|
+      , [qqMiniMainMC|
                     f = let
                           x = $C{2;2} 1 $C{1;0}
                         in
@@ -54,7 +54,7 @@ testCases
                             <1> -> 5;
                             <2> h t -> h
         |]
-      , [qqMiniMainL|
+      , [qqMiniMainMC|
                     f = let
                           x = $C{2;2} 1 $C{1;0}
                         in
@@ -67,7 +67,7 @@ testCases
       )
 
     , ( "program with nested optimizable matches"
-      , [qqMiniMainL|
+      , [qqMiniMainMC|
                     f = let
                           x = $C{2;2} 1 $C{1;0}
                         in
@@ -78,7 +78,7 @@ testCases
                                 <1> -> h;
                                 <2> th tt -> h + th
         |]
-      , [qqMiniMainL|
+      , [qqMiniMainMC|
                     f = let
                           x = $C{2;2} 1 $C{1;0}
                         in

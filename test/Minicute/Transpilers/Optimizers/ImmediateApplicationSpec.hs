@@ -14,26 +14,26 @@ import Minicute.Utils.TH
 
 spec :: Spec
 spec = do
-  describe "immediateApplicationMainL" $ do
-    forM_ testCases (uncurry3 immediateApplicationMainLTest)
+  describe "immediateApplicationMainMC" $ do
+    forM_ testCases (uncurry3 immediateApplicationMainMCTest)
 
-immediateApplicationMainLTest :: TestName -> TestBeforeContent -> TestAfterContent -> SpecWith (Arg Expectation)
-immediateApplicationMainLTest name beforeContent afterContent = do
+immediateApplicationMainMCTest :: TestName -> TestBeforeContent -> TestAfterContent -> SpecWith (Arg Expectation)
+immediateApplicationMainMCTest name beforeContent afterContent = do
   it ("immediate applications are optimized in " <> name) $ do
-    immediateApplicationMainL beforeContent `shouldBe` afterContent
+    immediateApplicationMainMC beforeContent `shouldBe` afterContent
 
 type TestName = String
-type TestBeforeContent = MainProgramL
-type TestAfterContent = MainProgramL
+type TestBeforeContent = MainProgramMC
+type TestAfterContent = MainProgramMC
 type TestCase = (TestName, TestBeforeContent, TestAfterContent)
 
 testCases :: [TestCase]
 testCases
   = [ ( "program with an application of a one-argument lambda"
-      , [qqMiniMainL|
+      , [qqMiniMainMC|
                     f = (\x -> x) 5
         |]
-      , [qqMiniMainL|
+      , [qqMiniMainMC|
                     f = let
                           x = 5
                         in
@@ -42,10 +42,10 @@ testCases
       )
 
     , ( "program with an application of a two-argument lambda"
-      , [qqMiniMainL|
+      , [qqMiniMainMC|
                     f = (\x y -> x + y) 5
         |]
-      , [qqMiniMainL|
+      , [qqMiniMainMC|
                     f = \y ->
                           let
                             x = 5

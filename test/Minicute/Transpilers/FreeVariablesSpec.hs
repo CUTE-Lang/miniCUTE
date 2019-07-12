@@ -17,50 +17,50 @@ import qualified Data.Set as Set
 
 spec :: Spec
 spec = do
-  describe "formFreeVariablesMainL" $ do
-    forM_ testCases (uncurry3 formFreeVariablesMainLTest)
+  describe "formFreeVariablesMainMC" $ do
+    forM_ testCases (uncurry3 formFreeVariablesMainMCTest)
 
-formFreeVariablesMainLTest :: TestName -> TestBeforeContent -> TestAfterContent -> SpecWith (Arg Expectation)
-formFreeVariablesMainLTest name beforeContent afterContent = do
+formFreeVariablesMainMCTest :: TestName -> TestBeforeContent -> TestAfterContent -> SpecWith (Arg Expectation)
+formFreeVariablesMainMCTest name beforeContent afterContent = do
   it ("finds free variables for expressions in " <> name) $ do
-    formFreeVariablesMainL beforeContent `shouldBe` afterContent
+    formFreeVariablesMainMC beforeContent `shouldBe` afterContent
 
 type TestName = String
-type TestBeforeContent = MainProgramL
-type TestAfterContent = ProgramLWithFreeVariables Identifier
+type TestBeforeContent = MainProgramMC
+type TestAfterContent = ProgramMCWithFreeVariables Identifier
 type TestCase = (TestName, TestBeforeContent, TestAfterContent)
 
 -- |
--- __TODO: Introduce quosiquoter for 'AnnotatedProgramL' and update__
+-- __TODO: Introduce quosiquoter for 'AnnotatedProgramMC' and update__
 -- __these test cases__
 testCases :: [TestCase]
 testCases =
   [ ( "empty program"
-    , [qqMiniMainL||]
+    , [qqMiniMainMC||]
     , Program
       []
     )
 
   , ( "program of a top-level definition with a single argument"
-    , [qqMiniMainL|
+    , [qqMiniMainMC|
                   f x = x + x
       |]
     , Program
       [ Supercombinator
         ( "f"
         , ["x"]
-        , AELApplication2
+        , AEApplication2
           (Set.singleton "x")
           (Set.singleton "x")
-          (AELVariable Set.empty "+")
-          (AELVariable (Set.singleton "x") "x")
-          (AELVariable (Set.singleton "x") "x")
+          (AEVariable Set.empty "+")
+          (AEVariable (Set.singleton "x") "x")
+          (AEVariable (Set.singleton "x") "x")
         )
       ]
     )
 
   , ( "program of a top-level definition of a let expression with a single let definition"
-    , [qqMiniMainL|
+    , [qqMiniMainMC|
                   f = let
                         g = h 4
                       in
@@ -70,21 +70,21 @@ testCases =
       [ Supercombinator
         ( "f"
         , []
-        , AELLet
+        , AELet
           Set.empty
           NonRecursive
           [ LetDefinition
             ( "g"
-            , AELApplication Set.empty (AELVariable Set.empty "h") (AELInteger Set.empty 4)
+            , AEApplication Set.empty (AEVariable Set.empty "h") (AEInteger Set.empty 4)
             )
           ]
-          (AELVariable (Set.singleton "g") "g")
+          (AEVariable (Set.singleton "g") "g")
         )
       ]
     )
 
   , ( "program of a top-level definition of a let expression with multiple let definitions"
-    , [qqMiniMainL|
+    , [qqMiniMainMC|
                   f = let
                         g1 = h 4;
                         g2 = h 8;
@@ -96,41 +96,41 @@ testCases =
       [ Supercombinator
         ( "f"
         , []
-        , AELLet
+        , AELet
           Set.empty
           NonRecursive
           [ LetDefinition
             ( "g1"
-            , AELApplication Set.empty (AELVariable Set.empty "h") (AELInteger Set.empty 4)
+            , AEApplication Set.empty (AEVariable Set.empty "h") (AEInteger Set.empty 4)
             )
           , LetDefinition
             ( "g2"
-            , AELApplication Set.empty (AELVariable Set.empty "h") (AELInteger Set.empty 8)
+            , AEApplication Set.empty (AEVariable Set.empty "h") (AEInteger Set.empty 8)
             )
           , LetDefinition
             ( "g3"
-            , AELApplication2 Set.empty Set.empty (AELVariable Set.empty "-") (AELInteger Set.empty 8) (AELInteger Set.empty 4)
+            , AEApplication2 Set.empty Set.empty (AEVariable Set.empty "-") (AEInteger Set.empty 8) (AEInteger Set.empty 4)
             )
           ]
-          ( AELApplication2
+          ( AEApplication2
             (Set.fromList ["g1", "g2", "g3"])
             (Set.fromList ["g1", "g2"])
-            (AELVariable Set.empty "/")
-            ( AELApplication2
+            (AEVariable Set.empty "/")
+            ( AEApplication2
               (Set.fromList ["g1", "g2"])
               (Set.singleton "g1")
-              (AELVariable Set.empty "*")
-              (AELVariable (Set.singleton "g1") "g1")
-              (AELVariable (Set.singleton "g2") "g2")
+              (AEVariable Set.empty "*")
+              (AEVariable (Set.singleton "g1") "g1")
+              (AEVariable (Set.singleton "g2") "g2")
             )
-            (AELVariable (Set.singleton "g3") "g3")
+            (AEVariable (Set.singleton "g3") "g3")
           )
         )
       ]
     )
 
   , ( "program of a top-level definition of a match expression"
-    , [qqMiniMainL|
+    , [qqMiniMainMC|
                   f x = match x with
                           <1> -> 4;
                           <2> h t -> h + f t
@@ -139,23 +139,23 @@ testCases =
       [ Supercombinator
         ( "f"
         , ["x"]
-        , AELMatch
+        , AEMatch
           (Set.singleton "x")
-          (AELVariable (Set.singleton "x") "x")
+          (AEVariable (Set.singleton "x") "x")
           [ MatchCase
             ( 1
             , []
-            , AELInteger Set.empty 4
+            , AEInteger Set.empty 4
             )
           , MatchCase
             ( 2
             , ["h", "t"]
-            , AELApplication2
+            , AEApplication2
               (Set.fromList ["h", "t"])
               (Set.singleton "h")
-              (AELVariable Set.empty "+")
-              (AELVariable (Set.singleton "h") "h")
-              (AELApplication (Set.singleton "t") (AELVariable Set.empty "f") (AELVariable (Set.singleton "t") "t"))
+              (AEVariable Set.empty "+")
+              (AEVariable (Set.singleton "h") "h")
+              (AEApplication (Set.singleton "t") (AEVariable Set.empty "f") (AEVariable (Set.singleton "t") "t"))
             )
           ]
         )
@@ -163,22 +163,22 @@ testCases =
     )
 
   , ( "program of a top-level definition of a lambda expression"
-    , [qqMiniMainL|
+    , [qqMiniMainMC|
                   f = \x -> 4 + x
       |]
     , Program
       [ Supercombinator
         ( "f"
         , []
-        , AELLambda
+        , AELambda
           Set.empty
           ["x"]
-          ( AELApplication2
+          ( AEApplication2
             (Set.singleton "x")
             Set.empty
-            (AELVariable Set.empty "+")
-            (AELInteger Set.empty 4)
-            (AELVariable (Set.singleton "x") "x")
+            (AEVariable Set.empty "+")
+            (AEInteger Set.empty 4)
+            (AEVariable (Set.singleton "x") "x")
           )
         )
       ]
