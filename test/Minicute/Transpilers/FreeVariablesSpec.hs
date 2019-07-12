@@ -75,7 +75,7 @@ testCases =
           NonRecursive
           [ LetDefinition
             ( "g"
-            , (AELApplication Set.empty (AELVariable Set.empty "h") (AELInteger Set.empty 4))
+            , AELApplication Set.empty (AELVariable Set.empty "h") (AELInteger Set.empty 4)
             )
           ]
           (AELVariable (Set.singleton "g") "g")
@@ -101,15 +101,15 @@ testCases =
           NonRecursive
           [ LetDefinition
             ( "g1"
-            , (AELApplication Set.empty (AELVariable Set.empty "h") (AELInteger Set.empty 4))
+            , AELApplication Set.empty (AELVariable Set.empty "h") (AELInteger Set.empty 4)
             )
           , LetDefinition
             ( "g2"
-            , (AELApplication Set.empty (AELVariable Set.empty "h") (AELInteger Set.empty 8))
+            , AELApplication Set.empty (AELVariable Set.empty "h") (AELInteger Set.empty 8)
             )
           , LetDefinition
             ( "g3"
-            , (AELApplication2 Set.empty Set.empty (AELVariable Set.empty "-") (AELInteger Set.empty 8) (AELInteger Set.empty 4))
+            , AELApplication2 Set.empty Set.empty (AELVariable Set.empty "-") (AELInteger Set.empty 8) (AELInteger Set.empty 4)
             )
           ]
           ( AELApplication2
@@ -145,7 +145,7 @@ testCases =
           [ MatchCase
             ( 1
             , []
-            , (AELInteger Set.empty 4)
+            , AELInteger Set.empty 4
             )
           , MatchCase
             ( 2
