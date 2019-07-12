@@ -1,11 +1,15 @@
 {-# OPTIONS_GHC -fno-warn-missing-pattern-synonym-signatures #-}
+{-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE DeriveLift #-}
 {-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE GADTs #-}
+{-# LANGUAGE KindSignatures #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE PatternSynonyms #-}
+{-# LANGUAGE StandaloneDeriving #-}
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TypeFamilies #-}
 -- |
@@ -33,14 +37,9 @@ module Minicute.Data.Minicute.Expression
 
   , Expression( .. )
   , MainExpression
+  , MainExpressionL
   , pattern EApplication2
   , pattern EApplication3
-
-
-  , ExpressionL( .. )
-  , MainExpressionL
-  , pattern ELApplication2
-  , pattern ELApplication3
 
   -- __TODO: remove this__
   , prettyIndent
@@ -74,10 +73,10 @@ newtype LetDefinition expr a
            )
 -- |
 -- A let definition for 'MainExpression'.
-type MainLetDefinition = LetDefinition Expression Identifier
+type MainLetDefinition = LetDefinition (Expression 'LLMC) Identifier
 -- |
 -- A let definition for 'MainExpressionL'.
-type MainLetDefinitionL = LetDefinition ExpressionL Identifier
+type MainLetDefinitionL = LetDefinition (Expression 'MC) Identifier
 
 instance (Pretty a, Pretty (expr a)) => Pretty (LetDefinition expr a) where
   pretty (LetDefinition (binder, expr))
@@ -102,10 +101,10 @@ newtype MatchCase expr a
            )
 -- |
 -- A match case for 'MainExpression'.
-type MainMatchCase = MatchCase Expression Identifier
+type MainMatchCase = MatchCase (Expression 'LLMC) Identifier
 -- |
 -- A match case for 'MainExpressionL'.
-type MainMatchCaseL = MatchCase ExpressionL Identifier
+type MainMatchCaseL = MatchCase (Expression 'MC) Identifier
 
 instance (Pretty a, Pretty (expr a)) => Pretty (MatchCase expr a) where
   pretty (MatchCase (tag, argBinders, expr))
@@ -122,24 +121,29 @@ instance (Pretty a, Pretty (expr a)) => Pretty (MatchCase expr a) where
 
 -- |
 -- A basic miniCUTE expression of @a@.
-data Expression a
-  = EInteger Integer -- ^ @5@
-  | EConstructor Integer Integer -- ^ @$C{t;a}@
-  | EVariable Identifier -- ^ @v@
-  | EApplication (Expression a) (Expression a) -- ^ @f 4@
-  | ELet IsRecursive [LetDefinition Expression a] (Expression a) -- ^ @let x = 4 in x@
-  | EMatch (Expression a) [MatchCase Expression a] -- ^ @match $C{1;0} with \<1\> -> 4@
-  deriving ( Generic
-           , Typeable
-           , Data
-           , Lift
-           , Eq
-           , Ord
-           , Show
+data Expression (t :: ExpressionLevel) a where
+  EInteger :: Integer -> Expression t a -- ^ @5@
+  EConstructor :: Integer -> Integer -> Expression t a-- ^ @$C{t;a}@
+  EVariable :: Identifier -> Expression t a-- ^ @v@
+  EApplication :: Expression t a -> Expression t a -> Expression t a-- ^ @f 4@
+  ELet :: IsRecursive -> [LetDefinition (Expression t) a] -> Expression t a -> Expression t a-- ^ @let x = 4 in x@
+  EMatch :: Expression t a -> [MatchCase (Expression t) a] -> Expression t a-- ^ @match $C{1;0} with \<1\> -> 4@
+  ELambda :: [a] -> Expression 'MC a -> Expression 'MC a -- ^ @\\x.x@
+  deriving ( Typeable
            )
+
+deriving instance (Data a) => Data (Expression 'MC a)
+deriving instance (Lift a) => Lift (Expression t a)
+deriving instance (Eq a) => Eq (Expression t a)
+deriving instance (Ord a) => Ord (Expression t a)
+deriving instance (Show a) => Show (Expression t a)
+
 -- |
--- A basic miniCUTE expression of @Identifier@.
-type MainExpression = Expression Identifier
+-- A basic miniCUTE expression of 'LLMC' with 'Identifier'.
+type MainExpression = Expression 'LLMC Identifier
+-- |
+-- A basic miniCUTE expression of 'MC' with 'Identifier'.
+type MainExpressionL = Expression 'MC Identifier
 
 -- |
 -- A utility pattern for 'Expression' of double application.
@@ -148,11 +152,11 @@ pattern EApplication2 e1 e2 e3 = EApplication (EApplication e1 e2) e3
 -- A utility pattern for 'Expression' of triple application.
 pattern EApplication3 e1 e2 e3 e4 = EApplication (EApplication2 e1 e2 e3) e4
 
-instance (Pretty a) => Pretty (Expression a) where
+instance (Pretty a) => Pretty (Expression t a) where
   pretty = prettyPrec0
   {-# INLINABLE pretty #-}
 
-instance (Pretty a) => PrettyPrec (Expression a) where
+instance (Pretty a) => PrettyPrec (Expression t a) where
   prettyPrec _ (EInteger n) = pretty n
   prettyPrec _ (EConstructor tag arity)
     = PP.fuse PP.Shallow . PP.hcat
@@ -195,84 +199,7 @@ instance (Pretty a) => PrettyPrec (Expression a) where
         , PP.line
         , prettyIndent . PP.vcat . PP.punctuate PP.semi . fmap pretty $ matchCases
         ]
-
-
--- |
--- A lambda-containing miniCUTE expression of @a@.
-data ExpressionL a
-  = ELInteger Integer -- ^ @5@
-  | ELConstructor Integer Integer -- ^ @$C{t;a}@
-  | ELVariable Identifier -- ^ @v@
-  | ELApplication (ExpressionL a) (ExpressionL a) -- ^ @f 4@
-  | ELLet IsRecursive [LetDefinition ExpressionL a] (ExpressionL a) -- ^ @let x = 4 in x@
-  | ELMatch (ExpressionL a) [MatchCase ExpressionL a] -- ^ @match $C{1;0} with \<1\> -> 4@
-  | ELLambda [a] (ExpressionL a) -- ^ @\\x.x@
-  deriving ( Generic
-           , Typeable
-           , Data
-           , Lift
-           , Eq
-           , Ord
-           , Show
-           )
--- |
--- A lambda-containing miniCUTE expression of 'Identifier'.
-type MainExpressionL = ExpressionL Identifier
--- |
--- A utility pattern for 'ExpressionL' of double application.
-pattern ELApplication2 e1 e2 e3 = ELApplication (ELApplication e1 e2) e3
--- |
--- A utility pattern for 'ExpressionL' of triple application.
-pattern ELApplication3 e1 e2 e3 e4 = ELApplication (ELApplication2 e1 e2 e3) e4
-
-instance (Pretty a) => Pretty (ExpressionL a) where
-  pretty = prettyPrec0
-  {-# INLINABLE pretty #-}
-
-instance (Pretty a) => PrettyPrec (ExpressionL a) where
-  prettyPrec _ (ELInteger n) = pretty n
-  prettyPrec _ (ELConstructor tag arity)
-    = PP.fuse PP.Shallow . PP.hcat
-      $ [ "$C"
-        , PP.braces . PP.hcat
-          $ [ pretty tag
-            , PP.comma
-            , pretty arity
-            ]
-        ]
-  prettyPrec _ (ELVariable vId) = pretty vId
-  prettyPrec p (ELApplication2 (ELVariable (Identifier op)) e1 e2)
-    | Just opP <- lookup op binaryPrecedenceTable
-    = prettyBinaryExpressionPrec p opP (pretty op) (`prettyPrec` e1) (`prettyPrec` e2)
-  prettyPrec p (ELApplication e1 e2)
-    = (if p > miniApplicationPrecedence then PP.parens else id) . PP.align . PP.hcat
-      $ [ prettyPrec miniApplicationPrecedence e1
-        , PP.space
-        , prettyPrec miniApplicationPrecedence1 e2
-        ]
-  prettyPrec p (ELLet flag letDefs e)
-    = (if p > 0 then PP.parens else id) . PP.align . PP.hcat
-      $ [ keyword
-        , PP.line
-        , prettyIndent . PP.vcat . PP.punctuate PP.semi . fmap pretty $ letDefs
-        , PP.line
-        , "in"
-        , PP.line
-        , prettyIndent . pretty $ e
-        ]
-    where
-      keyword
-        | isRecursive flag = "letrec"
-        | otherwise = "let"
-  prettyPrec p (ELMatch e matchCases)
-    = (if p > 0 then PP.parens else id) . PP.align . PP.hcat
-      $ [ "match "
-        , pretty e
-        , " with"
-        , PP.line
-        , prettyIndent . PP.vcat . PP.punctuate PP.semi . fmap pretty $ matchCases
-        ]
-  prettyPrec p (ELLambda argBinders bodyExpr)
+  prettyPrec p (ELambda argBinders bodyExpr)
     = (if p > 0 then PP.parens else id) . PP.align . PP.hcat
       $ [ "\\"
         , PP.hcat . PP.punctuate PP.space . fmap pretty $ argBinders

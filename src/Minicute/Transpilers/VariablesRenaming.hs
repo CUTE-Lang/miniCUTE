@@ -1,3 +1,5 @@
+{-# LANGUAGE DataKinds #-}
+{-# LANGUAGE GADTs #-}
 {-# LANGUAGE OverloadedStrings #-}
 -- |
 -- Transpilers to rename variables to avoid name collision.
@@ -22,7 +24,7 @@ renameVariablesMainL :: MainProgramL -> MainProgramL
 renameVariablesMainL = renameVariablesL id
 {-# INLINABLE renameVariablesMainL #-}
 
-renameVariablesL :: ALens' a Identifier -> Program ExpressionL a -> Program ExpressionL a
+renameVariablesL :: ALens' a Identifier -> Program (Expression 'MC) a -> Program (Expression 'MC) a
 renameVariablesL _a
   = flip evalState initialIdGeneratorState
     . flip runReaderT initialRenamedRecord
@@ -68,14 +70,14 @@ renameVariablesL _a
     {-# INLINABLE renameScBinder #-}
 {-# INLINABLE renameVariablesL #-}
 
-renameVariablesEL :: ALens' a Identifier -> Renamer (ExpressionL a)
-renameVariablesEL _ e@(ELInteger _) = return e
-renameVariablesEL _ e@(ELConstructor _ _) = return e
-renameVariablesEL _ (ELVariable v)
-  = asks (ELVariable . Map.findWithDefault v v)
-renameVariablesEL _a (ELApplication e1 e2)
-  = ELApplication <$> renameVariablesEL _a e1 <*> renameVariablesEL _a e2
-renameVariablesEL _a (ELLet flag lDefs expr) = do
+renameVariablesEL :: ALens' a Identifier -> Renamer (Expression 'MC a)
+renameVariablesEL _ e@(EInteger _) = return e
+renameVariablesEL _ e@(EConstructor _ _) = return e
+renameVariablesEL _ (EVariable v)
+  = asks (EVariable . Map.findWithDefault v v)
+renameVariablesEL _a (EApplication e1 e2)
+  = EApplication <$> renameVariablesEL _a e1 <*> renameVariablesEL _a e2
+renameVariablesEL _a (ELet flag lDefs expr) = do
   record <- ask
   lDefsBinders' <- renameAs _a lDefsBinders
   let
@@ -96,15 +98,15 @@ renameVariablesEL _a (ELLet flag lDefs expr) = do
     {-# INLINABLE lDefsRecord #-}
     {-# INLINABLE renameLDefs #-}
     {-# INLINABLE renameExpr #-}
-  ELLet flag <$> renameLDefs lDefs <*> renameExpr expr
+  ELet flag <$> renameLDefs lDefs <*> renameExpr expr
   where
     lDefsBinders = lDefs ^.. each . _letDefinitionBinder
 
     renameLDefsBodies = each . _letDefinitionBody %%~ renameVariablesEL _a
 
     {-# INLINABLE renameLDefsBodies #-}
-renameVariablesEL _a (ELMatch expr mCases)
-  = ELMatch <$> renameVariablesEL _a expr <*> renameMCases mCases
+renameVariablesEL _a (EMatch expr mCases)
+  = EMatch <$> renameVariablesEL _a expr <*> renameMCases mCases
   where
     renameMCases = traverse renameMCase
     renameMCase mCase = do
@@ -124,7 +126,7 @@ renameVariablesEL _a (ELMatch expr mCases)
         {-# INLINABLE renameMCaseBody #-}
 
     {-# INLINABLE renameMCases #-}
-renameVariablesEL _a (ELLambda args expr) = do
+renameVariablesEL _a (ELambda args expr) = do
   args' <- renameAs _a args
   let
     argRecord = renamedRecordFromALists _a args args'
@@ -132,7 +134,7 @@ renameVariablesEL _a (ELLambda args expr) = do
 
     {-# INLINABLE argRecord #-}
     {-# INLINABLE renameExpr #-}
-  ELLambda args' <$> renameExpr expr
+  ELambda args' <$> renameExpr expr
 
 type Renamer a = a -> ReaderT RenamedRecord (State IdGeneratorState) a
 

@@ -15,6 +15,9 @@ module Minicute.Data.Minicute.Common
   , IsRecursive( .. )
   , pattern Recursive
   , pattern NonRecursive
+
+
+  , ExpressionLevel( .. )
   ) where
 
 import Control.Lens.TH
@@ -45,6 +48,7 @@ instance IsString Identifier where
 instance Pretty Identifier where
   pretty (Identifier v) = pretty v
 
+
 -- |
 -- @IsRecursive@ represents recursiveness of let/letrec expressions.
 newtype IsRecursive = IsRecursive { isRecursive :: Bool }
@@ -69,6 +73,20 @@ instance Show IsRecursive where
   showsPrec _ Recursive = showString "Recursive"
   showsPrec _ NonRecursive = showString "NonRecursive"
   {-# INLINABLE showsPrec #-}
+
+
+data ExpressionLevel
+  = MC -- ^ miniCUTE
+  | LLMC -- ^ Lambda lifted miniCUTE
+  deriving ( Generic
+           , Typeable
+           , Data
+           , Lift
+           , Eq
+           , Ord
+           , Show
+           )
+
 
 makeWrapped ''Identifier
 

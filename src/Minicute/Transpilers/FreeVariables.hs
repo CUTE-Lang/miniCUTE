@@ -1,3 +1,4 @@
+{-# LANGUAGE DataKinds #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE TypeFamilies #-}
 -- |
@@ -50,7 +51,7 @@ formFreeVariablesMainL = formFreeVariablesL id
 
 -- |
 -- A transpiler to create free variable information for 'ProgramL'
-formFreeVariablesL :: Getter a Identifier -> Program ExpressionL a -> ProgramLWithFreeVariables a
+formFreeVariablesL :: Getter a Identifier -> Program (Expression 'MC) a -> ProgramLWithFreeVariables a
 formFreeVariablesL _a
   = _Wrapped . each %~ formFreeVariablesSc
     where
@@ -68,13 +69,10 @@ type FVELEnvironment = Set.Set Identifier
 
 type FVFormer e e' = e -> Reader FVELEnvironment e'
 
--- formFVsEL :: Getter a Identifier -> FVFormer (ExpressionL a) (ExpressionLWithFreeVariables a)
--- formFVsEL _a = _Wrapped %%~ formFVsEL _a (_Wrapped . _annotation) (formFVsEL _a)
-
-formFVsEL :: Getter a Identifier -> FVFormer (ExpressionL a) (ExpressionLWithFreeVariables a)
-formFVsEL _ (ELInteger n) = return (AELInteger Set.empty n)
-formFVsEL _ (ELConstructor tag arity) = return (AELConstructor Set.empty tag arity)
-formFVsEL _ (ELVariable v) = do
+formFVsEL :: Getter a Identifier -> FVFormer (Expression 'MC a) (ExpressionLWithFreeVariables a)
+formFVsEL _ (EInteger n) = return (AELInteger Set.empty n)
+formFVsEL _ (EConstructor tag arity) = return (AELConstructor Set.empty tag arity)
+formFVsEL _ (EVariable v) = do
   env <- ask
 
   let
@@ -84,7 +82,7 @@ formFVsEL _ (ELVariable v) = do
 
     {-# INLINEABLE fvs #-}
   return (AELVariable fvs v)
-formFVsEL _a (ELApplication expr1 expr2) = do
+formFVsEL _a (EApplication expr1 expr2) = do
   expr1' <- formFVsEL _a expr1
   expr2' <- formFVsEL _a expr2
 
@@ -93,7 +91,7 @@ formFVsEL _a (ELApplication expr1 expr2) = do
 
     {-# INLINEABLE fvs #-}
   return (AELApplication fvs expr1' expr2')
-formFVsEL _a (ELLet flag lDefs expr) = do
+formFVsEL _a (ELet flag lDefs expr) = do
   env <- ask
 
   let
@@ -124,7 +122,7 @@ formFVsEL _a (ELLet flag lDefs expr) = do
   return (AELLet fvs flag lDefs' expr')
   where
     lDefsBinderIdSet = lDefs ^. setFrom (each . _letDefinitionBinder . _a)
-formFVsEL _a (ELMatch expr mCases) = do
+formFVsEL _a (EMatch expr mCases) = do
   let
     formMCaseBodies mCaseArgSet = local (mCaseArgSet <>) . formFVsEL _a
     formMCase mCaseArgSet = _matchCaseBody %%~ formMCaseBodies mCaseArgSet
@@ -145,7 +143,7 @@ formFVsEL _a (ELMatch expr mCases) = do
   return (AELMatch fvs expr' mCases')
   where
     mCasesArgumentSets = mCases ^.. each . _matchCaseArguments . setFrom (each . _a)
-formFVsEL _a (ELLambda args expr) = do
+formFVsEL _a (ELambda args expr) = do
   expr' <- local (argIdSet <>) . formFVsEL _a $ expr
 
   let

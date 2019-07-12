@@ -22,10 +22,10 @@ simpleArithmeticMainEL :: MainExpressionL -> MainExpressionL
 simpleArithmeticMainEL = transformOf uniplate go
   where
     -- __TODO: replace hard-corded op checking__
-    go (ELApplication2 (ELVariable (Identifier op)) (ELInteger n1) (ELInteger n2))
-      | op == "+" = ELInteger (n1 + n2)
-      | op == "-" = ELInteger (n1 - n2)
-      | op == "*" = ELInteger (n1 * n2)
+    go (EApplication2 (EVariable (Identifier op)) (EInteger n1) (EInteger n2))
+      | op == "+" = EInteger (n1 + n2)
+      | op == "-" = EInteger (n1 - n2)
+      | op == "*" = EInteger (n1 * n2)
       -- "/" is not optimized yet... It needs a floating point support
       --
       -- __TODO: Add "/" optimization__

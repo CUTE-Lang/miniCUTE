@@ -1,3 +1,4 @@
+{-# LANGUAGE GADTs #-}
 {-# LANGUAGE OverloadedStrings #-}
 -- |
 -- Transpilers to lift all lambda expressions as
@@ -32,16 +33,16 @@ replaceLambda :: MainProgramLWithFreeVariables -> MainProgramL
 replaceLambda = _Wrapped . each . _supercombinatorBody %~ replaceLambdaEL
 
 replaceLambdaEL :: MainExpressionLWithFreeVariables -> MainExpressionL
-replaceLambdaEL (AELInteger _ n) = ELInteger n
-replaceLambdaEL (AELConstructor _ tag arity) = ELConstructor tag arity
-replaceLambdaEL (AELVariable _ v) = ELVariable v
-replaceLambdaEL (AELApplication _ e1 e2) = ELApplication (replaceLambdaEL e1) (replaceLambdaEL e2)
-replaceLambdaEL (AELLet _ flag lDefs expr) = ELLet flag (lDefs & each . _letDefinitionBody %~ replaceLambdaEL) (replaceLambdaEL expr)
-replaceLambdaEL (AELMatch _ expr mCases) = ELMatch (replaceLambdaEL expr) (mCases & each . _matchCaseBody %~ replaceLambdaEL)
-replaceLambdaEL (AELLambda fvs args expr) = foldl' ELApplication annon (ELVariable <$> fvsList)
+replaceLambdaEL (AELInteger _ n) = EInteger n
+replaceLambdaEL (AELConstructor _ tag arity) = EConstructor tag arity
+replaceLambdaEL (AELVariable _ v) = EVariable v
+replaceLambdaEL (AELApplication _ e1 e2) = EApplication (replaceLambdaEL e1) (replaceLambdaEL e2)
+replaceLambdaEL (AELLet _ flag lDefs expr) = ELet flag (lDefs & each . _letDefinitionBody %~ replaceLambdaEL) (replaceLambdaEL expr)
+replaceLambdaEL (AELMatch _ expr mCases) = EMatch (replaceLambdaEL expr) (mCases & each . _matchCaseBody %~ replaceLambdaEL)
+replaceLambdaEL (AELLambda fvs args expr) = foldl' EApplication annon (EVariable <$> fvsList)
   where
-    annon = ELLet NonRecursive [LetDefinition ("annon", annonBody)] (ELVariable "annon")
-    annonBody = ELLambda (fvsList <> args) (replaceLambdaEL expr)
+    annon = ELet NonRecursive [LetDefinition ("annon", annonBody)] (EVariable "annon")
+    annonBody = ELambda (fvsList <> args) (replaceLambdaEL expr)
     fvsList = Set.toList fvs
 
 liftAnnons :: MainProgramL -> MainProgram
@@ -50,24 +51,24 @@ liftAnnons = _Wrapped %~ concatMap liftAnnonsSc
     liftAnnonsSc = uncurry (:) . swap . (_supercombinatorBody %%~ liftAnnonsEL)
 
 liftAnnonsEL :: MainExpressionL -> ([MainSupercombinator], MainExpression)
-liftAnnonsEL (ELInteger n) = (mempty, EInteger n)
-liftAnnonsEL (ELConstructor tag arity) = (mempty, EConstructor tag arity)
-liftAnnonsEL (ELVariable v) = (mempty, EVariable v)
-liftAnnonsEL (ELApplication e1 e2) = (scs1 <> scs2, EApplication e1' e2')
+liftAnnonsEL (EInteger n) = (mempty, EInteger n)
+liftAnnonsEL (EConstructor tag arity) = (mempty, EConstructor tag arity)
+liftAnnonsEL (EVariable v) = (mempty, EVariable v)
+liftAnnonsEL (EApplication e1 e2) = (scs1 <> scs2, EApplication e1' e2')
   where
     (scs1, e1') = liftAnnonsEL e1
     (scs2, e2') = liftAnnonsEL e2
-liftAnnonsEL (ELLet NonRecursive [LetDefinition (v1, ELLambda args e)] (ELVariable v2))
+liftAnnonsEL (ELet NonRecursive [LetDefinition (v1, ELambda args e)] (EVariable v2))
   | v1 == v2 = (pure (Supercombinator (v2, args, e')) <> scs, EVariable v2)
   | otherwise = error "liftAnnonsEL: wrong annonymous pattern is created"
   where
     (scs, e') = liftAnnonsEL e
-liftAnnonsEL (ELLet flag lDefs expr) = (lDefsScs <> exprScs, ELet flag lDefs' expr')
+liftAnnonsEL (ELet flag lDefs expr) = (lDefsScs <> exprScs, ELet flag lDefs' expr')
   where
     (lDefsScs, lDefs') = lDefs & each . _letDefinitionBody %%~ liftAnnonsEL
     (exprScs, expr') = liftAnnonsEL expr
-liftAnnonsEL (ELMatch expr mCases) = (exprScs <> mCasesScs, EMatch expr' mCases')
+liftAnnonsEL (EMatch expr mCases) = (exprScs <> mCasesScs, EMatch expr' mCases')
   where
     (exprScs, expr') = liftAnnonsEL expr
     (mCasesScs, mCases') = mCases & each . _matchCaseBody %%~ liftAnnonsEL
-liftAnnonsEL (ELLambda _ _) = error "liftAnnonsEL: unexpected ELLambda expression"
+liftAnnonsEL (ELambda _ _) = error "liftAnnonsEL: unexpected ELambda expression"

@@ -1,4 +1,5 @@
 {- HLINT ignore "Redundant do" -}
+{-# LANGUAGE GADTs #-}
 {-# LANGUAGE QuasiQuotes #-}
 module Minicute.Transpilers.VariablesRenamingSpec
   ( spec
@@ -102,15 +103,15 @@ haveNoIdentifierConflictMainL (Program scs)
     scIdSet = Set.fromList (view _supercombinatorBinder <$> scs)
 
 haveNoIdentifierConflictMainEL :: Set.Set Identifier -> MainExpressionL -> (Set.Set Identifier, Bool)
-haveNoIdentifierConflictMainEL env (ELInteger _) = (env, True)
-haveNoIdentifierConflictMainEL env (ELConstructor _ _) = (env, True)
-haveNoIdentifierConflictMainEL env (ELVariable _) = (env, True)
-haveNoIdentifierConflictMainEL env (ELApplication e1 e2)
+haveNoIdentifierConflictMainEL env (EInteger _) = (env, True)
+haveNoIdentifierConflictMainEL env (EConstructor _ _) = (env, True)
+haveNoIdentifierConflictMainEL env (EVariable _) = (env, True)
+haveNoIdentifierConflictMainEL env (EApplication e1 e2)
   = (env2, noConflict1 && noConflict2)
   where
     (env1, noConflict1) = haveNoIdentifierConflictMainEL env e1
     (env2, noConflict2) = haveNoIdentifierConflictMainEL env1 e2
-haveNoIdentifierConflictMainEL env (ELLet _ lDefs expr)
+haveNoIdentifierConflictMainEL env (ELet _ lDefs expr)
   = (exprEnv, lDefIdsNoConflict && lDefBodiesNoConflict && exprNoConflict)
   where
     lDefIdsNoConflict
@@ -124,7 +125,7 @@ haveNoIdentifierConflictMainEL env (ELLet _ lDefs expr)
     lDefBodies = view _letDefinitionBody <$> lDefs
     lDefIdSet = Set.fromList lDefIds
     lDefIds = view _letDefinitionBinder <$> lDefs
-haveNoIdentifierConflictMainEL env (ELMatch expr mCases)
+haveNoIdentifierConflictMainEL env (EMatch expr mCases)
   = (mCaseEnv, exprNoConflict && mCaseArgsNoConflict && mCaseBodiesNoConflict)
   where
     (exprEnv, exprNoConflict)
@@ -138,7 +139,7 @@ haveNoIdentifierConflictMainEL env (ELMatch expr mCases)
     mCaseArgIdSet = Set.fromList mCaseArgs
     mCaseArgs = concat (view _matchCaseArguments <$> mCases)
     mCaseBodies = view _matchCaseBody <$> mCases
-haveNoIdentifierConflictMainEL env (ELLambda args expr)
+haveNoIdentifierConflictMainEL env (ELambda args expr)
   = (exprEnv, argsNoConflict && exprNoConflict)
   where
     argsNoConflict

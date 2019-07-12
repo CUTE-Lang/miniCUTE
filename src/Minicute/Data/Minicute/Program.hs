@@ -1,4 +1,5 @@
 {-# OPTIONS_GHC -fno-warn-missing-pattern-synonym-signatures #-}
+{-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE DeriveLift #-}
@@ -58,10 +59,10 @@ newtype Supercombinator expr a
            )
 -- |
 -- A supercombinator of 'MainExpression'
-type MainSupercombinator = Supercombinator Expression Identifier
+type MainSupercombinator = Supercombinator (Expression 'LLMC) Identifier
 -- |
 -- A supercombinator of 'MainExpressionL'
-type MainSupercombinatorL = Supercombinator ExpressionL Identifier
+type MainSupercombinatorL = Supercombinator (Expression 'MC) Identifier
 
 instance (Pretty a, Pretty (expr a)) => Pretty (Supercombinator expr a) where
   pretty (Supercombinator (scId, argBinders, expr))
@@ -92,10 +93,10 @@ newtype Program expr a
            )
 -- |
 -- A program of 'MainExpression'
-type MainProgram = Program Expression Identifier
+type MainProgram = Program (Expression 'LLMC) Identifier
 -- |
 -- 'Program_' of 'MainExpressionL'
-type MainProgramL = Program ExpressionL Identifier
+type MainProgramL = Program (Expression 'MC) Identifier
 
 instance (Pretty a, Pretty (expr a)) => Pretty (Program expr a) where
   pretty (Program scs) = PP.vcat . PP.punctuate PP.semi . fmap pretty $ scs

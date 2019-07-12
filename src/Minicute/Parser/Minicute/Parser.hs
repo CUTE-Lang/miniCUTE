@@ -1,3 +1,4 @@
+{-# LANGUAGE DataKinds #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE TypeFamilies #-}
 -- |
@@ -34,16 +35,16 @@ mainProgramL :: Parser MainProgramL
 mainProgramL = program L.identifier (expressionL L.identifier)
 {-# INLINEABLE mainProgramL #-}
 
-expressionL :: (MonadParser e s m) => WithPrecedence m a -> WithPrecedence m (ExpressionL a)
+expressionL :: (MonadParser e s m) => WithPrecedence m a -> WithPrecedence m (Expression 'MC a)
 expressionL pA = go
   where
     go
       = choice
-        [ uncurry3 ELLet <$> letExpressionFields pA go Recursive
-        , uncurry3 ELLet <$> letExpressionFields pA go NonRecursive
-        , uncurry ELMatch <$> matchExpressionFields pA go
-        , uncurry ELLambda <$> lambdaExpressionFields pA go
-        , otherExpressionsByPrec ELInteger ELVariable ELConstructor ELApplication go
+        [ uncurry3 ELet <$> letExpressionFields pA go Recursive
+        , uncurry3 ELet <$> letExpressionFields pA go NonRecursive
+        , uncurry EMatch <$> matchExpressionFields pA go
+        , uncurry ELambda <$> lambdaExpressionFields pA go
+        , otherExpressionsByPrec EInteger EVariable EConstructor EApplication go
         ]
         <?> "expression"
 {-# INLINEABLE expressionL #-}
@@ -55,7 +56,7 @@ mainProgram :: Parser MainProgram
 mainProgram = program L.identifier (expression L.identifier)
 {-# INLINEABLE mainProgram #-}
 
-expression :: (MonadParser e s m) => WithPrecedence m a -> WithPrecedence m (Expression a)
+expression :: (MonadParser e s m) => WithPrecedence m a -> WithPrecedence m (Expression 'LLMC a)
 expression pA = go
   where
     go

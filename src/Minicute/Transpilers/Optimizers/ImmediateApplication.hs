@@ -1,3 +1,4 @@
+{-# LANGUAGE GADTs #-}
 -- |
 -- Optimizers to remove immediate applications.
 module Minicute.Transpilers.Optimizers.ImmediateApplication
@@ -21,9 +22,9 @@ immediateApplicationMainL = _Wrapped . each . _supercombinatorBody %~ immediateA
 immediateApplicationMainEL :: MainExpressionL -> MainExpressionL
 immediateApplicationMainEL = transformOf uniplate go
   where
-    go (ELApplication (ELLambda (v : args') expr) e2)
-      | not (null args') = ELLambda args' expr'
+    go (EApplication (ELambda (v : args') expr) e2)
+      | not (null args') = ELambda args' expr'
       | otherwise = expr'
       where
-        expr' = ELLet NonRecursive [LetDefinition (v, e2)] expr
+        expr' = ELet NonRecursive [LetDefinition (v, e2)] expr
     go e = e

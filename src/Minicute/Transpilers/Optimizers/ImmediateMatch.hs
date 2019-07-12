@@ -1,3 +1,4 @@
+{-# LANGUAGE DataKinds #-}
 -- |
 -- Optimizers to remove immediate matches.
 module Minicute.Transpilers.Optimizers.ImmediateMatch
@@ -23,7 +24,7 @@ immediateMatchMainL = _Wrapped . each . _supercombinatorBody %~ immediateMatchMa
 immediateMatchMainEL :: MainExpressionL -> MainExpressionL
 immediateMatchMainEL = transformOf uniplate go
   where
-    go (ELLet flag lDefs (ELMatch (ELVariable v) mCases))
+    go (ELet flag lDefs (EMatch (EVariable v) mCases))
       | Just vLDef <- lookupLDefsL v lDefs
       , Just (tag, argExprs) <- destructDataExpression (vLDef ^. _letDefinitionBody)
       , Just vMCase <- lookupMCasesL tag mCases
@@ -34,28 +35,28 @@ immediateMatchMainEL = transformOf uniplate go
           innerExpr = vMCase ^. _matchCaseBody
           expr
             = if not (null matchLDefs)
-              then immediateMatchMainEL (ELLet NonRecursive matchLDefs innerExpr)
+              then immediateMatchMainEL (ELet NonRecursive matchLDefs innerExpr)
               else innerExpr
         in
-          ELLet flag lDefs expr
+          ELet flag lDefs expr
     go e = e
 
 -- |
 -- __TODO: move this into a Util or Data module__
-destructDataExpression :: ExpressionL a -> Maybe (Integer, [ExpressionL a])
+destructDataExpression :: Expression 'MC a -> Maybe (Integer, [Expression 'MC a])
 destructDataExpression e = go e []
   where
-    go (ELConstructor tag arity) args
+    go (EConstructor tag arity) args
       | arity == genericLength args = Just (tag, args)
-    go (ELApplication e1 e2) args = go e1 (e2 : args)
+    go (EApplication e1 e2) args = go e1 (e2 : args)
     go _ _ = Nothing
 
 -- |
 -- __TODO: move this into a Util or Data module__
-lookupMCasesL :: Integer -> [MatchCase ExpressionL a] -> Maybe (MatchCase ExpressionL a)
+lookupMCasesL :: Integer -> [MatchCase (Expression 'MC) a] -> Maybe (MatchCase (Expression 'MC) a)
 lookupMCasesL tag = find (^. _matchCaseTag . to (== tag))
 
 -- |
 -- __TODO: move this into a Util or Data module__
-lookupLDefsL :: (Eq a) => a -> [LetDefinition ExpressionL a] -> Maybe (LetDefinition ExpressionL a)
+lookupLDefsL :: (Eq a) => a -> [LetDefinition (Expression 'MC) a] -> Maybe (LetDefinition (Expression 'MC) a)
 lookupLDefsL binder = find (^. _letDefinitionBinder . to (== binder))
