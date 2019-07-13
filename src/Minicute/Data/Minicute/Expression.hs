@@ -191,7 +191,7 @@ instance (Pretty a) => PrettyPrec (Expression t a) where
             ]
         ]
   prettyPrec _ (EVariable vId) = pretty vId
-  prettyPrec p (EApplication2 (EVariable (Identifier op)) e1 e2)
+  prettyPrec p (EApplication2 (EVariable op) e1 e2)
     | Just opP <- lookup op binaryPrecedenceTable
     = prettyBinaryExpressionPrec p opP (pretty op) (`prettyPrec` e1) (`prettyPrec` e2)
   prettyPrec p (EApplication e1 e2)

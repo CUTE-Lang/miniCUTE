@@ -190,7 +190,7 @@ otherExpressionsByPrec
 otherExpressionsByPrec int var con app pExpr
   = ask
     >>= CombExpr.makeExprParser (applicationExpression int var con app pExpr)
-    . createOperatorTable (var . Identifier) app ((app .) . app)
+    . createOperatorTable var app ((app .) . app)
 {-# INLINEABLE otherExpressionsByPrec #-}
 
 applicationExpression
@@ -256,21 +256,21 @@ separator = L.symbol ";"
 {-# INLINEABLE separator #-}
 
 
-createOperatorTable :: (MonadParser e s m) => (Tokens s -> expr) -> (expr -> expr -> expr) -> (expr -> expr -> expr -> expr) -> PrecedenceTable -> [[CombExpr.Operator m expr]]
+createOperatorTable :: (MonadParser e s m) => (Identifier -> expr) -> (expr -> expr -> expr) -> (expr -> expr -> expr -> expr) -> PrecedenceTable -> [[CombExpr.Operator m expr]]
 createOperatorTable cVar cUn cBar = (fmap . fmap) (createOperator cVar cUn cBar) . groupSortOn (negate . precedence . snd)
 {-# INLINEABLE createOperatorTable #-}
 
-createOperator :: (MonadParser e s m) => (Tokens s -> expr) -> (expr -> expr -> expr) -> (expr -> expr -> expr -> expr) -> PrecedenceTableEntry -> CombExpr.Operator m expr
+createOperator :: (MonadParser e s m) => (Identifier -> expr) -> (expr -> expr -> expr) -> (expr -> expr -> expr -> expr) -> PrecedenceTableEntry -> CombExpr.Operator m expr
 createOperator cVar _ cBin (op, PInfixN _) = CombExpr.InfixN (createOperatorBinParser cVar cBin op)
 createOperator cVar _ cBin (op, PInfixL _) = CombExpr.InfixL (createOperatorBinParser cVar cBin op)
 createOperator cVar _ cBin (op, PInfixR _) = CombExpr.InfixR (createOperatorBinParser cVar cBin op)
 createOperator cVar cUn _ (op, PPrefix _) = CombExpr.Prefix (createOperatorUnParser cVar cUn op)
 createOperator cVar cUn _ (op, PPostfix _) = CombExpr.Postfix (createOperatorUnParser cVar cUn op)
 
-createOperatorBinParser :: (MonadParser e s m) => (Tokens s -> expr) -> (expr -> expr -> expr -> expr) -> String -> m (expr -> expr -> expr)
-createOperatorBinParser cVar cBin op = (L.symbol op <?> "binary operator") $> cBin (cVar op)
+createOperatorBinParser :: (MonadParser e s m) => (Identifier -> expr) -> (expr -> expr -> expr -> expr) -> Identifier -> m (expr -> expr -> expr)
+createOperatorBinParser cVar cBin op@(Identifier opName) = (L.symbol opName <?> "binary operator") $> cBin (cVar op)
 {-# INLINEABLE createOperatorBinParser #-}
 
-createOperatorUnParser :: (MonadParser e s m) => (Tokens s -> expr) -> (expr -> expr -> expr) -> String -> m (expr -> expr)
-createOperatorUnParser cVar cUn op = (L.symbol op <?> "unary operator") $> cUn (cVar op)
+createOperatorUnParser :: (MonadParser e s m) => (Identifier -> expr) -> (expr -> expr -> expr) -> Identifier -> m (expr -> expr)
+createOperatorUnParser cVar cUn op@(Identifier opName) = (L.symbol opName <?> "unary operator") $> cUn (cVar op)
 {-# INLINEABLE createOperatorUnParser #-}

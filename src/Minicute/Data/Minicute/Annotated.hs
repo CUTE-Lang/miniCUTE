@@ -110,7 +110,7 @@ instance (Pretty ann, Pretty a) => PrettyPrec (AnnotatedExpressionMC ann a) wher
           ]
       ) PP.<> PP.braces (pretty ann)
   prettyPrec _ (AEVariable ann vId) = pretty vId PP.<> PP.braces (pretty ann)
-  prettyPrec _ (AEApplication2 ann2 ann1 (AEVariable annOp (Identifier op)) e1 e2)
+  prettyPrec _ (AEApplication2 ann2 ann1 (AEVariable annOp op) e1 e2)
     | Just opP <- lookup op binaryPrecedenceTable
     = prettyBinaryExpressionPrec miniApplicationPrecedence1 opP opDoc (`prettyPrec` e1) (`prettyPrec` e2)
       PP.<> PP.braces (pretty ann1 PP.<> PP.comma PP.<+> pretty ann2)

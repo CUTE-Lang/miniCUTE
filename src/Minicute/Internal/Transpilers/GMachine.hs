@@ -59,7 +59,7 @@ transpileSc sc = (scBinder, scArgsLength, scInsts)
 transpileRE :: TranspilerE MainExpressionLLMC
 transpileRE env (EInteger n) = [IPushBasicValue n, IUpdateAsInteger (getEnvSize env), IReturn]
 transpileRE env (EConstructor tag 0) = [IPushBasicValue tag, IUpdateAsStructure (getEnvSize env), IReturn]
-transpileRE env e@(EApplication2 (EVariable (Identifier op)) _ _)
+transpileRE env e@(EApplication2 (EVariable op) _ _)
   | Just _ <- lookup op binaryIntegerPrecendenceTable
   = transpilePE env e <> [IUpdateAsInteger (getEnvSize env), IReturn]
   | Just _ <- lookup op binaryDataPrecendenceTable
@@ -80,7 +80,7 @@ transpileSE :: TranspilerE MainExpressionLLMC
 transpileSE _ (EInteger n) = [IMakeInteger n]
 transpileSE _ (EConstructor tag 0) = [IMakeStructure tag 0]
 transpileSE _ (EConstructor tag arity) = [IMakeConstructor tag arity]
-transpileSE env e@(EApplication2 (EVariable (Identifier op)) _ _)
+transpileSE env e@(EApplication2 (EVariable op) _ _)
   | Just _ <- lookup op binaryIntegerPrecendenceTable
   = transpilePE env e <> [IWrapAsInteger]
   | Just _ <- lookup op binaryDataPrecendenceTable
@@ -93,7 +93,7 @@ transpileSE env e = transpileNE env e <> [IEval]
 transpilePE :: TranspilerE MainExpressionLLMC
 transpilePE _ (EInteger n) = [IPushBasicValue n]
 transpilePE _ (EConstructor tag 0) = [IPushBasicValue tag]
-transpilePE env (EApplication2 (EVariable (Identifier op)) e1 e2)
+transpilePE env (EApplication2 (EVariable op) e1 e2)
   | Just _ <- lookup op binaryPrecedenceTable
   = transpilePE env e1 <> transpilePE env e2 <> [IPrimitive (getPrimitiveOperator op)]
 transpilePE env (ELet flag lDefs body) = transpileLet transpilePE env (flag, lDefs, body) <> [IPop (length lDefs)]
@@ -190,7 +190,7 @@ addEnvOffset :: Int -> TranspilerEEnv -> TranspilerEEnv
 addEnvOffset n = Map.map (+ n)
 
 
-getPrimitiveOperator :: String -> PrimitiveOperator
+getPrimitiveOperator :: Identifier -> PrimitiveOperator
 getPrimitiveOperator "+" = POAdd
 getPrimitiveOperator "-" = POSub
 getPrimitiveOperator "*" = POMul
