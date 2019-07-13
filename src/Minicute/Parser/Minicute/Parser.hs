@@ -16,7 +16,6 @@ module Minicute.Parser.Minicute.Parser
 import Control.Monad.Reader ( ReaderT, runReaderT, mapReaderT, ask )
 import Data.List.Extra
 import Data.Functor
-import Data.Tuple.Extra
 import Minicute.Parser.Common
 import Minicute.Data.Minicute.Precedence
 import Minicute.Data.Minicute.Program
@@ -32,7 +31,7 @@ type WithPrecedence m = ReaderT PrecedenceTable m
 -- |
 -- A parser for 'MainProgramMC'
 mainProgramMC :: Parser MainProgramMC
-mainProgramMC = program L.identifier (expressionMC L.identifier)
+mainProgramMC = program identifier (expressionMC identifier)
 {-# INLINEABLE mainProgramMC #-}
 
 expressionMC :: (MonadParser e s m) => WithPrecedence m a -> WithPrecedence m (ExpressionMC a)
@@ -40,11 +39,11 @@ expressionMC pA = go
   where
     go
       = choice
-        [ uncurry3 ELet <$> letExpressionFields pA go Recursive
-        , uncurry3 ELet <$> letExpressionFields pA go NonRecursive
-        , uncurry EMatch <$> matchExpressionFields pA go
-        , uncurry ELambda <$> lambdaExpressionFields pA go
-        , otherExpressionsByPrec EInteger EVariable EConstructor EApplication go
+        [ letExpression pA go Recursive
+        , letExpression pA go NonRecursive
+        , matchExpression pA go
+        , lambdaExpression pA go
+        , otherExpressionsByPrec go
         ]
         <?> "expression"
 {-# INLINEABLE expressionMC #-}
@@ -53,7 +52,7 @@ expressionMC pA = go
 -- |
 -- A parser for 'MainProgramLLMC'
 mainProgramLLMC :: Parser MainProgramLLMC
-mainProgramLLMC = program L.identifier (expressionLLMC L.identifier)
+mainProgramLLMC = program identifier (expressionLLMC identifier)
 {-# INLINEABLE mainProgramLLMC #-}
 
 expressionLLMC :: (MonadParser e s m) => WithPrecedence m a -> WithPrecedence m (ExpressionLLMC a)
@@ -61,10 +60,10 @@ expressionLLMC pA = go
   where
     go
       = choice
-        [ uncurry3 ELet <$> letExpressionFields pA go Recursive
-        , uncurry3 ELet <$> letExpressionFields pA go NonRecursive
-        , uncurry EMatch <$> matchExpressionFields pA go
-        , otherExpressionsByPrec EInteger EVariable EConstructor EApplication go
+        [ letExpression pA go Recursive
+        , letExpression pA go NonRecursive
+        , matchExpression pA go
+        , otherExpressionsByPrec go
         ]
         <?> "expression"
 {-# INLINEABLE expressionLLMC #-}
@@ -76,7 +75,7 @@ program pA pExpr = do
   ps <- getParserState
   pt <- precedenceTable
   setParserState ps
-  result <- Program <$> runReaderT (sepEndBy (Supercombinator <$> supercombinatorFields pA pExpr) (L.symbol ";")) pt
+  result <- Program <$> runReaderT (sepEndBy (supercombinator pA pExpr) (L.symbol ";")) pt
   void eof
   return result
 
@@ -86,27 +85,29 @@ precedenceTable = return defaultPrecedenceTable
 {-# INLINEABLE precedenceTable #-}
 
 
-supercombinatorFields :: (MonadParser e s m) => WithPrecedence m a -> WithPrecedence m (expr a) -> WithPrecedence m (Identifier, [a], expr a)
-supercombinatorFields pA pExpr
-  = (,,)
-    <$> L.identifier
-    <*> many pA <* L.symbol "="
-    <*> pExpr
-{-# INLINEABLE supercombinatorFields #-}
+supercombinator :: (MonadParser e s m) => WithPrecedence m a -> WithPrecedence m (expr a) -> WithPrecedence m (Supercombinator expr a)
+supercombinator pA pExpr
+  = Supercombinator
+    <$> ( (,,)
+          <$> identifier
+          <*> many pA <* L.symbol "="
+          <*> pExpr
+        )
+{-# INLINEABLE supercombinator #-}
 
 
-lambdaExpressionFields :: (MonadParser e s m) => WithPrecedence m a -> WithPrecedence m (expr a) -> WithPrecedence m ([a], expr a)
-lambdaExpressionFields pA pExpr
-  = (,)
+lambdaExpression :: (MonadParser e s m) => WithPrecedence m a -> WithPrecedence m (ExpressionMC a) -> WithPrecedence m (ExpressionMC a)
+lambdaExpression pA pExpr
+  = ELambda
     <$> Comb.between (L.symbol "\\") (L.symbol "->") (some pA)
     <*> pExpr
     <?> "lambda expression"
-{-# INLINEABLE lambdaExpressionFields #-}
+{-# INLINEABLE lambdaExpression #-}
 
 
-letExpressionFields :: (MonadParser e s m) => WithPrecedence m a -> WithPrecedence m (expr a) -> IsRecursive -> WithPrecedence m (IsRecursive, [LetDefinition expr a], expr a)
-letExpressionFields pA pExpr flag
-  = (,,) flag
+letExpression :: (MonadParser e s m) => WithPrecedence m a -> WithPrecedence m (Expression t a) -> IsRecursive -> WithPrecedence m (Expression t a)
+letExpression pA pExpr flag
+  = ELet flag
     <$> Comb.between (try startingKeyword) endingKeyword letDefinitions
     <*> pExpr
     <?> nameOfExpression
@@ -142,9 +143,9 @@ letDefinition pA pExpr
     <?> "let definition"
 {-# INLINEABLE letDefinition #-}
 
-matchExpressionFields :: (MonadParser e s m) => WithPrecedence m a -> WithPrecedence m (expr a) -> WithPrecedence m (expr a, [MatchCase expr a])
-matchExpressionFields pA pExpr
-  = (,)
+matchExpression :: (MonadParser e s m) => WithPrecedence m a -> WithPrecedence m (Expression t a) -> WithPrecedence m (Expression t a)
+matchExpression pA pExpr
+  = EMatch
     <$> Comb.between (try startingKeyword) endingKeyword pExpr
     <*> matchCases
     <?> "match expression"
@@ -181,63 +182,44 @@ matchCase pA pExpr
 
 otherExpressionsByPrec
   :: (MonadParser e s m)
-  => (Integer -> expr a)
-  -> (Identifier -> expr a)
-  -> (Integer -> Integer -> expr a)
-  -> (expr a -> expr a -> expr a)
-  -> WithPrecedence m (expr a)
-  -> WithPrecedence m (expr a)
-otherExpressionsByPrec int var con app pExpr
+  => WithPrecedence m (Expression t a)
+  -> WithPrecedence m (Expression t a)
+otherExpressionsByPrec pExpr
   = ask
-    >>= CombExpr.makeExprParser (applicationExpression int var con app pExpr)
-    . createOperatorTable var app ((app .) . app)
+    >>= CombExpr.makeExprParser (applicationExpression pExpr)
+    . createOperatorTable EVariable EApplication EApplication2
 {-# INLINEABLE otherExpressionsByPrec #-}
 
 applicationExpression
   :: (MonadParser e s m)
-  => (Integer -> expr a)
-  -> (Identifier -> expr a)
-  -> (Integer -> Integer -> expr a)
-  -> (expr a -> expr a -> expr a)
-  -> WithPrecedence m (expr a)
-  -> WithPrecedence m (expr a)
-applicationExpression int var con app pExpr
-  = foldl' app <$> atomic <*> many atomic
+  => WithPrecedence m (Expression t a)
+  -> WithPrecedence m (Expression t a)
+applicationExpression pExpr
+  = foldl' EApplication <$> atomic <*> many atomic
   where
-    atomic = atomicExpression int var con pExpr
+    atomic = atomicExpression pExpr
 {-# INLINEABLE applicationExpression #-}
 
 atomicExpression
   :: (MonadParser e s m)
-  => (Integer -> expr a)
-  -> (Identifier -> expr a)
-  -> (Integer -> Integer -> expr a)
-  -> WithPrecedence m (expr a)
-  -> WithPrecedence m (expr a)
-atomicExpression int var con pExpr
+  => WithPrecedence m (Expression t a)
+  -> WithPrecedence m (Expression t a)
+atomicExpression pExpr
   = choice
-    [ int <$> integerExpressionFields
-    , var <$> variableExpressionFields
-    , uncurry con <$> constructorExpressionFields
+    [ EInteger <$> L.integer <?> "integer"
+    , EVariable <$> identifier <?> "variable"
+    , constructorExpression
     , mapReaderT L.betweenRoundBrackets pExpr <?> "expression with parentheses"
     ]
 {-# INLINEABLE atomicExpression #-}
 
-integerExpressionFields :: (MonadParser e s m) => m Integer
-integerExpressionFields = L.integer <?> "integer"
-{-# INLINEABLE integerExpressionFields #-}
-
-variableExpressionFields :: (MonadParser e s m) => m Identifier
-variableExpressionFields = L.identifier <?> "variable"
-{-# INLINEABLE variableExpressionFields #-}
-
 -- |
 -- The @startingSymbols@ do not use 'try' because
 -- the keyword starts with a character that is illegal for identifiers.
-constructorExpressionFields :: (MonadParser e s m) => m (Integer, Integer)
-constructorExpressionFields
+constructorExpression :: (MonadParser e s m) => m (Expression t a)
+constructorExpression
   = Comb.between startingSymbols endingSymbols
-    ( (,)
+    ( EConstructor
       <$> L.integer <* separator
       <*> L.integer
     )
@@ -248,8 +230,10 @@ constructorExpressionFields
 
     {-# INLINEABLE startingSymbols #-}
     {-# INLINEABLE endingSymbols #-}
-{-# INLINEABLE constructorExpressionFields #-}
+{-# INLINEABLE constructorExpression #-}
 
+identifier :: (MonadParser e s m) => m Identifier
+identifier = Identifier <$> L.identifier
 
 separator :: (MonadParser e s m) => m ()
 separator = L.symbol ";"

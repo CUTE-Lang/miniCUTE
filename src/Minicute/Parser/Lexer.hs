@@ -21,7 +21,6 @@ import Data.List
 import Data.List.Extra
 import Data.Proxy
 import Minicute.Parser.Common
-import Minicute.Data.Minicute.Common
 import Text.Megaparsec hiding ( State )
 
 import qualified Data.Char as Char
@@ -38,8 +37,8 @@ betweenRoundBrackets = between (symbol "(") (symbol ")")
 -- |
 -- @gMachineIdentifier@ parses any character sequences not containing @';'@ or
 -- space characters as an 'Identifier'.
-gMachineIdentifier :: (MonadParser e s m) => m Identifier
-gMachineIdentifier = Identifier <$> lexeme (many (satisfy (anyCond (/= ';') Char.isSpace)))
+gMachineIdentifier :: (MonadParser e s m) => m (Tokens s)
+gMachineIdentifier = lexeme (many (satisfy (anyCond (/= ';') Char.isSpace)))
   where
     anyCond p1 p2 x = p1 x || p2 x
 
@@ -51,13 +50,13 @@ gMachineIdentifier = Identifier <$> lexeme (many (satisfy (anyCond (/= ';') Char
 -- For example, this function parses @"_abc"@, @"ab4"@, and @"a_ef_3"@ successfully.
 --
 -- For more examples, see the test module for this function.
-identifier :: (MonadParser e s m) => m Identifier
+identifier :: (MonadParser e s m) => m (Tokens s)
 identifier = try identifier' <?> "identifier"
   where
     identifier' = do
       pos <- getOffset
       i <- lexeme (cons <$> identifierFirstChar <*> many identifierRestChar)
-      Identifier <$> checkKeywords pos i
+      checkKeywords pos i
 
     checkKeywords pos i
       | i `elem` keywordList = do
