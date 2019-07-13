@@ -78,17 +78,17 @@ newtype LetDefinition expr a
            , Show
            )
 -- |
--- A let definition for 'ExpressionMC'.
-type LetDefinitionMC = LetDefinition (Expression 'MC)
+-- A 'LetDefinition' for 'ExpressionMC'.
+type LetDefinitionMC = LetDefinition ExpressionMC
 -- |
--- A let definition for 'ExpressionLLMC'.
-type LetDefinitionLLMC = LetDefinition (Expression 'LLMC)
+-- A 'LetDefinition' for 'ExpressionLLMC'.
+type LetDefinitionLLMC = LetDefinition ExpressionLLMC
 -- |
--- A let definition for 'MainExpressionMC'.
-type MainLetDefinitionMC = LetDefinition (Expression 'MC) Identifier
+-- A 'LetDefinition' for 'ExpressionMC' with 'Identifier'.
+type MainLetDefinitionMC = LetDefinition ExpressionMC Identifier
 -- |
--- A let definition for 'MainExpressionLLMC'.
-type MainLetDefinitionLLMC = LetDefinition (Expression 'LLMC) Identifier
+-- A 'LetDefinition' for 'ExpressionLLMC' with 'Identifier'.
+type MainLetDefinitionLLMC = LetDefinition ExpressionLLMC Identifier
 
 instance (Pretty a, Pretty (expr a)) => Pretty (LetDefinition expr a) where
   pretty (LetDefinition (binder, expr))
@@ -112,17 +112,17 @@ newtype MatchCase expr a
            , Show
            )
 -- |
--- A match case for 'ExpressionMC'.
-type MatchCaseMC = MatchCase (Expression 'MC)
+-- A 'MatchCase' for 'ExpressionMC'.
+type MatchCaseMC = MatchCase ExpressionMC
 -- |
--- A match case for 'ExpressionLLMC'.
-type MatchCaseLLMC = MatchCase (Expression 'LLMC)
+-- A 'MatchCase' for 'ExpressionLLMC'.
+type MatchCaseLLMC = MatchCase ExpressionLLMC
 -- |
--- A match case for 'MainExpressionMC'.
-type MainMatchCaseMC = MatchCase (Expression 'MC) Identifier
+-- A 'MatchCase' for 'ExpressionMC' with 'Identifier'.
+type MainMatchCaseMC = MatchCase ExpressionMC Identifier
 -- |
--- A match case for 'MainExpressionLLMC'.
-type MainMatchCaseLLMC = MatchCase (Expression 'LLMC) Identifier
+-- A 'MatchCase' for 'ExpressionLLMC' with 'Identifier'.
+type MainMatchCaseLLMC = MatchCase ExpressionLLMC Identifier
 
 instance (Pretty a, Pretty (expr a)) => Pretty (MatchCase expr a) where
   pretty (MatchCase (tag, argBinders, expr))
@@ -146,21 +146,21 @@ data Expression (t :: ExpressionLevel) a where
   EApplication :: Expression t a -> Expression t a -> Expression t a-- ^ @f 4@
   ELet :: IsRecursive -> [LetDefinition (Expression t) a] -> Expression t a -> Expression t a-- ^ @let x = 4 in x@
   EMatch :: Expression t a -> [MatchCase (Expression t) a] -> Expression t a-- ^ @match $C{1;0} with \<1\> -> 4@
-  ELambda :: [a] -> Expression 'MC a -> Expression 'MC a -- ^ @\\x.x@
+  ELambda :: [a] -> ExpressionMC a -> ExpressionMC a -- ^ @\\x.x@
   deriving ( Typeable
            )
 -- |
--- A basic miniCUTE expression of 'MC'
+-- A 'Expression' of 'MC'
 type ExpressionMC = Expression 'MC
 -- |
--- A basic miniCUTE expression of 'MC'
+-- A 'Expression' of 'MC'
 type ExpressionLLMC = Expression 'LLMC
 -- |
--- A basic miniCUTE expression of 'MC' with 'Identifier'.
-type MainExpressionMC = Expression 'MC Identifier
+-- A 'Expression' of 'MC' with 'Identifier'.
+type MainExpressionMC = ExpressionMC Identifier
 -- |
--- A basic miniCUTE expression of 'LLMC' with 'Identifier'.
-type MainExpressionLLMC = Expression 'LLMC Identifier
+-- A 'Expression' of 'LLMC' with 'Identifier'.
+type MainExpressionLLMC = ExpressionLLMC Identifier
 
 -- |
 -- A utility pattern for 'Expression' of double application.

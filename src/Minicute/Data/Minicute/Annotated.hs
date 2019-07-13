@@ -50,7 +50,7 @@ import qualified Data.Text.Prettyprint.Doc as PP
 type AnnotatedSupercombinatorMC ann = Supercombinator (AnnotatedExpressionMC ann)
 -- |
 -- @MainAnnotatedSupercombinatorMC ann@ is a @MainSupercombinatorMC@ annotated by @ann@.
-type MainAnnotatedSupercombinatorMC ann = Supercombinator (AnnotatedExpressionMC ann) Identifier
+type MainAnnotatedSupercombinatorMC ann = AnnotatedSupercombinatorMC ann Identifier
 
 
 -- |
@@ -58,7 +58,7 @@ type MainAnnotatedSupercombinatorMC ann = Supercombinator (AnnotatedExpressionMC
 type AnnotatedProgramMC ann = Program (AnnotatedExpressionMC ann)
 -- |
 -- @MainAnnotatedProgramMC ann a@ is a @MainProgramMC@ annotated by @ann@.
-type MainAnnotatedProgramMC ann = Program (AnnotatedExpressionMC ann) Identifier
+type MainAnnotatedProgramMC ann = AnnotatedProgramMC ann Identifier
 
 
 -- |

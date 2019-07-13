@@ -63,16 +63,16 @@ newtype Supercombinator expr a
            )
 -- |
 -- A supercombinator of 'ExpressionMC'
-type SupercombinatorMC = Supercombinator (Expression 'MC)
+type SupercombinatorMC = Supercombinator ExpressionMC
 -- |
 -- A supercombinator of 'ExpressionLLMC'
-type SupercombinatorLLMC = Supercombinator (Expression 'LLMC)
+type SupercombinatorLLMC = Supercombinator ExpressionLLMC
 -- |
 -- A supercombinator of 'MainExpressionMC'
-type MainSupercombinatorMC = Supercombinator (Expression 'MC) Identifier
+type MainSupercombinatorMC = SupercombinatorMC Identifier
 -- |
 -- A supercombinator of 'MainExpressionLLMC'
-type MainSupercombinatorLLMC = Supercombinator (Expression 'LLMC) Identifier
+type MainSupercombinatorLLMC = SupercombinatorLLMC Identifier
 
 instance (Pretty a, Pretty (expr a)) => Pretty (Supercombinator expr a) where
   pretty (Supercombinator (scId, argBinders, expr))
@@ -103,16 +103,16 @@ newtype Program expr a
            )
 -- |
 -- A program of 'ExpressionMC'
-type ProgramMC = Program (Expression 'MC)
+type ProgramMC = Program ExpressionMC
 -- |
 -- A program of 'ExpressionLLMC'
-type ProgramLLMC = Program (Expression 'LLMC)
+type ProgramLLMC = Program ExpressionLLMC
 -- |
 -- A program of 'MainExpressionMC'
-type MainProgramMC = Program (Expression 'MC) Identifier
+type MainProgramMC = ProgramMC Identifier
 -- |
 -- A program of 'MainExpressionLLMC'
-type MainProgramLLMC = Program (Expression 'LLMC) Identifier
+type MainProgramLLMC = ProgramLLMC Identifier
 
 instance (Pretty a, Pretty (expr a)) => Pretty (Program expr a) where
   pretty (Program scs) = PP.vcat . PP.punctuate PP.semi . fmap pretty $ scs
