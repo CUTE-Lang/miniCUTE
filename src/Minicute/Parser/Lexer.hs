@@ -36,7 +36,7 @@ betweenRoundBrackets = between (symbol "(") (symbol ")")
 
 -- |
 -- @gMachineIdentifier@ parses any character sequences not containing @';'@ or
--- space characters as an 'Identifier'.
+-- space characters as an identifier.
 gMachineIdentifier :: (MonadParser e s m) => m (Tokens s)
 gMachineIdentifier = lexeme (many (satisfy (anyCond (/= ';') Char.isSpace)))
   where
