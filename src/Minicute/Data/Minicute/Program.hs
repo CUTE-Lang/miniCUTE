@@ -1,11 +1,11 @@
 {-# OPTIONS_GHC -fno-warn-missing-pattern-synonym-signatures #-}
+{-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE DeriveLift #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE PatternSynonyms #-}
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TypeFamilies #-}
 -- |
@@ -13,31 +13,22 @@
 module Minicute.Data.Minicute.Program
   ( module Minicute.Data.Minicute.Expression
 
-  , Supercombinator_( .. )
-
-  , Supercombinator
-  , MainSupercombinator
-  , pattern Supercombinator
-
-  , SupercombinatorL
-  , MainSupercombinatorL
-  , pattern SupercombinatorL
+  , Supercombinator( .. )
+  , SupercombinatorMC
+  , SupercombinatorLLMC
+  , MainSupercombinatorMC
+  , MainSupercombinatorLLMC
 
   , _supercombinatorBinder
   , _supercombinatorArguments
   , _supercombinatorBody
 
 
-  , Program_( .. )
-
-  , Program
-  , MainProgram
-  , pattern Program
-
-
-  , ProgramL
-  , MainProgramL
-  , pattern ProgramL
+  , Program( .. )
+  , ProgramMC
+  , ProgramLLMC
+  , MainProgramMC
+  , MainProgramLLMC
   ) where
 
 import Control.Lens.TH
@@ -46,7 +37,6 @@ import Control.Lens.Type
 import Control.Lens.Wrapped
 import Data.Data
 import GHC.Generics
-import GHC.Show ( appPrec, appPrec1 )
 import Language.Haskell.TH.Syntax
 import Minicute.Data.Minicute.Expression
 import Data.Text.Prettyprint.Doc ( Pretty( .. ) )
@@ -54,15 +44,15 @@ import Data.Text.Prettyprint.Doc ( Pretty( .. ) )
 import qualified Data.Text.Prettyprint.Doc as PP
 
 -- |
--- An internal type for a supercombinator (top-level function definition)
+-- A type for a supercombinator (top-level function definition)
 --
 -- [@Identifier@] the top-level identifier of the definition.
 --
 -- [@[a\]@] the arguments of the definition.
 --
 -- [@expr a@] the body expression of the definition.
-newtype Supercombinator_ expr a
-  = Supercombinator_ (Identifier, [a], expr a)
+newtype Supercombinator expr a
+  = Supercombinator (Identifier, [a], expr a)
   deriving ( Generic
            , Typeable
            , Data
@@ -71,33 +61,21 @@ newtype Supercombinator_ expr a
            , Ord
            , Show
            )
+-- |
+-- A supercombinator of 'ExpressionMC'
+type SupercombinatorMC = Supercombinator ExpressionMC
+-- |
+-- A supercombinator of 'ExpressionLLMC'
+type SupercombinatorLLMC = Supercombinator ExpressionLLMC
+-- |
+-- A supercombinator of 'MainExpressionMC'
+type MainSupercombinatorMC = SupercombinatorMC Identifier
+-- |
+-- A supercombinator of 'MainExpressionLLMC'
+type MainSupercombinatorLLMC = SupercombinatorLLMC Identifier
 
--- |
--- 'Supercombinator_' of 'Expression'
-type Supercombinator = Supercombinator_ Expression
--- |
--- 'Supercombinator_' of 'MainExpression'
-type MainSupercombinator = Supercombinator Identifier
--- |
--- Utility pattern for 'Supercombinator'
-pattern Supercombinator :: Identifier -> [a] -> Expression a -> Supercombinator a
-pattern Supercombinator scId argBinders expr = Supercombinator_ (scId, argBinders, expr)
-{-# COMPLETE Supercombinator #-}
-
--- |
--- 'Supercombinator_' of 'ExpressionL'
-type SupercombinatorL = Supercombinator_ ExpressionL
--- |
--- 'Supercombinator_' of 'MainExpressionL'
-type MainSupercombinatorL = SupercombinatorL Identifier
--- |
--- Utility pattern for 'SupercombinatorL'
-pattern SupercombinatorL :: Identifier -> [a] -> ExpressionL a -> SupercombinatorL a
-pattern SupercombinatorL scId argBinders expr = Supercombinator_ (scId, argBinders, expr)
-{-# COMPLETE SupercombinatorL #-}
-
-instance (Pretty a, Pretty (expr a)) => Pretty (Supercombinator_ expr a) where
-  pretty (Supercombinator_ (scId, argBinders, expr))
+instance (Pretty a, Pretty (expr a)) => Pretty (Supercombinator expr a) where
+  pretty (Supercombinator (scId, argBinders, expr))
     = PP.hcat
       [ pretty scId
       , if null argBinders
@@ -112,9 +90,9 @@ instance (Pretty a, Pretty (expr a)) => Pretty (Supercombinator_ expr a) where
 
 
 -- |
--- An internal type for a miniCUTE program
-newtype Program_ expr a
-  = Program_ [Supercombinator_ expr a]
+-- A type for a miniCUTE program
+newtype Program expr a
+  = Program [Supercombinator expr a]
   deriving ( Generic
            , Typeable
            , Data
@@ -123,63 +101,42 @@ newtype Program_ expr a
            , Ord
            , Show
            )
+-- |
+-- A program of 'ExpressionMC'
+type ProgramMC = Program ExpressionMC
+-- |
+-- A program of 'ExpressionLLMC'
+type ProgramLLMC = Program ExpressionLLMC
+-- |
+-- A program of 'MainExpressionMC'
+type MainProgramMC = ProgramMC Identifier
+-- |
+-- A program of 'MainExpressionLLMC'
+type MainProgramLLMC = ProgramLLMC Identifier
+
+instance (Pretty a, Pretty (expr a)) => Pretty (Program expr a) where
+  pretty (Program scs) = PP.vcat . PP.punctuate PP.semi . fmap pretty $ scs
+
+
+makeWrapped ''Supercombinator
 
 -- |
--- 'Program_' of 'Expression'
-type Program = Program_ Expression
--- |
--- 'Program_' of 'MainExpression'
-type MainProgram = Program Identifier
--- |
--- Utility pattern for 'Program'
-pattern Program :: [Supercombinator a] -> Program a
-pattern Program sc = Program_ sc
-{-# COMPLETE Program #-}
-
-instance {-# OVERLAPS #-} (Show a) => Show (Program a) where
-  showsPrec p (Program_ scs)
-    = showParen (p > appPrec) $ showString "Program " . showsPrec appPrec1 scs
-
-instance (Pretty a, Pretty (expr a)) => Pretty (Program_ expr a) where
-  pretty (Program_ scs) = PP.vcat . PP.punctuate PP.semi . fmap pretty $ scs
-
-
--- |
--- 'Program_' of 'ExpressionL'
-type ProgramL = Program_ ExpressionL
--- |
--- 'Program_' of 'MainExpressionL'
-type MainProgramL = ProgramL Identifier
--- |
--- Utility pattern for 'ProgramL'
-pattern ProgramL :: [SupercombinatorL a] -> ProgramL a
-pattern ProgramL sc = Program_ sc
-{-# COMPLETE ProgramL #-}
-
-instance {-# OVERLAPS #-} (Show a) => Show (ProgramL a) where
-  showsPrec p (Program_ scs)
-    = showParen (p > appPrec) $ showString "ProgramL " . showsPrec appPrec1 scs
-
-
-makeWrapped ''Supercombinator_
-
--- |
--- 'Lens' to extract the binder of 'Supercombinator_'
-_supercombinatorBinder :: Lens' (Supercombinator_ expr a) Identifier
+-- 'Lens' to extract the binder of 'Supercombinator'
+_supercombinatorBinder :: Lens' (Supercombinator expr a) Identifier
 _supercombinatorBinder = _Wrapped . _1
 {-# INLINEABLE _supercombinatorBinder #-}
 
 -- |
--- 'Lens' to extract the list of arguments of 'Supercombinator_'
-_supercombinatorArguments :: Lens' (Supercombinator_ expr a) [a]
+-- 'Lens' to extract the list of arguments of 'Supercombinator'
+_supercombinatorArguments :: Lens' (Supercombinator expr a) [a]
 _supercombinatorArguments = _Wrapped . _2
 {-# INLINEABLE _supercombinatorArguments #-}
 
 -- |
--- 'Lens' to extract the body expression of 'Supercombinator_'
-_supercombinatorBody :: Lens (Supercombinator_ expr1 a) (Supercombinator_ expr2 a) (expr1 a) (expr2 a)
+-- 'Lens' to extract the body expression of 'Supercombinator'
+_supercombinatorBody :: Lens (Supercombinator expr1 a) (Supercombinator expr2 a) (expr1 a) (expr2 a)
 _supercombinatorBody = _Wrapped . _3
 {-# INLINEABLE _supercombinatorBody #-}
 
 
-makeWrapped ''Program_
+makeWrapped ''Program

@@ -23,21 +23,21 @@ transpileProgramTest name beforeContent afterContent = do
     transpileProgram beforeContent `shouldBe` afterContent
 
 type TestName = String
-type TestBeforeContent = MainProgram
+type TestBeforeContent = MainProgramLLMC
 type TestAfterContent = GMachineProgram
 type TestCase = (TestName, TestBeforeContent, TestAfterContent)
 
 testCases :: [TestCase]
 testCases
   = [ ( "empty program"
-      , [qqMiniMain|
+      , [qqMiniMainLLMC|
         |]
       , [qqGMachine|
         |]
       )
 
     , ( "program with constant top-level definition"
-      , [qqMiniMain|
+      , [qqMiniMainLLMC|
                    f = 5;
                    g = $C{9;0}
         |]
@@ -56,7 +56,7 @@ testCases
       )
 
     , ( "program with an argument"
-      , [qqMiniMain|
+      , [qqMiniMainLLMC|
                    f x = x;
                    g x = $C{3;0};
         |]
@@ -77,7 +77,7 @@ testCases
       )
 
     , ( "program with arguments"
-      , [qqMiniMain|
+      , [qqMiniMainLLMC|
                    f x y = x;
                    g a b c = b
         |]
@@ -100,7 +100,7 @@ testCases
       )
 
     , ( "program with a simple application"
-      , [qqMiniMain|
+      , [qqMiniMainLLMC|
                    f = g 4;
                    g x = x;
         |]
@@ -125,7 +125,7 @@ testCases
       )
 
     , ( "program with a constructor application"
-      , [qqMiniMain|
+      , [qqMiniMainLLMC|
                    f = $C{1;1} 4;
                    g x = $C{3;2} x
         |]
@@ -152,7 +152,7 @@ testCases
       )
 
     , ( "program with an arithmetic operation"
-      , [qqMiniMain|
+      , [qqMiniMainLLMC|
                    f = 2 + 3
         |]
       , [qqGMachine|
@@ -167,7 +167,7 @@ testCases
       )
 
     , ( "program with multiple arithmetic operations"
-      , [qqMiniMain|
+      , [qqMiniMainLLMC|
                    f = 2 + 3 * 4 + 7
         |]
       , [qqGMachine|
@@ -186,7 +186,7 @@ testCases
       )
 
     , ( "program with a arithmetic operation in an application"
-      , [qqMiniMain|
+      , [qqMiniMainLLMC|
                    f = g (3 * 4);
                    g x = x;
         |]
@@ -215,7 +215,7 @@ testCases
       )
 
     , ( "program with a let expression returning an integer"
-      , [qqMiniMain|
+      , [qqMiniMainLLMC|
                    f = let
                          x = 4
                        in
@@ -232,7 +232,7 @@ testCases
       )
 
     , ( "program with a let expression of a definition"
-      , [qqMiniMain|
+      , [qqMiniMainLLMC|
                    f = let
                          x = 4
                        in
@@ -251,7 +251,7 @@ testCases
       )
 
     , ( "program with a let expression of definitions"
-      , [qqMiniMain|
+      , [qqMiniMainLLMC|
                    f = let
                          x = 4;
                          y = 3
@@ -276,7 +276,7 @@ testCases
       )
 
     , ( "program with a let expression in an arithmetic expression"
-      , [qqMiniMain|
+      , [qqMiniMainLLMC|
                    f = 5 + (let
                               x = 4
                             in
@@ -298,7 +298,7 @@ testCases
       )
 
     , ( "program with a letrec expression with a definition"
-      , [qqMiniMain|
+      , [qqMiniMainLLMC|
                    f = letrec
                          x = 4
                        in
@@ -319,7 +319,7 @@ testCases
       )
 
     , ( "program with a letrec expression with definitions"
-      , [qqMiniMain|
+      , [qqMiniMainLLMC|
                    f = letrec
                          x = 2 + y;
                          y = x - 3;
@@ -355,7 +355,7 @@ testCases
       )
 
     , ( "program with a match expression 1"
-      , [qqMiniMain|
+      , [qqMiniMainLLMC|
                    f = match $C{1;0} with
                          <1> -> 0;
                          <2> h t -> h;
@@ -382,7 +382,7 @@ testCases
       )
 
     , ( "program with a match expression 2"
-      , [qqMiniMain|
+      , [qqMiniMainLLMC|
                    f = match $C{2;2} 2 $C{1;0} with
                          <1> -> 0;
                          <2> h t -> h;

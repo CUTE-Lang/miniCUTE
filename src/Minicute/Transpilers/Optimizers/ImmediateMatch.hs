@@ -1,7 +1,8 @@
+{-# LANGUAGE DataKinds #-}
 -- |
 -- Optimizers to remove immediate matches.
 module Minicute.Transpilers.Optimizers.ImmediateMatch
-  ( immediateMatchMainL
+  ( immediateMatchMainMC
   ) where
 
 import Control.Lens.Each
@@ -15,47 +16,47 @@ import Minicute.Data.Minicute.Program
 
 -- |
 -- An optimizer to remove immediate matches in a whole program.
-immediateMatchMainL :: MainProgramL -> MainProgramL
-immediateMatchMainL = _Wrapped . each . _supercombinatorBody %~ immediateMatchMainEL
+immediateMatchMainMC :: MainProgramMC -> MainProgramMC
+immediateMatchMainMC = _Wrapped . each . _supercombinatorBody %~ immediateMatchMainEMC
 
 -- |
 -- An optimizer to remove immediate matches in an expression.
-immediateMatchMainEL :: MainExpressionL -> MainExpressionL
-immediateMatchMainEL = transformOf uniplate go
+immediateMatchMainEMC :: MainExpressionMC -> MainExpressionMC
+immediateMatchMainEMC = transformOf uniplate go
   where
-    go (ELLet flag lDefs (ELMatch (ELVariable v) mCases))
+    go (ELet flag lDefs (EMatch (EVariable v) mCases))
       | Just vLDef <- lookupLDefsL v lDefs
       , Just (tag, argExprs) <- destructDataExpression (vLDef ^. _letDefinitionBody)
       , Just vMCase <- lookupMCasesL tag mCases
       = let
           argBinders = vMCase ^. _matchCaseArguments
-          matchLDefs = zipWith LetDefinitionL argBinders argExprs
+          matchLDefs = zipWith (curry LetDefinition) argBinders argExprs
 
           innerExpr = vMCase ^. _matchCaseBody
           expr
             = if not (null matchLDefs)
-              then immediateMatchMainEL (ELLet NonRecursive matchLDefs innerExpr)
+              then immediateMatchMainEMC (ELet NonRecursive matchLDefs innerExpr)
               else innerExpr
         in
-          ELLet flag lDefs expr
+          ELet flag lDefs expr
     go e = e
 
 -- |
 -- __TODO: move this into a Util or Data module__
-destructDataExpression :: ExpressionL a -> Maybe (Integer, [ExpressionL a])
+destructDataExpression :: ExpressionMC a -> Maybe (Integer, [ExpressionMC a])
 destructDataExpression e = go e []
   where
-    go (ELConstructor tag arity) args
+    go (EConstructor tag arity) args
       | arity == genericLength args = Just (tag, args)
-    go (ELApplication e1 e2) args = go e1 (e2 : args)
+    go (EApplication e1 e2) args = go e1 (e2 : args)
     go _ _ = Nothing
 
 -- |
 -- __TODO: move this into a Util or Data module__
-lookupMCasesL :: Integer -> [MatchCaseL a] -> Maybe (MatchCaseL a)
+lookupMCasesL :: Integer -> [MatchCase ExpressionMC a] -> Maybe (MatchCase ExpressionMC a)
 lookupMCasesL tag = find (^. _matchCaseTag . to (== tag))
 
 -- |
 -- __TODO: move this into a Util or Data module__
-lookupLDefsL :: (Eq a) => a -> [LetDefinitionL a] -> Maybe (LetDefinitionL a)
+lookupLDefsL :: (Eq a) => a -> [LetDefinition ExpressionMC a] -> Maybe (LetDefinition ExpressionMC a)
 lookupLDefsL binder = find (^. _letDefinitionBinder . to (== binder))

@@ -54,7 +54,7 @@ data Precedence
 
 -- |
 -- Name of an operator
-type OperatorName = String
+type OperatorName = Identifier
 -- |
 -- Precedence character of an operator
 type PrecedenceTableEntry = (OperatorName, Precedence)

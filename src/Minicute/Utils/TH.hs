@@ -1,8 +1,8 @@
 -- |
 -- Utilities for miniCUTE compiler using TemplateHaskell
 module Minicute.Utils.TH
-  ( qqMiniMainL
-  , qqMiniMain
+  ( qqMiniMainMC
+  , qqMiniMainLLMC
 
   , qqGMachine
 
@@ -21,25 +21,25 @@ import Minicute.Parser.GMachine.Parser
 import Text.Megaparsec
 
 -- |
--- parse quoted string as a 'MainProgramL'.
-qqMiniMainL :: QuasiQuoter
-qqMiniMainL
+-- parse quoted string as a 'MainProgramMC'.
+qqMiniMainMC :: QuasiQuoter
+qqMiniMainMC
   = QuasiQuoter
-    { quoteExp = qqMiniMainLExp
-    , quotePat = const . fail $ "qqMiniMainLExp cannot be used as a pattern"
-    , quoteType = const . fail $ "qqMiniMainLExp cannot be used as a type"
-    , quoteDec = const . fail $ "qqMiniMainLExp cannot be used as a declaration"
+    { quoteExp = qqMiniMainExpMC
+    , quotePat = const . fail $ "qqMiniMainExpMC cannot be used as a pattern"
+    , quoteType = const . fail $ "qqMiniMainExpMC cannot be used as a type"
+    , quoteDec = const . fail $ "qqMiniMainExpMC cannot be used as a declaration"
     }
 
 -- |
--- parse quoted string as a 'MainProgram'.
-qqMiniMain :: QuasiQuoter
-qqMiniMain
+-- parse quoted string as a 'MainProgramLLMC'.
+qqMiniMainLLMC :: QuasiQuoter
+qqMiniMainLLMC
   = QuasiQuoter
-    { quoteExp = qqMiniMainExp
-    , quotePat = const . fail $ "qqMiniMainExp cannot be used as a pattern"
-    , quoteType = const . fail $ "qqMiniMainExp cannot be used as a type"
-    , quoteDec = const . fail $ "qqMiniMainExp cannot be used as a declaration"
+    { quoteExp = qqMiniMainExpLLMC
+    , quotePat = const . fail $ "qqMiniMainExpLLMC cannot be used as a pattern"
+    , quoteType = const . fail $ "qqMiniMainExpLLMC cannot be used as a type"
+    , quoteDec = const . fail $ "qqMiniMainExpLLMC cannot be used as a declaration"
     }
 
 
@@ -67,11 +67,11 @@ qqRawCode
     }
 
 
-qqMiniMainLExp :: String -> Q Exp
-qqMiniMainLExp = lift . either (error . errorBundlePretty) id . parse mainProgramL "" . normalizeCode
+qqMiniMainExpMC :: String -> Q Exp
+qqMiniMainExpMC = lift . either (error . errorBundlePretty) id . parse mainProgramMC "" . normalizeCode
 
-qqMiniMainExp :: String -> Q Exp
-qqMiniMainExp = lift . either (error . errorBundlePretty) id . parse mainProgram "" . normalizeCode
+qqMiniMainExpLLMC :: String -> Q Exp
+qqMiniMainExpLLMC = lift . either (error . errorBundlePretty) id . parse mainProgramLLMC "" . normalizeCode
 
 
 qqGMachineExp :: String -> Q Exp

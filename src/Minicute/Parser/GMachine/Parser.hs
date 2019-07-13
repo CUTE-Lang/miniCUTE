@@ -12,6 +12,7 @@ module Minicute.Parser.GMachine.Parser
 import Data.Functor
 import Minicute.Parser.Common
 import Minicute.Data.GMachine.Instruction
+import Minicute.Data.Minicute.Common
 import Text.Megaparsec
 
 import qualified Minicute.Parser.Lexer as L
@@ -24,7 +25,7 @@ gMachineProgram = many gMachineSupercombinator
 gMachineSupercombinator :: Parser GMachineSupercombinator
 gMachineSupercombinator
   = (,,)
-    <$> L.identifier
+    <$> (Identifier <$> L.identifier)
     <*> between (L.symbol "<") (L.symbol ">") L.integer
     <*> between (L.symbol "{") (L.symbol "}") gMachineExpression
 
@@ -41,7 +42,7 @@ instruction
     , L.symbol "MakeConstructor" >> IMakeConstructor <$> L.integer <*> L.integer
     , L.symbol "MakeStructure" >> IMakeStructure <$> L.integer <*> L.integer
     , L.symbol "MakeApplication" $> IMakeApplication
-    , L.symbol "MakeGlobal" >> IMakeGlobal <$> L.gMachineIdentifier
+    , L.symbol "MakeGlobal" >> IMakeGlobal <$> (Identifier <$> L.gMachineIdentifier)
     , L.symbol "MakePlaceholders" >> IMakePlaceholders <$> L.integer
 
     , L.symbol "Pop" >> IPop <$> L.integer

@@ -3,7 +3,7 @@ module Main
   ) where
 
 import Data.Text.Prettyprint.Doc.Minicute ( prettyShow )
-import Minicute.Parser.Minicute.Parser ( mainProgramL )
+import Minicute.Parser.Minicute.Parser ( mainProgramMC )
 import Minicute.Transpilers.Lifting.Lambda ( lambdaLifting )
 import System.Environment
 import System.IO
@@ -22,7 +22,7 @@ compile handle = do
   putStrLn "inputs:"
   content <- hGetContents handle -- unlines <$> whileM (hIsEOF handle) (hGetLine handle)
   putChar '\n'
-  case parse mainProgramL "" content of
+  case parse mainProgramMC "" content of
     Right program -> do
       putStrLn "program by show:"
       print program
