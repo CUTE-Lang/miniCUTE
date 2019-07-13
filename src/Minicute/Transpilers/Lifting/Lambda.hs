@@ -14,7 +14,7 @@ import Data.List
 import Data.Tuple
 import Minicute.Transpilers.FreeVariables
 import Minicute.Transpilers.VariablesRenaming
-import Minicute.Data.Minicute.Annotated.Program
+import Minicute.Data.Minicute.Annotated
 
 import qualified Data.Set as Set
 

@@ -5,11 +5,20 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE PatternSynonyms #-}
 -- |
--- Types for annotated expressions
-module Minicute.Data.Minicute.Annotated.Expression
+-- Types for annotated programs
+module Minicute.Data.Minicute.Annotated
   ( module Minicute.Data.Fix
   , module Minicute.Data.Minicute.Common
   , module Minicute.Data.Minicute.Expression
+  , module Minicute.Data.Minicute.Program
+
+
+  , AnnotatedSupercombinatorMC
+  , MainAnnotatedSupercombinatorMC
+
+
+  , AnnotatedProgramMC
+  , MainAnnotatedProgramMC
 
 
   , AnnotatedExpressionMC( .. )
@@ -31,8 +40,25 @@ import Minicute.Data.Fix
 import Minicute.Data.Minicute.Common
 import Minicute.Data.Minicute.Expression
 import Minicute.Data.Minicute.Precedence
+import Minicute.Data.Minicute.Program
 
 import qualified Data.Text.Prettyprint.Doc as PP
+
+
+-- |
+-- @AnnotatedSupercombinatorMC ann@ is a @SupercombinatorMC@ annotated by @ann@.
+type AnnotatedSupercombinatorMC ann = Supercombinator (AnnotatedExpressionMC ann)
+-- |
+-- @MainAnnotatedSupercombinatorMC ann@ is a @MainSupercombinatorMC@ annotated by @ann@.
+type MainAnnotatedSupercombinatorMC ann = Supercombinator (AnnotatedExpressionMC ann) Identifier
+
+
+-- |
+-- @AnnotatedProgramMC ann a@ is a @ProgramMC@ annotated by @ann@.
+type AnnotatedProgramMC ann = Program (AnnotatedExpressionMC ann)
+-- |
+-- @MainAnnotatedProgramMC ann a@ is a @MainProgramMC@ annotated by @ann@.
+type MainAnnotatedProgramMC ann = Program (AnnotatedExpressionMC ann) Identifier
 
 
 -- |
