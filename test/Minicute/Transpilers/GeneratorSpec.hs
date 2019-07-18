@@ -10,8 +10,8 @@ import Test.Hspec
 import Control.Monad
 import Data.Tuple.Extra
 import Data.Word
-import LLVM.AST.Global ( name, basicBlocks )
-import LLVM.AST.Instruction ( Named( (:=) ) )
+import LLVM.AST.Global ( name, returnType, basicBlocks )
+import LLVM.IRBuilder
 import Minicute.Transpilers.Generator
 import Minicute.Utils.TH
 
@@ -52,49 +52,28 @@ testCases
              Return;
            }
         |]
-      , [ AST.GlobalDefinition AST.functionDefaults
-          { name = "minicute__user__defined__f"
-          , basicBlocks =
-              [ AST.BasicBlock
-                "entry"
-                [ AST.UnName 0 := AST.Alloca ASTT.i32 Nothing 0 []
-                , AST.Do
-                  ( AST.Store
-                    False
-                    (operandInt 32 100)
-                    (AST.LocalReference typeInt32Ptr (AST.UnName 0))
-                    Nothing
-                    0
-                    []
-                  )
-                , AST.UnName 1 := AST.Load False (AST.LocalReference typeInt32Ptr (AST.UnName 0)) Nothing 0 []
+      , execModuleBuilder emptyModuleBuilder
+        ( do
+            function "minicute__user__defined__f" [] ASTT.void . const
+              $ do
+              emitBlockStart "entry"
 
-                , AST.UnName 2 := AST.BitCast (AST.ConstantOperand (ASTC.GetElementPtr True constantAddrStackPointer [ASTC.Int 32 0])) typeNodeNInteger []
-                , AST.UnName 3 := AST.GetElementPtr True (AST.LocalReference typeNodeNIntegerPtr (AST.UnName 2)) [operandInt 32 0, operandInt 32 0] []
-                , AST.Do
-                  ( AST.Store
-                    False
-                    (operandInt 32 1)
-                    (AST.LocalReference typeInt32Ptr (AST.UnName 3))
-                    Nothing
-                    0
-                    []
-                  )
-                , AST.UnName 4 := AST.GetElementPtr True (AST.LocalReference typeNodeNIntegerPtr (AST.UnName 2)) [operandInt 32 0, operandInt 32 1] []
-                , AST.Do
-                  ( AST.Store
-                    False
-                    (AST.LocalReference typeInt32 (AST.UnName 1))
-                    (AST.LocalReference typeInt32Ptr (AST.UnName 4))
-                    Nothing
-                    0
-                    []
-                  )
-                ]
-                (AST.Do (AST.Ret Nothing []))
-              ]
-          }
-        ]
+              -- PushBasicValue 100
+              pName <- emitInstr typeInt32Ptr (AST.Alloca ASTT.i32 Nothing 0 [])
+              emitInstrVoid (AST.Store False (operandInt 32 100) pName Nothing 0 [])
+              vName <- emitInstr typeInt32 (AST.Load False (AST.LocalReference typeInt32Ptr (AST.UnName 0)) Nothing 0 [])
+
+              -- UpdateAsInteger 0
+              nName <- emitInstr typeNodeNIntegerPtr (AST.BitCast (AST.ConstantOperand (ASTC.GetElementPtr True constantAddrStackPointer [ASTC.Int 32 0])) typeNodeNInteger [])
+              tName <- emitInstr typeInt32Ptr (AST.GetElementPtr True nName [operandInt 32 0, operandInt 32 0] [])
+              emitInstrVoid (AST.Store False (operandInt 32 1) tName Nothing 0 [])
+              fName <- emitInstr typeInt32Ptr (AST.GetElementPtr True nName [operandInt 32 0, operandInt 32 1] [])
+              emitInstrVoid (AST.Store False vName fName Nothing 0 [])
+
+              -- Return
+              -- __TODO: this is not correct. Exchange @asb@ with @asp@__
+              emitTerm (AST.Ret Nothing [])
+        )
       )
     ]
 
