@@ -6,6 +6,7 @@ TEST_DIR := test
 RUNTIME_SRC := $(wildcard *.c)
 RUNTIME_OBJ := $(addprefix $(BUILD_DIR)/,$(RUNTIME_SRC:%.c=%.o))
 RUNTIME_DEP := $(RUNTIME_SRC:%.c=%.d)
+
 TEST_SRC := $(wildcard $(TEST_DIR)/*.ll)
 TEST_OBJ := $(addprefix $(BUILD_DIR)/,$(TEST_SRC:%.ll=%.o))
 TEST_DEP := $($(filter %.c,$(TEST_SRC)):%.c=%.d)
@@ -14,15 +15,11 @@ TEST_OUT := $(BUILD_DIR)/$(TEST_DIR)/test.out
 .PHONY: all test clean distclean
 
 all: test
-
 test: $(TEST_OUT)
 	./$(TEST_OUT)
-
 clean:
 	rm -rf $(BUILD_DIR)
-
-distclean:
-	rm -rf $(BUILD_DIR)
+distclean: clean
 	rm -f $(RUNTIME_DEP)
 	rm -f $(TEST_DEP)
 
