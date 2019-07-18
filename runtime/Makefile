@@ -1,29 +1,29 @@
 CC := clang
 
 BUILD_DIR := build
-TEST_DIR := test
+SCRATCH_DIR := scratch
 
 RUNTIME_SRC := $(wildcard *.c)
 RUNTIME_OBJ := $(addprefix $(BUILD_DIR)/,$(RUNTIME_SRC:%.c=%.o))
 RUNTIME_DEP := $(RUNTIME_SRC:%.c=%.d)
 
-TEST_SRC := $(wildcard $(TEST_DIR)/*.ll)
-TEST_OBJ := $(addprefix $(BUILD_DIR)/,$(TEST_SRC:%.ll=%.o))
-TEST_DEP := $($(filter %.c,$(TEST_SRC)):%.c=%.d)
-TEST_OUT := $(BUILD_DIR)/$(TEST_DIR)/test.out
+SCRATCH_SRC := $(wildcard $(SCRATCH_DIR)/*.ll)
+SCRATCH_OBJ := $(addprefix $(BUILD_DIR)/,$(SCRATCH_SRC:%.ll=%.o))
+SCRATCH_DEP := $($(filter %.c,$(SCRATCH_SRC)):%.c=%.d)
+SCRATCH_OUT := $(BUILD_DIR)/$(SCRATCH_DIR)/scratch.out
 
-.PHONY: all test clean distclean
+.PHONY: all scratch clean distclean
 
-all: test
-test: $(TEST_OUT)
-	./$(TEST_OUT)
+all: scratch
+scratch: $(SCRATCH_OUT)
+	./$(SCRATCH_OUT)
 clean:
 	rm -rf $(BUILD_DIR)
 distclean: clean
 	rm -f $(RUNTIME_DEP)
-	rm -f $(TEST_DEP)
+	rm -f $(SCRATCH_DEP)
 
-$(TEST_OUT): $(RUNTIME_OBJ) $(TEST_OBJ)
+$(SCRATCH_OUT): $(RUNTIME_OBJ) $(SCRATCH_OBJ)
 	@mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) $(CPPFLAGS) $(LDLIBS) $(LDFLAGS) -o $@ $^
 
@@ -40,4 +40,4 @@ $(BUILD_DIR)/%.o: %.ll
 	llc -filetype obj -o $@ $<
 
 include $(RUNTIME_DEP)
-include $(TEST_DEP)
+include $(SCRATCH_DEP)
