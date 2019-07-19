@@ -1,6 +1,6 @@
 #### Top-level fields ####
 spec-version:                       0.31.0
-name:                               minicute-parser
+name:                               minicute
 version:                            0.1.0.0
 synopsis:                           Experimental package for a language implemented by Haskell
 description: >
@@ -25,7 +25,7 @@ license-file:                       LICENSE
 extra-doc-files:                    README.md
 # data-files:
 # data-dir:
-github:                             CUTE-Lang/miniCUTE/parser
+github:                             CUTE-Lang/miniCUTE/minicute
 ## Following is ignored when "github" field exists
 # git:
 # custom-setup:
@@ -33,59 +33,36 @@ github:                             CUTE-Lang/miniCUTE/parser
 #### Sections ####
 # flags:
 
-library:
-  ### Library fields ###
-  # exposed:
-  # exposed-modules:
-  # generated-exposed-modules:
-  # other-modules:
-  # generated-other-modules:
-  # reexported-modules:
-  # signatures:
-
-  ### Common fields ###
-  source-dirs:
-    - src
-  ghc-options:
-    - -Wall
-    - -Wstar-is-type
-  dependencies:
-    - extra >= 1.6 && < 2
-    - lens >= 4.17 && < 5
-    - minicute-base == 0.1.0.0
-    - megaparsec >= 7.0 && < 8
-    - mtl >= 2.2 && < 3
-    - parser-combinators
-    - template-haskell >= 2.14 && < 3
+# library:
 
 # internal-libraries:
 
-# executables:
-
-# executable:
-
-tests:
-  test:
-    ### Test fields ###
-    main:                           Spec.hs
+executables:
+  minicute:
+    ### Executable fields ###
+    main:                           Main.hs
     # other-modules:
     # generated-other-modules:
 
     ### Common fields ###
     source-dirs:
-      - test
+      - app
     ghc-options:
       - -threaded
       - -rtsopts
       - -with-rtsopts=-N
     dependencies:
-      - megaparsec
-      - minicute-base
-      - minicute-parser
+      ## Remove following dependence if possible
+      - megaparsec >= 7.0 && < 8
 
-      - hspec
-      - hspec-megaparsec
+      - minicute-abstractify == 0.1.0.0
+      - minicute-base == 0.1.0.0
+      - minicute-codegenerator == 0.1.0.0
+      - minicute-parser == 0.1.0.0
 
+# executable:
+
+tests:
   hlint:
     ### Test fields ###
     main:                           Main.hs
@@ -117,7 +94,7 @@ benchmarks:
       - -rtsopts
       - -with-rtsopts=-N
     dependencies:
-      - minicute-parser
+      - minicute
 
 # defaults:
   # github:

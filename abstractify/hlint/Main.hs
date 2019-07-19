@@ -12,8 +12,7 @@ main =
     putStrLn ""
     let
       hlintArgs =
-        [ "app"
-        , "src"
+        [ "src"
         , "test"
         , "--hint=hlint/hlint.yml"
         ]
