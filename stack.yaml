@@ -34,6 +34,7 @@ resolver: lts-13.27
 #  - wai
 packages:
 - ./base
+- ./parser
 - ./compiler
 # Dependency packages to be pulled from upstream that are not in the resolver
 # using the same syntax as the packages field.
