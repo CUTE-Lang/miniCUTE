@@ -1,17 +1,21 @@
 #include <stdlib.h>
+#include <stdint.h>
+#include <stdio.h>
 
-#define INITIAL_ADDR_STACK_SIZE 1024
-#define INITIAL_NODE_HEAP_SIZE 1024
+#include "runtime.h"
 
-void *asp;
-void *nhp;
-void minicute__user__defined__main();
+int8_t **asp;
 
-void minicute_init();
+int8_t *nhp;
+int8_t *nhp_max;
 
 int main(/* TODO: use argc and argv */)
 {
   minicute_init();
+
+  /**
+   * Entry point of a miniCUTE module
+   */
   minicute__user__defined__main();
 
   return 0;
@@ -20,5 +24,12 @@ int main(/* TODO: use argc and argv */)
 void minicute_init()
 {
   asp = malloc(INITIAL_ADDR_STACK_SIZE * sizeof asp);
+  minicute_llvm_pointer_debug(asp);
   nhp = malloc(INITIAL_NODE_HEAP_SIZE * sizeof nhp);
+  nhp_max = nhp + INITIAL_NODE_HEAP_SIZE;
+}
+
+void minicute_llvm_pointer_debug(void *p)
+{
+  printf("pointer: %p\n", p);
 }
