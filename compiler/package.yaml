@@ -1,6 +1,6 @@
 #### Top-level fields ####
 spec-version:                       0.31.0
-name:                               minicute
+name:                               minicute-compiler
 version:                            0.1.0.0
 synopsis:                           Experimental package for a language implemented by Haskell
 description: >
@@ -21,11 +21,11 @@ license:                            BSD-3-Clause
 license-file:                       LICENSE
 # tested-with:
 # build-type:
-extra-source-files:                 README.md
-# extra-doc-files:
+# extra-source-files:
+extra-doc-files:                    README.md
 # data-files:
 # data-dir:
-github:                             CUTE-Lang/miniCUTE
+github:                             CUTE-Lang/miniCUTE/compiler
 ## Following is ignored when "github" field exists
 # git:
 # custom-setup:
@@ -80,7 +80,7 @@ executables:
       ## Remove following dependence if possible
       - megaparsec
 
-      - minicute
+      - minicute-compiler
 
 # executable:
 
@@ -104,7 +104,7 @@ tests:
       - lens
       - llvm-hs-pure
       - megaparsec
-      - minicute
+      - minicute-compiler
 
       - hspec
       - hspec-megaparsec
@@ -140,7 +140,7 @@ benchmarks:
       - -rtsopts
       - -with-rtsopts=-N
     dependencies:
-      - minicute
+      - minicute-compiler
 
 # defaults:
   # github:
@@ -170,7 +170,8 @@ benchmarks:
 # extra-frameworks-dirs:
 # ld-options:
 dependencies:
-  - base >= 4.12 && < 5  
+  - base >= 4.12 && < 5
+  - minicute-base == 0.1.0.0
 # pkg-config-dependencies:
 # build-tools:
 # system-build-tools:
