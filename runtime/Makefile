@@ -41,5 +41,7 @@ $(BUILD_DIR)/$(SCRATCH_DIR)/%.o: $(SCRATCH_DIR)/%.ll
 	@mkdir -p $(dir $@)
 	llc -filetype obj -o $@ $<
 
+ifneq ($(MAKECMDGOALS),clean)
 include $(C_LIB_DEP)
 include $(SCRATCH_DEP)
+endif
