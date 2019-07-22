@@ -16,6 +16,8 @@ SCRATCH_DEP := $($(filter %.c,$(SCRATCH_SRC)):%.c=%.d)
 
 SCRATCH_OUT := $(BUILD_DIR)/$(SCRATCH_DIR)/scratch.out
 
+ifneq ($(SHELL),)
+
 .PHONY: all scratch clean
 
 all: scratch
@@ -42,6 +44,26 @@ $(BUILD_DIR)/$(SCRATCH_DIR)/%.o: $(SCRATCH_DIR)/%.ll
 	llc -filetype obj -o $@ $<
 
 ifneq ($(MAKECMDGOALS),clean)
+
 include $(C_LIB_DEP)
 include $(SCRATCH_DEP)
-endif
+
+endif # ($(MAKECMDGOALS),clean)
+
+else # ($(SHELL),)
+
+.PHONY: all scratch clean unsupported
+
+all: unsupported
+scratch: unsupported
+clean: unsupported
+
+unsupported:
+	@echo "This system is not yet supported."
+	@echo "If you use Windows, please use Cygwin or Msys to install Make."
+	@echo "If not, please report your issue on our GitHub repository:"
+	@echo ""
+	@echo "    https://github.com/CUTE-Lang/minicute/issues"
+	@echo ""
+
+endif # ($(SHELL),)
