@@ -24,7 +24,6 @@ int main(/* TODO: use argc and argv */)
 void minicute_init()
 {
   asp = malloc(INITIAL_ADDR_STACK_SIZE * sizeof asp);
-  minicute_llvm_pointer_debug(asp);
   nhp = malloc(INITIAL_NODE_HEAP_SIZE * sizeof nhp);
   nhp_max = nhp + INITIAL_NODE_HEAP_SIZE;
 }
