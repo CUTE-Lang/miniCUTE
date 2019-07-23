@@ -1,20 +1,19 @@
 CC := clang
 
-C_SRC_DIR := src
-C_LIB_DIR := lib
+LIB_DIR := lib
 BUILD_DIR := build
 
 SCRATCH_DIR := scratch
 
-C_LIB_SRC := $(wildcard $(C_SRC_DIR)/*.c $(C_SRC_DIR)/**/*.c)
-C_LIB_OBJ := $(C_LIB_SRC:$(C_SRC_DIR)/%.c=$(BUILD_DIR)/$(C_LIB_DIR)/%.o)
-C_LIB_DEP := $(C_LIB_SRC:$(C_SRC_DIR)/%.c=$(BUILD_DIR)/$(C_LIB_DIR)/%.d)
+LIB_C_SRC := $(wildcard $(LIB_DIR)/*.c $(LIB_DIR)/**/*.c)
+LIB_C_OBJ := $(LIB_C_SRC:%.c=$(BUILD_DIR)/%.o)
+LIB_C_DEP := $(LIB_C_SRC:%.c=$(BUILD_DIR)/%.d)
 
 SCRATCH_SRC := $(wildcard $(SCRATCH_DIR)/*.ll $(SCRATCH_DIR)/**/*.ll)
-SCRATCH_OBJ := $(addprefix $(BUILD_DIR)/,$(SCRATCH_SRC:%.ll=%.o))
-SCRATCH_DEP := $($(filter %.c,$(SCRATCH_SRC)):%.c=%.d)
+SCRATCH_OBJ := $(SCRATCH_SRC:%.ll=$(BUILD_DIR)/%.o)
+SCRATCH_DEP := $($(filter %.c,$(SCRATCH_SRC)):%.c=$(BUILD_DIR)/%.d)
 
-SCRATCH_OUT := $(BUILD_DIR)/$(SCRATCH_DIR)/scratch.out
+SCRATCH_OUT := $(BUILD_DIR)/scratch.out
 
 ifneq ($(SHELL),)
 
@@ -26,26 +25,26 @@ scratch: $(SCRATCH_OUT)
 clean:
 	rm -rf $(BUILD_DIR)
 
-$(SCRATCH_OUT): $(C_LIB_OBJ) $(SCRATCH_OBJ)
+$(SCRATCH_OUT): $(LIB_C_OBJ) $(SCRATCH_OBJ)
 	@mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) $(CPPFLAGS) $(LDLIBS) $(LDFLAGS) -o $@ $^
 
-$(BUILD_DIR)/$(C_LIB_DIR)/%.d: $(C_SRC_DIR)/%.c
+$(BUILD_DIR)/%.d: %.c
 	@mkdir -p $(dir $@)
 	@set -e
 	$(CC) -M $(CPPFLAGS) $< | sed 's^\($*\)\.o[ :]*^\1.o $@ : ^g' > $@
 	@[ -s $@ ] || rm -f $@
 
-$(BUILD_DIR)/$(C_LIB_DIR)/%.o: $(C_SRC_DIR)/%.c
+$(BUILD_DIR)/%.o: %.c
 	@mkdir -p $(dir $@)
 	$(CC) -c $(CFLAGS) $(CPPFLAGS) -o $@ $<
-$(BUILD_DIR)/$(SCRATCH_DIR)/%.o: $(SCRATCH_DIR)/%.ll
+$(BUILD_DIR)/%.o: %.ll
 	@mkdir -p $(dir $@)
 	llvm-as < $< | opt -O2 | llc -filetype obj -o $@
 
 ifneq ($(MAKECMDGOALS),clean)
 
-include $(C_LIB_DEP)
+include $(LIB_C_DEP)
 include $(SCRATCH_DEP)
 
 endif # ($(MAKECMDGOALS),clean)
