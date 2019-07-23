@@ -41,7 +41,7 @@ $(BUILD_DIR)/$(C_LIB_DIR)/%.o: $(C_SRC_DIR)/%.c
 	$(CC) -c $(CFLAGS) $(CPPFLAGS) -o $@ $<
 $(BUILD_DIR)/$(SCRATCH_DIR)/%.o: $(SCRATCH_DIR)/%.ll
 	@mkdir -p $(dir $@)
-	llc -filetype obj -o $@ $<
+	llvm-as < $< | opt -O2 | llc -filetype obj -o $@
 
 ifneq ($(MAKECMDGOALS),clean)
 

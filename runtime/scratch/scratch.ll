@@ -58,7 +58,7 @@ define dso_local void @minicute__user__defined__main() {
     ret void
 }
 
-define dso_local void @minicute__util__print_top_NInteger() {
+define dso_local void @minicute__util__print_top_NInteger() alwaysinline {
   entry:
     %0 = load i8**, i8*** @asp
     %1 = getelementptr inbounds i8*, i8** %0, i32 0
