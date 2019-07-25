@@ -2,6 +2,7 @@
 #include <stdint.h>
 #include <stdio.h>
 
+#include "node.h"
 #include "runtime.h"
 
 int8_t **asp;
@@ -21,7 +22,7 @@ int main(/* TODO: use argc and argv */)
   return 0;
 }
 
-void minicute_init()
+void minicute_init(void)
 {
   asp = malloc(INITIAL_ADDR_STACK_SIZE * sizeof asp);
   nhp = malloc(INITIAL_NODE_HEAP_SIZE * sizeof nhp);
@@ -31,4 +32,16 @@ void minicute_init()
 void minicute_llvm_pointer_debug(void *p)
 {
   printf("pointer: %p\n", p);
+}
+
+__attribute__((always_inline))
+int8_t *minicute_create_node_NInteger(int32_t value)
+{
+  minicute_node *node = (void *)nhp;
+  nhp += sizeof(minicute_node);
+
+  node->node_tag = 0;
+  node->node_integer_body.value = value;
+
+  return (void *) node;
 }
