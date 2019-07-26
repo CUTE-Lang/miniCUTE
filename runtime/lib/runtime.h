@@ -4,4 +4,4 @@
 #include <stdint.h>
 
 void minicute_llvm_pointer_debug(void *p);
-#endif
+#endif /* _RUNTIME_H_ */

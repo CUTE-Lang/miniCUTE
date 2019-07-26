@@ -2,7 +2,7 @@
 #include "node.h"
 
 __attribute__((always_inline))
-int8_t *minicute_create_node_NEmpty()
+int8_t *minicute_create_node_NEmpty(void)
 {
   minicute_node_NEmpty *node = (void *)nhp;
   nhp += sizeof(*node);

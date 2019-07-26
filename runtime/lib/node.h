@@ -55,11 +55,10 @@ typedef struct minicute_node_NIndirect
   int8_t *referee;
 } minicute_node_NIndirect;
 
-int8_t *minicute_create_node_NEmpty();
+int8_t *minicute_create_node_NEmpty(void);
 int8_t *minicute_create_node_NInteger(int32_t value);
 int8_t *minicute_create_node_NConstructor(int32_t data_tag, int32_t data_arity);
 int8_t *minicute_create_node_NStructure(int32_t data_tag, int32_t data_arity, int8_t **data_fields);
 int8_t *minicute_create_node_NApplication(int8_t *function, int8_t *argument);
 int8_t *minicute_create_node_NIndirect(int8_t *referee);
-
-#endif
+#endif /* _NODE_H_ */
