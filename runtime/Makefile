@@ -36,23 +36,23 @@ clean:
 
 $(SCRATCH_OUT): $(LIB_C_OBJ) $(SCRATCH_OBJ)
 	@mkdir -p $(dir $@)
-	@printf ">> %-7sBuild \x1b[92m$@\x1b[0m\n" "[O]"
+	@printf ">> %-7sBuild \x1b[92m%s\x1b[0m\n" "[O]" "$@"
 	@$(CC) $(CFLAGS) $(CPPFLAGS) $(LDLIBS) $(LDFLAGS) -o $@ $^
 
 $(BUILD_DIR)/%.d: %.c
 	@mkdir -p $(dir $@)
 	@set -e
-	@printf ">> %-7sCreate dependency file for \x1b[92m%s\x1b[0m\n" "[C]" "$<"
+	@printf ">> %-7sCreate \x1b[92m%s\x1b[0m for \x1b[92m%s\x1b[0m\n" "[C]" "$@" "$<"
 	@$(CC) -M $(CPPFLAGS) $< | sed 's^\($*\)\.o[ :]*^\1.o $@ : ^g' > $@
 	@[ -s $@ ] || rm -f $@
 
 $(BUILD_DIR)/%.o: %.c
 	@mkdir -p $(dir $@)
-	@printf ">> %-7sCompile \x1b[92m%s\x1b[0m\n" "[C]" "$<"
+	@printf ">> %-7sCompile \x1b[92m%s\x1b[0m to \x1b[92m%s\x1b[0m\n" "[C]" "$<" "$@"
 	@$(CC) -c $(CFLAGS) $(CPPFLAGS) -o $@ $<
 $(BUILD_DIR)/%.o: %.ll
 	@mkdir -p $(dir $@)
-	@printf ">> %-7sCompile \x1b[92m%s\x1b[0m\n" "[LL]" "$<"
+	@printf ">> %-7sCompile \x1b[92m%s\x1b[0m to \x1b[92m%s\x1b[0m\n" "[LL]" "$<" "$@"
 	@llvm-as < $< | opt -O2 | llc -filetype obj -o $@
 
 ifneq ($(MAKECMDGOALS),clean)
