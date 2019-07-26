@@ -1,13 +1,15 @@
 #include "machine.h"
 #include "node.h"
 
+#define ALLOC_NODE(type, name)                  \
+  minicute_node_##type *name = (void *) nhp;    \
+  nhp += sizeof(*name);                         \
+  node->tag = type##_TAG;
+
 __attribute__((always_inline))
 int8_t *minicute_create_node_NEmpty(void)
 {
-  minicute_node_NEmpty *node = (void *)nhp;
-  nhp += sizeof(*node);
-
-  node->tag = N_EMPTY_TAG;
+  ALLOC_NODE(NEmpty, node);
 
   return (void *) node;
 }
@@ -15,10 +17,7 @@ int8_t *minicute_create_node_NEmpty(void)
 __attribute__((always_inline))
 int8_t *minicute_create_node_NInteger(int32_t value)
 {
-  minicute_node_NInteger *node = (void *)nhp;
-  nhp += sizeof(*node);
-
-  node->tag = N_INTEGER_TAG;
+  ALLOC_NODE(NInteger, node);
   node->value = value;
 
   return (void *) node;
@@ -27,10 +26,7 @@ int8_t *minicute_create_node_NInteger(int32_t value)
 __attribute__((always_inline))
 int8_t *minicute_create_node_NConstructor(int32_t data_tag, int32_t data_arity)
 {
-  minicute_node_NConstructor *node = (void *)nhp;
-  nhp += sizeof(*node);
-
-  node->tag = N_CONSTRUCTOR_TAG;
+  ALLOC_NODE(NConstructor, node);
   node->data_tag = data_tag;
   node->data_arity = data_arity;
 
@@ -40,10 +36,7 @@ int8_t *minicute_create_node_NConstructor(int32_t data_tag, int32_t data_arity)
 __attribute__((always_inline))
 int8_t *minicute_create_node_NStructure(int32_t data_tag, int32_t data_arity, int8_t **data_fields)
 {
-  minicute_node_NStructure *node = (void *)nhp;
-  nhp += sizeof(*node);
-
-  node->tag = N_STRUCTURE_TAG;
+  ALLOC_NODE(NStructure, node);
   node->data_tag = data_tag;
   node->data_arity = data_arity;
   node->data_fields = data_fields;
@@ -54,10 +47,7 @@ int8_t *minicute_create_node_NStructure(int32_t data_tag, int32_t data_arity, in
 __attribute__((always_inline))
 int8_t *minicute_create_node_NApplication(int8_t *function, int8_t *argument)
 {
-  minicute_node_NApplication *node = (void *)nhp;
-  nhp += sizeof(*node);
-
-  node->tag = N_APPLICATION_TAG;
+  ALLOC_NODE(NApplication, node);
   node->function = function;
   node->argument = argument;
 
@@ -67,12 +57,18 @@ int8_t *minicute_create_node_NApplication(int8_t *function, int8_t *argument)
 __attribute__((always_inline))
 int8_t *minicute_create_node_NIndirect(int8_t *referee)
 {
-  minicute_node_NIndirect *node = (void *)nhp;
-  nhp += sizeof(*node);
-
-  node->tag = N_INDIRECT_TAG;
+  ALLOC_NODE(NIndirect, node);
   node->referee = referee;
 
   return (void *) node;
 }
 
+__attribute__((always_inline))
+int8_t *minicute_create_node_NGlobal(int8_t *global_function, int32_t global_arity)
+{
+  ALLOC_NODE(NGlobal, node);
+  node->global_function = global_function;
+  node->global_arity = global_arity;
+
+  return (void *) node;
+}
