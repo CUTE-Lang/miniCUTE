@@ -1,3 +1,8 @@
+ifeq ($(OS), Windows_NT)
+EXEC_EXT := exe
+else
+EXEC_EXT := out
+endif
 CC := clang
 
 LIB_DIR := lib
@@ -13,7 +18,7 @@ SCRATCH_SRC := $(wildcard $(SCRATCH_DIR)/*.ll $(SCRATCH_DIR)/**/*.ll)
 SCRATCH_OBJ := $(SCRATCH_SRC:%.ll=$(BUILD_DIR)/%.o)
 SCRATCH_DEP := $($(filter %.c,$(SCRATCH_SRC)):%.c=$(BUILD_DIR)/%.d)
 
-SCRATCH_OUT := $(BUILD_DIR)/scratch.out
+SCRATCH_OUT := $(BUILD_DIR)/scratch.$(EXEC_EXT)
 
 ifneq ($(SHELL),)
 
