@@ -10,11 +10,11 @@ declare i32 @printf(i8* noalias nocapture, ...)
 %struct.minicute_node_NStructure = type { i8, i32, i32, i8** }
 %struct.minicute_node_NGlobal = type { i8, i8*, i32 }
 
-@asp = external dso_local global i8**
-@nhp = external dso_local global i8*
+@asp = external dso_local unnamed_addr global i8**
+@nhp = external dso_local unnamed_addr global i8*
 
-@minicute__user__defined__node__f = weak_odr dso_local global %struct.minicute_node_NGlobal { i8 6, i8* bitcast (void ()* @minicute__user__defined__f to i8*), i32 0 }
-define dso_local void @minicute__user__defined__f() {
+@minicute__user__defined__node__f = weak_odr dso_local unnamed_addr global %struct.minicute_node_NGlobal { i8 6, i8* bitcast (void ()* @minicute__user__defined__f to i8*), i32 0 }
+define dso_local void @minicute__user__defined__f() #1 {
   entry:
     ; PushBasicValue 100
     %0 = alloca i32
@@ -31,8 +31,8 @@ define dso_local void @minicute__user__defined__f() {
     ret void
 }
 
-@minicute__user__defined__node__main = weak_odr dso_local global %struct.minicute_node_NGlobal { i8 6, i8* bitcast (void ()* @minicute__user__defined__main to i8*), i32 0 }
-define dso_local void @minicute__user__defined__main() {
+@minicute__user__defined__node__main = weak_odr dso_local unnamed_addr global %struct.minicute_node_NGlobal { i8 6, i8* bitcast (void ()* @minicute__user__defined__main to i8*), i32 0 }
+define dso_local void @minicute__user__defined__main() #1 {
   entry:
     ; PushGlobal "f"
     %0 = load i8**, i8*** @asp
@@ -51,6 +51,9 @@ define dso_local void @minicute__user__defined__main() {
     %7 = load i8*, i8** %6
     call void @minicute_update_node_NIndirect(i8* %5, i8* %7)
 
+    br label %unwind
+
+  unwind:
     ; Unwind
     %8 = load i8**, i8*** @asp
     %9 = getelementptr inbounds i8*, i8** %8, i32 0
@@ -105,7 +108,7 @@ define dso_local void @minicute__user__defined__main() {
 }
 
 @minicute__util__print_top_node_tag.format = private unnamed_addr constant [20 x i8] c"top node tag is %d\0A\00", align 1
-define private dso_local void @minicute__util__print_top_node_tag() unnamed_addr alwaysinline {
+define private dso_local void @minicute__util__print_top_node_tag() unnamed_addr #0 {
   entry:
     %0 = load i8**, i8*** @asp
     %1 = getelementptr inbounds i8*, i8** %0, i32 0
@@ -113,6 +116,7 @@ define private dso_local void @minicute__util__print_top_node_tag() unnamed_addr
     %3 = bitcast i8* %2 to %struct.minicute_node*
     %4 = getelementptr inbounds %struct.minicute_node, %struct.minicute_node* %3, i32 0, i32 0
     %5 = load i8, i8* %4
+    ; 'sext' is required since -1 is a valid tag
     %6 = sext i8 %5 to i32
     %7 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([20 x i8], [20 x i8]* @minicute__util__print_top_node_tag.format, i32 0, i32 0), i32 %6)
 
@@ -120,7 +124,7 @@ define private dso_local void @minicute__util__print_top_node_tag() unnamed_addr
 }
 
 @minicute__util__print_top_NInteger.format = private unnamed_addr constant [26 x i8] c"top NInteger value is %d\0A\00", align 1
-define private dso_local void @minicute__util__print_top_NInteger() unnamed_addr alwaysinline {
+define private dso_local void @minicute__util__print_top_NInteger() unnamed_addr #0 {
   entry:
     %0 = load i8**, i8*** @asp
     %1 = getelementptr inbounds i8*, i8** %0, i32 0
@@ -132,3 +136,6 @@ define private dso_local void @minicute__util__print_top_NInteger() unnamed_addr
 
     ret void
 }
+
+attributes #0 = { alwaysinline nounwind }
+attributes #1 = { nounwind }
