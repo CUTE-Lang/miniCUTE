@@ -20,6 +20,7 @@ void minicute_machine_init(void)
 
 void minicute_machine_run(void)
 {
-  asp[0] = (void *) &minicute__user__defined__node__main;
+  asp[1] = (void *) &minicute__user__defined__node__main;
+  asp += 1;
   ((void (*)(void))(void *)minicute__user__defined__node__main.global_function)();
 }

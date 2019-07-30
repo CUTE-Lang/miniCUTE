@@ -135,8 +135,7 @@ define private dso_local void @minicute__util__print_stack_size() unnamed_addr #
     %3 = ptrtoint i8** %2 to i32
     %4 = sub i32 %3, %1
     %5 = sdiv exact i32 %4, 8
-    %6 = add i32 %5, 1
-    %7 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([26 x i8], [26 x i8]* @minicute__util__print_stack_size.format, i32 0, i32 0), i32 %6)
+    %6 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([26 x i8], [26 x i8]* @minicute__util__print_stack_size.format, i32 0, i32 0), i32 %5)
 
     ret void
 }
