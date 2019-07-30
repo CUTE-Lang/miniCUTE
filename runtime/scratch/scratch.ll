@@ -35,12 +35,16 @@ define dso_local void @minicute__user__defined__f() #1 {
 @minicute__user__defined__node__main = weak_odr dso_local unnamed_addr global %struct.minicute_node_NGlobal { i8 6, i8* bitcast (void ()* @minicute__user__defined__main to i8*), i32 0 }
 define dso_local void @minicute__user__defined__main() #1 {
   entry:
+    ; -- debug
+    call void @minicute__util__print_stack_size()
     ; MakeGlobal "f"
     %0 = load i8**, i8*** @asp
     %1 = getelementptr inbounds i8*, i8** %0, i32 1
     %2 = bitcast %struct.minicute_node_NGlobal* @minicute__user__defined__node__f to i8*
     store i8* %2, i8** %1
     store i8** %1, i8*** @asp
+    ; -- debug
+    call void @minicute__util__print_stack_size()
     ; -- debug
     call void @minicute__util__print_top_node_tag()
 
@@ -97,6 +101,8 @@ define dso_local void @minicute__user__defined__main() #1 {
     %17 = bitcast i8* %16 to void ()*
     call void %17()
     ; -- debug
+    call void @minicute__util__print_stack_size()
+    ; -- debug
     call void @minicute__util__print_top_node_tag()
     ; -- debug
     call void @minicute__util__print_top_NInteger()
@@ -105,6 +111,21 @@ define dso_local void @minicute__user__defined__main() #1 {
 
   unwind_error_tag:
     ; Unimplemented
+    ret void
+}
+
+@minicute__util__print_stack_size.format = private unnamed_addr constant [26 x i8] c"current stack size is %d\0A\00", align 1
+define private dso_local void @minicute__util__print_stack_size() unnamed_addr #0 {
+  entry:
+    %0 = load i8**, i8*** @abp
+    %1 = ptrtoint i8** %0 to i32
+    %2 = load i8**, i8*** @asp
+    %3 = ptrtoint i8** %2 to i32
+    %4 = sub i32 %3, %1
+    %5 = sdiv exact i32 %4, 8
+    %6 = add i32 %5, 1
+    %7 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([26 x i8], [26 x i8]* @minicute__util__print_stack_size.format, i32 0, i32 0), i32 %6)
+
     ret void
 }
 
