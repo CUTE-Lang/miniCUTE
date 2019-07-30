@@ -5,6 +5,7 @@
 #include "user.h"
 
 int8_t **asp;
+int8_t **abp;
 
 int8_t *nhp;
 int8_t *nhp_max;
@@ -12,6 +13,7 @@ int8_t *nhp_max;
 void minicute_machine_init(void)
 {
   asp = malloc(INITIAL_ADDR_STACK_SIZE * sizeof asp);
+  abp = asp;
   nhp = malloc(INITIAL_NODE_HEAP_SIZE * sizeof nhp);
   nhp_max = nhp + INITIAL_NODE_HEAP_SIZE;
 }

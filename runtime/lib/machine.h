@@ -7,6 +7,7 @@
 #define INITIAL_NODE_HEAP_SIZE 1024
 
 extern int8_t **asp;
+extern int8_t **abp;
 
 extern int8_t *nhp;
 extern int8_t *nhp_max;

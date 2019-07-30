@@ -10,6 +10,7 @@ declare i32 @printf(i8* noalias nocapture, ...)
 %struct.minicute_node_NStructure = type { i8, i32, i32, i8** }
 %struct.minicute_node_NGlobal = type { i8, i8*, i32 }
 
+@abp = external dso_local unnamed_addr global i8**
 @asp = external dso_local unnamed_addr global i8**
 @nhp = external dso_local unnamed_addr global i8*
 
