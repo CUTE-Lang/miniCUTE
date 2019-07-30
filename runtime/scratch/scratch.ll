@@ -14,6 +14,11 @@ declare i32 @printf(i8* noalias nocapture, ...)
 @asp = external dso_local unnamed_addr global i8**
 @nhp = external dso_local unnamed_addr global i8*
 
+; f<0> {
+;   PushBasicValue 100;
+;   UpdateAsInteger 0;
+;   Return;
+; }
 @minicute__user__defined__node__f = weak_odr dso_local unnamed_addr global %struct.minicute_node_NGlobal { i8 6, i8* bitcast (void ()* @minicute__user__defined__f to i8*), i32 0 }
 define dso_local void @minicute__user__defined__f() #1 {
   entry:
@@ -32,12 +37,19 @@ define dso_local void @minicute__user__defined__f() #1 {
     ret void
 }
 
+; main<0> {
+;   MakeGlobal f;
+;   Eval;
+;   Update 1;
+;   Pop 1;
+;   Unwind;
+; }
 @minicute__user__defined__node__main = weak_odr dso_local unnamed_addr global %struct.minicute_node_NGlobal { i8 6, i8* bitcast (void ()* @minicute__user__defined__main to i8*), i32 0 }
 define dso_local void @minicute__user__defined__main() #1 {
   entry:
     ; -- debug
     call void @minicute__util__print_stack_size()
-    ; MakeGlobal "f"
+    ; MakeGlobal f
     %0 = load i8**, i8*** @asp
     %1 = getelementptr inbounds i8*, i8** %0, i32 1
     %2 = bitcast %struct.minicute_node_NGlobal* @minicute__user__defined__node__f to i8*
