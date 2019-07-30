@@ -11,6 +11,8 @@
 #define NIndirect_TAG 5
 #define NGlobal_TAG 6
 
+#define NStructureFields_TAG -1
+
 typedef struct minicute_node
 {
   int8_t tag;
@@ -38,9 +40,15 @@ typedef struct minicute_node_NStructure
 {
   int8_t tag;
   int32_t data_tag;
-  int32_t data_arity;
-  int8_t **data_fields;
+  int8_t *data_fields;
 } minicute_node_NStructure;
+
+typedef struct minicute_node_NStructureFields
+{
+  int8_t tag;
+  int32_t size;
+  int8_t *values;
+} minicute_node_NStructureFields;
 
 typedef struct minicute_node_NApplication
 {
@@ -65,7 +73,8 @@ typedef struct minicute_node_NGlobal
 int8_t *minicute_create_node_NEmpty(void);
 int8_t *minicute_create_node_NInteger(int32_t value);
 int8_t *minicute_create_node_NConstructor(int32_t data_tag, int32_t data_arity);
-int8_t *minicute_create_node_NStructure(int32_t data_tag, int32_t data_arity, int8_t **data_fields);
+int8_t *minicute_create_node_NStructure(int32_t data_tag, int8_t *data_fields);
+int8_t *minicute_create_node_NStructureFields(int32_t size, int8_t *values);
 int8_t *minicute_create_node_NApplication(int8_t *function, int8_t *argument);
 int8_t *minicute_create_node_NIndirect(int8_t *referee);
 int8_t *minicute_create_node_NGlobal(int8_t *global_function, int32_t global_arity);

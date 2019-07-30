@@ -4,7 +4,7 @@
 #define ALLOC_NODE(type, name)                  \
   minicute_node_##type *name = (void *) nhp;    \
   nhp += sizeof(*name);                         \
-  node->tag = type##_TAG;
+  node->tag = type##_TAG
 
 __attribute__((always_inline))
 int8_t *minicute_create_node_NEmpty(void)
@@ -34,12 +34,21 @@ int8_t *minicute_create_node_NConstructor(int32_t data_tag, int32_t data_arity)
 }
 
 __attribute__((always_inline))
-int8_t *minicute_create_node_NStructure(int32_t data_tag, int32_t data_arity, int8_t **data_fields)
+int8_t *minicute_create_node_NStructure(int32_t data_tag, int8_t *data_fields)
 {
   ALLOC_NODE(NStructure, node);
   node->data_tag = data_tag;
-  node->data_arity = data_arity;
   node->data_fields = data_fields;
+
+  return (void *) node;
+}
+
+__attribute__((always_inline))
+int8_t *minicute_create_node_NStructureFields(int32_t size, int8_t *values)
+{
+  ALLOC_NODE(NStructureFields, node);
+  node->size = size;
+  node->values = values;
 
   return (void *) node;
 }
