@@ -34,7 +34,7 @@ define dso_local void @minicute__user__defined__f() #1 {
 @minicute__user__defined__node__main = weak_odr dso_local unnamed_addr global %struct.minicute_node_NGlobal { i8 6, i8* bitcast (void ()* @minicute__user__defined__main to i8*), i32 0 }
 define dso_local void @minicute__user__defined__main() #1 {
   entry:
-    ; PushGlobal "f"
+    ; MakeGlobal "f"
     %0 = load i8**, i8*** @asp
     %1 = getelementptr inbounds i8*, i8** %0, i32 1
     %2 = bitcast %struct.minicute_node_NGlobal* @minicute__user__defined__node__f to i8*
