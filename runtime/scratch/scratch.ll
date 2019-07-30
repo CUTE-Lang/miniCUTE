@@ -6,11 +6,13 @@ declare i32 @printf(i8* noalias nocapture, ...)
 %struct.minicute_node_NEmpty = type { i8 }
 %struct.minicute_node_NInteger = type { i8, i32 }
 %struct.minicute_node_NStructure = type { i8, i32, i32, i8** }
+%struct.minicute_node_NGlobal = type { i8, i8*, i32 }
 
 @test = private unnamed_addr constant [14 x i8] c"result is %d\0A\00", align 1
 @asp = external dso_local global i8**
 @nhp = external dso_local global i8*
 
+@minicute__user__defined__node__f = dso_local global %struct.minicute_node_NGlobal { i8 6, i8* bitcast (void ()* @minicute__user__defined__f to i8*), i32 0 }
 define dso_local void @minicute__user__defined__f() {
   entry:
     ; PushBasicValue 100
@@ -27,6 +29,7 @@ define dso_local void @minicute__user__defined__f() {
     ret void
 }
 
+@minicute__user__defined__node__main = dso_local global %struct.minicute_node_NGlobal { i8 6, i8* bitcast (void ()* @minicute__user__defined__main to i8*), i32 0 }
 define dso_local void @minicute__user__defined__main() {
   entry:
     ; Example heap allocation

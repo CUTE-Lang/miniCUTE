@@ -12,4 +12,5 @@ extern int8_t *nhp;
 extern int8_t *nhp_max;
 
 void minicute_machine_init(void);
+void minicute_machine_run(void);
 #endif /* _MACHINE_H_ */
