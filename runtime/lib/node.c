@@ -81,3 +81,55 @@ int8_t *minicute_create_node_NGlobal(int8_t *global_function, int32_t global_ari
 
   return (void *) node;
 }
+
+
+#define REPLACE_NODE(type, name, target)        \
+  minicute_node_##type *name = (void *) target; \
+  node->tag = type##_TAG
+
+__attribute__((always_inline))
+void minicute_update_node_NInteger(int32_t value, int8_t *target)
+{
+  REPLACE_NODE(NInteger, node, target);
+  node->value = value;
+}
+
+__attribute__((always_inline))
+void minicute_update_node_NConstructor(int32_t data_tag, int32_t data_arity, int8_t *target)
+{
+  REPLACE_NODE(NConstructor, node, target);
+  node->data_tag = data_tag;
+  node->data_arity = data_arity;
+}
+
+__attribute__((always_inline))
+void minicute_update_node_NStructure(int32_t data_tag, int8_t *data_fields, int8_t *target)
+{
+  REPLACE_NODE(NStructure, node, target);
+  node->data_tag = data_tag;
+  node->data_fields = data_fields;
+}
+
+__attribute__((always_inline))
+void minicute_update_node_NApplication(int8_t *function, int8_t *argument, int8_t *target)
+{
+  REPLACE_NODE(NApplication, node, target);
+  node->function = function;
+  node->argument = argument;
+}
+
+__attribute__((always_inline))
+void minicute_update_node_NIndirect(int8_t *referee, int8_t *target)
+{
+  REPLACE_NODE(NIndirect, node, target);
+  node->referee = referee;
+}
+
+__attribute__((always_inline))
+void minicute_update_node_NGlobal(int8_t *global_function, int32_t global_arity, int8_t *target)
+{
+  REPLACE_NODE(NGlobal, node, target);
+  node->global_function = global_function;
+  node->global_arity = global_arity;
+}
+
