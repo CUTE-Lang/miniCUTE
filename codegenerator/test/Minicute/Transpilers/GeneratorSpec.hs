@@ -58,28 +58,21 @@ testCases
               emitBlockStart "entry"
 
               -- PushBasicValue 100
-              pName <- emitInstr typeInt32Ptr (AST.Alloca ASTT.i32 Nothing 0 [])
-              emitInstrVoid (AST.Store False (operandInt 32 100) pName Nothing 0 [])
-              vName <- emitInstr typeInt32 (AST.Load False (AST.LocalReference typeInt32Ptr (AST.UnName 0)) Nothing 0 [])
+              pName <- alloca ASTT.i32 Nothing 0
+              store (operandInt 32 100) 0 pName
+              vName <- load pName 0
 
               -- UpdateAsInteger 0
-              hName <- emitInstr typeInt8Ptr (AST.Load False (AST.ConstantOperand constantNodeHeapPointer) Nothing 0 [])
-              nName <- emitInstr typeNodeNIntegerPtr (AST.BitCast hName typeNodeNIntegerPtr [])
-              nName' <- emitInstr typeNodeNIntegerPtr (AST.GetElementPtr True nName [operandInt 32 1] [])
-              hName' <- emitInstr typeInt8Ptr (AST.BitCast nName' typeInt8Ptr [])
-              emitInstrVoid (AST.Store False hName' (AST.ConstantOperand constantNodeHeapPointer) Nothing 0 [])
-              tName <- emitInstr typeInt32Ptr (AST.GetElementPtr True nName [operandInt 32 0, operandInt 32 0] [])
-              emitInstrVoid (AST.Store False (operandInt 32 1) tName Nothing 0 [])
-              fName <- emitInstr typeInt32Ptr (AST.GetElementPtr True nName [operandInt 32 0, operandInt 32 1] [])
-              emitInstrVoid (AST.Store False vName fName Nothing 0 [])
-
-              sName <- emitInstr typeInt8PtrPtr (AST.Load False (AST.ConstantOperand constantAddrStackPointer) Nothing 0 [])
-              sName' <- emitInstr typeInt8PtrPtr (AST.GetElementPtr True sName [operandInt 32 0] [])
-              emitInstrVoid (AST.Store False hName sName' Nothing 0 [])
+              sName <- load (AST.ConstantOperand constantAddrStackPointer) 0
+              sName' <- gep sName [operandInt 32 0]
+              nName <- load sName' 0
+              _ <- call (AST.ConstantOperand constantUpdateNodeNInteger) [(vName, []), (nName, [])]
 
               -- Return
-              -- __TODO: this is not correct. Exchange @asb@ with @asp@__
-              emitTerm (AST.Ret Nothing [])
+              bName <- load (AST.ConstantOperand constantAddrBasePointer) 0
+              bName' <- gep bName [operandInt 32 0]
+              store bName' 0 (AST.ConstantOperand constantAddrStackPointer)
+              retVoid
         )
       )
     ]
@@ -87,11 +80,20 @@ testCases
 operandInt :: Word32 -> Integer -> AST.Operand
 operandInt w n = AST.ConstantOperand (ASTC.Int w n)
 
+constantUpdateNodeNInteger :: ASTC.Constant
+constantUpdateNodeNInteger = ASTC.GlobalReference typeUpdateNodeNInteger "minicute_update_node_NInteger"
+
 constantAddrStackPointer :: ASTC.Constant
 constantAddrStackPointer = ASTC.GlobalReference typeInt8PtrPtrPtr "asp"
 
+constantAddrBasePointer :: ASTC.Constant
+constantAddrBasePointer = ASTC.GlobalReference typeInt8PtrPtrPtr "abp"
+
 constantNodeHeapPointer :: ASTC.Constant
 constantNodeHeapPointer = ASTC.GlobalReference typeInt8PtrPtr "nhp"
+
+typeUpdateNodeNInteger :: ASTT.Type
+typeUpdateNodeNInteger = ASTT.FunctionType ASTT.void [typeInt32, typeInt8Ptr] False
 
 typeNodeNIntegerPtr :: ASTT.Type
 typeNodeNIntegerPtr = ASTT.ptr typeNodeNInteger
