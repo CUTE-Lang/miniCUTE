@@ -127,7 +127,7 @@ type GMachineExpression = [Instruction]
 --
 --     > (IUpdate n : codes, addr_0 : addr_1 : ... : addr_n : addrs, values, dump, heap,                           global)
 --     > -----------------------------------------------------------------------------------------------------------------
---     > (            codes,          addr_1 : ... : addr_n : addrs, values, dump, heap[addr_n: NIndirect addr_0], global)
+--     > (            codes, addr_0 : addr_1 : ... : addr_n : addrs, values, dump, heap[addr_n: NIndirect addr_0], global)
 --
 -- - __ICopy__
 --

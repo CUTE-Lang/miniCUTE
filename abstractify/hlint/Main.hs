@@ -2,7 +2,6 @@ module Main
   ( main
   ) where
 
-import Control.Monad
 import Language.Haskell.HLint3 (hlint)
 import System.Exit (exitFailure, exitSuccess)
 
@@ -13,8 +12,7 @@ main =
     putStrLn ""
     let
       hlintArgs =
-        [ "app"
-        , "src"
+        [ "src"
         , "test"
         , "--hint=hlint/hlint.yml"
         ]
