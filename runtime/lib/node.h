@@ -1,8 +1,43 @@
+/**
+ * @file
+ * @author Junyoung Clare Jang
+ * @brief Defines Node Types and Node Utility Functions
+ * # Node Types
+ * ## Kinds of Node Types
+ *   1. Classify by returnability
+ *     - Value Nodes
+ *       - NInteger
+ *       - NConstructor
+ *       - NStructure
+ *       - NApplication
+ *       - NIndirect
+ *       - NGlobal
+ *     - Non-value Nodes
+ *       - NEmpty
+ *   2. Classify by updatability
+ *     - Updatable Nodes
+ *       - NConstructor
+ *       - NApplication
+ *       - NGlobal
+ *     - Constant Nodes
+ *       - NEmpty
+ *       - NInteger
+ *       - NStructure
+ *       - NIndirect
+ *
+ * ## Restrictions for Node Types
+ *   1. All value node types should be smaller than all updatable
+ *      node types
+ */
 #ifndef _NODE_H_
 #define _NODE_H_
 
 #include <stdint.h>
 
+/**
+ * @name Node Tags
+ */
+/// @{
 #define NEmpty_TAG 0
 #define NInteger_TAG 1
 #define NConstructor_TAG 2
@@ -11,7 +46,11 @@
 #define NIndirect_TAG 5
 #define NGlobal_TAG 6
 
+/**
+ * @brief An Impl-detail Subnode Tag for NStructure Node
+ */
 #define NStructureFields_TAG -1
+/// @}
 
 typedef struct minicute_node
 {
