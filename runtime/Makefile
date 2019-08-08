@@ -7,6 +7,7 @@ CC := clang
 
 LIB_DIR := lib
 BUILD_DIR := build
+DOC_DIR := doc
 
 SCRATCH_DIR := scratch
 
@@ -20,9 +21,12 @@ SCRATCH_DEP := $($(filter %.c,$(SCRATCH_SRC)):%.c=$(BUILD_DIR)/%.d)
 
 SCRATCH_OUT := $(BUILD_DIR)/scratch.$(EXEC_EXT)
 
-ifneq ($(SHELL),)
+.PHONY: all \
+        clean \
+        scratch \
+        html show-html
 
-.PHONY: all scratch clean
+ifneq ($(SHELL),)
 
 all: scratch
 scratch: $(SCRATCH_OUT)
@@ -33,6 +37,9 @@ scratch: $(SCRATCH_OUT)
 clean:
 	@printf "Remove \x1b[91m%s\x1b[0m\n" "$(BUILD_DIR)"
 	@rm -rf $(BUILD_DIR)
+	@rm -rf $(DOC_DIR)
+html:
+	@doxygen
 
 $(SCRATCH_OUT): $(LIB_C_OBJ) $(SCRATCH_OBJ)
 	@mkdir -p $(dir $@)
@@ -64,14 +71,15 @@ endif # ($(MAKECMDGOALS),clean)
 
 else # ($(SHELL),)
 
-.PHONY: all scratch clean unsupported
+.PHONY: unsupported
 
 all: unsupported
 scratch: unsupported
 clean: unsupported
+html: unsupported
 
 unsupported:
-ifneq ($(MAKECMDGOALS),unsupported)
+ifneq ($(findstring unsupported,$(MAKECMDGOALS)),unsupported)
 	@printf "This system is not yet supported.\n"
 	@printf "\n"
 	@printf "  - If you use \x1b[91mWindows\x1b[0m,\n"
