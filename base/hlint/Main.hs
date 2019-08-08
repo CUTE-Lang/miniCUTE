@@ -13,7 +13,7 @@ main =
     let
       hlintArgs =
         [ "src"
-        , "--hint=hlint/hlint.yml"
+        , "--hint=../hlint.yml"
         ]
     hints <- hlint hlintArgs
     if null hints

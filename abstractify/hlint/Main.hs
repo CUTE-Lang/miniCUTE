@@ -14,7 +14,7 @@ main =
       hlintArgs =
         [ "src"
         , "test"
-        , "--hint=hlint/hlint.yml"
+        , "--hint=../hlint.yml"
         ]
     hints <- hlint hlintArgs
     if null hints
