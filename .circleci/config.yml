@@ -16,7 +16,7 @@ jobs:
 executors:
   stack-minimal:
     docker:
-      - image: fpco/stack-build-small:lts-13.17
+      - image: fpco/stack-build-small:lts-13.27
 
 commands:
   stack-setup:
