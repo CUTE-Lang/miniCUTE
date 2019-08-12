@@ -45,7 +45,7 @@ library:
 
   ### Common fields ###
   source-dirs:
-    - src
+    - lib
   ghc-options:
     - -Wall
     - -Wstar-is-type

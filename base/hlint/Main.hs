@@ -12,8 +12,8 @@ main =
     putStrLn ""
     let
       hlintArgs =
-        [ "src"
-        , "--hint=../hlint.yml"
+        [ "lib"
+        , "--hint=../hlint.yaml"
         ]
     hints <- hlint hlintArgs
     if null hints

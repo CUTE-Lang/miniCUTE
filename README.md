@@ -7,4 +7,10 @@
 [![GitHub PRs](https://img.shields.io/github/issues-pr-raw/CUTE-Lang/miniCUTE.svg)](https://github.com/CUTE-Lang/miniCUTE/pull)
 [![GitHub last commit date to master](https://img.shields.io/github/last-commit/CUTE-Lang/miniCUTE/master.svg)](https://github.com/CUTE-Lang/miniCUTE/commits/master)
 
-Experimental repository
+A core version of CUTE lang.
+
+# RoadMap
+
+See [the Roadmap issue][Roadmap issue]
+
+[Roadmap issue]: https://github.com/CUTE-Lang/miniCUTE/issues/79
