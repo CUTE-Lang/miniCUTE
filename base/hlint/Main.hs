@@ -12,7 +12,7 @@ main =
     putStrLn ""
     let
       hlintArgs =
-        [ "src"
+        [ "lib"
         , "--hint=../hlint.yaml"
         ]
     hints <- hlint hlintArgs
