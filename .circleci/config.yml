@@ -148,74 +148,74 @@ commands:
       - restore_cache:
           name: Restore Global Data
           keys:
-            - circleci-minicute-haskell-global-v3.0-{{ arch }}-{{ checksum "stack.yaml" }}-{{ checksum "abstractify/package.yaml" }}-{{ checksum "base/package.yaml" }}-{{ checksum "codegenerator/package.yaml" }}-{{ checksum "minicute/package.yaml" }}-{{ checksum "parser/package.yaml" }}
-            - circleci-minicute-haskell-global-v3.0-{{ arch }}-{{ checksum "stack.yaml" }}
-            - circleci-minicute-haskell-global-v3.0-{{ arch }}
+            - circleci-minicute-haskell-global-v3.1-{{ arch }}-{{ checksum "stack.yaml" }}-{{ checksum "abstractify/package.yaml" }}-{{ checksum "base/package.yaml" }}-{{ checksum "codegenerator/package.yaml" }}-{{ checksum "minicute/package.yaml" }}-{{ checksum "parser/package.yaml" }}
+            - circleci-minicute-haskell-global-v3.1-{{ arch }}-{{ checksum "stack.yaml" }}
+            - circleci-minicute-haskell-global-v3.1-{{ arch }}
 
       - restore_cache:
           name: Restore Project Local Data
           keys:
-            - circleci-minicute-project-local-v3.0-{{ arch }}-{{ checksum "stack.yaml" }}-{{ checksum "abstractify/package.yaml" }}-{{ checksum "base/package.yaml" }}-{{ checksum "codegenerator/package.yaml" }}-{{ checksum "minicute/package.yaml" }}-{{ checksum "parser/package.yaml" }}
+            - circleci-minicute-project-local-v3.1-{{ arch }}-{{ checksum "stack.yaml" }}-{{ checksum "abstractify/package.yaml" }}-{{ checksum "base/package.yaml" }}-{{ checksum "codegenerator/package.yaml" }}-{{ checksum "minicute/package.yaml" }}-{{ checksum "parser/package.yaml" }}
 
       - restore_cache:
           name: Restore Abstractify Local Data
           keys:
-            - circleci-minicute-abstractify-local-v3.0-{{ arch }}-{{ checksum "stack.yaml" }}-{{ checksum "abstractify/package.yaml" }}
+            - circleci-minicute-abstractify-local-v3.1-{{ arch }}-{{ checksum "stack.yaml" }}-{{ checksum "abstractify/package.yaml" }}
       - restore_cache:
           name: Restore Base Local Data
           keys:
-            - circleci-minicute-base-local-v3.0-{{ arch }}-{{ checksum "stack.yaml" }}-{{ checksum "base/package.yaml" }}
+            - circleci-minicute-base-local-v3.1-{{ arch }}-{{ checksum "stack.yaml" }}-{{ checksum "base/package.yaml" }}
       - restore_cache:
           name: Restore Codegenerator Local Data
           keys:
-            - circleci-minicute-codegenerator-local-v3.0-{{ arch }}-{{ checksum "stack.yaml" }}-{{ checksum "codegenerator/package.yaml" }}
+            - circleci-minicute-codegenerator-local-v3.1-{{ arch }}-{{ checksum "stack.yaml" }}-{{ checksum "codegenerator/package.yaml" }}
       - restore_cache:
           name: Restore Minicute Local Data
           keys:
-            - circleci-minicute-minicute-local-v3.0-{{ arch }}-{{ checksum "stack.yaml" }}-{{ checksum "minicute/package.yaml" }}
+            - circleci-minicute-minicute-local-v3.1-{{ arch }}-{{ checksum "stack.yaml" }}-{{ checksum "minicute/package.yaml" }}
       - restore_cache:
           name: Restore Parser Local Data
           keys:
-            - circleci-minicute-parser-local-v3.0-{{ arch }}-{{ checksum "stack.yaml" }}-{{ checksum "parser/package.yaml" }}
+            - circleci-minicute-parser-local-v3.1-{{ arch }}-{{ checksum "stack.yaml" }}-{{ checksum "parser/package.yaml" }}
 
   save-all-haskell-caches:
     description: "Save all cachable parts of haskell packages."
     steps:
       - save_cache:
           name: Cache Global Data
-          key: circleci-minicute-haskell-global-v3.0-{{ arch }}-{{ checksum "stack.yaml" }}-{{ checksum "abstractify/package.yaml" }}-{{ checksum "base/package.yaml" }}-{{ checksum "codegenerator/package.yaml" }}-{{ checksum "minicute/package.yaml" }}-{{ checksum "parser/package.yaml" }}
+          key: circleci-minicute-haskell-global-v3.1-{{ arch }}-{{ checksum "stack.yaml" }}-{{ checksum "abstractify/package.yaml" }}-{{ checksum "base/package.yaml" }}-{{ checksum "codegenerator/package.yaml" }}-{{ checksum "minicute/package.yaml" }}-{{ checksum "parser/package.yaml" }}
           paths:
             - "~/.stack"
 
       - save_cache:
           name: Cache Project Local Data
-          key: circleci-minicute-project-local-v3.0-{{ arch }}-{{ checksum "stack.yaml" }}-{{ checksum "abstractify/package.yaml" }}-{{ checksum "base/package.yaml" }}-{{ checksum "codegenerator/package.yaml" }}-{{ checksum "minicute/package.yaml" }}-{{ checksum "parser/package.yaml" }}
+          key: circleci-minicute-project-local-v3.1-{{ arch }}-{{ checksum "stack.yaml" }}-{{ checksum "abstractify/package.yaml" }}-{{ checksum "base/package.yaml" }}-{{ checksum "codegenerator/package.yaml" }}-{{ checksum "minicute/package.yaml" }}-{{ checksum "parser/package.yaml" }}
           paths:
             - ".stack-work"
 
       - save_cache:
           name: Cache Abstractify Local Data
-          key: circleci-minicute-abstractify-local-v3.0-{{ arch }}-{{ checksum "stack.yaml" }}-{{ checksum "abstractify/package.yaml" }}
+          key: circleci-minicute-abstractify-local-v3.1-{{ arch }}-{{ checksum "stack.yaml" }}-{{ checksum "abstractify/package.yaml" }}
           paths:
             - "abstractify/.stack-work"
       - save_cache:
           name: Cache Base Local Data
-          key: circleci-minicute-base-local-v3.0-{{ arch }}-{{ checksum "stack.yaml" }}-{{ checksum "base/package.yaml" }}
+          key: circleci-minicute-base-local-v3.1-{{ arch }}-{{ checksum "stack.yaml" }}-{{ checksum "base/package.yaml" }}
           paths:
             - "base/.stack-work"
       - save_cache:
           name: Cache Codegenerator Local Data
-          key: circleci-minicute-codegenerator-local-v3.0-{{ arch }}-{{ checksum "stack.yaml" }}-{{ checksum "codegenerator/package.yaml" }}
+          key: circleci-minicute-codegenerator-local-v3.1-{{ arch }}-{{ checksum "stack.yaml" }}-{{ checksum "codegenerator/package.yaml" }}
           paths:
             - "codegenerator/.stack-work"
       - save_cache:
           name: Cache Minicute Local Data
-          key: circleci-minicute-minicute-local-v3.0-{{ arch }}-{{ checksum "stack.yaml" }}-{{ checksum "minicute/package.yaml" }}
+          key: circleci-minicute-minicute-local-v3.1-{{ arch }}-{{ checksum "stack.yaml" }}-{{ checksum "minicute/package.yaml" }}
           paths:
             - "minicute/.stack-work"
       - save_cache:
           name: Cache Parser Local Data
-          key: circleci-minicute-parser-local-v3.0-{{ arch }}-{{ checksum "stack.yaml" }}-{{ checksum "parser/package.yaml" }}
+          key: circleci-minicute-parser-local-v3.1-{{ arch }}-{{ checksum "stack.yaml" }}-{{ checksum "parser/package.yaml" }}
           paths:
             - "parser/.stack-work"
 
@@ -225,13 +225,13 @@ commands:
       - restore_cache:
           name: Restore Global Data
           keys:
-            - circleci-minicute-node-global-v3.0
+            - circleci-minicute-node-global-v3.1
 
   save-all-node-caches:
     description: "Save all cachable parts of node packages."
     steps:
       - save_cache:
           name: Cache Global Data
-          key: circleci-minicute-node-global-v3.0
+          key: circleci-minicute-node-global-v3.1
           paths:
             - "~/.npm"
