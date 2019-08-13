@@ -84,7 +84,7 @@ jobs:
 executors:
   stack-minimal:
     docker:
-      - image: fpco/stack-build-small:lts-13.27
+      - image: cutelang/stack-small:latest
   doxygen-minimal:
     docker:
       - image: cutelang/doxygen-small:1.8.15
