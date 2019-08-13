@@ -84,7 +84,7 @@ jobs:
 executors:
   stack-minimal:
     docker:
-      - image: cutelang/stack-small:latest
+      - image: cutelang/stack-small:lts-13.27
   doxygen-minimal:
     docker:
       - image: cutelang/doxygen-small:1.8.15
