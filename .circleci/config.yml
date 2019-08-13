@@ -64,7 +64,7 @@ jobs:
       - checkout
 
       - doxygen
-      - run: mv runtime/doc doxygen
+      - run: mv runtime/doc/html doxygen
       - persist_to_workspace:
           root: "./"
           paths:
