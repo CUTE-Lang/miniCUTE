@@ -140,7 +140,7 @@ commands:
           command: |
             git config user.email "miniCUTE-documents@github.com"
             git config user.name "miniCUTE-documents"
-            npx gh-pages --dotfiles --message "Update to sync with ${CIRCLE_SHA1}" -d doc
+            npx gh-pages --dotfiles --message "Update to sync with ${CIRCLE_SHA1} [skip ci]" -d doc
 
   restore-all-haskell-caches:
     description: "Restore all cached parts of haskell packages."
