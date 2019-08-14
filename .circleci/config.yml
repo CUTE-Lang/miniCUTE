@@ -52,9 +52,9 @@ jobs:
       - restore-all-haskell-caches
 
       - stack-haddock
-      - run: "mv $(stack path --local-doc-root) ./haddock"
+      - run: "mv $(stack path --local-doc-root) /tmp/haddock"
       - persist_to_workspace:
-          root: "./"
+          root: "/tmp"
           paths:
             - "./haddock/*"
 
@@ -64,9 +64,9 @@ jobs:
       - checkout
 
       - doxygen
-      - run: mv runtime/doc doxygen
+      - run: "mv runtime/doc/html /tmp/doxygen"
       - persist_to_workspace:
-          root: "./"
+          root: "/tmp"
           paths:
             - "./doxygen/*"
 
@@ -76,7 +76,8 @@ jobs:
       - checkout
       - restore-all-node-caches
       - attach_workspace:
-          at: "./doc/"
+          at: "/tmp/doc/"
+      - copy-templates
 
       - deploy-documents
       - save-all-node-caches
@@ -130,6 +131,12 @@ commands:
           make html
           cd ..
 
+  copy-templates:
+    description: "Copy template files to the document directory."
+    steps:
+      - run: |
+          cp -r .gh-page-templates/* /tmp/doc/
+
   deploy-documents:
     description: "Deploy documents."
     steps:
@@ -140,7 +147,7 @@ commands:
           command: |
             git config user.email "miniCUTE-documents@github.com"
             git config user.name "miniCUTE-documents"
-            npx gh-pages --dotfiles --message "Update to sync with ${CIRCLE_SHA1} [skip ci]" -d doc
+            npx gh-pages --dotfiles --message "Update to sync with ${CIRCLE_SHA1} [skip ci]" -d /tmp/doc
 
   restore-all-haskell-caches:
     description: "Restore all cached parts of haskell packages."
