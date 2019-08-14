@@ -76,7 +76,8 @@ jobs:
       - checkout
       - restore-all-node-caches
       - attach_workspace:
-          at: "/tmp/doc/"
+          # Use relative path because of gh-pages cli
+          at: ".gh-pages/"
       - copy-templates
 
       - deploy-documents
@@ -134,8 +135,8 @@ commands:
   copy-templates:
     description: "Copy template files to the document directory."
     steps:
-      - run: |
-          cp -r .gh-page-templates/* /tmp/doc/
+      # Use relative path because of gh-pages cli
+      - run: cp -r .gh-page-templates/* .gh-pages/
 
   deploy-documents:
     description: "Deploy documents."
@@ -144,10 +145,12 @@ commands:
           fingerprints:
             - "f4:d3:a7:2e:7a:2e:8f:a2:b6:72:35:cb:7f:82:9f:fd"
       - deploy:
+          # gh-pages cli does not support absolute paths.
+          # It recognizes an absolute path as a relative path from the project root.
           command: |
             git config user.email "miniCUTE-documents@github.com"
             git config user.name "miniCUTE-documents"
-            npx gh-pages --dotfiles --message "Update to sync with ${CIRCLE_SHA1} [skip ci]" -d /tmp/doc
+            npx gh-pages --dotfiles --message "Update to sync with ${CIRCLE_SHA1} [skip ci]" -d .gh-pages/
 
   restore-all-haskell-caches:
     description: "Restore all cached parts of haskell packages."
