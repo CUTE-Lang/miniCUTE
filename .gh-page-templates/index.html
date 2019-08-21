@@ -1,3 +1,6 @@
+---
+permalink: /
+---
 <!doctype html>
 <html lang="en">
   <head>
@@ -7,8 +10,16 @@
   </head>
   <body>
     <h1>Official miniCUTE Documents</h1>
+    <hr />
     <ul>
-      <li><a href="haddock">Haskell Package Documents</a></li>
+      <li>
+        <a href="haddock">Haskell Package Documents</a>
+        <ul>
+          {% for html in site.html_files %}
+          {{ html.path }}
+          {% endfor %}
+        </ul>
+      </li>
       <li><a href="doxygen">C Runtime Documents</a></li>
     </ul>
   </body>
