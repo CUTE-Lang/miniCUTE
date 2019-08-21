@@ -50,7 +50,7 @@ type GMachineExpression = [Instruction]
 -- $abstractStructure
 -- This G-Machine is represented by 6-tuple.
 --
--- @(CurrentCode, AddressStack, ValueStack, NodeHeap, GlobalEnvironment)@
+-- \((CurrentCode,\ AddressStack,\ ValueStack,\ NodeHeap,\ GlobalEnvironment)\)
 --
 -- [@CurrentCode@] a list of codes currently executed.
 --
@@ -72,193 +72,323 @@ type GMachineExpression = [Instruction]
 -- === Basic Node Creating Operations
 -- - __IMakeInteger__
 --
---     > (IMakeInteger n : codes,        addrs, values, dump, heap,                   global)
---     > ------------------------------------------------------------------------------------
---     > (                 codes, addr : addrs, values, dump, heap[addr: NInteger n], global)
+--     \[
+--     \begin{array}{r r r r r l l l}
+--       ( & IMakeInteger\ n : codes, &        addrs, & values, & dump, & heap, &                    global & )\\
+--       \hline
+--       ( &                   codes, & addr : addrs, & values, & dump, & heap[addr: NInteger\ n], & global & )
+--     \end{array}
+--     \]
 --
 -- - __IMakeConstructor__
 --
---     > (IMakeConstructor t n : codes,        addrs, values, dump, heap,                         global)
---     > ------------------------------------------------------------------------------------------------
---     > (                       codes, addr : addrs, values, dump, heap[addr: NConstructor t n], global)
+--
+--     \[
+--     \begin{array}{r r r r r l l l}
+--       ( & IMakeConstructor\ t\ n : codes, &        addrs, & values, & dump, & heap, &                           global & )\\
+--       \hline
+--       ( &                          codes, & addr : addrs, & values, & dump, & heap[addr: NConstructor\ t\ n], & global & )
+--     \end{array}
+--     \]
 --
 -- - __IMakeStructure__
 --
---     > (IMakeStructure t n : codes, addr_0 : addr_1 : ... : addr_(n - 1) : addrs, values, dump, heap,                                                       global)
---     > ------------------------------------------------------------------------------------------------------------------------------------------------------------
---     > (                     codes,                                 addr : addrs, values, dump, heap[addr: NStructure t [addr_(n-1), ..., addr_1, addr_0]], global)
+--     \[
+--     \begin{array}{r r r r r l l l}
+--       ( & IMakeStructure\ t\ n : codes, & addr_0 : addr_1 : ... : addr_{n - 1} : addrs, & values, & dump, & heap, &                                                           global & )\\
+--       \hline
+--       ( &                        codes, &                                 addr : addrs, & values, & dump, & heap[addr: NStructure\ t\ [addr_{n - 1}, ..., addr_1, addr_0]], & global & )
+--     \end{array}
+--     \]
 --
 -- - __IMakeApplication__
 --
---     > (IMakeApplication : codes, addr_0 : addr_1 : addrs, values, dump, heap,                                   global)
---     > -----------------------------------------------------------------------------------------------------------------
---     > (                   codes,            addr : addrs, values, dump, heap[addr: NApplication addr_1 addr_0], global)
+--     \[
+--     \begin{array}{r r r r r l l l}
+--       ( & IMakeApplication : codes, & addr_0 : addr_1 : addrs, & values, & dump, & heap, &                                     global & )\\
+--       \hline
+--       ( &                    codes, &            addr : addrs, & values, & dump, & heap[addr: NApplication\ addr_1\ addr_0], & global & )
+--     \end{array}
+--     \]
 --
 -- - __IMakeGlobal__
 --
---     > (IMakeGlobal id : codes,        addrs, values, dump, heap, global[id: addr])
---     > ----------------------------------------------------------------------------
---     > (                 codes, addr : addrs, values, dump, heap, global[id: addr])
+--     \[
+--     \begin{array}{r r r r r l l l}
+--       ( & IMakeGlobal\ id : codes, &        addrs, & values, & dump, & heap, & global[id: addr] & )\\
+--       \hline
+--       ( &                   codes, & addr : addrs, & values, & dump, & heap, & global[id: addr] & )
+--     \end{array}
+--     \]
 --
 -- - __IMakePlaceholders__
 --
---     > (IMakePlaceholders n : codes,                                  addrs, values, dump, heap,  global)
---     > --------------------------------------------------------------------------------------------------
---     > (                      codes, addr_0 : addr_1 : ... : addr_n : addrs, values, dump, heap', global)
---     >
---     > heap' = heap[addr_0: NEmpty, addr_1: NEmpty, ..., addr_n: NEmpty]
+--     \[
+--     \begin{align}
+--     & \begin{array}{r r r r r l l l}
+--       ( & IMakePlaceholders\ n : codes, &                                  addrs, & values, & dump, & heap, &  global & )\\
+--       \hline
+--       ( &                        codes, & addr_0 : addr_1 : ... : addr_n : addrs, & values, & dump, & heap', & global & )
+--     \end{array}\\[1em]
+--     & heap' = heap[addr_0: NEmpty, addr_1: NEmpty, ..., addr_n: NEmpty]
+--     \end{align}
+--     \]
 --
 --     Do we need to add @NEmpty@ or just use @NIndirect nullAddr@?
 --
 -- === Address Stack Based Operations
 -- - __IPop__
 --
---     > (IPop n : codes, addr_0 : addr_1 : ... : addr_(n - 1) : addrs, values, dump, heap, global)
---     > ------------------------------------------------------------------------------------------
---     > (         codes,                                        addrs, values, dump, heap, global)
+--     \[
+--     \begin{array}{r r r r r l l l}
+--       ( & IPop\ n : codes, & addr_0 : addr_1 : ... : addr_{n - 1} : addrs, & values, & dump, & heap, & global & )\\
+--       \hline
+--       ( &           codes, &                                        addrs, & values, & dump, & heap, & global & )
+--     \end{array}
+--     \]
 --
 -- - __IDig__
 --
---     > (IDig n : codes, addr_0 : addr_1 : ... : addr_n : addrs, values, dump, heap, global)
---     > ------------------------------------------------------------------------------------
---     > (         codes,                         addr_0 : addrs, values, dump, heap, global)
+--     \[
+--     \begin{array}{r r r r r l l l}
+--       ( & IDig\ n : codes, & addr_0 : addr_1 : ... : addr_n : addrs, & values, & dump, & heap, & global & )\\
+--       \hline
+--       ( &           codes, &                         addr_0 : addrs, & values, & dump, & heap, & global & )
+--     \end{array}
+--     \]
 --
 -- - __IUpdate__
 --
---     > (IUpdate n : codes, addr_0 : addr_1 : ... : addr_n : addrs, values, dump, heap,                           global)
---     > -----------------------------------------------------------------------------------------------------------------
---     > (            codes, addr_0 : addr_1 : ... : addr_n : addrs, values, dump, heap[addr_n: NIndirect addr_0], global)
+--     \[
+--     \begin{array}{r r r r r l l l}
+--       ( & IUpdate\ n : codes, & addr_0 : addr_1 : ... : addr_n : addrs, & values, & dump, & heap, &                            global & )\\
+--       \hline
+--       ( &              codes, & addr_0 : addr_1 : ... : addr_n : addrs, & values, & dump, & heap[addr_n: NIndirect\ addr_0], & global & )
+--     \end{array}
+--     \]
 --
 -- - __ICopy__
 --
---     > (ICopy n : codes,          addr_0 : addr_1 : ... : addr_n : addrs, values, dump, heap, global)
---     > ----------------------------------------------------------------------------------------------
---     > (          codes, addr_n : addr_0 : addr_1 : ... : addr_n : addrs, values, dump, heap, global)
+--     \[
+--     \begin{array}{r r r r r l l l}
+--       ( & ICopy\ n : codes, &          addr_0 : addr_1 : ... : addr_n : addrs, & values, & dump, & heap, & global & )\\
+--       \hline
+--       ( &            codes, & addr_n : addr_0 : addr_1 : ... : addr_n : addrs, & values, & dump, & heap, & global & )
+--     \end{array}
+--     \]
 --
 -- === Value Stack Based Operations
 -- - __IPushBasicValue__
 --
---     > (IPushBasicValue v : codes, addrs,     values, dump, heap, global)
---     > ------------------------------------------------------------------
---     > (                    codes, addrs, v : values, dump, heap, global)
+--     \[
+--     \begin{array}{r r r r r l l l}
+--       ( & IPushBasicValue\ v : codes, & addrs, &     values, & dump, & heap, & global & )\\
+--       \hline
+--       ( &                      codes, & addrs, & v : values, & dump, & heap, & global & )
+--     \end{array}
+--     \]
 --
 -- - __IPushExtractedValue__
 --
---     > (IPushExtractedValue : codes, addr : addrs,     values, dump, heap[addr: NInteger v], global)
---     > ---------------------------------------------------------------------------------------------
---     > (                      codes,        addrs, v : values, dump, heap,                   global)
+--     \[
+--     \begin{array}{r r r r r l l l}
+--       ( & IPushExtractedValue : codes, & addr : addrs, &     values, & dump, & heap[addr: NInteger\ v], & global & )\\
+--       \hline
+--       ( &                       codes, &        addrs, & v : values, & dump, & heap, &                    global & )
+--     \end{array}
+--     \]
 --
---     > (IPushExtractedValue : codes, addr : addrs,     values, dump, heap[addr: NStructure v []], global)
---     > --------------------------------------------------------------------------------------------------
---     > (                      codes,        addrs, v : values, dump, heap,                        global)
+--     \[
+--     \begin{array}{r r r r r l l l}
+--       ( & IPushExtractedValue : codes, & addr : addrs, &     values, & dump, & heap[addr: NStructure\ v\ []], & global & )\\
+--       \hline
+--       ( &                       codes, &        addrs, & v : values, & dump, & heap, &                          global & )
+--     \end{array}
+--     \]
 --
 -- - __IWrapAsInteger__
 --
---     > (IWrapAsInteger : codes,        addrs, v : values, dump, heap,                   global)
---     > ----------------------------------------------------------------------------------------
---     > (                 codes, addr : addrs,     values, dump, heap[addr: NInteger v], global)
+--     \[
+--     \begin{array}{r r r r r l l l}
+--       ( & IWrapAsInteger : codes, &        addrs, & v : values, & dump, & heap, &                    global & )\\
+--       \hline
+--       ( &                  codes, & addr : addrs, &     values, & dump, & heap[addr: NInteger\ v], & global & )
+--     \end{array}
+--     \]
 --
 -- - __IWrapAsStructure__
 --
---     > (IWrapAsStructure : codes,        addrs, v : values, dump, heap,                        global)
---     > -----------------------------------------------------------------------------------------------
---     > (                   codes, addr : addrs,     values, dump, heap[addr: NStructure v []], global)
+--     \[
+--     \begin{array}{r r r r r l l l}
+--       ( & IWrapAsStructure : codes, &        addrs, & v : values, & dump, & heap, &                          global & )\\
+--       \hline
+--       ( &                    codes, & addr : addrs, &     values, & dump, & heap[addr: NStructure\ v\ []], & global & )
+--     \end{array}
+--     \]
 --
 -- - __IUpdateAsInteger__
 --
---     > (IUpdateAsInteger n : codes, addr_0 : addr_1 : ... : addr_n : addrs, v : values, dump, heap,                     global)
---     > ------------------------------------------------------------------------------------------------------------------------
---     > (                     codes, addr_0 : addr_1 : ... : addr_n : addrs,     values, dump, heap[addr_n: NInteger v], global)
+--     \[
+--     \begin{array}{r r r r r l l l}
+--       ( & IUpdateAsInteger\ n : codes, & addr_0 : addr_1 : ... : addr_n : addrs, & v : values, & dump, & heap, &                      global & )\\
+--       \hline
+--       ( &                       codes, & addr_0 : addr_1 : ... : addr_n : addrs, &     values, & dump, & heap[addr_n: NInteger\ v], & global & )
+--     \end{array}
+--     \]
 --
 -- - __IUpdateAsStructure__
 --
---     > (IUpdateAsStructure n : codes, addr_0 : addr_1 : ... : addr_n : addrs, v : values, dump, heap,                          global)
---     > -------------------------------------------------------------------------------------------------------------------------------
---     > (                       codes, addr_0 : addr_1 : ... : addr_n : addrs,     values, dump, heap[addr_n: NStructure v []], global)
+--     \[
+--     \begin{array}{r r r r r l l l}
+--       ( & IUpdateAsStructure\ n : codes, & addr_0 : addr_1 : ... : addr_n : addrs, & v : values, & dump, & heap, &                            global & )\\
+--       \hline
+--       ( &                         codes, & addr_0 : addr_1 : ... : addr_n : addrs, &     values, & dump, & heap[addr_n: NStructure\ v\ []], & global & )
+--     \end{array}
+--     \]
 --
 -- === Primitive Operations
 -- - __IPrimitive__
 --
---     > (IPrimitive op : codes, addrs, v_0 : v_1 : values, dump, heap, global)
---     > ----------------------------------------------------------------------
---     > (                codes, addrs,        v' : values, dump, heap, global)
---     >
---     > v' = v_0 R v1
---     > (when op represents a binary operation R)
+--     \[
+--     \begin{align}
+--     & \begin{array}{r r r r r l l l}
+--       ( & IPrimitive\ op : codes, & addrs, & v_0 : v_1 : values, & dump, & heap, & global & )\\
+--       \hline
+--       ( &                  codes, & addrs, &        v' : values, & dump, & heap, & global & )
+--     \end{array}\\
+--     & v' = v_0\ R\ v1\\
+--     & \text{(when $op$ represents a binary operation $R$)}
+--     \end{align}
+--     \]
 --
---     > (IPrimitive op : codes, addrs,  v : values, dump, heap, global)
---     > ---------------------------------------------------------------
---     > (                codes, addrs, v' : values, dump, heap, global)
---     >
---     > v' = R v
---     > (when op represents a unary operation R)
+--     \[
+--     \begin{align}
+--     & \begin{array}{r r r r r l l l}
+--       ( & IPrimitive\ op : codes, & addrs, &  v : values, & dump, & heap, & global & )\\
+--       \hline
+--       ( &                  codes, & addrs, & v' : values, & dump, & heap, & global & )
+--     \end{array}\\
+--     & v' = R\ v\\
+--     & \text{(when $op$ represents a unary operation $R$)}
+--     \end{align}
+--     \]
 --
 -- === Node Inspecting Operations
 -- - __IUnwind__
 --
---     > ([IUnwind],  addr : addrs,  values, (codes', addrs', values') : dump, heap[addr: NInteger n], global)
---     > -----------------------------------------------------------------------------------------------------
---     > (   codes', addr : addrs', values',                             dump, heap,                   global)
+--     \[
+--     \begin{array}{r r r r r l l l}
+--       ( & [IUnwind], &  addr : addrs, &  values, & (codes', addrs', values') : dump, & heap[addr: NInteger\ n], & global & )\\
+--       \hline
+--       ( &    codes', & addr : addrs', & values', &                             dump, & heap, &                    global & )
+--     \end{array}
+--     \]
 --
---     > ([IUnwind],  addr : addrs,  values, (codes', addrs', values') : dump, heap[addr: NStructure t fAddrs], global)
---     > --------------------------------------------------------------------------------------------------------------
---     > (   codes', addr : addrs', values',                             dump, heap,                            global)
+--     \[
+--     \begin{array}{r r r r r l l l}
+--       ( & [IUnwind], &  addr : addrs, &  values, & (codes', addrs', values') : dump, & heap[addr: NStructure\ t\ fAddrs], & global & )\\
+--       \hline
+--       ( &    codes', & addr : addrs', & values', &                             dump, & heap, &                              global & )
+--     \end{array}
+--     \]
 --
---     > ([IUnwind],          addr : addrs, values, dump, heap[addr: NApplication addr_1 addr_0], global)
---     > ------------------------------------------------------------------------------------------------
---     > ([IUnwind], addr_1 : addr : addrs, values, dump, heap,                                   global)
+--     \[
+--     \begin{array}{r r r r r l l l}
+--       ( & [IUnwind], &          addr : addrs, & values, & dump, & heap[addr: NApplication\ addr_1\ addr_0], & global & )\\
+--       \hline
+--       ( & [IUnwind], & addr_1 : addr : addrs, & values, & dump, & heap, &                                     global & )
+--     \end{array}
+--     \]
 --
---     > ([IUnwind],  addr : addrs, values, dump, heap[addr: NIndirect addr'], global)
---     > -----------------------------------------------------------------------------
---     > ([IUnwind], addr' : addrs, values, dump, heap,                        global)
+--     \[
+--     \begin{array}{r r r r r l l l}
+--       ( & [IUnwind], &  addr : addrs, & values, & dump, & heap[addr: NIndirect\ addr'], & global & )\\
+--       \hline
+--       ( & [IUnwind], & addr' : addrs, & values, & dump, & heap, &                         global & )
+--     \end{array}
+--     \]
 --
---     > (                             [IUnwind],    addr_0 : addr_1 : ... : addr_n : addrs, values, dump, heap[addr_0: NConstructor t n], global)
---     > -----------------------------------------------------------------------------------------------------------------------------------------
---     > (IRearrange (n - 1) : constructorCode t,             addr_1 : ... : addr_n : addrs, values, dump, heap,                           global)
+--     \[
+--     \begin{array}{r r r r r l l l}
+--       ( &                                [IUnwind], &    addr_0 : addr_1 : ... : addr_n : addrs, & values, & dump, & heap[addr_0: NConstructor\ t\ n], & global & )\\
+--       \hline
+--       ( & IRearrange\ (n - 1) : constructorCode\ t, &             addr_1 : ... : addr_n : addrs, & values, & dump, & heap, &                             global & )
+--     \end{array}
+--     \]
 --
---     > ([IUnwind], [addr_0, addr_1, ..., addr_m], values, dump, heap[addr_0: NConstructor t n], global)
---     > ------------------------------------------------------------------------------------------------
---     > ( [Return], [addr_0, addr_1, ..., addr_m], values, dump, heap,                           global)
---     >
---     > (when m < n)
+--     \[
+--     \begin{align}
+--     & \begin{array}{r r r r r l l l}
+--       ( & [IUnwind], & [addr_0, addr_1, ..., addr_m], & values, & dump, & heap[addr_0: NConstructor\ t\ n], & global & )\\
+--       \hline
+--       ( &  [Return], & [addr_0, addr_1, ..., addr_m], & values, & dump, & heap, &                             global & )
+--     \end{array}\\
+--     & \text{(when $m < n$)}
+--     \end{align}
+--     \]
 --
---     > (                  [IUnwind],    addr_0 : addr_1 : ... : addr_n : addrs, values, dump, heap[addr_0: NGlobal n codes'], global)
---     > ------------------------------------------------------------------------------------------------------------------------------
---     > (IRearrange (n - 1) : codes',             addr_1 : ... : addr_n : addrs, values, dump, heap,                           global)
+--     \[
+--     \begin{array}{r r r r r l l l}
+--       ( &                    [IUnwind], &    addr_0 : addr_1 : ... : addr_n : addrs, & values, & dump, & heap[addr_0: NGlobal\ n\ codes'], & global & )\\
+--       \hline
+--       ( & IRearrange\ (n - 1) : codes', &             addr_1 : ... : addr_n : addrs, & values, & dump, & heap, &                             global & )
+--     \end{array}
+--     \]
 --
---     > ([IUnwind], [addr_0, addr_1, ..., addr_m], values, dump, heap[addr_0: NGlobal n codes'], global)
---     > ------------------------------------------------------------------------------------------------
---     > ( [Return], [addr_0, addr_1, ..., addr_m], values, dump, heap,                           global)
---     >
---     > (when m < n)
+--     \[
+--     \begin{align}
+--     & \begin{array}{r r r r r l l l}
+--       ( & [IUnwind], & [addr_0, addr_1, ..., addr_m], & values, & dump, & heap[addr_0: NGlobal\ t\ codes'], & global & )\\
+--       \hline
+--       ( &  [Return], & [addr_0, addr_1, ..., addr_m], & values, & dump, & heap, &                             global & )
+--     \end{array}\\
+--     & \text{(when $m < n$)}
+--     \end{align}
+--     \]
 --
 -- - __IDestruct__
 --
---     > (IDestruct n : codes,                               addr : addrs, values, dump, heap[addr: NStructure t [addr_(n-1), ..., addr_1, addr_0]], global)
---     > ---------------------------------------------------------------------------------------------------------------------------------------------------
---     > (              codes, addr_0 : addr_1 : ... : addr_(n-1) : addrs, values, dump, heap,                                                       global)
+--     \[
+--     \begin{array}{r r r r r l l l}
+--       ( & IDestruct\ n : codes, &                                 addr : addrs, & values, & dump, & heap[addr: NStructure\ t\ [addr_{n - 1}, ..., addr_1, addr_0]], & global & )\\
+--       \hline
+--       ( &                codes, & addr_0 : addr_1 : ... : addr_{n - 1} : addrs, & values, & dump, & heap, &                                                           global & )
+--     \end{array}
+--     \]
 --
 -- === Dump Related Operations
 --
 -- - __IEval__
 --
---     > (IEval : codes, addr : addrs, values,                          dump, heap, global)
---     > ----------------------------------------------------------------------------------
---     > (    [IUnwind],       [addr],     [], (codes, addrs, values) : dump, heap, global)
+--     \[
+--     \begin{array}{r r r r r l l l}
+--       ( & IEval : codes, & addr : addrs, & values, &                          dump, & heap, & global & )\\
+--       \hline
+--       ( &     [IUnwind], &       [addr], &     [], & (codes, addrs, values) : dump, & heap, & global & )
+--     \end{array}
+--     \]
 --
 -- - __IReturn__
 --
---     > ([IReturn], [addr_0, addr_1, ..., addr_n],  values, (codes', addrs', values'): dump, heap, global)
---     > --------------------------------------------------------------------------------------------------
---     > (   codes',               addr_n : addrs', values',                            dump, heap, global)
+--     \[
+--     \begin{array}{r r r r r l l l}
+--       ( & [IReturn], & [addr_0, addr_1, ..., addr_n], &  values, & (codes', addrs', values') : dump, & heap, & global & )\\
+--       \hline
+--       ( &    codes', &               addr_n : addrs', & values', &                             dump, & heap, & global & )
+--     \end{array}
+--     \]
 --
 -- === Match Operations
 --
 -- - __IMatch__
 --
---     > (IMatch table[t: caseCode] : codes, addr : addrs, values, dump, heap[addr: NStructure t fAddrs], global)
---     > --------------------------------------------------------------------------------------------------------
---     > (                caseCode <> codes, addr : addrs, values, dump, heap,                            global)
+--     \[
+--     \begin{array}{r r r r r l l l}
+--       ( & IMatch\ table[t: caseCode] : codes, & addr : addrs, & values, & dump, & heap[addr: NStructure\ t\ fAddrs], & global & )\\
+--       \hline
+--       ( &                 caseCode <> codes, & addr : addrs, & values, & dump, & heap, &                              global & )
+--     \end{array}
+--     \]
 --
 -- === Virtual Operations
 -- Following operations are not real constructors of 'Instruction'.
@@ -266,9 +396,13 @@ type GMachineExpression = [Instruction]
 --
 -- - __IRearrange__
 --
---     > (IRearrange n : codes,             addr_0 : addr_1 : ... : addr_n : addrs, values, dump, heap[addr_/i/: NApplication addr_/i/'' addr_/i/'], global)
---     > ---------------------------------------------------------------------------------------------------------------------------------------------------
---     > (               codes, addr_0' : addr_1' : ... : addr_n' : addr_n : addrs, values, dump, heap',                                             global)
+--     \[
+--     \begin{array}{r r r r r l l l}
+--       ( & IRearrange\ n : codes, &             addr_0 : addr_1 : ... : addr_n : addrs, & values, & dump, & heap[addr_i: NApplication\ addr_i''\ addr_i'], & global & )\\
+--       \hline
+--       ( &                 codes, & addr_0' : addr_1' : ... : addr_n' : addr_n : addrs, & values, & dump, & heap, &                                         global & )
+--     \end{array}\\
+--     \]
 
 -- |
 -- A G-Machine instruction
