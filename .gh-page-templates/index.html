@@ -1,6 +1,17 @@
 ---
 permalink: /
 ---
+{% assign idx_paths = site.static_files | where: "name", "index.html" | map: "path" %}
+{% capture packages_str %}
+{% for idx_path in idx_paths %}
+{% assign idx_path_segs = idx_path | split: "/" %}
+{% if idx_path_segs[1] == "haddock" %}
+{{ idx_path_segs[2] }},
+{% endif %}
+{% endfor %}
+{% endcapture %}
+{% assign packages = packages_str | strip_newlines | split: "," %}
+{% assign minicute_packages = packages | where_exp: "package", "package contains 'minicute'" %}
 <!doctype html>
 <html lang="en">
   <head>
@@ -15,9 +26,15 @@ permalink: /
       <li>
         <a href="haddock">Haskell Package Documents</a>
         <ul>
-          {% for html in site.html_files %}
-          {{ html.path }}
-          {% endfor %}
+          <li>
+            <h4>miniCUTE Packages</h4>
+            <ul>
+              {% for minicute_package in minicute_packages %}
+              <li><a href="haddock/{{minicute_package}}">{{ minicute_package }}</a></li>
+              {% endfor %}
+            </ul>
+          </li>
+          <li><h4><a href="haddock/all">Index Of All Modules</a></h4></li>
         </ul>
       </li>
       <li><a href="doxygen">C Runtime Documents</a></li>
