@@ -55,9 +55,9 @@ executables:
       ## Remove following dependence if possible
       - megaparsec >= 7.0 && < 8
 
-      - minicute-abstractify == 0.1.0.0
       - minicute-base == 0.1.0.0
       - minicute-codegenerator == 0.1.0.0
+      - minicute-g-machinizer == 0.1.0.0
       - minicute-parser == 0.1.0.0
 
 # executable:

@@ -14,7 +14,7 @@ To download and build the haskell codes in this project completely, you need the
 
 However, if you want to change only a part of this project, you may not need all of these. For more detail,
 
-- `minicute-abstractify`, `minicute-base`, and `minicute-parser`
+- `minicute-base`, `minicute-g-machinizer`, and `minicute-parser`
   You don't need `llvm`.
 - `minicute-codegenerator` and `minicute`
   You need all of those tools.
@@ -36,14 +36,14 @@ If you already have `stack`, use following command to compile this project,
 
 ``` shell
 stack build                      # To bulid all packages (require LLVM)
-stack build minicute-abstractify # To build minicute-abstractify only
+stack build minicute-base # To build minicute-base only
 ```
 
 and use following command to test this.
 
 ``` shell
 stack test                      # To test all packages (require LLVM)
-stack test minicute-abstractify # To test minicute-abstractify only
+stack test minicute-base # To test minicute-base only
 ```
 
 When you make changes, please check whether your changes are buildable and pass the tests.

@@ -33,9 +33,9 @@ resolver: lts-13.27
 #  - auto-update
 #  - wai
 packages:
-- ./abstractify
 - ./base
 - ./codegenerator
+- ./g-machinizer
 - ./minicute
 - ./parser
 # Dependency packages to be pulled from upstream that are not in the resolver

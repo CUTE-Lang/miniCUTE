@@ -1,6 +1,6 @@
 #### Top-level fields ####
 spec-version:                       0.31.0
-name:                               minicute-abstractify
+name:                               minicute-g-machinizer
 version:                            0.1.0.0
 synopsis:                           Experimental package for a language implemented by Haskell
 description: >
@@ -25,7 +25,7 @@ license-file:                       LICENSE
 extra-doc-files:                    README.md
 # data-files:
 # data-dir:
-github:                             CUTE-Lang/miniCUTE/abstractify
+github:                             CUTE-Lang/miniCUTE/g-machinizer
 ## Following is ignored when "github" field exists
 # git:
 # custom-setup:
@@ -79,7 +79,7 @@ tests:
       - containers
       - extra
       - lens
-      - minicute-abstractify
+      - minicute-g-machinizer
       - minicute-base
       - minicute-parser
 
@@ -116,7 +116,7 @@ benchmarks:
       - -rtsopts
       - -with-rtsopts=-N
     dependencies:
-      - minicute-abstractify
+      - minicute-g-machinizer
 
 # defaults:
   # github:
