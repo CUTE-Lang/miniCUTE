@@ -16,7 +16,7 @@ However, if you want to change only a part of this project, you may not need all
 
 - `minicute-base`, `minicute-g-machinizer`, and `minicute-parser`
   You don't need `llvm`.
-- `minicute-codegenerator` and `minicute`
+- `minicute-llvm-generator` and `minicute`
   You need all of those tools.
 
 ### 1. Download this Project
