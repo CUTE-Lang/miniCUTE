@@ -1,6 +1,6 @@
 #### Top-level fields ####
 spec-version:                       0.31.0
-name:                               minicute-abstractify
+name:                               minicute-llvm-generator
 version:                            0.1.0.0
 synopsis:                           Experimental package for a language implemented by Haskell
 description: >
@@ -25,7 +25,7 @@ license-file:                       LICENSE
 extra-doc-files:                    README.md
 # data-files:
 # data-dir:
-github:                             CUTE-Lang/miniCUTE/abstractify
+github:                             CUTE-Lang/miniCUTE/llvm-generator
 ## Following is ignored when "github" field exists
 # git:
 # custom-setup:
@@ -50,8 +50,7 @@ library:
     - -Wall
     - -Wstar-is-type
   dependencies:
-    - containers >= 0.6 && < 0.7
-    - lens >= 4.17 && < 5
+    - llvm-hs-pure >= 8.0.0 && < 9
     - minicute-base == 0.1.0.0
     - mtl >= 2.2 && < 3
 
@@ -76,12 +75,11 @@ tests:
       - -rtsopts
       - -with-rtsopts=-N
     dependencies:
-      - containers
       - extra
-      - lens
-      - minicute-abstractify
+      - llvm-hs-pure
       - minicute-base
       - minicute-parser
+      - minicute-llvm-generator
 
       - hspec
 
@@ -116,7 +114,7 @@ benchmarks:
       - -rtsopts
       - -with-rtsopts=-N
     dependencies:
-      - minicute-abstractify
+      - minicute-llvm-generator
 
 # defaults:
   # github:

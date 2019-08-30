@@ -1,6 +1,6 @@
 #### Top-level fields ####
 spec-version:                       0.31.0
-name:                               minicute-codegenerator
+name:                               minicute-g-machinizer
 version:                            0.1.0.0
 synopsis:                           Experimental package for a language implemented by Haskell
 description: >
@@ -25,7 +25,7 @@ license-file:                       LICENSE
 extra-doc-files:                    README.md
 # data-files:
 # data-dir:
-github:                             CUTE-Lang/miniCUTE/codegenerator
+github:                             CUTE-Lang/miniCUTE/g-machinizer
 ## Following is ignored when "github" field exists
 # git:
 # custom-setup:
@@ -50,7 +50,8 @@ library:
     - -Wall
     - -Wstar-is-type
   dependencies:
-    - llvm-hs-pure >= 8.0.0 && < 9
+    - containers >= 0.6 && < 0.7
+    - lens >= 4.17 && < 5
     - minicute-base == 0.1.0.0
     - mtl >= 2.2 && < 3
 
@@ -75,11 +76,12 @@ tests:
       - -rtsopts
       - -with-rtsopts=-N
     dependencies:
+      - containers
       - extra
-      - llvm-hs-pure
+      - lens
+      - minicute-g-machinizer
       - minicute-base
       - minicute-parser
-      - minicute-codegenerator
 
       - hspec
 
@@ -114,7 +116,7 @@ benchmarks:
       - -rtsopts
       - -with-rtsopts=-N
     dependencies:
-      - minicute-codegenerator
+      - minicute-g-machinizer
 
 # defaults:
   # github:
