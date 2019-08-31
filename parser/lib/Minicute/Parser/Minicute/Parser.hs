@@ -13,12 +13,12 @@ module Minicute.Parser.Minicute.Parser
   , mainProgramLLMC
   ) where
 
-import Control.Monad.Reader ( ReaderT, runReaderT, mapReaderT, ask )
-import Data.List.Extra
+import Control.Monad.Reader ( ReaderT, ask, mapReaderT, runReaderT )
 import Data.Functor
-import Minicute.Parser.Common
+import Data.List.Extra
 import Minicute.Data.Minicute.Precedence
 import Minicute.Data.Minicute.Program
+import Minicute.Parser.Common
 import Text.Megaparsec
 
 import qualified Control.Monad.Combinators as Comb

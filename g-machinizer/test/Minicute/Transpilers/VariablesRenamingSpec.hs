@@ -7,12 +7,12 @@ module Minicute.Transpilers.VariablesRenamingSpec
 
 import Test.Hspec
 
-import Control.Monad
 import Control.Lens
+import Control.Monad
 import Data.List
 import Data.Tuple.Extra
-import Minicute.Transpilers.VariablesRenaming
 import Minicute.Data.Minicute.Program
+import Minicute.Transpilers.VariablesRenaming
 import Minicute.Utils.TH
 
 import qualified Data.Set as Set

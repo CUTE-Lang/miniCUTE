@@ -36,10 +36,10 @@ import Control.Lens.Tuple
 import Control.Lens.Type
 import Control.Lens.Wrapped
 import Data.Data
+import Data.Text.Prettyprint.Doc ( Pretty(..) )
 import GHC.Generics
 import Language.Haskell.TH.Syntax
 import Minicute.Data.Minicute.Expression
-import Data.Text.Prettyprint.Doc ( Pretty( .. ) )
 
 import qualified Data.Text.Prettyprint.Doc as PP
 

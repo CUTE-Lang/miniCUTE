@@ -10,9 +10,9 @@ module Minicute.Parser.GMachine.Parser
   ) where
 
 import Data.Functor
-import Minicute.Parser.Common
 import Minicute.Data.GMachine.Instruction
 import Minicute.Data.Minicute.Common
+import Minicute.Parser.Common
 import Text.Megaparsec
 
 import qualified Minicute.Parser.Lexer as L

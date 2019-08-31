@@ -2,8 +2,8 @@ module Main
   ( main
   ) where
 
-import Language.Haskell.HLint3 (hlint)
-import System.Exit (exitFailure, exitSuccess)
+import Language.Haskell.HLint3 ( hlint )
+import System.Exit ( exitFailure, exitSuccess )
 
 main :: IO ()
 main =

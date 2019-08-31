@@ -9,6 +9,6 @@ module Minicute.Transpilers.GMachine
   , initialCode
   ) where
 
-import Minicute.Internal.Transpilers.GMachine
 import Minicute.Data.GMachine.Instruction
 import Minicute.Data.Minicute.Program
+import Minicute.Internal.Transpilers.GMachine
