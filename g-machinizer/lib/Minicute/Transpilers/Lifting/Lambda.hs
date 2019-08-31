@@ -12,9 +12,9 @@ import Control.Lens.Operators
 import Control.Lens.Wrapped ( _Wrapped )
 import Data.List
 import Data.Tuple
+import Minicute.Data.Minicute.Annotated
 import Minicute.Transpilers.FreeVariables
 import Minicute.Transpilers.VariablesRenaming
-import Minicute.Data.Minicute.Annotated
 
 import qualified Data.Set as Set
 

@@ -11,8 +11,8 @@ import Control.Lens.Each
 import Control.Lens.Lens ( ALens', cloneLens )
 import Control.Lens.Operators
 import Control.Lens.Wrapped ( _Wrapped )
-import Control.Monad.State
 import Control.Monad.Reader
+import Control.Monad.State
 import Data.Function
 import Minicute.Data.Minicute.Program
 

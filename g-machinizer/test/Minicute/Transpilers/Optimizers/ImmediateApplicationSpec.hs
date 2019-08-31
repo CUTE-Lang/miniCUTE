@@ -8,8 +8,8 @@ import Test.Hspec
 
 import Control.Monad
 import Data.Tuple.Extra
-import Minicute.Transpilers.Optimizers.ImmediateApplication
 import Minicute.Data.Minicute.Program
+import Minicute.Transpilers.Optimizers.ImmediateApplication
 import Minicute.Utils.TH
 
 spec :: Spec
