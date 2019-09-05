@@ -10,8 +10,11 @@ import qualified LLVM.AST as AST
 import qualified LLVM.AST.Constant as ASTC
 import qualified LLVM.AST.Type as ASTT
 
-operandInt :: Word32 -> Integer -> AST.Operand
-operandInt w n = AST.ConstantOperand (ASTC.Int w n)
+operandInt :: Word32 -> Int -> AST.Operand
+operandInt w n = AST.ConstantOperand (ASTC.Int w (toInteger n))
+
+operandInteger :: Word32 -> Integer -> AST.Operand
+operandInteger w n = AST.ConstantOperand (ASTC.Int w n)
 
 operandNGlobal :: AST.Name -> AST.Operand
 operandNGlobal = AST.ConstantOperand . ASTC.GlobalReference typeNodeNGlobal

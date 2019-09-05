@@ -63,13 +63,13 @@ testCases
 
             -- UpdateAsInteger 0
             sName <- load (AST.ConstantOperand constantAddrStackPointer) 0
-            sName' <- gep sName [operandInt 32 0]
+            sName' <- gep sName [operandInteger 32 0]
             nName <- load sName' 0
             _ <- call (AST.ConstantOperand constantUpdateNodeNInteger) [(vName, []), (nName, [])]
 
             -- Return
             bName <- load (AST.ConstantOperand constantAddrBasePointer) 0
-            bName' <- gep bName [operandInt 32 0]
+            bName' <- gep bName [operandInteger 32 0]
             store bName' 0 (AST.ConstantOperand constantAddrStackPointer)
             retVoid
       )
@@ -90,7 +90,7 @@ testCases
 
             -- MakeGlobal g
             sName <- load (AST.ConstantOperand constantAddrStackPointer) 0
-            sName' <- gep sName [operandInt 32 1]
+            sName' <- gep sName [operandInteger 32 1]
             nName <- bitcast (operandNGlobal "minicute__user__defined__g") typeInt8Ptr
             store nName 0 sName'
             store sName' 0 (AST.ConstantOperand constantAddrStackPointer)
@@ -98,22 +98,22 @@ testCases
             -- Eval
             bName <- load (AST.ConstantOperand constantAddrBasePointer) 0
             sName <- load (AST.ConstantOperand constantAddrStackPointer) 0
-            sName' <- gep sName [operandInt 32 (negate 1)]
+            sName' <- gep sName [operandInteger 32 (negate 1)]
             store sName' 0 (AST.ConstantOperand constantAddrBasePointer)
             _ <- call (AST.ConstantOperand constantUtilUnwind) []
             store bName 0 (AST.ConstantOperand constantAddrBasePointer)
 
             -- Update 1
             sName <- load (AST.ConstantOperand constantAddrStackPointer) 0
-            sName' <- gep sName [operandInt 32 0]
+            sName' <- gep sName [operandInteger 32 0]
             nName <- load sName' 0
-            sName'' <- gep sName [operandInt 32 (negate 1)]
+            sName'' <- gep sName [operandInteger 32 (negate 1)]
             nName' <- load sName'' 0
             _ <- call (AST.ConstantOperand constantUpdateNodeNIndirect) [(nName, []), (nName', [])]
 
             -- Pop 1
             sName <- load (AST.ConstantOperand constantAddrStackPointer) 0
-            sName' <- gep sName [operandInt 32 (negate 1)]
+            sName' <- gep sName [operandInteger 32 (negate 1)]
             store sName' 0 (AST.ConstantOperand constantAddrStackPointer)
 
             -- Unwind
@@ -137,31 +137,31 @@ testCases
 
             -- Copy 0
             sName <- load (AST.ConstantOperand constantAddrStackPointer) 0
-            sName' <- gep sName [operandInt 32 0]
+            sName' <- gep sName [operandInteger 32 0]
             nName <- load sName' 0
-            sName'' <- gep sName [operandInt 32 1]
+            sName'' <- gep sName [operandInteger 32 1]
             store nName 0 sName''
             store sName'' 0 (AST.ConstantOperand constantAddrStackPointer)
 
             -- Eval
             bName <- load (AST.ConstantOperand constantAddrBasePointer) 0
             sName <- load (AST.ConstantOperand constantAddrStackPointer) 0
-            sName' <- gep sName [operandInt 32 (negate 1)]
+            sName' <- gep sName [operandInteger 32 (negate 1)]
             store sName' 0 (AST.ConstantOperand constantAddrBasePointer)
             _ <- call (AST.ConstantOperand constantUtilUnwind) []
             store bName 0 (AST.ConstantOperand constantAddrBasePointer)
 
             -- Update 2
             sName <- load (AST.ConstantOperand constantAddrStackPointer) 0
-            sName' <- gep sName [operandInt 32 0]
+            sName' <- gep sName [operandInteger 32 0]
             nName <- load sName' 0
-            sName'' <- gep sName [operandInt 32 (negate 2)]
+            sName'' <- gep sName [operandInteger 32 (negate 2)]
             nName' <- load sName'' 0
             _ <- call (AST.ConstantOperand constantUpdateNodeNIndirect) [(nName, []), (nName', [])]
 
             -- Pop 2
             sName <- load (AST.ConstantOperand constantAddrStackPointer) 0
-            sName' <- gep sName [operandInt 32 (negate 2)]
+            sName' <- gep sName [operandInteger 32 (negate 2)]
             store sName' 0 (AST.ConstantOperand constantAddrStackPointer)
 
             -- Unwind
@@ -187,23 +187,23 @@ testCases
 
             -- MakeGlobal g
             sName <- load (AST.ConstantOperand constantAddrStackPointer) 0
-            sName' <- gep sName [operandInt 32 1]
+            sName' <- gep sName [operandInteger 32 1]
             nName <- bitcast (operandNGlobal "minicute__user__defined__g") typeInt8Ptr
             store nName 0 sName'
             store sName' 0 (AST.ConstantOperand constantAddrStackPointer)
 
             -- MakeInteger 0
             sName <- load (AST.ConstantOperand constantAddrStackPointer) 0
-            sName' <- gep sName [operandInt 32 1]
-            nName <- call (AST.ConstantOperand constantCreateNodeNInteger) [(operandInt 32 0, [])]
+            sName' <- gep sName [operandInteger 32 1]
+            nName <- call (AST.ConstantOperand constantCreateNodeNInteger) [(operandInteger 32 0, [])]
             store nName 0 sName'
             store sName' 0 (AST.ConstantOperand constantAddrStackPointer)
 
             -- MakeApplication
             sName <- load (AST.ConstantOperand constantAddrStackPointer) 0
-            sName' <- gep sName [operandInt 32 (negate 1)]
+            sName' <- gep sName [operandInteger 32 (negate 1)]
             fName <- load sName' 0
-            sName'' <- gep sName [operandInt 32 (negate 0)]
+            sName'' <- gep sName [operandInteger 32 (negate 0)]
             aName <- load sName'' 0
             nName <- call (AST.ConstantOperand constantCreateNodeNApplication) [(fName, []), (aName, [])]
             store nName 0 sName'
@@ -212,22 +212,22 @@ testCases
             -- Eval
             bName <- load (AST.ConstantOperand constantAddrBasePointer) 0
             sName <- load (AST.ConstantOperand constantAddrStackPointer) 0
-            sName' <- gep sName [operandInt 32 (negate 1)]
+            sName' <- gep sName [operandInteger 32 (negate 1)]
             store sName' 0 (AST.ConstantOperand constantAddrBasePointer)
             _ <- call (AST.ConstantOperand constantUtilUnwind) []
             store bName 0 (AST.ConstantOperand constantAddrBasePointer)
 
             -- Update 1
             sName <- load (AST.ConstantOperand constantAddrStackPointer) 0
-            sName' <- gep sName [operandInt 32 0]
+            sName' <- gep sName [operandInteger 32 0]
             nName <- load sName' 0
-            sName'' <- gep sName [operandInt 32 (negate 1)]
+            sName'' <- gep sName [operandInteger 32 (negate 1)]
             nName' <- load sName'' 0
             _ <- call (AST.ConstantOperand constantUpdateNodeNIndirect) [(nName, []), (nName', [])]
 
             -- Pop 1
             sName <- load (AST.ConstantOperand constantAddrStackPointer) 0
-            sName' <- gep sName [operandInt 32 (negate 1)]
+            sName' <- gep sName [operandInteger 32 (negate 1)]
             store sName' 0 (AST.ConstantOperand constantAddrStackPointer)
 
             -- Unwind
