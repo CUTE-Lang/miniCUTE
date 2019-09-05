@@ -34,55 +34,55 @@ generateMachineCodeE :: GMachineExpression -> IRBuilderT ModuleBuilder ()
 generateMachineCodeE = go []
   where
     go vStack (IMakeInteger v : insts@(_ : _)) = do
-      sName <- load (AST.ConstantOperand constantAddrStackPointer) 0
+      sName <- load operandAddrStackPointer 0
       sName' <- gep sName [operandInteger 32 1]
-      nName <- call (AST.ConstantOperand constantCreateNodeNInteger) [(operandInteger 32 v, [])]
+      nName <- call operandCreateNodeNInteger [(operandInteger 32 v, [])]
       store nName 0 sName'
-      store sName' 0 (AST.ConstantOperand constantAddrStackPointer)
+      store sName' 0 operandAddrStackPointer
 
       go vStack insts
     go vStack (IMakeApplication : insts@(_ : _)) = do
-      sName <- load (AST.ConstantOperand constantAddrStackPointer) 0
+      sName <- load operandAddrStackPointer 0
       sName' <- gep sName [operandInteger 32 (negate 1)]
       fName <- load sName' 0
       sName'' <- gep sName [operandInteger 32 0]
       aName <- load sName'' 0
-      nName <- call (AST.ConstantOperand constantCreateNodeNApplication) [(fName, []), (aName, [])]
+      nName <- call operandCreateNodeNApplication [(fName, []), (aName, [])]
       store nName 0 sName'
-      store sName' 0 (AST.ConstantOperand constantAddrStackPointer)
+      store sName' 0 operandAddrStackPointer
 
       go vStack insts
     go vStack (IMakeGlobal i : insts@(_ : _)) = do
-      sName <- load (AST.ConstantOperand constantAddrStackPointer) 0
+      sName <- load operandAddrStackPointer 0
       sName' <- gep sName [operandInteger 32 1]
       nName <- bitcast (operandUserDefinedNGlobal i) typeInt8Ptr
       store nName 0 sName'
-      store sName' 0 (AST.ConstantOperand constantAddrStackPointer)
+      store sName' 0 operandAddrStackPointer
 
       go vStack insts
 
     go vStack (IPop n : insts@(_ : _)) = do
-      sName <- load (AST.ConstantOperand constantAddrStackPointer) 0
+      sName <- load operandAddrStackPointer 0
       sName' <- gep sName [operandInt 32 (negate n)]
-      store sName' 0 (AST.ConstantOperand constantAddrStackPointer)
+      store sName' 0 operandAddrStackPointer
 
       go vStack insts
     go vStack (IUpdate n : insts@(_ : _)) = do
-      sName <- load (AST.ConstantOperand constantAddrStackPointer) 0
+      sName <- load operandAddrStackPointer 0
       sName' <- gep sName [operandInteger 32 0]
       nName <- load sName' 0
       sName'' <- gep sName [operandInt 32 (negate n)]
       nName' <- load sName'' 0
-      _ <- call (AST.ConstantOperand constantUpdateNodeNIndirect) [(nName, []), (nName', [])]
+      _ <- call operandUpdateNodeNIndirect [(nName, []), (nName', [])]
 
       go vStack insts
     go vStack (ICopy n : insts@(_ : _)) = do
-      sName <- load (AST.ConstantOperand constantAddrStackPointer) 0
+      sName <- load operandAddrStackPointer 0
       sName' <- gep sName [operandInt 32 (negate n)]
       nName <- load sName' 0
       sName'' <- gep sName [operandInteger 32 1]
       store nName 0 sName''
-      store sName'' 0 (AST.ConstantOperand constantAddrStackPointer)
+      store sName'' 0 operandAddrStackPointer
 
       go vStack insts
 
@@ -93,15 +93,15 @@ generateMachineCodeE = go []
 
       go (vName : vStack) insts
     go (vName : vStack) (IUpdateAsInteger n : insts@(_ : _)) = do
-      sName <- load (AST.ConstantOperand constantAddrStackPointer) 0
+      sName <- load operandAddrStackPointer 0
       sName' <- gep sName [operandInt 32 (negate n)]
       nName <- load sName' 0
-      _ <- call (AST.ConstantOperand constantUpdateNodeNInteger) [(vName, []), (nName, [])]
+      _ <- call operandUpdateNodeNInteger [(vName, []), (nName, [])]
 
       go vStack insts
 
     go _ [IUnwind] = do
-      _ <- call (AST.ConstantOperand constantUtilUnwind) []
+      _ <- call operandUtilUnwind []
 
       retVoid
 
@@ -114,18 +114,18 @@ generateMachineCodeE = go []
 
       retVoid
     go _ [IReturn] = do
-      bName <- load (AST.ConstantOperand constantAddrBasePointer) 0
+      bName <- load operandAddrBasePointer 0
       bName' <- gep bName [operandInteger 32 0]
-      store bName' 0 (AST.ConstantOperand constantAddrStackPointer)
+      store bName' 0 operandAddrStackPointer
 
       retVoid
 
     go _ _ = error "generateMachineCodeE: Not yet implemented"
 
     evalBody = do
-      bName <- load (AST.ConstantOperand constantAddrBasePointer) 0
-      sName <- load (AST.ConstantOperand constantAddrStackPointer) 0
+      bName <- load operandAddrBasePointer 0
+      sName <- load operandAddrStackPointer 0
       sName' <- gep sName [operandInteger 32 (negate 1)]
-      store sName' 0 (AST.ConstantOperand constantAddrBasePointer)
-      _ <- call (AST.ConstantOperand constantUtilUnwind) []
-      store bName 0 (AST.ConstantOperand constantAddrBasePointer)
+      store sName' 0 operandAddrBasePointer
+      _ <- call operandUtilUnwind []
+      store bName 0 operandAddrBasePointer

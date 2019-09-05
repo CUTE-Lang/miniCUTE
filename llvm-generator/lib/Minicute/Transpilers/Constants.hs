@@ -25,6 +25,30 @@ operandNGlobal :: Identifier -> AST.Operand
 operandNGlobal (Identifier iStr)
   = AST.ConstantOperand . ASTC.GlobalReference typeNodeNGlobal . fromString $ iStr
 
+operandCreateNodeNInteger :: AST.Operand
+operandCreateNodeNInteger = AST.ConstantOperand constantCreateNodeNInteger
+
+operandCreateNodeNApplication :: AST.Operand
+operandCreateNodeNApplication = AST.ConstantOperand constantCreateNodeNApplication
+
+operandUpdateNodeNInteger :: AST.Operand
+operandUpdateNodeNInteger = AST.ConstantOperand constantUpdateNodeNInteger
+
+operandUpdateNodeNIndirect :: AST.Operand
+operandUpdateNodeNIndirect = AST.ConstantOperand constantUpdateNodeNIndirect
+
+operandUtilUnwind :: AST.Operand
+operandUtilUnwind = AST.ConstantOperand constantUtilUnwind
+
+operandAddrStackPointer :: AST.Operand
+operandAddrStackPointer = AST.ConstantOperand constantAddrStackPointer
+
+operandAddrBasePointer :: AST.Operand
+operandAddrBasePointer = AST.ConstantOperand constantAddrBasePointer
+
+operandNodeHeapPointer :: AST.Operand
+operandNodeHeapPointer = AST.ConstantOperand constantNodeHeapPointer
+
 constantCreateNodeNInteger :: ASTC.Constant
 constantCreateNodeNInteger = ASTC.GlobalReference typeCreateNodeNInteger "minicute_create_node_NInteger"
 
