@@ -203,7 +203,7 @@ testCases
             sName <- load operandAddrStackPointer 0
             sName' <- gep sName [operandInteger 32 (negate 1)]
             fName <- load sName' 0
-            sName'' <- gep sName [operandInteger 32 (negate 0)]
+            sName'' <- gep sName [operandInteger 32 0]
             aName <- load sName'' 0
             nName <- call operandCreateNodeNApplication [(fName, []), (aName, [])]
             store nName 0 sName'
