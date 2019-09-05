@@ -45,6 +45,9 @@ instance Show Identifier where
 instance IsString Identifier where
   fromString = Identifier
 
+instance Semigroup Identifier where
+  (Identifier a) <> (Identifier b) = Identifier (a <> b)
+
 instance Pretty Identifier where
   pretty (Identifier v) = pretty v
 
