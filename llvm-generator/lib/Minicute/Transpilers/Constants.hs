@@ -4,7 +4,9 @@ module Minicute.Transpilers.Constants
   ( module Minicute.Transpilers.Constants
   ) where
 
+import Data.String ( fromString )
 import Data.Word
+import Minicute.Data.Minicute.Common
 
 import qualified LLVM.AST as AST
 import qualified LLVM.AST.Constant as ASTC
@@ -16,8 +18,12 @@ operandInt w n = AST.ConstantOperand (ASTC.Int w (toInteger n))
 operandInteger :: Word32 -> Integer -> AST.Operand
 operandInteger w n = AST.ConstantOperand (ASTC.Int w n)
 
-operandNGlobal :: AST.Name -> AST.Operand
-operandNGlobal = AST.ConstantOperand . ASTC.GlobalReference typeNodeNGlobal
+operandUserDefinedNGlobal :: Identifier -> AST.Operand
+operandUserDefinedNGlobal i = operandNGlobal $ "minicute__user__defined__" <> i
+
+operandNGlobal :: Identifier -> AST.Operand
+operandNGlobal (Identifier iStr)
+  = AST.ConstantOperand . ASTC.GlobalReference typeNodeNGlobal . fromString $ iStr
 
 constantCreateNodeNInteger :: ASTC.Constant
 constantCreateNodeNInteger = ASTC.GlobalReference typeCreateNodeNInteger "minicute_create_node_NInteger"

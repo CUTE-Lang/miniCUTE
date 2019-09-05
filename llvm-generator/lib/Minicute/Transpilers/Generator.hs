@@ -52,10 +52,10 @@ generateMachineCodeE = go []
       store sName' 0 (AST.ConstantOperand constantAddrStackPointer)
 
       go vStack insts
-    go vStack (IMakeGlobal (Identifier iStr) : insts@(_ : _)) = do
+    go vStack (IMakeGlobal i : insts@(_ : _)) = do
       sName <- load (AST.ConstantOperand constantAddrStackPointer) 0
       sName' <- gep sName [operandInteger 32 1]
-      nName <- bitcast (operandNGlobal . AST.Name . fromString $ "minicute__user__defined__" <> iStr) typeInt8Ptr
+      nName <- bitcast (operandUserDefinedNGlobal i) typeInt8Ptr
       store nName 0 sName'
       store sName' 0 (AST.ConstantOperand constantAddrStackPointer)
 
