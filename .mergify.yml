@@ -1,7 +1,7 @@
 pull_request_rules:
   - name: automatic merge on CI success and labeled
     conditions:
-      - status-success="ci/circleci: haskell-build-and-test"
+      - "status-success=ci/circleci: haskell-build-and-test"
       - label=merge this
     actions:
       merge:
