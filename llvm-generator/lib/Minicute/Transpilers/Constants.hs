@@ -104,7 +104,7 @@ typeCreateNodeNStructure :: ASTT.Type
 typeCreateNodeNStructure = ASTT.FunctionType typeInt8Ptr [typeInt32, typeInt8Ptr] False
 
 typeCreateNodeNStructureFields :: ASTT.Type
-typeCreateNodeNStructureFields = ASTT.FunctionType typeInt8Ptr [typeInt32, typeInt8Ptr] False
+typeCreateNodeNStructureFields = ASTT.FunctionType typeInt8Ptr [typeInt32, typeInt8PtrPtr] False
 
 typeCreateNodeNApplication :: ASTT.Type
 typeCreateNodeNApplication = ASTT.FunctionType typeInt8Ptr [typeInt8Ptr, typeInt8Ptr] False

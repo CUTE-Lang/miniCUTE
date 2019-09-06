@@ -1,3 +1,5 @@
+#include <stddef.h>
+
 #include "machine.h"
 #include "node.h"
 
@@ -44,11 +46,16 @@ int8_t *minicute_create_node_NStructure(int32_t data_tag, int8_t *data_fields)
 }
 
 __attribute__((always_inline))
-int8_t *minicute_create_node_NStructureFields(int32_t size, int8_t *values)
+int8_t *minicute_create_node_NStructureFields(int32_t size, int8_t **values)
 {
-  ALLOC_NODE(NStructureFields, node);
+  minicute_node_NStructureFields *node = (void *) nhp;
+  nhp += sizeof(*node) + sizeof(node->values[0]) * size;
   node->size = size;
-  node->values = values;
+
+  for (int i = 0; i < size; i ++)
+  {
+    node->values[i] = values[i];
+  }
 
   return (void *) node;
 }
