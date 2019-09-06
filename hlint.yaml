@@ -89,7 +89,7 @@
   - {name: ["Control.Monad.Combinators.NonEmpty"], as: "CombNE"}
   - {name: ["Data.Map"], as: "Map"}
   - {name: ["Data.Set"], as: "Set"}
-  - {name: ["Data.Text.Prettyprint.Doc", "Data.Text.Prettyprint.Doc.Minicute"], as: "PPD"}
+  - {name: ["Data.Text.Prettyprint.Doc", "Data.Text.Prettyprint.Doc.Minicute"], as: "PP"}
   - {name: ["Minicute.Parser.Lexer"], as: "L"}
   - {name: ["Minicute.Parser.Parser"], as: "P"}
 
