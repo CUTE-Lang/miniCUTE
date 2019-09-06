@@ -99,6 +99,16 @@ generateMachineCodeE = go []
       _ <- call operandUpdateNodeNInteger [(vName, []), (nName, [])]
 
       go vStack insts
+    go (vName : vStack) (IUpdateAsStructure n : insts@(_ : _)) = do
+      sName <- load operandAddrStackPointer 0
+      sName' <- gep sName [operandInt 32 (negate n)]
+      nName <- load sName' 0
+      fName <- alloca (ASTT.ArrayType 0 typeInt8Ptr) Nothing 0
+      fName' <- gep fName [operandInteger 32 0, operandInteger 32 0]
+      fName'' <- call operandCreateNodeNStructureFields [(operandInteger 32 0, []), (fName', [])]
+      _ <- call operandUpdateNodeNStructure [(vName, []), (fName'', []), (nName, [])]
+
+      go vStack insts
 
     go _ [IUnwind] = do
       _ <- call operandUtilUnwind []
@@ -120,7 +130,7 @@ generateMachineCodeE = go []
 
       retVoid
 
-    go _ _ = error "generateMachineCodeE: Not yet implemented"
+    go _ insts = error $ "generateMachineCodeE: Not yet implemented for " <> show insts
 
     evalBody = do
       bName <- load operandAddrBasePointer 0

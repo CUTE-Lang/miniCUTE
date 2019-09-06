@@ -44,7 +44,7 @@ testCases
       , []
       )
 
-    , ( "a program with a simple supercombinator"
+    , ( "a program with an integer supercombinator"
       , [qqGMachine|
            f<0> {
              PushBasicValue 100;
@@ -66,6 +66,39 @@ testCases
             sName' <- gep sName [operandInteger 32 0]
             nName <- load sName' 0
             _ <- call operandUpdateNodeNInteger [(vName, []), (nName, [])]
+
+            -- Return
+            bName <- load operandAddrBasePointer 0
+            bName' <- gep bName [operandInteger 32 0]
+            store bName' 0 operandAddrStackPointer
+            retVoid
+      )
+
+    , ( "a program with a structure supercombinator"
+      , [qqGMachine|
+           f<0> {
+             PushBasicValue 1;
+             UpdateAsStructure 0;
+             Return;
+           }
+        |]
+      , execModuleBuilder emptyModuleBuilder $ do
+          function "minicute__user__defined__f" [] ASTT.void . const $ do
+            emitBlockStart "entry"
+
+            -- PushBasicValue 1
+            pName <- alloca ASTT.i32 Nothing 0
+            store (operandInt 32 1) 0 pName
+            vName <- load pName 0
+
+            -- UpdateAsStructure 0
+            sName <- load operandAddrStackPointer 0
+            sName' <- gep sName [operandInteger 32 0]
+            nName <- load sName' 0
+            fName <- alloca (ASTT.ArrayType 0 typeInt8Ptr) Nothing 0
+            fName' <- gep fName [operandInteger 32 0, operandInteger 32 0]
+            fName'' <- call operandCreateNodeNStructureFields [(operandInteger 32 0, []), (fName', [])]
+            _ <- call operandUpdateNodeNStructure [(vName, []), (fName'', []), (nName, [])]
 
             -- Return
             bName <- load operandAddrBasePointer 0
