@@ -1,5 +1,5 @@
+{-# LANGUAGE GADTs #-}
 {-# LANGUAGE RankNTypes #-}
-{-# LANGUAGE TypeFamilies #-}
 -- |
 -- Transpilers to extract free variable information of expressions
 module Minicute.Transpilers.FreeVariables

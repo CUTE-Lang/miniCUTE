@@ -1,4 +1,3 @@
-{-# LANGUAGE DataKinds #-}
 -- |
 -- Optimizers to remove immediate matches.
 module Minicute.Transpilers.Optimizers.ImmediateMatch

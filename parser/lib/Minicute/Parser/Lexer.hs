@@ -1,6 +1,6 @@
+{-# LANGUAGE GADTs #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE TypeFamilies #-}
 -- |
 -- Common lexer functions used in miniCUTE compiler
 module Minicute.Parser.Lexer

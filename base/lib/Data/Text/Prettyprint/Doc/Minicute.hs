@@ -1,5 +1,3 @@
-{-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE UndecidableInstances #-}
 -- |
 -- Additional prettyprinter functions for miniCUTE compiler
 module Data.Text.Prettyprint.Doc.Minicute where
