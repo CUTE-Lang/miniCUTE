@@ -1,5 +1,4 @@
-{-# LANGUAGE RankNTypes #-}
-{-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE GADTs #-}
 -- |
 -- Parser functions for G-Machine
 module Minicute.Parser.GMachine.Parser

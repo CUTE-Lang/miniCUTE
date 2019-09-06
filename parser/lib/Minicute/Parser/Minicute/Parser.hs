@@ -1,6 +1,4 @@
-{-# LANGUAGE DataKinds #-}
-{-# LANGUAGE RankNTypes #-}
-{-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE GADTs #-}
 -- |
 -- Parser functions for miniCUTE
 module Minicute.Parser.Minicute.Parser
