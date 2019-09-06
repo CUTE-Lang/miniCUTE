@@ -1,6 +1,9 @@
 -- |
 -- Additional prettyprinter functions for miniCUTE compiler
-module Data.Text.Prettyprint.Doc.Minicute where
+module Data.Text.Prettyprint.Doc.Minicute
+  ( PrettyPrec( .. )
+  , prettyShow
+  ) where
 
 import Data.Text.Prettyprint.Doc
 

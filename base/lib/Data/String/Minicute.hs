@@ -1,6 +1,8 @@
 -- |
 -- String functions used in miniCUTE compiler
-module Data.String.Minicute where
+module Data.String.Minicute
+  ( toUnix
+  ) where
 
 -- |
 -- Normalize a multi-line input string into a unix-style multi-line string.

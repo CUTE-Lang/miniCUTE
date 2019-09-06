@@ -2,7 +2,11 @@
 {-# LANGUAGE OverloadedStrings #-}
 -- |
 -- Implementation detail of the transpiler from a miniCUTE program to a G-Machine program
-module Minicute.Internal.Transpilers.GMachine where
+module Minicute.Internal.Transpilers.GMachine
+  ( transpileProgram
+
+  , initialCode
+  ) where
 
 import Control.Lens.Each
 import Control.Lens.Operators
