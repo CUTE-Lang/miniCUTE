@@ -3,7 +3,17 @@
 {-# LANGUAGE MultiParamTypeClasses #-}
 -- |
 -- Tuple functions used in miniCUTE compiler
-module Data.Tuple.Minicute where
+module Data.Tuple.Minicute
+  ( TupleZipper1( .. )
+  , TupleZipper2( .. )
+  , TupleZipper3( .. )
+  , TupleZipper4( .. )
+  , TupleZipper5( .. )
+  , TupleZipper6( .. )
+  , TupleZipper7( .. )
+  , TupleZipper8( .. )
+  , TupleZipper9( .. )
+  ) where
 
 -- * TupleConverters
 

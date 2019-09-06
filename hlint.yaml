@@ -1,8 +1,9 @@
 # For more information about this file, see
 # https://github.com/ndmitchell/hlint/blob/master/data/hlint.yaml
+# and
+# https://github.com/ndmitchell/hlint/blob/master/data/default.yaml
 
-- ignore:
-    name: Use record patterns
+- arguments: [-XNoMagicHash]
 
 # enabled rules
 - group:
@@ -13,6 +14,11 @@
     enabled: true
 
 # custom rules
+- warn: {name: "Use module export list"}
+- warn: {name: "Use explicit module export list"}
+- warn: {name: "Use DerivingStrategies"}
+- warn: {lhs: "- a", rhs: "negate a", name: "Use negate"}
+      
 - group:
     name: pretty-printer
     enabled: true
@@ -33,10 +39,10 @@
     - package parser-combinators
     rules:
     - warn: {lhs: "a *> b <* c", rhs: "Control.Monad.Combinators.between a c b"}
-    - warn: {lhs: "a <|> pure b", rhs: "option a b"}
-    - warn: {lhs: "a <|> return b", rhs: "option a b"}
-    - warn: {lhs: "a <|> choice x", rhs: "choice (a : x)"}
-    - warn: {lhs: "a <|> b <|> c", rhs: "choice [a, b, c]"}
+    - warn: {lhs: "a <|> pure b", rhs: "Control.Monad.Combinators.option a b"}
+    - warn: {lhs: "a <|> return b", rhs: "Control.Monad.Combinators.option a b"}
+    - warn: {lhs: "a <|> Control.Monad.Combinators.choice x", rhs: "Control.Monad.Combinators.choice (a : x)"}
+    - warn: {lhs: "a <|> b <|> c", rhs: "Control.Monad.Combinators.choice [a, b, c]"}
 
     - warn: {lhs: "(:) <$> a <*> Control.Monad.Combinators.many a", rhs: "Control.Monad.Combinators.some a"}
     - warn: {lhs: "(:) <$> a <* b <*> Control.Monad.Combinators.endBy a b", rhs: "Control.Monad.Combinators.endBy1 a b"}
@@ -80,7 +86,13 @@
 - modules:
   - {name: ["Control.Monad.Combinators"], as: "Comb"}
   - {name: ["Control.Monad.Combinators.Expr"], as: "CombExpr"}
-  - {name: ["Data.Set"], as: "Set"}
+  - {name: ["Control.Monad.Combinators.NonEmpty"], as: "CombNE"}
   - {name: ["Data.Map"], as: "Map"}
+  - {name: ["Data.Set"], as: "Set"}
+  - {name: ["Data.Text.Prettyprint.Doc", "Data.Text.Prettyprint.Doc.Minicute"], as: "PPD"}
   - {name: ["Minicute.Parser.Lexer"], as: "L"}
   - {name: ["Minicute.Parser.Parser"], as: "P"}
+
+- functions:
+  - {name: "unsafePerformIO", within: []}
+  - {name: "unsafeDupablePerformIO", within: []}
