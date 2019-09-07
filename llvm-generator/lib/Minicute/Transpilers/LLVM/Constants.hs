@@ -13,10 +13,10 @@ import qualified LLVM.AST.Constant as ASTC
 import qualified LLVM.AST.Type as ASTT
 
 operandInt :: Word32 -> Int -> AST.Operand
-operandInt w n = AST.ConstantOperand (ASTC.Int w (toInteger n))
+operandInt w = AST.ConstantOperand . constantInt w
 
 operandInteger :: Word32 -> Integer -> AST.Operand
-operandInteger w n = AST.ConstantOperand (ASTC.Int w n)
+operandInteger w = AST.ConstantOperand . constantInteger w
 
 operandUserDefinedNGlobal :: Identifier -> AST.Operand
 operandUserDefinedNGlobal i = operandNGlobal $ "minicute__user_defined__" <> i <> "__node"
@@ -97,6 +97,22 @@ constantAddrBasePointer = ASTC.GlobalReference typeInt8PtrPtrPtr "abp"
 constantNodeHeapPointer :: ASTC.Constant
 constantNodeHeapPointer = ASTC.GlobalReference typeInt8PtrPtr "nhp"
 
+constantNodeNGlobal :: AST.Name -> ASTC.Constant
+constantNodeNGlobal n
+  = ASTC.Struct
+    Nothing
+    False
+    [ constantInteger 8 6
+    , ASTC.BitCast (ASTC.GlobalReference typeNodeCode n) typeInt8Ptr
+    , constantInteger 32 0
+    ]
+
+constantInt :: Word32 -> Int -> ASTC.Constant
+constantInt w = constantInteger w . toInteger
+
+constantInteger :: Word32 -> Integer -> ASTC.Constant
+constantInteger = ASTC.Int
+
 typeNodeCreateNInteger :: ASTT.Type
 typeNodeCreateNInteger = ASTT.FunctionType typeInt8Ptr [typeInt32] False
 
@@ -123,6 +139,9 @@ typeNodeUpdateNIndirect = ASTT.FunctionType ASTT.void [typeInt8Ptr, typeInt8Ptr]
 
 typeUtilUnwind :: ASTT.Type
 typeUtilUnwind = ASTT.FunctionType ASTT.void [] False
+
+typeNodeCode :: ASTT.Type
+typeNodeCode = ASTT.FunctionType ASTT.void [] False
 
 typeNodeNIntegerPtr :: ASTT.Type
 typeNodeNIntegerPtr = ASTT.ptr typeNodeNInteger

@@ -22,13 +22,18 @@ generateMachineCodeProgram :: GMachineProgram -> ModuleBuilder ()
 generateMachineCodeProgram program = forM_ program generateMachineCodeSc
 
 generateMachineCodeSc :: GMachineSupercombinator -> ModuleBuilder ()
-generateMachineCodeSc (Identifier binder, _, expr)
-  = void . function functionName [] ASTT.void . const $ bodyBuilder
+generateMachineCodeSc (Identifier binder, _, expr) = do
+  _ <- global nodeName typeNodeNGlobal nodeBodyBuilder
+  _ <- function codeName [] ASTT.void codeBodyBuilder
+  return ()
   where
-    functionName = fromString ("minicute__user_defined__" <> binder <> "__code")
-    bodyBuilder = do
+    codeName = fromString ("minicute__user_defined__" <> binder <> "__code")
+    codeBodyBuilder _ = do
       emitBlockStart "entry"
       generateMachineCodeE expr
+
+    nodeName = fromString ("minicute__user_defined__" <> binder <> "__node")
+    nodeBodyBuilder = constantNodeNGlobal codeName
 
 generateMachineCodeE :: GMachineExpression -> IRBuilderT ModuleBuilder ()
 generateMachineCodeE = go []

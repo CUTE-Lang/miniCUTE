@@ -53,6 +53,8 @@ testCases
            }
         |]
       , execModuleBuilder emptyModuleBuilder $ do
+          _ <- global "minicute__user_defined__f__node" typeNodeNGlobal $
+            constantNodeNGlobal "minicute__user_defined__f__code"
           function "minicute__user_defined__f__code" [] ASTT.void . const $ do
             emitBlockStart "entry"
 
@@ -83,6 +85,8 @@ testCases
            }
         |]
       , execModuleBuilder emptyModuleBuilder $ do
+          _ <- global "minicute__user_defined__f__node" typeNodeNGlobal $
+            constantNodeNGlobal "minicute__user_defined__f__code"
           function "minicute__user_defined__f__code" [] ASTT.void . const $ do
             emitBlockStart "entry"
 
@@ -118,6 +122,8 @@ testCases
            }
         |]
       , execModuleBuilder emptyModuleBuilder $ do
+          _ <- global "minicute__user_defined__f__node" typeNodeNGlobal $
+            constantNodeNGlobal "minicute__user_defined__f__code"
           function "minicute__user_defined__f__code" [] ASTT.void . const $ do
             emitBlockStart "entry"
 
@@ -165,6 +171,8 @@ testCases
            }
         |]
       , execModuleBuilder emptyModuleBuilder $ do
+          _ <- global "minicute__user_defined__f__node" typeNodeNGlobal $
+            constantNodeNGlobal "minicute__user_defined__f__code"
           function "minicute__user_defined__f__code" [] ASTT.void . const $ do
             emitBlockStart "entry"
 
@@ -215,6 +223,8 @@ testCases
            }
         |]
       , execModuleBuilder emptyModuleBuilder $ do
+          _ <- global "minicute__user_defined__f__node" typeNodeNGlobal $
+            constantNodeNGlobal "minicute__user_defined__f__code"
           function "minicute__user_defined__f__code" [] ASTT.void . const $ do
             emitBlockStart "entry"
 
