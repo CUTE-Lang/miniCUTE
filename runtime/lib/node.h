@@ -55,86 +55,86 @@
 /**
  * @brief Super type for all nodes
  */
-typedef struct minicute_node
+typedef struct minicute__node
 {
   int8_t tag;
-} minicute_node;
+} minicute__node;
 
-typedef struct minicute_node_NEmpty
+typedef struct minicute__node__NEmpty
 {
   int8_t tag;
-} minicute_node_NEmpty;
+} minicute__node__NEmpty;
 
-typedef struct minicute_node_NInteger
+typedef struct minicute__node__NInteger
 {
   int8_t tag;
   int32_t value;
-} minicute_node_NInteger;
+} minicute__node__NInteger;
 
-typedef struct minicute_node_NConstructor
+typedef struct minicute__node__NConstructor
 {
   int8_t tag;
   int32_t data_tag;
   int32_t data_arity;
-} minicute_node_NConstructor;
+} minicute__node__NConstructor;
 
-typedef struct minicute_node_NStructure
+typedef struct minicute__node__NStructure
 {
   int8_t tag;
   int32_t data_tag;
   int8_t *data_fields;
-} minicute_node_NStructure;
+} minicute__node__NStructure;
 
-typedef struct minicute_node_NStructureFields
+typedef struct minicute__node__NStructureFields
 {
   int8_t tag;
   int32_t size;
   int8_t *values[0];
-} minicute_node_NStructureFields;
+} minicute__node__NStructureFields;
 
-typedef struct minicute_node_NApplication
+typedef struct minicute__node__NApplication
 {
   int8_t tag;
   int8_t *function;
   int8_t *argument;
-} minicute_node_NApplication;
+} minicute__node__NApplication;
 
-typedef struct minicute_node_NIndirect
+typedef struct minicute__node__NIndirect
 {
   int8_t tag;
   int8_t *referee;
-} minicute_node_NIndirect;
+} minicute__node__NIndirect;
 
-typedef struct minicute_node_NGlobal
+typedef struct minicute__node__NGlobal
 {
   int8_t tag;
   int8_t *global_function;
   int32_t global_arity;
-} minicute_node_NGlobal;
+} minicute__node__NGlobal;
 
 /**
  * @name Node Creating Functions
  */
 /// @{
-int8_t *minicute_create_node_NEmpty(void);
-int8_t *minicute_create_node_NInteger(int32_t value);
-int8_t *minicute_create_node_NConstructor(int32_t data_tag, int32_t data_arity);
-int8_t *minicute_create_node_NStructure(int32_t data_tag, int8_t *data_fields);
-int8_t *minicute_create_node_NStructureFields(int32_t size, int8_t **values);
-int8_t *minicute_create_node_NApplication(int8_t *function, int8_t *argument);
-int8_t *minicute_create_node_NIndirect(int8_t *referee);
-int8_t *minicute_create_node_NGlobal(int8_t *global_function, int32_t global_arity);
+int8_t *minicute__node__create_NEmpty(void);
+int8_t *minicute__node__create_NInteger(int32_t value);
+int8_t *minicute__node__create_NConstructor(int32_t data_tag, int32_t data_arity);
+int8_t *minicute__node__create_NStructure(int32_t data_tag, int8_t *data_fields);
+int8_t *minicute__node__create_NStructureFields(int32_t size, int8_t **values);
+int8_t *minicute__node__create_NApplication(int8_t *function, int8_t *argument);
+int8_t *minicute__node__create_NIndirect(int8_t *referee);
+int8_t *minicute__node__create_NGlobal(int8_t *global_function, int32_t global_arity);
 /// @}
 
 /**
  * @name Node Updating Functions
  */
 /// @{
-void minicute_update_node_NInteger(int32_t value, int8_t *target);
-void minicute_update_node_NConstructor(int32_t data_tag, int32_t data_arity, int8_t *target);
-void minicute_update_node_NStructure(int32_t data_tag, int8_t *data_fields, int8_t *target);
-void minicute_update_node_NApplication(int8_t *function, int8_t *argument, int8_t *target);
-void minicute_update_node_NIndirect(int8_t *referee, int8_t *target);
-void minicute_update_node_NGlobal(int8_t *global_function, int32_t global_arity, int8_t *target);
+void minicute__node__update_NInteger(int32_t value, int8_t *target);
+void minicute__node__update_NConstructor(int32_t data_tag, int32_t data_arity, int8_t *target);
+void minicute__node__update_NStructure(int32_t data_tag, int8_t *data_fields, int8_t *target);
+void minicute__node__update_NApplication(int8_t *function, int8_t *argument, int8_t *target);
+void minicute__node__update_NIndirect(int8_t *referee, int8_t *target);
+void minicute__node__update_NGlobal(int8_t *global_function, int32_t global_arity, int8_t *target);
 /// @}
 #endif /* _NODE_H_ */

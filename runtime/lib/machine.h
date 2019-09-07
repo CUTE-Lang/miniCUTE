@@ -42,9 +42,9 @@ extern int8_t *nhp_max;
 /**
  * @brief Function to initiate the machine
  */
-void minicute_machine_init(void);
+void minicute__machine__init(void);
 /**
  * @brief Function to execute the machine
  */
-void minicute_machine_run(void);
+void minicute__machine__run(void);
 #endif /* _MACHINE_H_ */

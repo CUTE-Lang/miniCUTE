@@ -5,8 +5,8 @@
 
 int main(/* TODO: use argc and argv */)
 {
-  minicute_machine_init();
-  minicute_machine_run();
+  minicute__machine__init();
+  minicute__machine__run();
 
   return 0;
 }

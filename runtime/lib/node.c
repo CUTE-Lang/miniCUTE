@@ -4,12 +4,12 @@
 #include "node.h"
 
 #define ALLOC_NODE(type, name)                  \
-  minicute_node_##type *name = (void *) nhp;    \
+  minicute__node__##type *name = (void *) nhp;    \
   nhp += sizeof(*name);                         \
   node->tag = type##_TAG
 
 __attribute__((always_inline))
-int8_t *minicute_create_node_NEmpty(void)
+int8_t *minicute__node__create_NEmpty(void)
 {
   ALLOC_NODE(NEmpty, node);
 
@@ -17,7 +17,7 @@ int8_t *minicute_create_node_NEmpty(void)
 }
 
 __attribute__((always_inline))
-int8_t *minicute_create_node_NInteger(int32_t value)
+int8_t *minicute__node__create_NInteger(int32_t value)
 {
   ALLOC_NODE(NInteger, node);
   node->value = value;
@@ -26,7 +26,7 @@ int8_t *minicute_create_node_NInteger(int32_t value)
 }
 
 __attribute__((always_inline))
-int8_t *minicute_create_node_NConstructor(int32_t data_tag, int32_t data_arity)
+int8_t *minicute__node__create_NConstructor(int32_t data_tag, int32_t data_arity)
 {
   ALLOC_NODE(NConstructor, node);
   node->data_tag = data_tag;
@@ -36,7 +36,7 @@ int8_t *minicute_create_node_NConstructor(int32_t data_tag, int32_t data_arity)
 }
 
 __attribute__((always_inline))
-int8_t *minicute_create_node_NStructure(int32_t data_tag, int8_t *data_fields)
+int8_t *minicute__node__create_NStructure(int32_t data_tag, int8_t *data_fields)
 {
   ALLOC_NODE(NStructure, node);
   node->data_tag = data_tag;
@@ -46,9 +46,9 @@ int8_t *minicute_create_node_NStructure(int32_t data_tag, int8_t *data_fields)
 }
 
 __attribute__((always_inline))
-int8_t *minicute_create_node_NStructureFields(int32_t size, int8_t **values)
+int8_t *minicute__node__create_NStructureFields(int32_t size, int8_t **values)
 {
-  minicute_node_NStructureFields *node = (void *) nhp;
+  minicute__node__NStructureFields *node = (void *) nhp;
   nhp += sizeof(*node) + sizeof(node->values[0]) * size;
   node->size = size;
 
@@ -61,7 +61,7 @@ int8_t *minicute_create_node_NStructureFields(int32_t size, int8_t **values)
 }
 
 __attribute__((always_inline))
-int8_t *minicute_create_node_NApplication(int8_t *function, int8_t *argument)
+int8_t *minicute__node__create_NApplication(int8_t *function, int8_t *argument)
 {
   ALLOC_NODE(NApplication, node);
   node->function = function;
@@ -71,7 +71,7 @@ int8_t *minicute_create_node_NApplication(int8_t *function, int8_t *argument)
 }
 
 __attribute__((always_inline))
-int8_t *minicute_create_node_NIndirect(int8_t *referee)
+int8_t *minicute__node__create_NIndirect(int8_t *referee)
 {
   ALLOC_NODE(NIndirect, node);
   node->referee = referee;
@@ -80,7 +80,7 @@ int8_t *minicute_create_node_NIndirect(int8_t *referee)
 }
 
 __attribute__((always_inline))
-int8_t *minicute_create_node_NGlobal(int8_t *global_function, int32_t global_arity)
+int8_t *minicute__node__create_NGlobal(int8_t *global_function, int32_t global_arity)
 {
   ALLOC_NODE(NGlobal, node);
   node->global_function = global_function;
@@ -91,18 +91,18 @@ int8_t *minicute_create_node_NGlobal(int8_t *global_function, int32_t global_ari
 
 
 #define REPLACE_NODE(type, name, target)        \
-  minicute_node_##type *name = (void *) target; \
+  minicute__node__##type *name = (void *) target; \
   node->tag = type##_TAG
 
 __attribute__((always_inline))
-void minicute_update_node_NInteger(int32_t value, int8_t *target)
+void minicute__node__update_NInteger(int32_t value, int8_t *target)
 {
   REPLACE_NODE(NInteger, node, target);
   node->value = value;
 }
 
 __attribute__((always_inline))
-void minicute_update_node_NConstructor(int32_t data_tag, int32_t data_arity, int8_t *target)
+void minicute__node__update_NConstructor(int32_t data_tag, int32_t data_arity, int8_t *target)
 {
   REPLACE_NODE(NConstructor, node, target);
   node->data_tag = data_tag;
@@ -110,7 +110,7 @@ void minicute_update_node_NConstructor(int32_t data_tag, int32_t data_arity, int
 }
 
 __attribute__((always_inline))
-void minicute_update_node_NStructure(int32_t data_tag, int8_t *data_fields, int8_t *target)
+void minicute__node__update_NStructure(int32_t data_tag, int8_t *data_fields, int8_t *target)
 {
   REPLACE_NODE(NStructure, node, target);
   node->data_tag = data_tag;
@@ -118,7 +118,7 @@ void minicute_update_node_NStructure(int32_t data_tag, int8_t *data_fields, int8
 }
 
 __attribute__((always_inline))
-void minicute_update_node_NApplication(int8_t *function, int8_t *argument, int8_t *target)
+void minicute__node__update_NApplication(int8_t *function, int8_t *argument, int8_t *target)
 {
   REPLACE_NODE(NApplication, node, target);
   node->function = function;
@@ -126,14 +126,14 @@ void minicute_update_node_NApplication(int8_t *function, int8_t *argument, int8_
 }
 
 __attribute__((always_inline))
-void minicute_update_node_NIndirect(int8_t *referee, int8_t *target)
+void minicute__node__update_NIndirect(int8_t *referee, int8_t *target)
 {
   REPLACE_NODE(NIndirect, node, target);
   node->referee = referee;
 }
 
 __attribute__((always_inline))
-void minicute_update_node_NGlobal(int8_t *global_function, int32_t global_arity, int8_t *target)
+void minicute__node__update_NGlobal(int8_t *global_function, int32_t global_arity, int8_t *target)
 {
   REPLACE_NODE(NGlobal, node, target);
   node->global_function = global_function;

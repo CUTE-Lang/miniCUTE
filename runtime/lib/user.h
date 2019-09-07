@@ -14,5 +14,5 @@
 /**
  * @brief The entry point of a miniCUTE program
  */
-extern minicute_node_NGlobal minicute__user__defined__node__main;
+extern minicute__node__NGlobal minicute__user_defined__main_node;
 #endif /* _USER_H_ */

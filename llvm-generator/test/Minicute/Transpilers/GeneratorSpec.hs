@@ -53,7 +53,7 @@ testCases
            }
         |]
       , execModuleBuilder emptyModuleBuilder $ do
-          function "minicute__user__defined__f" [] ASTT.void . const $ do
+          function "minicute__user_defined__f" [] ASTT.void . const $ do
             emitBlockStart "entry"
 
             -- PushBasicValue 100
@@ -65,7 +65,7 @@ testCases
             sName <- load operandAddrStackPointer 0
             sName' <- gep sName [operandInteger 32 0]
             nName <- load sName' 0
-            _ <- call operandUpdateNodeNInteger [(vName, []), (nName, [])]
+            _ <- call operandNodeUpdateNInteger [(vName, []), (nName, [])]
 
             -- Return
             bName <- load operandAddrBasePointer 0
@@ -83,7 +83,7 @@ testCases
            }
         |]
       , execModuleBuilder emptyModuleBuilder $ do
-          function "minicute__user__defined__f" [] ASTT.void . const $ do
+          function "minicute__user_defined__f" [] ASTT.void . const $ do
             emitBlockStart "entry"
 
             -- PushBasicValue 1
@@ -97,8 +97,8 @@ testCases
             nName <- load sName' 0
             fName <- alloca (ASTT.ArrayType 0 typeInt8Ptr) Nothing 0
             fName' <- gep fName [operandInteger 32 0, operandInteger 32 0]
-            fName'' <- call operandCreateNodeNStructureFields [(operandInteger 32 0, []), (fName', [])]
-            _ <- call operandUpdateNodeNStructure [(vName, []), (fName'', []), (nName, [])]
+            fName'' <- call operandNodeCreateNStructureFields [(operandInteger 32 0, []), (fName', [])]
+            _ <- call operandNodeUpdateNStructure [(vName, []), (fName'', []), (nName, [])]
 
             -- Return
             bName <- load operandAddrBasePointer 0
@@ -118,13 +118,13 @@ testCases
            }
         |]
       , execModuleBuilder emptyModuleBuilder $ do
-          function "minicute__user__defined__f" [] ASTT.void . const $ do
+          function "minicute__user_defined__f" [] ASTT.void . const $ do
             emitBlockStart "entry"
 
             -- MakeGlobal g
             sName <- load operandAddrStackPointer 0
             sName' <- gep sName [operandInteger 32 1]
-            nName <- bitcast (operandNGlobal "minicute__user__defined__g") typeInt8Ptr
+            nName <- bitcast (operandNGlobal "minicute__user_defined__g") typeInt8Ptr
             store nName 0 sName'
             store sName' 0 operandAddrStackPointer
 
@@ -142,7 +142,7 @@ testCases
             nName <- load sName' 0
             sName'' <- gep sName [operandInteger 32 (negate 1)]
             nName' <- load sName'' 0
-            _ <- call operandUpdateNodeNIndirect [(nName, []), (nName', [])]
+            _ <- call operandNodeUpdateNIndirect [(nName, []), (nName', [])]
 
             -- Pop 1
             sName <- load operandAddrStackPointer 0
@@ -165,7 +165,7 @@ testCases
            }
         |]
       , execModuleBuilder emptyModuleBuilder $ do
-          function "minicute__user__defined__f" [] ASTT.void . const $ do
+          function "minicute__user_defined__f" [] ASTT.void . const $ do
             emitBlockStart "entry"
 
             -- Copy 0
@@ -190,7 +190,7 @@ testCases
             nName <- load sName' 0
             sName'' <- gep sName [operandInteger 32 (negate 2)]
             nName' <- load sName'' 0
-            _ <- call operandUpdateNodeNIndirect [(nName, []), (nName', [])]
+            _ <- call operandNodeUpdateNIndirect [(nName, []), (nName', [])]
 
             -- Pop 2
             sName <- load operandAddrStackPointer 0
@@ -215,20 +215,20 @@ testCases
            }
         |]
       , execModuleBuilder emptyModuleBuilder $ do
-          function "minicute__user__defined__f" [] ASTT.void . const $ do
+          function "minicute__user_defined__f" [] ASTT.void . const $ do
             emitBlockStart "entry"
 
             -- MakeGlobal g
             sName <- load operandAddrStackPointer 0
             sName' <- gep sName [operandInteger 32 1]
-            nName <- bitcast (operandNGlobal "minicute__user__defined__g") typeInt8Ptr
+            nName <- bitcast (operandNGlobal "minicute__user_defined__g") typeInt8Ptr
             store nName 0 sName'
             store sName' 0 operandAddrStackPointer
 
             -- MakeInteger 0
             sName <- load operandAddrStackPointer 0
             sName' <- gep sName [operandInteger 32 1]
-            nName <- call operandCreateNodeNInteger [(operandInteger 32 0, [])]
+            nName <- call operandNodeCreateNInteger [(operandInteger 32 0, [])]
             store nName 0 sName'
             store sName' 0 operandAddrStackPointer
 
@@ -238,7 +238,7 @@ testCases
             fName <- load sName' 0
             sName'' <- gep sName [operandInteger 32 0]
             aName <- load sName'' 0
-            nName <- call operandCreateNodeNApplication [(fName, []), (aName, [])]
+            nName <- call operandNodeCreateNApplication [(fName, []), (aName, [])]
             store nName 0 sName'
             store sName' 0 operandAddrStackPointer
 
@@ -256,7 +256,7 @@ testCases
             nName <- load sName' 0
             sName'' <- gep sName [operandInteger 32 (negate 1)]
             nName' <- load sName'' 0
-            _ <- call operandUpdateNodeNIndirect [(nName, []), (nName', [])]
+            _ <- call operandNodeUpdateNIndirect [(nName, []), (nName', [])]
 
             -- Pop 1
             sName <- load operandAddrStackPointer 0
