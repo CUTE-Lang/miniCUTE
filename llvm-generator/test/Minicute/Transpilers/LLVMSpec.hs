@@ -3,7 +3,7 @@
 {-# OPTIONS_GHC -fno-warn-name-shadowing #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE QuasiQuotes #-}
-module Minicute.Transpilers.GeneratorSpec
+module Minicute.Transpilers.LLVMSpec
   ( spec
   ) where
 
@@ -12,8 +12,8 @@ import Test.Hspec
 import Control.Monad
 import Data.Tuple.Extra
 import LLVM.IRBuilder
-import Minicute.Transpilers.Constants
-import Minicute.Transpilers.Generator
+import Minicute.Transpilers.LLVM.Constants
+import Minicute.Transpilers.LLVM
 import Minicute.Utils.TH
 
 import qualified LLVM.AST as AST
@@ -53,6 +53,8 @@ testCases
            }
         |]
       , execModuleBuilder emptyModuleBuilder $ do
+          _ <- global "minicute__user_defined__f__node" typeNodeNGlobal $
+            constantNodeNGlobal "minicute__user_defined__f__code"
           function "minicute__user_defined__f__code" [] ASTT.void . const $ do
             emitBlockStart "entry"
 
@@ -83,6 +85,8 @@ testCases
            }
         |]
       , execModuleBuilder emptyModuleBuilder $ do
+          _ <- global "minicute__user_defined__f__node" typeNodeNGlobal $
+            constantNodeNGlobal "minicute__user_defined__f__code"
           function "minicute__user_defined__f__code" [] ASTT.void . const $ do
             emitBlockStart "entry"
 
@@ -118,13 +122,15 @@ testCases
            }
         |]
       , execModuleBuilder emptyModuleBuilder $ do
+          _ <- global "minicute__user_defined__f__node" typeNodeNGlobal $
+            constantNodeNGlobal "minicute__user_defined__f__code"
           function "minicute__user_defined__f__code" [] ASTT.void . const $ do
             emitBlockStart "entry"
 
             -- MakeGlobal g
             sName <- load operandAddrStackPointer 0
             sName' <- gep sName [operandInteger 32 1]
-            nName <- bitcast (operandNGlobal "minicute__user_defined__g__code") typeInt8Ptr
+            nName <- bitcast (operandNGlobal "minicute__user_defined__g__node") typeInt8Ptr
             store nName 0 sName'
             store sName' 0 operandAddrStackPointer
 
@@ -165,6 +171,8 @@ testCases
            }
         |]
       , execModuleBuilder emptyModuleBuilder $ do
+          _ <- global "minicute__user_defined__f__node" typeNodeNGlobal $
+            constantNodeNGlobal "minicute__user_defined__f__code"
           function "minicute__user_defined__f__code" [] ASTT.void . const $ do
             emitBlockStart "entry"
 
@@ -202,7 +210,7 @@ testCases
             retVoid
       )
 
-    , ( "a program with a supercombinator of an application"
+    , ( "a program with a supercombinator of an supercombinator application"
       , [qqGMachine|
            f<0> {
              MakeGlobal g;
@@ -215,13 +223,15 @@ testCases
            }
         |]
       , execModuleBuilder emptyModuleBuilder $ do
+          _ <- global "minicute__user_defined__f__node" typeNodeNGlobal $
+            constantNodeNGlobal "minicute__user_defined__f__code"
           function "minicute__user_defined__f__code" [] ASTT.void . const $ do
             emitBlockStart "entry"
 
             -- MakeGlobal g
             sName <- load operandAddrStackPointer 0
             sName' <- gep sName [operandInteger 32 1]
-            nName <- bitcast (operandNGlobal "minicute__user_defined__g__code") typeInt8Ptr
+            nName <- bitcast (operandNGlobal "minicute__user_defined__g__node") typeInt8Ptr
             store nName 0 sName'
             store sName' 0 operandAddrStackPointer
 

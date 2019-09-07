@@ -1,6 +1,6 @@
 {- HLINT ignore "Reduce duplication" -}
 {-# LANGUAGE OverloadedStrings #-}
-module Minicute.Transpilers.Generator
+module Minicute.Transpilers.LLVM
   ( module Minicute.Data.GMachine.Instruction
   , generateMachineCode
   ) where
@@ -10,7 +10,7 @@ import Data.String
 import LLVM.IRBuilder
 import Minicute.Data.GMachine.Instruction
 import Minicute.Data.Minicute.Common
-import Minicute.Transpilers.Constants
+import Minicute.Transpilers.LLVM.Constants
 
 import qualified LLVM.AST as AST
 import qualified LLVM.AST.Type as ASTT
@@ -22,13 +22,18 @@ generateMachineCodeProgram :: GMachineProgram -> ModuleBuilder ()
 generateMachineCodeProgram program = forM_ program generateMachineCodeSc
 
 generateMachineCodeSc :: GMachineSupercombinator -> ModuleBuilder ()
-generateMachineCodeSc (Identifier binder, _, expr)
-  = void . function functionName [] ASTT.void . const $ bodyBuilder
+generateMachineCodeSc (Identifier binder, _, expr) = do
+  _ <- global nodeName typeNodeNGlobal nodeBodyBuilder
+  _ <- function codeName [] ASTT.void codeBodyBuilder
+  return ()
   where
-    functionName = fromString ("minicute__user_defined__" <> binder <> "__code")
-    bodyBuilder = do
+    codeName = fromString ("minicute__user_defined__" <> binder <> "__code")
+    codeBodyBuilder _ = do
       emitBlockStart "entry"
       generateMachineCodeE expr
+
+    nodeName = fromString ("minicute__user_defined__" <> binder <> "__node")
+    nodeBodyBuilder = constantNodeNGlobal codeName
 
 generateMachineCodeE :: GMachineExpression -> IRBuilderT ModuleBuilder ()
 generateMachineCodeE = go []
