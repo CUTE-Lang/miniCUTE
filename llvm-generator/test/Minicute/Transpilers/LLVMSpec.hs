@@ -202,7 +202,7 @@ testCases
             retVoid
       )
 
-    , ( "a program with a supercombinator of an application"
+    , ( "a program with a supercombinator of an supercombinator application"
       , [qqGMachine|
            f<0> {
              MakeGlobal g;
