@@ -1,7 +1,7 @@
 {- HLINT ignore "Use explicit module export list" -}
 {-# LANGUAGE OverloadedStrings #-}
-module Minicute.Transpilers.Constants
-  ( module Minicute.Transpilers.Constants
+module Minicute.Transpilers.LLVM.Constants
+  ( module Minicute.Transpilers.LLVM.Constants
   ) where
 
 import Data.String ( fromString )

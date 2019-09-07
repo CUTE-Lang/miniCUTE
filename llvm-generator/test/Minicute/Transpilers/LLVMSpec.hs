@@ -3,7 +3,7 @@
 {-# OPTIONS_GHC -fno-warn-name-shadowing #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE QuasiQuotes #-}
-module Minicute.Transpilers.GeneratorSpec
+module Minicute.Transpilers.LLVMSpec
   ( spec
   ) where
 
@@ -12,8 +12,8 @@ import Test.Hspec
 import Control.Monad
 import Data.Tuple.Extra
 import LLVM.IRBuilder
-import Minicute.Transpilers.Constants
-import Minicute.Transpilers.Generator
+import Minicute.Transpilers.LLVM.Constants
+import Minicute.Transpilers.LLVM
 import Minicute.Utils.TH
 
 import qualified LLVM.AST as AST

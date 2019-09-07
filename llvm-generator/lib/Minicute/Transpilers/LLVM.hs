@@ -1,6 +1,6 @@
 {- HLINT ignore "Reduce duplication" -}
 {-# LANGUAGE OverloadedStrings #-}
-module Minicute.Transpilers.Generator
+module Minicute.Transpilers.LLVM
   ( module Minicute.Data.GMachine.Instruction
   , generateMachineCode
   ) where
@@ -10,7 +10,7 @@ import Data.String
 import LLVM.IRBuilder
 import Minicute.Data.GMachine.Instruction
 import Minicute.Data.Minicute.Common
-import Minicute.Transpilers.Constants
+import Minicute.Transpilers.LLVM.Constants
 
 import qualified LLVM.AST as AST
 import qualified LLVM.AST.Type as ASTT
