@@ -1,7 +1,7 @@
 /**
  * @file
- * @author Junyoung Clare Jang
  * @brief Defines Node Types and Node Utility Functions
+ * @author Junyoung Clare Jang
  *
  * @details
  * ## Node Types

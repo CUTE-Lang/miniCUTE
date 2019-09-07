@@ -1,7 +1,7 @@
 /**
  * @file
- * @author Junyoung Clare Jang
  * @brief Variables/Functions for the Abstract Machine
+ * @author Junyoung Clare Jang
  */
 #ifndef _MACHINE_H_
 #define _MACHINE_H_
