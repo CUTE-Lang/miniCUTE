@@ -18,8 +18,8 @@ declare i32 @printf(i8* noalias nocapture, ...)
 ;   UpdateAsInteger 0;
 ;   Return;
 ; }
-@minicute__user_defined__f_node = weak_odr dso_local unnamed_addr global %struct.minicute__node__NGlobal { i8 6, i8* bitcast (void ()* @minicute__user_defined__f to i8*), i32 0 }
-define dso_local void @minicute__user_defined__f() #1 {
+@minicute__user_defined__f__node = weak_odr dso_local unnamed_addr global %struct.minicute__node__NGlobal { i8 6, i8* bitcast (void ()* @minicute__user_defined__f__code to i8*), i32 0 }
+define dso_local void @minicute__user_defined__f__code() #1 {
   entry:
     ; PushBasicValue 100
     %0 = alloca i32
@@ -46,15 +46,15 @@ define dso_local void @minicute__user_defined__f() #1 {
 ;   Pop 1;
 ;   Unwind;
 ; }
-@minicute__user_defined__main_node = weak_odr dso_local unnamed_addr global %struct.minicute__node__NGlobal { i8 6, i8* bitcast (void ()* @minicute__user_defined__main to i8*), i32 0 }
-define dso_local void @minicute__user_defined__main() #1 {
+@minicute__user_defined__main__node = weak_odr dso_local unnamed_addr global %struct.minicute__node__NGlobal { i8 6, i8* bitcast (void ()* @minicute__user_defined__main__code to i8*), i32 0 }
+define dso_local void @minicute__user_defined__main__code() #1 {
   entry:
     ; -- debug
     call void @minicute__util__print_stack_size()
     ; MakeGlobal f
     %0 = load i8**, i8*** @asp
     %1 = getelementptr inbounds i8*, i8** %0, i32 1
-    %2 = bitcast %struct.minicute__node__NGlobal* @minicute__user_defined__f_node to i8*
+    %2 = bitcast %struct.minicute__node__NGlobal* @minicute__user_defined__f__node to i8*
     store i8* %2, i8** %1
     store i8** %1, i8*** @asp
     ; -- debug

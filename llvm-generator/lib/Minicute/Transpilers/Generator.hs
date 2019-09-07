@@ -25,7 +25,7 @@ generateMachineCodeSc :: GMachineSupercombinator -> ModuleBuilder ()
 generateMachineCodeSc (Identifier binder, _, expr)
   = void . function functionName [] ASTT.void . const $ bodyBuilder
   where
-    functionName = fromString ("minicute__user_defined__" <> binder)
+    functionName = fromString ("minicute__user_defined__" <> binder <> "__code")
     bodyBuilder = do
       emitBlockStart "entry"
       generateMachineCodeE expr

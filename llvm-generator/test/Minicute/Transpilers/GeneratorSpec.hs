@@ -53,7 +53,7 @@ testCases
            }
         |]
       , execModuleBuilder emptyModuleBuilder $ do
-          function "minicute__user_defined__f" [] ASTT.void . const $ do
+          function "minicute__user_defined__f__code" [] ASTT.void . const $ do
             emitBlockStart "entry"
 
             -- PushBasicValue 100
@@ -83,7 +83,7 @@ testCases
            }
         |]
       , execModuleBuilder emptyModuleBuilder $ do
-          function "minicute__user_defined__f" [] ASTT.void . const $ do
+          function "minicute__user_defined__f__code" [] ASTT.void . const $ do
             emitBlockStart "entry"
 
             -- PushBasicValue 1
@@ -118,13 +118,13 @@ testCases
            }
         |]
       , execModuleBuilder emptyModuleBuilder $ do
-          function "minicute__user_defined__f" [] ASTT.void . const $ do
+          function "minicute__user_defined__f__code" [] ASTT.void . const $ do
             emitBlockStart "entry"
 
             -- MakeGlobal g
             sName <- load operandAddrStackPointer 0
             sName' <- gep sName [operandInteger 32 1]
-            nName <- bitcast (operandNGlobal "minicute__user_defined__g") typeInt8Ptr
+            nName <- bitcast (operandNGlobal "minicute__user_defined__g__code") typeInt8Ptr
             store nName 0 sName'
             store sName' 0 operandAddrStackPointer
 
@@ -165,7 +165,7 @@ testCases
            }
         |]
       , execModuleBuilder emptyModuleBuilder $ do
-          function "minicute__user_defined__f" [] ASTT.void . const $ do
+          function "minicute__user_defined__f__code" [] ASTT.void . const $ do
             emitBlockStart "entry"
 
             -- Copy 0
@@ -215,13 +215,13 @@ testCases
            }
         |]
       , execModuleBuilder emptyModuleBuilder $ do
-          function "minicute__user_defined__f" [] ASTT.void . const $ do
+          function "minicute__user_defined__f__code" [] ASTT.void . const $ do
             emitBlockStart "entry"
 
             -- MakeGlobal g
             sName <- load operandAddrStackPointer 0
             sName' <- gep sName [operandInteger 32 1]
-            nName <- bitcast (operandNGlobal "minicute__user_defined__g") typeInt8Ptr
+            nName <- bitcast (operandNGlobal "minicute__user_defined__g__code") typeInt8Ptr
             store nName 0 sName'
             store sName' 0 operandAddrStackPointer
 
