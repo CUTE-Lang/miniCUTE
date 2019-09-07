@@ -25,7 +25,7 @@ generateMachineCodeSc :: GMachineSupercombinator -> ModuleBuilder ()
 generateMachineCodeSc (Identifier binder, _, expr)
   = void . function functionName [] ASTT.void . const $ bodyBuilder
   where
-    functionName = fromString ("minicute__user__defined__" <> binder)
+    functionName = fromString ("minicute__user_defined__" <> binder <> "__code")
     bodyBuilder = do
       emitBlockStart "entry"
       generateMachineCodeE expr
@@ -36,7 +36,7 @@ generateMachineCodeE = go []
     go vStack (IMakeInteger v : insts@(_ : _)) = do
       sName <- load operandAddrStackPointer 0
       sName' <- gep sName [operandInteger 32 1]
-      nName <- call operandCreateNodeNInteger [(operandInteger 32 v, [])]
+      nName <- call operandNodeCreateNInteger [(operandInteger 32 v, [])]
       store nName 0 sName'
       store sName' 0 operandAddrStackPointer
 
@@ -47,7 +47,7 @@ generateMachineCodeE = go []
       fName <- load sName' 0
       sName'' <- gep sName [operandInteger 32 0]
       aName <- load sName'' 0
-      nName <- call operandCreateNodeNApplication [(fName, []), (aName, [])]
+      nName <- call operandNodeCreateNApplication [(fName, []), (aName, [])]
       store nName 0 sName'
       store sName' 0 operandAddrStackPointer
 
@@ -73,7 +73,7 @@ generateMachineCodeE = go []
       nName <- load sName' 0
       sName'' <- gep sName [operandInt 32 (negate n)]
       nName' <- load sName'' 0
-      _ <- call operandUpdateNodeNIndirect [(nName, []), (nName', [])]
+      _ <- call operandNodeUpdateNIndirect [(nName, []), (nName', [])]
 
       go vStack insts
     go vStack (ICopy n : insts@(_ : _)) = do
@@ -96,7 +96,7 @@ generateMachineCodeE = go []
       sName <- load operandAddrStackPointer 0
       sName' <- gep sName [operandInt 32 (negate n)]
       nName <- load sName' 0
-      _ <- call operandUpdateNodeNInteger [(vName, []), (nName, [])]
+      _ <- call operandNodeUpdateNInteger [(vName, []), (nName, [])]
 
       go vStack insts
     go (vName : vStack) (IUpdateAsStructure n : insts@(_ : _)) = do
@@ -105,8 +105,8 @@ generateMachineCodeE = go []
       nName <- load sName' 0
       fName <- alloca (ASTT.ArrayType 0 typeInt8Ptr) Nothing 0
       fName' <- gep fName [operandInteger 32 0, operandInteger 32 0]
-      fName'' <- call operandCreateNodeNStructureFields [(operandInteger 32 0, []), (fName', [])]
-      _ <- call operandUpdateNodeNStructure [(vName, []), (fName'', []), (nName, [])]
+      fName'' <- call operandNodeCreateNStructureFields [(operandInteger 32 0, []), (fName', [])]
+      _ <- call operandNodeUpdateNStructure [(vName, []), (fName'', []), (nName, [])]
 
       go vStack insts
 

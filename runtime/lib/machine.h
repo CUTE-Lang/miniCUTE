@@ -1,14 +1,20 @@
-#ifndef _MACHINE_H_
-#define _MACHINE_H_
 /**
  * @file
- * @author Junyoung Clare Jang
  * @brief Variables/Functions for the Abstract Machine
+ * @author Junyoung Clare Jang
  */
+#ifndef _MACHINE_H_
+#define _MACHINE_H_
 
 #include <stdint.h>
 
+/**
+ * @brief Initial size for the address stack
+ */
 #define INITIAL_ADDR_STACK_SIZE 1024
+/**
+ * @brief Initial size for the node heap
+ */
 #define INITIAL_NODE_HEAP_SIZE 1024
 
 /**
@@ -33,6 +39,12 @@ extern int8_t *nhp;
  */
 extern int8_t *nhp_max;
 
-void minicute_machine_init(void);
-void minicute_machine_run(void);
+/**
+ * @brief Function to initiate the machine
+ */
+void minicute__machine__init(void);
+/**
+ * @brief Function to execute the machine
+ */
+void minicute__machine__run(void);
 #endif /* _MACHINE_H_ */

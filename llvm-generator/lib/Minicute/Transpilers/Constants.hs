@@ -19,35 +19,35 @@ operandInteger :: Word32 -> Integer -> AST.Operand
 operandInteger w n = AST.ConstantOperand (ASTC.Int w n)
 
 operandUserDefinedNGlobal :: Identifier -> AST.Operand
-operandUserDefinedNGlobal i = operandNGlobal $ "minicute__user__defined__" <> i
+operandUserDefinedNGlobal i = operandNGlobal $ "minicute__user_defined__" <> i <> "__code"
 
 operandNGlobal :: Identifier -> AST.Operand
 operandNGlobal (Identifier iStr)
   = AST.ConstantOperand . ASTC.GlobalReference typeNodeNGlobal . fromString $ iStr
 
-operandCreateNodeNInteger :: AST.Operand
-operandCreateNodeNInteger = AST.ConstantOperand constantCreateNodeNInteger
+operandNodeCreateNInteger :: AST.Operand
+operandNodeCreateNInteger = AST.ConstantOperand constantNodeCreateNInteger
 
-operandCreateNodeNStructure :: AST.Operand
-operandCreateNodeNStructure = AST.ConstantOperand constantCreateNodeNStructure
+operandNodeCreateNStructure :: AST.Operand
+operandNodeCreateNStructure = AST.ConstantOperand constantNodeCreateNStructure
 
-operandCreateNodeNStructureFields :: AST.Operand
-operandCreateNodeNStructureFields = AST.ConstantOperand constantCreateNodeNStructureFields
+operandNodeCreateNStructureFields :: AST.Operand
+operandNodeCreateNStructureFields = AST.ConstantOperand constantNodeCreateNStructureFields
 
-operandCreateNodeNApplication :: AST.Operand
-operandCreateNodeNApplication = AST.ConstantOperand constantCreateNodeNApplication
+operandNodeCreateNApplication :: AST.Operand
+operandNodeCreateNApplication = AST.ConstantOperand constantNodeCreateNApplication
 
-operandUpdateNodeNInteger :: AST.Operand
-operandUpdateNodeNInteger = AST.ConstantOperand constantUpdateNodeNInteger
+operandNodeUpdateNInteger :: AST.Operand
+operandNodeUpdateNInteger = AST.ConstantOperand constantNodeUpdateNInteger
 
-operandUpdateNodeNStructure :: AST.Operand
-operandUpdateNodeNStructure = AST.ConstantOperand constantUpdateNodeNStructure
+operandNodeUpdateNStructure :: AST.Operand
+operandNodeUpdateNStructure = AST.ConstantOperand constantNodeUpdateNStructure
 
-operandUpdateNodeNApplication :: AST.Operand
-operandUpdateNodeNApplication = AST.ConstantOperand constantUpdateNodeNApplication
+operandNodeUpdateNApplication :: AST.Operand
+operandNodeUpdateNApplication = AST.ConstantOperand constantNodeUpdateNApplication
 
-operandUpdateNodeNIndirect :: AST.Operand
-operandUpdateNodeNIndirect = AST.ConstantOperand constantUpdateNodeNIndirect
+operandNodeUpdateNIndirect :: AST.Operand
+operandNodeUpdateNIndirect = AST.ConstantOperand constantNodeUpdateNIndirect
 
 operandUtilUnwind :: AST.Operand
 operandUtilUnwind = AST.ConstantOperand constantUtilUnwind
@@ -61,29 +61,29 @@ operandAddrBasePointer = AST.ConstantOperand constantAddrBasePointer
 operandNodeHeapPointer :: AST.Operand
 operandNodeHeapPointer = AST.ConstantOperand constantNodeHeapPointer
 
-constantCreateNodeNInteger :: ASTC.Constant
-constantCreateNodeNInteger = ASTC.GlobalReference typeCreateNodeNInteger "minicute_create_node_NInteger"
+constantNodeCreateNInteger :: ASTC.Constant
+constantNodeCreateNInteger = ASTC.GlobalReference typeNodeCreateNInteger "minicute__node__create_NInteger"
 
-constantCreateNodeNStructure :: ASTC.Constant
-constantCreateNodeNStructure = ASTC.GlobalReference typeCreateNodeNStructure "minicute_create_node_NStructure"
+constantNodeCreateNStructure :: ASTC.Constant
+constantNodeCreateNStructure = ASTC.GlobalReference typeNodeCreateNStructure "minicute__node__create_NStructure"
 
-constantCreateNodeNStructureFields :: ASTC.Constant
-constantCreateNodeNStructureFields = ASTC.GlobalReference typeCreateNodeNStructureFields "minicute_create_node_NStructureFields"
+constantNodeCreateNStructureFields :: ASTC.Constant
+constantNodeCreateNStructureFields = ASTC.GlobalReference typeNodeCreateNStructureFields "minicute__node__create_NStructureFields"
 
-constantCreateNodeNApplication :: ASTC.Constant
-constantCreateNodeNApplication = ASTC.GlobalReference typeCreateNodeNApplication "minicute_create_node_NApplication"
+constantNodeCreateNApplication :: ASTC.Constant
+constantNodeCreateNApplication = ASTC.GlobalReference typeNodeCreateNApplication "minicute__node__create_NApplication"
 
-constantUpdateNodeNInteger :: ASTC.Constant
-constantUpdateNodeNInteger = ASTC.GlobalReference typeUpdateNodeNInteger "minicute_update_node_NInteger"
+constantNodeUpdateNInteger :: ASTC.Constant
+constantNodeUpdateNInteger = ASTC.GlobalReference typeNodeUpdateNInteger "minicute__node__update_NInteger"
 
-constantUpdateNodeNStructure :: ASTC.Constant
-constantUpdateNodeNStructure = ASTC.GlobalReference typeUpdateNodeNStructure "minicute_update_node_NStructure"
+constantNodeUpdateNStructure :: ASTC.Constant
+constantNodeUpdateNStructure = ASTC.GlobalReference typeNodeUpdateNStructure "minicute__node__update_NStructure"
 
-constantUpdateNodeNApplication :: ASTC.Constant
-constantUpdateNodeNApplication = ASTC.GlobalReference typeUpdateNodeNApplication "minicute_update_node_NApplication"
+constantNodeUpdateNApplication :: ASTC.Constant
+constantNodeUpdateNApplication = ASTC.GlobalReference typeNodeUpdateNApplication "minicute__node__update_NApplication"
 
-constantUpdateNodeNIndirect :: ASTC.Constant
-constantUpdateNodeNIndirect = ASTC.GlobalReference typeUpdateNodeNIndirect "minicute_update_node_NIndirect"
+constantNodeUpdateNIndirect :: ASTC.Constant
+constantNodeUpdateNIndirect = ASTC.GlobalReference typeNodeUpdateNIndirect "minicute__node__update_NIndirect"
 
 constantUtilUnwind :: ASTC.Constant
 constantUtilUnwind = ASTC.GlobalReference typeUtilUnwind "minicute__util__unwind"
@@ -97,29 +97,29 @@ constantAddrBasePointer = ASTC.GlobalReference typeInt8PtrPtrPtr "abp"
 constantNodeHeapPointer :: ASTC.Constant
 constantNodeHeapPointer = ASTC.GlobalReference typeInt8PtrPtr "nhp"
 
-typeCreateNodeNInteger :: ASTT.Type
-typeCreateNodeNInteger = ASTT.FunctionType typeInt8Ptr [typeInt32] False
+typeNodeCreateNInteger :: ASTT.Type
+typeNodeCreateNInteger = ASTT.FunctionType typeInt8Ptr [typeInt32] False
 
-typeCreateNodeNStructure :: ASTT.Type
-typeCreateNodeNStructure = ASTT.FunctionType typeInt8Ptr [typeInt32, typeInt8Ptr] False
+typeNodeCreateNStructure :: ASTT.Type
+typeNodeCreateNStructure = ASTT.FunctionType typeInt8Ptr [typeInt32, typeInt8Ptr] False
 
-typeCreateNodeNStructureFields :: ASTT.Type
-typeCreateNodeNStructureFields = ASTT.FunctionType typeInt8Ptr [typeInt32, typeInt8PtrPtr] False
+typeNodeCreateNStructureFields :: ASTT.Type
+typeNodeCreateNStructureFields = ASTT.FunctionType typeInt8Ptr [typeInt32, typeInt8PtrPtr] False
 
-typeCreateNodeNApplication :: ASTT.Type
-typeCreateNodeNApplication = ASTT.FunctionType typeInt8Ptr [typeInt8Ptr, typeInt8Ptr] False
+typeNodeCreateNApplication :: ASTT.Type
+typeNodeCreateNApplication = ASTT.FunctionType typeInt8Ptr [typeInt8Ptr, typeInt8Ptr] False
 
-typeUpdateNodeNInteger :: ASTT.Type
-typeUpdateNodeNInteger = ASTT.FunctionType ASTT.void [typeInt32, typeInt8Ptr] False
+typeNodeUpdateNInteger :: ASTT.Type
+typeNodeUpdateNInteger = ASTT.FunctionType ASTT.void [typeInt32, typeInt8Ptr] False
 
-typeUpdateNodeNStructure :: ASTT.Type
-typeUpdateNodeNStructure = ASTT.FunctionType ASTT.void [typeInt32, typeInt8Ptr, typeInt8Ptr] False
+typeNodeUpdateNStructure :: ASTT.Type
+typeNodeUpdateNStructure = ASTT.FunctionType ASTT.void [typeInt32, typeInt8Ptr, typeInt8Ptr] False
 
-typeUpdateNodeNApplication :: ASTT.Type
-typeUpdateNodeNApplication = ASTT.FunctionType ASTT.void [typeInt8Ptr, typeInt8Ptr, typeInt8Ptr] False
+typeNodeUpdateNApplication :: ASTT.Type
+typeNodeUpdateNApplication = ASTT.FunctionType ASTT.void [typeInt8Ptr, typeInt8Ptr, typeInt8Ptr] False
 
-typeUpdateNodeNIndirect :: ASTT.Type
-typeUpdateNodeNIndirect = ASTT.FunctionType ASTT.void [typeInt8Ptr, typeInt8Ptr] False
+typeNodeUpdateNIndirect :: ASTT.Type
+typeNodeUpdateNIndirect = ASTT.FunctionType ASTT.void [typeInt8Ptr, typeInt8Ptr] False
 
 typeUtilUnwind :: ASTT.Type
 typeUtilUnwind = ASTT.FunctionType ASTT.void [] False
