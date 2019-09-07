@@ -2,6 +2,7 @@
  * @file
  * @brief Collection of User (or Compiler) Defined Variables/Functions
  * @author Junyoung Clare Jang
+ *
  * @attention This file should contain only user (or compiler) defined
  * variables/functions. If something is defined in Runtime code,
  * it should be placed in somewhere else.
