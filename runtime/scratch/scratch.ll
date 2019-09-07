@@ -1,7 +1,6 @@
 declare i8* @minicute_create_node_NInteger(i32)
 declare void @minicute_update_node_NInteger(i32, i8*)
 declare void @minicute_update_node_NIndirect(i8*, i8*)
-declare void @minicute_llvm_pointer_debug(...)
 declare i32 @printf(i8* noalias nocapture, ...)
 
 %struct.minicute_node = type { i8 }
