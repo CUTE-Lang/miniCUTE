@@ -1,5 +1,3 @@
-#ifndef _USER_H_
-#define _USER_H_
 /**
  * @file
  * @author Junyoung Clare Jang
@@ -8,6 +6,8 @@
  * variables/functions. If something is defined in Runtime code,
  * it should be placed in somewhere else.
  */
+#ifndef _USER_H_
+#define _USER_H_
 
 #include "node.h"
 
