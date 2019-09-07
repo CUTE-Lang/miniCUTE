@@ -124,7 +124,7 @@ testCases
             -- MakeGlobal g
             sName <- load operandAddrStackPointer 0
             sName' <- gep sName [operandInteger 32 1]
-            nName <- bitcast (operandNGlobal "minicute__user_defined__g__code") typeInt8Ptr
+            nName <- bitcast (operandNGlobal "minicute__user_defined__g__node") typeInt8Ptr
             store nName 0 sName'
             store sName' 0 operandAddrStackPointer
 
@@ -221,7 +221,7 @@ testCases
             -- MakeGlobal g
             sName <- load operandAddrStackPointer 0
             sName' <- gep sName [operandInteger 32 1]
-            nName <- bitcast (operandNGlobal "minicute__user_defined__g__code") typeInt8Ptr
+            nName <- bitcast (operandNGlobal "minicute__user_defined__g__node") typeInt8Ptr
             store nName 0 sName'
             store sName' 0 operandAddrStackPointer
 

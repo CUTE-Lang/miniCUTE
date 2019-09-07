@@ -19,7 +19,7 @@ operandInteger :: Word32 -> Integer -> AST.Operand
 operandInteger w n = AST.ConstantOperand (ASTC.Int w n)
 
 operandUserDefinedNGlobal :: Identifier -> AST.Operand
-operandUserDefinedNGlobal i = operandNGlobal $ "minicute__user_defined__" <> i <> "__code"
+operandUserDefinedNGlobal i = operandNGlobal $ "minicute__user_defined__" <> i <> "__node"
 
 operandNGlobal :: Identifier -> AST.Operand
 operandNGlobal (Identifier iStr)
