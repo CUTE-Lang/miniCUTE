@@ -7,7 +7,7 @@
 -- |
 -- Types for annotated programs
 module Minicute.Data.Minicute.Annotated
-  ( module Minicute.Data.Minicute.Common
+  ( module Minicute.Data.Common
   , module Minicute.Data.Minicute.Expression
   , module Minicute.Data.Minicute.Program
 
@@ -35,10 +35,10 @@ import Data.Text.Prettyprint.Doc ( Pretty(..) )
 import Data.Text.Prettyprint.Doc.Minicute
 import GHC.Generics
 import Language.Haskell.TH.Syntax ( Lift )
-import Minicute.Data.Minicute.Common
+import Minicute.Data.Common
 import Minicute.Data.Minicute.Expression
-import Minicute.Data.Minicute.Precedence
 import Minicute.Data.Minicute.Program
+import Minicute.Data.Precedence
 
 import qualified Data.Text.Prettyprint.Doc as PP
 

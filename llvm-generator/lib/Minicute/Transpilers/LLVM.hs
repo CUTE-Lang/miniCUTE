@@ -8,8 +8,8 @@ module Minicute.Transpilers.LLVM
 import Control.Monad
 import Data.String
 import LLVM.IRBuilder
+import Minicute.Data.Common
 import Minicute.Data.GMachine.Instruction
-import Minicute.Data.Minicute.Common
 import Minicute.Transpilers.LLVM.Constants
 
 import qualified LLVM.AST as AST

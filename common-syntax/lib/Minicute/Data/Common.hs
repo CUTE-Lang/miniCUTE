@@ -8,7 +8,7 @@
 {-# LANGUAGE TypeFamilies #-}
 -- |
 -- Common basic types used to define many other types
-module Minicute.Data.Minicute.Common
+module Minicute.Data.Common
   ( Identifier( .. )
 
 

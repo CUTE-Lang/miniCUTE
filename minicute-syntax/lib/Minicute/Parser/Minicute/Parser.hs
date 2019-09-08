@@ -14,8 +14,8 @@ module Minicute.Parser.Minicute.Parser
 import Control.Monad.Reader ( ReaderT, ask, mapReaderT, runReaderT )
 import Data.Functor
 import Data.List.Extra
-import Minicute.Data.Minicute.Precedence
 import Minicute.Data.Minicute.Program
+import Minicute.Data.Precedence
 import Minicute.Parser.Common
 import Text.Megaparsec
 

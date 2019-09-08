@@ -54,6 +54,7 @@ library:
     - lens >= 4.17 && < 5
     - mtl >= 2.2 && < 3
 
+    - minicute-common-syntax == 0.1.0.0
     - minicute-g-machine-syntax == 0.1.0.0
     - minicute-minicute-syntax == 0.1.0.0
 
@@ -87,7 +88,6 @@ tests:
       - minicute-g-machine-syntax
       - minicute-g-machinizer
       - minicute-minicute-syntax
-      - minicute-parser
 
   hlint:
     ### Test fields ###

@@ -4,8 +4,8 @@
 {-# LANGUAGE OverloadedStrings #-}
 -- |
 -- Types for precedences of primitive operators in miniCUTE
-module Minicute.Data.Minicute.Precedence
-  ( module Minicute.Data.Minicute.Common
+module Minicute.Data.Precedence
+  ( module Minicute.Data.Common
 
 
   , Precedence( .. )
@@ -30,7 +30,7 @@ module Minicute.Data.Minicute.Precedence
 import Data.Data
 import GHC.Generics
 import Language.Haskell.TH.Syntax
-import Minicute.Data.Minicute.Common
+import Minicute.Data.Common
 
 import qualified Data.Text.Prettyprint.Doc as PP
 

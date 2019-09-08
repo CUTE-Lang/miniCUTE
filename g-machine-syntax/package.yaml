@@ -57,9 +57,8 @@ library:
     - prettyprinter >= 1.2 && < 2
     - template-haskell >= 2.14 && < 3
 
+    - minicute-common-syntax == 0.1.0.0
     - minicute-extensions == 0.1.0.0
-    - minicute-minicute-syntax == 0.1.0.0
-    - minicute-parser == 0.1.0.0
 
 # internal-libraries:
 
@@ -87,9 +86,8 @@ tests:
       - hspec
       - hspec-megaparsec
 
-      - minicute-minicute-syntax
+      - minicute-common-syntax
       - minicute-g-machine-syntax
-      - minicute-parser
 
   hlint:
     ### Test fields ###

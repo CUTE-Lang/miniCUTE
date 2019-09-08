@@ -1,6 +1,6 @@
 #### Top-level fields ####
 spec-version:                       0.31.0
-name:                               minicute-parser
+name:                               minicute-common-syntax
 version:                            0.1.0.0
 synopsis:                           Experimental package for a language implemented by Haskell
 description: >
@@ -25,7 +25,7 @@ license-file:                       LICENSE
 extra-doc-files:                    README.md
 # data-files:
 # data-dir:
-github:                             CUTE-Lang/miniCUTE/parser
+github:                             CUTE-Lang/miniCUTE/common-syntax
 ## Following is ignored when "github" field exists
 # git:
 # custom-setup:
@@ -51,8 +51,10 @@ library:
     - -Wstar-is-type
   dependencies:
     - extra >= 1.6 && < 2
+    - lens >= 4.17 && < 5
     - megaparsec >= 7.0 && < 8
     - parser-combinators
+    - prettyprinter >= 1.2 && < 2
     - template-haskell >= 2.14 && < 3
 
     - minicute-extensions == 0.1.0.0
@@ -84,7 +86,7 @@ tests:
       - hspec-megaparsec
 
       - minicute-extensions
-      - minicute-parser
+      - minicute-common-syntax
 
   hlint:
     ### Test fields ###
@@ -117,7 +119,7 @@ benchmarks:
       - -rtsopts
       - -with-rtsopts=-N
     dependencies:
-      - minicute-parser
+      - minicute-common-syntax
 
 # defaults:
   # github:
