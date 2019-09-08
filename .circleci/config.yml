@@ -158,19 +158,23 @@ commands:
       - restore_cache:
           name: Restore Global Data
           keys:
-            - circleci-minicute-haskell-global-v3.1-{{ arch }}-{{ checksum "stack.yaml" }}-{{ checksum "base/package.yaml" }}-{{ checksum "g-machinizer/package.yaml" }}-{{ checksum "llvm-generator/package.yaml" }}-{{ checksum "minicute/package.yaml" }}-{{ checksum "parser/package.yaml" }}
+            - circleci-minicute-haskell-global-v3.1-{{ arch }}-{{ checksum "stack.yaml" }}-{{ checksum "base/package.yaml" }}-{{ checksum "executables/package.yaml" }}-{{ checksum "g-machinizer/package.yaml" }}-{{ checksum "llvm-generator/package.yaml" }}-{{ checksum "parser/package.yaml" }}
             - circleci-minicute-haskell-global-v3.1-{{ arch }}-{{ checksum "stack.yaml" }}
             - circleci-minicute-haskell-global-v3.1-{{ arch }}
 
       - restore_cache:
           name: Restore Project Local Data
           keys:
-            - circleci-minicute-project-local-v3.1-{{ arch }}-{{ checksum "stack.yaml" }}-{{ checksum "base/package.yaml" }}-{{ checksum "g-machinizer/package.yaml" }}-{{ checksum "llvm-generator/package.yaml" }}-{{ checksum "minicute/package.yaml" }}-{{ checksum "parser/package.yaml" }}
+            - circleci-minicute-project-local-v3.1-{{ arch }}-{{ checksum "stack.yaml" }}-{{ checksum "base/package.yaml" }}-{{ checksum "executables/package.yaml" }}-{{ checksum "g-machinizer/package.yaml" }}-{{ checksum "llvm-generator/package.yaml" }}-{{ checksum "parser/package.yaml" }}
 
       - restore_cache:
           name: Restore Base Local Data
           keys:
             - circleci-minicute-base-local-v3.1-{{ arch }}-{{ checksum "stack.yaml" }}-{{ checksum "base/package.yaml" }}
+      - restore_cache:
+          name: Restore Executables Local Data
+          keys:
+            - circleci-minicute-executables-local-v3.1-{{ arch }}-{{ checksum "stack.yaml" }}-{{ checksum "executables/package.yaml" }}
       - restore_cache:
           name: Restore G-Machinizer Local Data
           keys:
@@ -179,10 +183,6 @@ commands:
           name: Restore LLVM-generator Local Data
           keys:
             - circleci-minicute-llvm-generator-local-v3.1-{{ arch }}-{{ checksum "stack.yaml" }}-{{ checksum "llvm-generator/package.yaml" }}
-      - restore_cache:
-          name: Restore Minicute Local Data
-          keys:
-            - circleci-minicute-minicute-local-v3.1-{{ arch }}-{{ checksum "stack.yaml" }}-{{ checksum "minicute/package.yaml" }}
       - restore_cache:
           name: Restore Parser Local Data
           keys:
@@ -193,13 +193,13 @@ commands:
     steps:
       - save_cache:
           name: Cache Global Data
-          key: circleci-minicute-haskell-global-v3.1-{{ arch }}-{{ checksum "stack.yaml" }}-{{ checksum "base/package.yaml" }}-{{ checksum "g-machinizer/package.yaml" }}-{{ checksum "llvm-generator/package.yaml" }}-{{ checksum "minicute/package.yaml" }}-{{ checksum "parser/package.yaml" }}
+          key: circleci-minicute-haskell-global-v3.1-{{ arch }}-{{ checksum "stack.yaml" }}-{{ checksum "base/package.yaml" }}-{{ checksum "executables/package.yaml" }}-{{ checksum "g-machinizer/package.yaml" }}-{{ checksum "llvm-generator/package.yaml" }}-{{ checksum "parser/package.yaml" }}
           paths:
             - "~/.stack"
 
       - save_cache:
           name: Cache Project Local Data
-          key: circleci-minicute-project-local-v3.1-{{ arch }}-{{ checksum "stack.yaml" }}-{{ checksum "base/package.yaml" }}-{{ checksum "g-machinizer/package.yaml" }}-{{ checksum "llvm-generator/package.yaml" }}-{{ checksum "minicute/package.yaml" }}-{{ checksum "parser/package.yaml" }}
+          key: circleci-minicute-project-local-v3.1-{{ arch }}-{{ checksum "stack.yaml" }}-{{ checksum "base/package.yaml" }}-{{ checksum "executables/package.yaml" }}-{{ checksum "g-machinizer/package.yaml" }}-{{ checksum "llvm-generator/package.yaml" }}-{{ checksum "parser/package.yaml" }}
           paths:
             - ".stack-work"
 
@@ -208,6 +208,11 @@ commands:
           key: circleci-minicute-base-local-v3.1-{{ arch }}-{{ checksum "stack.yaml" }}-{{ checksum "base/package.yaml" }}
           paths:
             - "base/.stack-work"
+      - save_cache:
+          name: Cache Executables Local Data
+          key: circleci-minicute-executables-local-v3.1-{{ arch }}-{{ checksum "stack.yaml" }}-{{ checksum "executables/package.yaml" }}
+          paths:
+            - "executables/.stack-work"
       - save_cache:
           name: Cache G-Machinizer Local Data
           key: circleci-minicute-g-machinizer-local-v3.1-{{ arch }}-{{ checksum "stack.yaml" }}-{{ checksum "g-machinizer/package.yaml" }}
@@ -218,11 +223,6 @@ commands:
           key: circleci-minicute-llvm-generator-local-v3.1-{{ arch }}-{{ checksum "stack.yaml" }}-{{ checksum "llvm-generator/package.yaml" }}
           paths:
             - "llvm-generator/.stack-work"
-      - save_cache:
-          name: Cache Minicute Local Data
-          key: circleci-minicute-minicute-local-v3.1-{{ arch }}-{{ checksum "stack.yaml" }}-{{ checksum "minicute/package.yaml" }}
-          paths:
-            - "minicute/.stack-work"
       - save_cache:
           name: Cache Parser Local Data
           key: circleci-minicute-parser-local-v3.1-{{ arch }}-{{ checksum "stack.yaml" }}-{{ checksum "parser/package.yaml" }}
@@ -236,6 +236,8 @@ commands:
           name: Restore Global Data
           keys:
             - circleci-minicute-node-global-v3.1
+            - circleci-minicute-node-global-v3.1
+            - circleci-minicute-node-global-v3
 
   save-all-node-caches:
     description: "Save all cachable parts of node packages."

@@ -34,9 +34,9 @@ resolver: lts-13.27
 #  - wai
 packages:
 - ./base
+- ./executables
 - ./g-machinizer
 - ./llvm-generator
-- ./minicute
 - ./parser
 
 # Dependency packages to be pulled from upstream that are not in the resolver
