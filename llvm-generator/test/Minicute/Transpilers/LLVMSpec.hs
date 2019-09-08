@@ -14,7 +14,7 @@ import Data.Tuple.Extra
 import LLVM.IRBuilder
 import Minicute.Transpilers.LLVM.Constants
 import Minicute.Transpilers.LLVM
-import Minicute.Utils.TH
+import Minicute.Utils.TH.GMachine
 
 import qualified LLVM.AST as AST
 import qualified LLVM.AST.Type as ASTT

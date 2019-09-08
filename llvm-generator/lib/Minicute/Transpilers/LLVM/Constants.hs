@@ -6,7 +6,7 @@ module Minicute.Transpilers.LLVM.Constants
 
 import Data.String ( fromString )
 import Data.Word
-import Minicute.Data.Minicute.Common
+import Minicute.Data.Common
 
 import qualified LLVM.AST as AST
 import qualified LLVM.AST.Constant as ASTC
