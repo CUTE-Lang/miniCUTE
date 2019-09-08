@@ -1,6 +1,6 @@
 #### Top-level fields ####
 spec-version:                       0.31.0
-name:                               minicute-llvm-generator
+name:                               minicute-minicute-syntax
 version:                            0.1.0.0
 synopsis:                           Experimental package for a language implemented by Haskell
 description: >
@@ -25,7 +25,7 @@ license-file:                       LICENSE
 extra-doc-files:                    README.md
 # data-files:
 # data-dir:
-github:                             CUTE-Lang/miniCUTE/llvm-generator
+github:                             CUTE-Lang/miniCUTE/minicute-syntax
 ## Following is ignored when "github" field exists
 # git:
 # custom-setup:
@@ -50,11 +50,16 @@ library:
     - -Wall
     - -Wstar-is-type
   dependencies:
-    - llvm-hs-pure >= 8.0.0 && < 9
+    - extra >= 1.6 && < 2
+    - lens >= 4.17 && < 5
+    - megaparsec >= 7.0 && < 8
     - mtl >= 2.2 && < 3
+    - parser-combinators
+    - prettyprinter >= 1.2 && < 2
+    - template-haskell >= 2.14 && < 3
 
-    - minicute-g-machine-syntax == 0.1.0.0
-    - minicute-minicute-syntax == 0.1.0.0
+    - minicute-extensions == 0.1.0.0
+    - minicute-parser == 0.1.0.0
 
 # internal-libraries:
 
@@ -77,13 +82,13 @@ tests:
       - -rtsopts
       - -with-rtsopts=-N
     dependencies:
-      - extra
-      - llvm-hs-pure
+      - megaparsec
 
       - hspec
+      - hspec-megaparsec
 
-      - minicute-g-machine-syntax
-      - minicute-llvm-generator
+      - minicute-extensions
+      - minicute-minicute-syntax
       - minicute-parser
 
   hlint:
@@ -117,7 +122,7 @@ benchmarks:
       - -rtsopts
       - -with-rtsopts=-N
     dependencies:
-      - minicute-llvm-generator
+      - minicute-minicute-syntax
 
 # defaults:
   # github:
@@ -147,7 +152,7 @@ benchmarks:
 # extra-frameworks-dirs:
 # ld-options:
 dependencies:
-  - base >= 4.12 && < 5
+  - base >= 4.12 && < 5  
 # pkg-config-dependencies:
 # build-tools:
 # system-build-tools:

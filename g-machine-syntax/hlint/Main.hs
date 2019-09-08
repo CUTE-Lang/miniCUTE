@@ -13,6 +13,7 @@ main =
     let
       hlintArgs =
         [ "lib"
+        , "test"
         , "--hint=../hlint.yaml"
         ]
     hints <- hlint hlintArgs

@@ -13,7 +13,7 @@ import Control.Monad
 import Data.Tuple.Minicute ( tupleUnzip2 )
 import Data.Void
 import Minicute.Data.Minicute.Program
-import Minicute.Utils.TH
+import Minicute.Utils.TH.Minicute
 import Text.Megaparsec
 
 import qualified Minicute.Parser.Minicute.Parser as P

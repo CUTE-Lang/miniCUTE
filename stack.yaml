@@ -33,11 +33,12 @@ resolver: lts-13.27
 #  - auto-update
 #  - wai
 packages:
-- ./base
 - ./executables
 - ./extensions
+- ./g-machine-syntax
 - ./g-machinizer
 - ./llvm-generator
+- ./minicute-syntax
 - ./parser
 
 # Dependency packages to be pulled from upstream that are not in the resolver

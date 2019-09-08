@@ -51,13 +51,10 @@ library:
     - -Wstar-is-type
   dependencies:
     - extra >= 1.6 && < 2
-    - lens >= 4.17 && < 5
     - megaparsec >= 7.0 && < 8
-    - mtl >= 2.2 && < 3
     - parser-combinators
     - template-haskell >= 2.14 && < 3
 
-    - minicute-base == 0.1.0.0
     - minicute-extensions == 0.1.0.0
 
 # internal-libraries:
@@ -86,7 +83,6 @@ tests:
       - hspec
       - hspec-megaparsec
 
-      - minicute-base
       - minicute-extensions
       - minicute-parser
 

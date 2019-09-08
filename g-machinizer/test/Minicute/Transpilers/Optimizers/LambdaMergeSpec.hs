@@ -10,7 +10,7 @@ import Control.Monad
 import Data.Tuple.Extra
 import Minicute.Data.Minicute.Program
 import Minicute.Transpilers.Optimizers.LambdaMerge
-import Minicute.Utils.TH
+import Minicute.Utils.TH.Minicute
 
 spec :: Spec
 spec = do

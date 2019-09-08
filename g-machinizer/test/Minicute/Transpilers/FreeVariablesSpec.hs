@@ -11,7 +11,7 @@ import Control.Monad
 import Data.Tuple.Extra
 import Minicute.Data.Minicute.Annotated
 import Minicute.Transpilers.FreeVariables
-import Minicute.Utils.TH
+import Minicute.Utils.TH.Minicute
 
 import qualified Data.Set as Set
 
