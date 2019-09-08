@@ -54,6 +54,8 @@ library:
     - prettyprinter >= 1.2 && < 2
     - template-haskell >= 2.14 && < 3
 
+    - minicute-extensions == 0.1.0.0
+
 # internal-libraries:
 
 # executables:

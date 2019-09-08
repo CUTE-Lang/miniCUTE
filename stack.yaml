@@ -35,6 +35,7 @@ resolver: lts-13.27
 packages:
 - ./base
 - ./executables
+- ./extensions
 - ./g-machinizer
 - ./llvm-generator
 - ./parser

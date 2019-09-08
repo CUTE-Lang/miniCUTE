@@ -51,8 +51,9 @@ library:
     - -Wstar-is-type
   dependencies:
     - llvm-hs-pure >= 8.0.0 && < 9
-    - minicute-base == 0.1.0.0
     - mtl >= 2.2 && < 3
+
+    - minicute-base == 0.1.0.0
 
 # internal-libraries:
 
@@ -77,11 +78,12 @@ tests:
     dependencies:
       - extra
       - llvm-hs-pure
+
+      - hspec
+
       - minicute-base
       - minicute-parser
       - minicute-llvm-generator
-
-      - hspec
 
   hlint:
     ### Test fields ###

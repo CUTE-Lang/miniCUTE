@@ -1,6 +1,6 @@
 #### Top-level fields ####
 spec-version:                       0.31.0
-name:                               minicute-parser
+name:                               minicute-extensions
 version:                            0.1.0.0
 synopsis:                           Experimental package for a language implemented by Haskell
 description: >
@@ -25,7 +25,7 @@ license-file:                       LICENSE
 extra-doc-files:                    README.md
 # data-files:
 # data-dir:
-github:                             CUTE-Lang/miniCUTE/parser
+github:                             CUTE-Lang/miniCUTE/extensions
 ## Following is ignored when "github" field exists
 # git:
 # custom-setup:
@@ -50,15 +50,7 @@ library:
     - -Wall
     - -Wstar-is-type
   dependencies:
-    - extra >= 1.6 && < 2
-    - lens >= 4.17 && < 5
-    - megaparsec >= 7.0 && < 8
-    - mtl >= 2.2 && < 3
-    - parser-combinators
-    - template-haskell >= 2.14 && < 3
-
-    - minicute-base == 0.1.0.0
-    - minicute-extensions == 0.1.0.0
+    - prettyprinter >= 1.2 && < 2
 
 # internal-libraries:
 
@@ -67,29 +59,6 @@ library:
 # executable:
 
 tests:
-  test:
-    ### Test fields ###
-    main:                           Spec.hs
-    # other-modules:
-    # generated-other-modules:
-
-    ### Common fields ###
-    source-dirs:
-      - test
-    ghc-options:
-      - -threaded
-      - -rtsopts
-      - -with-rtsopts=-N
-    dependencies:
-      - megaparsec
-
-      - hspec
-      - hspec-megaparsec
-
-      - minicute-base
-      - minicute-extensions
-      - minicute-parser
-
   hlint:
     ### Test fields ###
     main:                           Main.hs
@@ -121,7 +90,7 @@ benchmarks:
       - -rtsopts
       - -with-rtsopts=-N
     dependencies:
-      - minicute-parser
+      - minicute-extensions
 
 # defaults:
   # github:
@@ -151,7 +120,7 @@ benchmarks:
 # extra-frameworks-dirs:
 # ld-options:
 dependencies:
-  - base >= 4.12 && < 5
+  - base >= 4.12 && < 5  
 # pkg-config-dependencies:
 # build-tools:
 # system-build-tools:

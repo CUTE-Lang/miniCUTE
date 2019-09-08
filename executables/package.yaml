@@ -56,6 +56,7 @@ executables:
       - megaparsec >= 7.0 && < 8
 
       - minicute-base == 0.1.0.0
+      - minicute-extensions == 0.1.0.0
       - minicute-g-machinizer == 0.1.0.0
       - minicute-llvm-generator == 0.1.0.0
       - minicute-parser == 0.1.0.0

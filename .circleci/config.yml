@@ -158,14 +158,14 @@ commands:
       - restore_cache:
           name: Restore Global Data
           keys:
-            - circleci-minicute-haskell-global-v3.1-{{ arch }}-{{ checksum "stack.yaml" }}-{{ checksum "base/package.yaml" }}-{{ checksum "executables/package.yaml" }}-{{ checksum "g-machinizer/package.yaml" }}-{{ checksum "llvm-generator/package.yaml" }}-{{ checksum "parser/package.yaml" }}
+            - circleci-minicute-haskell-global-v3.1-{{ arch }}-{{ checksum "stack.yaml" }}-{{ checksum "base/package.yaml" }}-{{ checksum "executables/package.yaml" }}-{{ checksum "extensions/package.yaml" }}-{{ checksum "g-machinizer/package.yaml" }}-{{ checksum "llvm-generator/package.yaml" }}-{{ checksum "parser/package.yaml" }}
             - circleci-minicute-haskell-global-v3.1-{{ arch }}-{{ checksum "stack.yaml" }}
             - circleci-minicute-haskell-global-v3.1-{{ arch }}
 
       - restore_cache:
           name: Restore Project Local Data
           keys:
-            - circleci-minicute-project-local-v3.1-{{ arch }}-{{ checksum "stack.yaml" }}-{{ checksum "base/package.yaml" }}-{{ checksum "executables/package.yaml" }}-{{ checksum "g-machinizer/package.yaml" }}-{{ checksum "llvm-generator/package.yaml" }}-{{ checksum "parser/package.yaml" }}
+            - circleci-minicute-project-local-v3.1-{{ arch }}-{{ checksum "stack.yaml" }}-{{ checksum "base/package.yaml" }}-{{ checksum "executables/package.yaml" }}-{{ checksum "extensions/package.yaml" }}-{{ checksum "g-machinizer/package.yaml" }}-{{ checksum "llvm-generator/package.yaml" }}-{{ checksum "parser/package.yaml" }}
 
       - restore_cache:
           name: Restore Base Local Data
@@ -175,6 +175,10 @@ commands:
           name: Restore Executables Local Data
           keys:
             - circleci-minicute-executables-local-v3.1-{{ arch }}-{{ checksum "stack.yaml" }}-{{ checksum "executables/package.yaml" }}
+      - restore_cache:
+          name: Restore Extensions Local Data
+          keys:
+            - circleci-minicute-extensions-local-v3.1-{{ arch }}-{{ checksum "stack.yaml" }}-{{ checksum "extensions/package.yaml" }}
       - restore_cache:
           name: Restore G-Machinizer Local Data
           keys:
@@ -193,13 +197,13 @@ commands:
     steps:
       - save_cache:
           name: Cache Global Data
-          key: circleci-minicute-haskell-global-v3.1-{{ arch }}-{{ checksum "stack.yaml" }}-{{ checksum "base/package.yaml" }}-{{ checksum "executables/package.yaml" }}-{{ checksum "g-machinizer/package.yaml" }}-{{ checksum "llvm-generator/package.yaml" }}-{{ checksum "parser/package.yaml" }}
+          key: circleci-minicute-haskell-global-v3.1-{{ arch }}-{{ checksum "stack.yaml" }}-{{ checksum "base/package.yaml" }}-{{ checksum "executables/package.yaml" }}-{{ checksum "extensions/package.yaml" }}-{{ checksum "g-machinizer/package.yaml" }}-{{ checksum "llvm-generator/package.yaml" }}-{{ checksum "parser/package.yaml" }}
           paths:
             - "~/.stack"
 
       - save_cache:
           name: Cache Project Local Data
-          key: circleci-minicute-project-local-v3.1-{{ arch }}-{{ checksum "stack.yaml" }}-{{ checksum "base/package.yaml" }}-{{ checksum "executables/package.yaml" }}-{{ checksum "g-machinizer/package.yaml" }}-{{ checksum "llvm-generator/package.yaml" }}-{{ checksum "parser/package.yaml" }}
+          key: circleci-minicute-project-local-v3.1-{{ arch }}-{{ checksum "stack.yaml" }}-{{ checksum "base/package.yaml" }}-{{ checksum "executables/package.yaml" }}-{{ checksum "extensions/package.yaml" }}-{{ checksum "g-machinizer/package.yaml" }}-{{ checksum "llvm-generator/package.yaml" }}-{{ checksum "parser/package.yaml" }}
           paths:
             - ".stack-work"
 
@@ -213,6 +217,11 @@ commands:
           key: circleci-minicute-executables-local-v3.1-{{ arch }}-{{ checksum "stack.yaml" }}-{{ checksum "executables/package.yaml" }}
           paths:
             - "executables/.stack-work"
+      - save_cache:
+          name: Cache Extensions Local Data
+          key: circleci-minicute-extensions-local-v3.1-{{ arch }}-{{ checksum "stack.yaml" }}-{{ checksum "extensions/package.yaml" }}
+          paths:
+            - "extensions/.stack-work"
       - save_cache:
           name: Cache G-Machinizer Local Data
           key: circleci-minicute-g-machinizer-local-v3.1-{{ arch }}-{{ checksum "stack.yaml" }}-{{ checksum "g-machinizer/package.yaml" }}
