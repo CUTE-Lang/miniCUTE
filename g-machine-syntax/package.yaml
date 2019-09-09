@@ -7,6 +7,7 @@ description: >
   This package is only for experiment to implement CUTE Lang.
   Do not use this any other purpose. This package would
   introduce breaking changes without any notifications.
+  For EBNF syntax, see <https://github.com/CUTE-Lang/miniCUTE/blob/master/g-machine-syntax/README.md>
 category:                           Language
 ## Practically deprecated
 # stability:
