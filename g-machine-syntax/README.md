@@ -8,3 +8,49 @@
 [![GitHub last commit date to master](https://img.shields.io/github/last-commit/CUTE-Lang/miniCUTE/master.svg)](https://github.com/CUTE-Lang/miniCUTE/commits/master)
 
 Types and functions for G-machine syntax.
+
+# EBNF syntax
+
+``` ebnf
+program = { function definition, whitespace };
+
+function definition = identifier, whitespace, "<", integer, ">", whitespace, instructions;
+
+instructions = "{", { instruction, ";", whitespace }, "}";
+instruction = "MakeInteger", integer
+            | "MakeConstructor", integer, integer
+            | "MakeStructure", integer, integer
+            | "MakeApplication",
+            | "MakeGlobal", identifier
+            | "MakePlaceholders", integer
+
+            | "Pop" integer
+            | "Dig" integer
+            | "Update" integer
+            | "Copy" integer
+
+            | "PushBasicValue", integer
+            | "PushExtractedValue"
+            | "WrapAsInteger"
+            | "WrapAsStructure"
+            | "UpdateAsInteger", integer
+            | "UpdateAsStructure", integer
+
+            | "Primitive", primitive operator
+
+            | "Unwind"
+            | "Destruct", integer
+
+            | "Eval"
+            | "Return"
+
+            | "Match", match table;
+
+match table = "{", { match entry }, "}";
+match entry = integer, "->", instructions;
+
+primitive operators = "+"
+                    | "-"
+                    | "*"
+                    | "/"
+```
