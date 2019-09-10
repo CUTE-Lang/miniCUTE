@@ -1,6 +1,6 @@
 #### Top-level fields ####
 spec-version:                       0.31.0
-name:                               minicute-executables
+name:                               minicute-minicute-compiler
 version:                            0.1.0.0
 synopsis:                           Experimental package for a language implemented by Haskell
 description: >
@@ -25,7 +25,7 @@ license-file:                       LICENSE
 extra-doc-files:                    README.md
 # data-files:
 # data-dir:
-github:                             CUTE-Lang/miniCUTE/executables
+github:                             CUTE-Lang/miniCUTE/minicute-compiler
 ## Following is ignored when "github" field exists
 # git:
 # custom-setup:
