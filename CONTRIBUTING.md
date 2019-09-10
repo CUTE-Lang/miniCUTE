@@ -14,9 +14,9 @@ To download and build the haskell codes in this project completely, you need the
 
 However, if you want to change only a part of this project, you may not need all of these. For more detail,
 
-- `minicute-base`, `minicute-g-machinizer`, and `minicute-parser`
+- `minicute-common-syntax`, `minicute-g-machine-syntax`, `minicute-g-machinizer`, and `minicute-minicute-syntax`
   You don't need `llvm`.
-- `minicute-llvm-generator` and `minicute`
+- `minicute-llvm-generator` and `minicute-minicute-compiler`
   You need all of those tools.
 
 ### 1. Download this Project
@@ -35,15 +35,15 @@ To compile and to test this project, we recommend using [`stack`](https://docs.h
 If you already have `stack`, use following command to compile this project,
 
 ``` shell
-stack build                      # To bulid all packages (require LLVM)
-stack build minicute-base # To build minicute-base only
+stack build                        # To bulid all packages (require LLVM)
+stack build minicute-common-syntax # To build minicute-common-syntax only
 ```
 
 and use following command to test this.
 
 ``` shell
-stack test                      # To test all packages (require LLVM)
-stack test minicute-base # To test minicute-base only
+stack test                        # To test all packages (require LLVM)
+stack test minicute-common-syntax # To test minicute-common-syntax only
 ```
 
 When you make changes, please check whether your changes are buildable and pass the tests.
