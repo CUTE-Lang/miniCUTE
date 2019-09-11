@@ -35,6 +35,7 @@ resolver: lts-13.27
 packages:
 - ./common-syntax
 - ./extensions
+- ./g-machine-interpreter
 - ./g-machine-syntax
 - ./g-machinizer
 - ./llvm-generator
