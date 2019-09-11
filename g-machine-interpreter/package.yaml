@@ -49,7 +49,17 @@ library:
   ghc-options:
     - -Wall
     - -Wstar-is-type
-  # dependencies:
+  dependencies:
+    - containers >= 0.6 && < 0.7
+    - extra >= 1.6 && < 2
+    - lens >= 4.17 && < 5
+    - mtl >= 2.2 && < 3
+    - template-haskell >= 2.14 && < 3
+
+    - minicute-common-syntax == 0.1.0.0
+    - minicute-extensions == 0.1.0.0
+    - minicute-g-machine-syntax == 0.1.0.0
+    - minicute-g-machinizer == 0.1.0.0
 
 # internal-libraries:
 
@@ -68,6 +78,9 @@ executables:
       - -rtsopts
       - -with-rtsopts=-N
     dependencies:
+      ## Remove following dependence if possible
+      - megaparsec >= 7.0 && < 8
+
       - minicute-g-machine-interpreter == 0.1.0.0
 
 # executable:
@@ -88,6 +101,9 @@ tests:
       - -with-rtsopts=-N
     dependencies:
       - hspec
+
+      - minicute-common-syntax
+      - minicute-g-machine-interpreter
 
   hlint:
     ### Test fields ###
