@@ -10,8 +10,8 @@ import Test.Hspec
 import Control.Monad
 import Data.Tuple.Extra
 import Minicute.Transpilers.GMachine
-import Minicute.Utils.TH.Minicute
 import Minicute.Utils.TH.GMachine
+import Minicute.Utils.TH.Minicute
 
 spec :: Spec
 spec = do
