@@ -36,14 +36,14 @@ module Minicute.Interpreter.GMachine.State
 
 import Prelude hiding ( fail )
 
+import Control.Lens.Getter ( use )
 import Control.Lens.Operators
 import Control.Lens.TH
 import Control.Lens.Wrapped ( _Wrapped )
-import Control.Monad.Fail
-import Control.Monad.Writer ( WriterT( WriterT ), runWriterT )
+import Control.Monad.Fail ( MonadFail )
+import Control.Monad.State
 import Data.Data
 import Data.List
-import Data.Tuple
 import GHC.Generics
 import Language.Haskell.TH.Syntax
 import Minicute.Data.Common
@@ -140,12 +140,15 @@ makeWrapped ''InterpreterCode
 initialCode :: InterpreterCode
 initialCode = InterpreterCode GMachine.initialCode
 
-popInstructionFromCode :: (MonadFail m) => InterpreterCode -> m (Instruction, InterpreterCode)
-popInstructionFromCode
-  = fmap swap . runWriterT
-    . ( _Wrapped
-        %%~ WriterT . maybe (fail "no more instruction") (pure . swap) . uncons
-      )
+popInstructionFromCode :: (MonadState s m, s ~ InterpreterCode, MonadFail m) => m Instruction
+popInstructionFromCode = do
+  code <- use _Wrapped
+  case uncons code of
+    Just (instr, code') -> do
+      _Wrapped .= code'
+      return instr
+    Nothing ->
+      fail "no more instruction"
 
 makeWrapped ''InterpreterStack
 
@@ -157,7 +160,7 @@ makeWrapped ''InterpreterHeap
 emptyHeap :: InterpreterHeap
 emptyHeap = InterpreterHeap []
 
-allocNode :: InterpreterNode -> InterpreterHeap -> m (InterpreterAddress, InterpreterHeap)
+allocNode :: (MonadState s m, s ~ InterpreterHeap) => InterpreterNode -> m InterpreterAddress
 allocNode = undefined
 
 makeWrapped ''InterpreterGlobal
@@ -165,9 +168,9 @@ makeWrapped ''InterpreterGlobal
 emptyGlobal :: InterpreterGlobal
 emptyGlobal = InterpreterGlobal Map.empty
 
-addSupercombinatorToGlobal :: (Applicative m) => GMachineSupercombinator -> InterpreterGlobal -> m InterpreterGlobal
+addSupercombinatorToGlobal :: (MonadState s m, s ~ InterpreterGlobal, MonadFail m) => GMachineSupercombinator -> m ()
 addSupercombinatorToGlobal (ident, arity, code)
-  = _Wrapped %%~ pure . Map.insert ident (NGlobal (toInteger arity) code)
+  = _Wrapped %= Map.insert ident (NGlobal (toInteger arity) code)
 
 updateNodeInGlobal :: Identifier -> InterpreterNode -> InterpreterGlobal -> InterpreterGlobal
 updateNodeInGlobal ident node = _Wrapped %~ Map.insert ident node
@@ -180,9 +183,9 @@ makeLensesFor
   ]
   ''InterpreterState
 
-getNextInstruction :: (MonadFail m) => InterpreterState -> m (Instruction, InterpreterState)
-getNextInstruction
-  = fmap swap . runWriterT
-    . ( _stateCode
-        %%~ WriterT . fmap swap . popInstructionFromCode
-      )
+getNextInstruction :: (MonadState s m, s ~ InterpreterState, MonadFail m) => m Instruction
+getNextInstruction = do
+  code <- use _stateCode
+  (instr, code') <- runStateT popInstructionFromCode code
+  _stateCode .= code'
+  return instr

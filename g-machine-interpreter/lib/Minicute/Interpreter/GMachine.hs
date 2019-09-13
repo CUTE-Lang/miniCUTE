@@ -10,6 +10,7 @@ module Minicute.Interpreter.GMachine
   ) where
 
 import Control.Monad
+import Control.Monad.Fail
 import Control.Monad.State
 import Data.Data
 import Data.Foldable
@@ -33,12 +34,12 @@ interpretProgram = void . runStateT executeProgram <=< getInitialState
         }
 
     createGlobal :: [GMachineSupercombinator] -> InterpreterMonad InterpreterGlobal
-    createGlobal = foldrM addSupercombinatorToGlobal emptyGlobal
+    createGlobal = foldrM (fmap (fmap snd) . runStateT . addSupercombinatorToGlobal) emptyGlobal
 
 executeProgram :: StateT InterpreterState InterpreterMonad ()
 executeProgram = do
   st <- get
-  case getNextInstruction st of
+  case runStateT getNextInstruction st of
     Just (inst, st') -> do
       put st'
       executeInstruction inst
@@ -54,7 +55,7 @@ makeInteger _ = do
   _ <- get
   undefined
 
-type InterpreterMonad = InterpreterMonadT Identity
+type InterpreterMonad = InterpreterMonadT Maybe
 
 newtype InterpreterMonadT m a = InterpreterM (m a)
   deriving ( Generic
@@ -66,6 +67,7 @@ newtype InterpreterMonadT m a = InterpreterM (m a)
            , Functor
            , Applicative
            , Monad
+           , MonadFail
            )
 
 instance Lift a => Lift (Identity a) where
