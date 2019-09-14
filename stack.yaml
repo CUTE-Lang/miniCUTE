@@ -39,6 +39,7 @@ packages:
 - ./g-machine-syntax
 - ./g-machinizer
 - ./llvm-generator
+- ./minicute-optimizer
 - ./minicute-syntax
 
 # Dependency packages to be pulled from upstream that are not in the resolver
