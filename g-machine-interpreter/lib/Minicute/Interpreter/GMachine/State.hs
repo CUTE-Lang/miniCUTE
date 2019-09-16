@@ -48,6 +48,7 @@ import GHC.Generics
 import Language.Haskell.TH.Syntax
 import Minicute.Data.Common
 import Minicute.Data.GMachine.Instruction
+import Minicute.Interpreter.GMachine.Common
 
 import qualified Data.Map as Map
 import qualified Minicute.Transpilers.GMachine as GMachine ( initialCode )
@@ -105,29 +106,6 @@ newtype InterpreterGlobal
            , Lift
            , Eq
            , Ord
-           )
-
-data InterpreterNode
-  = NInteger Integer
-  | NApplication InterpreterAddress InterpreterAddress
-  | NGlobal Integer GMachineExpression
-  deriving ( Generic
-           , Typeable
-           , Data
-           , Lift
-           , Eq
-           , Ord
-           )
-
-newtype InterpreterAddress
-  = InterpreterAddress Integer
-  deriving ( Generic
-           , Typeable
-           , Data
-           , Lift
-           , Eq
-           , Ord
-           , Num
            )
 
 instance (Lift a, Lift b) => Lift (Map.Map a b) where
