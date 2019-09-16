@@ -12,14 +12,19 @@ module Minicute.Interpreter.GMachine.Monad
 
   , allocNodeOnHeap
   , updateNodeOnHeap
+  , findNodeOnHeap
 
   , findGlobalNode
 
-  , pushAddrToStack
-  , pushAddrsToStack
-  , popAddrFromStack
-  , popAddrsFromStack
-  , peekNthAddrOnStack
+  , pushAddrToAddrStack
+  , pushAddrsToAddrStack
+  , popAddrFromAddrStack
+  , popAddrsFromAddrStack
+  , peekAddrOnAddrStack
+  , peekNthAddrOnAddrStack
+
+  , pushValueToValueStack
+  , popValueFromValueStack
   ) where
 
 import Control.Monad.Fail
@@ -48,8 +53,10 @@ newtype InterpreterMonadT m a = InterpreterM (m a)
 initializeInterpreterWith :: GMachineProgram -> InterpreterMonadT m ()
 initializeInterpreterWith = undefined
 
+
 fetchNextInstruction :: (MonadFail m) => InterpreterMonadT m Instruction
 fetchNextInstruction = undefined
+
 
 allocNodeOnHeap :: (MonadFail m) => InterpreterNode -> InterpreterMonadT m InterpreterAddress
 allocNodeOnHeap = undefined
@@ -57,20 +64,35 @@ allocNodeOnHeap = undefined
 updateNodeOnHeap :: InterpreterAddress -> InterpreterNode -> InterpreterMonadT m ()
 updateNodeOnHeap = undefined
 
+findNodeOnHeap :: InterpreterAddress -> InterpreterMonadT m InterpreterNode
+findNodeOnHeap = undefined
+
+
 findGlobalNode :: Identifier -> InterpreterMonadT m InterpreterAddress
 findGlobalNode = undefined
 
-pushAddrToStack :: InterpreterAddress -> InterpreterMonadT m ()
-pushAddrToStack = undefined
 
-pushAddrsToStack :: [InterpreterAddress] -> InterpreterMonadT m ()
-pushAddrsToStack = undefined
+pushAddrToAddrStack :: InterpreterAddress -> InterpreterMonadT m ()
+pushAddrToAddrStack = undefined
 
-popAddrFromStack :: InterpreterMonadT m InterpreterAddress
-popAddrFromStack = undefined
+pushAddrsToAddrStack :: [InterpreterAddress] -> InterpreterMonadT m ()
+pushAddrsToAddrStack = undefined
 
-popAddrsFromStack :: Int -> InterpreterMonadT m InterpreterAddress
-popAddrsFromStack = undefined
+popAddrFromAddrStack :: InterpreterMonadT m InterpreterAddress
+popAddrFromAddrStack = undefined
 
-peekNthAddrOnStack :: Int -> InterpreterMonadT m InterpreterAddress
-peekNthAddrOnStack = undefined
+popAddrsFromAddrStack :: Int -> InterpreterMonadT m [InterpreterAddress]
+popAddrsFromAddrStack = undefined
+
+peekAddrOnAddrStack :: InterpreterMonadT m InterpreterAddress
+peekAddrOnAddrStack = undefined
+
+peekNthAddrOnAddrStack :: Int -> InterpreterMonadT m InterpreterAddress
+peekNthAddrOnAddrStack = undefined
+
+
+pushValueToValueStack :: Integer -> InterpreterMonadT m ()
+pushValueToValueStack = undefined
+
+popValueFromValueStack :: InterpreterMonadT m Integer
+popValueFromValueStack = undefined

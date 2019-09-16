@@ -16,6 +16,8 @@ import Minicute.Data.GMachine.Instruction
 data InterpreterNode
   = NEmpty
   | NInteger Integer
+  | NStructure Integer InterpreterAddress
+  | NStructureFields Integer [InterpreterAddress]
   | NApplication InterpreterAddress InterpreterAddress
   | NIndirect InterpreterAddress
   | NGlobal Integer GMachineExpression
@@ -25,6 +27,7 @@ data InterpreterNode
            , Lift
            , Eq
            , Ord
+           , Show
            )
 
 newtype InterpreterAddress
@@ -36,4 +39,5 @@ newtype InterpreterAddress
            , Eq
            , Ord
            , Num
+           , Show
            )
