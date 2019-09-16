@@ -9,6 +9,8 @@ module Minicute.Interpreter.GMachine.Monad
   , initializeInterpreterWith
 
   , fetchNextInstruction
+  , putInstruction
+  , assertLastCode
 
   , allocNodeOnHeap
   , updateNodeOnHeap
@@ -20,11 +22,15 @@ module Minicute.Interpreter.GMachine.Monad
   , pushAddrsToAddrStack
   , popAddrFromAddrStack
   , popAddrsFromAddrStack
+  , popAllAddrsFromAddrStack
   , peekAddrOnAddrStack
   , peekNthAddrOnAddrStack
 
   , pushValueToValueStack
   , popValueFromValueStack
+
+  , saveStateToDump
+  , loadStateFromDump
   ) where
 
 import Control.Monad.Fail
@@ -57,6 +63,12 @@ initializeInterpreterWith = undefined
 fetchNextInstruction :: (MonadFail m) => InterpreterMonadT m Instruction
 fetchNextInstruction = undefined
 
+putInstruction :: Instruction -> InterpreterMonadT m ()
+putInstruction = undefined
+
+assertLastCode :: (MonadFail m) => InterpreterMonadT m ()
+assertLastCode = undefined
+
 
 allocNodeOnHeap :: (MonadFail m) => InterpreterNode -> InterpreterMonadT m InterpreterAddress
 allocNodeOnHeap = undefined
@@ -84,6 +96,9 @@ popAddrFromAddrStack = undefined
 popAddrsFromAddrStack :: Int -> InterpreterMonadT m [InterpreterAddress]
 popAddrsFromAddrStack = undefined
 
+popAllAddrsFromAddrStack :: InterpreterMonadT m [InterpreterAddress]
+popAllAddrsFromAddrStack = undefined
+
 peekAddrOnAddrStack :: InterpreterMonadT m InterpreterAddress
 peekAddrOnAddrStack = undefined
 
@@ -96,3 +111,10 @@ pushValueToValueStack = undefined
 
 popValueFromValueStack :: InterpreterMonadT m Integer
 popValueFromValueStack = undefined
+
+
+saveStateToDump :: InterpreterMonadT m ()
+saveStateToDump = undefined
+
+loadStateFromDump :: InterpreterMonadT m ()
+loadStateFromDump = undefined

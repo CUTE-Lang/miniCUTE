@@ -36,6 +36,9 @@ interpretInstruction (IUpdateAsStructure n) = interpretUpdateAsStructure n
 
 interpretInstruction (IPrimitive op) = interpretPrimitive op
 
+interpretInstruction IEval = interpretEval
+interpretInstruction IReturn = interpretReturn
+
 interpretInstruction inst
   = error
     ( "interpretInstruction: "
@@ -159,6 +162,24 @@ interpretPrimitive op
       <> show op
       <> " case is not yet implemented"
     )
+
+interpretEval :: InterpreterMonad ()
+interpretEval = do
+  addr <- popAddrFromAddrStack
+  saveStateToDump
+  pushAddrToAddrStack addr
+  putInstruction IUnwind
+
+interpretReturn :: InterpreterMonad ()
+interpretReturn = do
+  assertLastCode
+  addrs <- popAllAddrsFromAddrStack
+  let addr =
+        case addrs of
+          [] -> error "???"
+          _ -> last addrs
+  loadStateFromDump
+  pushAddrToAddrStack addr
 
 primitiveOpToBinaryFun :: PrimitiveOperator -> Maybe (Integer -> Integer -> Integer)
 primitiveOpToBinaryFun POAdd = Just (+)
