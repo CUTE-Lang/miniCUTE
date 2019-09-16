@@ -14,8 +14,10 @@ import Language.Haskell.TH.Syntax
 import Minicute.Data.GMachine.Instruction
 
 data InterpreterNode
-  = NInteger Integer
+  = NEmpty
+  | NInteger Integer
   | NApplication InterpreterAddress InterpreterAddress
+  | NIndirect InterpreterAddress
   | NGlobal Integer GMachineExpression
   deriving ( Generic
            , Typeable
