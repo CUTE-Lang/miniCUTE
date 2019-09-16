@@ -34,6 +34,8 @@ interpretInstruction IWrapAsStructure = interpretWrapAsStructure
 interpretInstruction (IUpdateAsInteger n) = interpretUpdateAsInteger n
 interpretInstruction (IUpdateAsStructure n) = interpretUpdateAsStructure n
 
+interpretInstruction (IPrimitive op) = interpretPrimitive op
+
 interpretInstruction inst
   = error
     ( "interpretInstruction: "
@@ -139,3 +141,30 @@ interpretUpdateAsStructure n = do
   v <- popValueFromValueStack
   fieldsAddr <- allocNodeOnHeap (NStructureFields 0 [])
   updateNodeOnHeap targetAddr (NStructure v fieldsAddr)
+
+interpretPrimitive :: PrimitiveOperator -> InterpreterMonad ()
+interpretPrimitive op
+  | Just binaryFun <- primitiveOpToBinaryFun op
+  = do
+      v0 <- popValueFromValueStack
+      v1 <- popValueFromValueStack
+      pushValueToValueStack (v0 `binaryFun` v1)
+  | Just unaryFun <- primitiveOpToUnaryFun op
+  = do
+      v <- popValueFromValueStack
+      pushValueToValueStack (unaryFun v)
+  | otherwise
+  = error
+    ( "interpretInstruction: "
+      <> show op
+      <> " case is not yet implemented"
+    )
+
+primitiveOpToBinaryFun :: PrimitiveOperator -> Maybe (Integer -> Integer -> Integer)
+primitiveOpToBinaryFun POAdd = Just (+)
+primitiveOpToBinaryFun POSub = Just (-)
+primitiveOpToBinaryFun POMul = Just (*)
+primitiveOpToBinaryFun PODiv = Just div
+
+primitiveOpToUnaryFun :: PrimitiveOperator -> Maybe (Integer -> Integer)
+primitiveOpToUnaryFun _ = Nothing
