@@ -1,6 +1,6 @@
-{-# LANGUAGE DeriveLift #-}
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE DeriveLift #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 module Minicute.Interpreter.GMachine.Monad
   ( InterpreterMonadT

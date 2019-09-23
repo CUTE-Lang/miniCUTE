@@ -6,8 +6,8 @@ module Minicute.Interpreter.GMachine
 import Control.Monad
 import Minicute.Data.Common
 import Minicute.Data.GMachine.Instruction
-import Minicute.Interpreter.GMachine.Monad
 import Minicute.Interpreter.GMachine.Common
+import Minicute.Interpreter.GMachine.Monad
 
 interpretProgram :: GMachineProgram -> InterpreterMonad ()
 interpretProgram program
