@@ -32,6 +32,7 @@ jobs:
     executor: stack-minimal
     steps:
       - checkout
+      - make-hpack-hash-target-file
       - restore-all-haskell-caches
       - stack-setup
       - stack-build-deps
@@ -41,6 +42,7 @@ jobs:
     executor: stack-minimal
     steps:
       - checkout
+      - make-hpack-hash-target-file
       - restore-all-haskell-caches
 
       - stack-verify-all
@@ -49,6 +51,7 @@ jobs:
     executor: stack-minimal
     steps:
       - checkout
+      - make-hpack-hash-target-file
       - restore-all-haskell-caches
 
       - stack-haddock
@@ -152,15 +155,21 @@ commands:
             git config user.name "miniCUTE-documents"
             npx gh-pages --dotfiles --message "Update to sync with ${CIRCLE_SHA1} [skip ci]" -d .gh-pages/
 
+  make-hpack-hash-target-file:
+    description: "Create a file to calculate hpack hashes for caching."
+    steps:
+      - run: find . -name "package.yaml" -exec cat {} + > hpack-hash.txt
+
   restore-all-haskell-caches:
     description: "Restore all cached parts of haskell packages."
     steps:
       - restore_cache:
           name: Restore Global Data
           keys:
-            - circleci-minicute-haskell-global-v3.3-{{ arch }}-{{ checksum "stack.yaml" }}-{{ checksum "common-syntax/package.yaml" }}-{{ checksum "executables/package.yaml" }}-{{ checksum "extensions/package.yaml" }}-{{ checksum "g-machine-syntax/package.yaml" }}-{{ checksum "g-machinizer/package.yaml" }}-{{ checksum "llvm-generator/package.yaml" }}-{{ checksum "minicute-optimizer/package.yaml" }}-{{ checksum "minicute-syntax/package.yaml" }}
-            - circleci-minicute-haskell-global-v3.3-{{ arch }}-{{ checksum "stack.yaml" }}
-            - circleci-minicute-haskell-global-v3.3-{{ arch }}
+            - circleci-minicute-haskell-global-v4.0-{{ arch }}-{{ checksum "stack.yaml" }}-{{ checksum "hpack-hash.txt" }}
+            - circleci-minicute-haskell-global-v4.0-{{ arch }}-{{ checksum "stack.yaml" }}
+            - circleci-minicute-haskell-global-v4.0-{{ arch }}
+            - circleci-minicute-haskell-global-v4.0
             - circleci-minicute-haskell-global-v3.3
             - circleci-minicute-haskell-global-v3.2
             - circleci-minicute-haskell-global-v3.1
@@ -169,96 +178,22 @@ commands:
       - restore_cache:
           name: Restore Project Local Data
           keys:
-            - circleci-minicute-project-local-v3.3-{{ arch }}-{{ checksum "stack.yaml" }}-{{ checksum "common-syntax/package.yaml" }}-{{ checksum "executables/package.yaml" }}-{{ checksum "extensions/package.yaml" }}-{{ checksum "g-machine-syntax/package.yaml" }}-{{ checksum "g-machinizer/package.yaml" }}-{{ checksum "llvm-generator/package.yaml" }}-{{ checksum "minicute-optimizer/package.yaml" }}-{{ checksum "minicute-syntax/package.yaml" }}
-
-      - restore_cache:
-          name: Restore Common syntax Local Data
-          keys:
-            - circleci-minicute-common-syntax-local-v3.3-{{ arch }}-{{ checksum "stack.yaml" }}-{{ checksum "common-syntax/package.yaml" }}
-      - restore_cache:
-          name: Restore Executables Local Data
-          keys:
-            - circleci-minicute-executables-local-v3.3-{{ arch }}-{{ checksum "stack.yaml" }}-{{ checksum "executables/package.yaml" }}
-      - restore_cache:
-          name: Restore Extensions Local Data
-          keys:
-            - circleci-minicute-extensions-local-v3.3-{{ arch }}-{{ checksum "stack.yaml" }}-{{ checksum "extensions/package.yaml" }}
-      - restore_cache:
-          name: Restore G-machine syntax Local Data
-          keys:
-            - circleci-minicute-g-machine-syntax-local-v3.3-{{ arch }}-{{ checksum "stack.yaml" }}-{{ checksum "g-machine-syntax/package.yaml" }}
-      - restore_cache:
-          name: Restore G-Machinizer Local Data
-          keys:
-            - circleci-minicute-g-machinizer-local-v3.3-{{ arch }}-{{ checksum "stack.yaml" }}-{{ checksum "g-machinizer/package.yaml" }}
-      - restore_cache:
-          name: Restore LLVM-generator Local Data
-          keys:
-            - circleci-minicute-llvm-generator-local-v3.3-{{ arch }}-{{ checksum "stack.yaml" }}-{{ checksum "llvm-generator/package.yaml" }}
-      - restore_cache:
-          name: Restore miniCUTE optimizer Local Data
-          keys:
-            - circleci-minicute-minicute-optimizer-local-v3.3-{{ arch }}-{{ checksum "stack.yaml" }}-{{ checksum "minicute-optimizer/package.yaml" }}
-      - restore_cache:
-          name: Restore miniCUTE syntax Local Data
-          keys:
-            - circleci-minicute-minicute-syntax-local-v3.3-{{ arch }}-{{ checksum "stack.yaml" }}-{{ checksum "minicute-syntax/package.yaml" }}
+            - circleci-minicute-project-local-v4.0-{{ arch }}-{{ checksum "stack.yaml" }}-{{ checksum "hpack-hash.txt" }}
 
   save-all-haskell-caches:
     description: "Save all cachable parts of haskell packages."
     steps:
       - save_cache:
           name: Cache Global Data
-          key: circleci-minicute-haskell-global-v3.3-{{ arch }}-{{ checksum "stack.yaml" }}-{{ checksum "common-syntax/package.yaml" }}-{{ checksum "executables/package.yaml" }}-{{ checksum "extensions/package.yaml" }}-{{ checksum "g-machine-syntax/package.yaml" }}-{{ checksum "g-machinizer/package.yaml" }}-{{ checksum "llvm-generator/package.yaml" }}-{{ checksum "minicute-optimizer/package.yaml" }}-{{ checksum "minicute-syntax/package.yaml" }}
+          key: circleci-minicute-haskell-global-v4.0-{{ arch }}-{{ checksum "stack.yaml" }}-{{ checksum "hpack-hash.txt" }}
           paths:
             - "~/.stack"
 
       - save_cache:
           name: Cache Project Local Data
-          key: circleci-minicute-project-local-v3.3-{{ arch }}-{{ checksum "stack.yaml" }}-{{ checksum "common-syntax/package.yaml" }}-{{ checksum "executables/package.yaml" }}-{{ checksum "extensions/package.yaml" }}-{{ checksum "g-machine-syntax/package.yaml" }}-{{ checksum "g-machinizer/package.yaml" }}-{{ checksum "llvm-generator/package.yaml" }}-{{ checksum "minicute-optimizer/package.yaml" }}-{{ checksum "minicute-syntax/package.yaml" }}
+          key: circleci-minicute-project-local-v4.0-{{ arch }}-{{ checksum "stack.yaml" }}-{{ checksum "hpack-hash.txt" }}
           paths:
             - ".stack-work"
-
-      - save_cache:
-          name: Cache Common syntax Local Data
-          key: circleci-minicute-common-syntax-local-v3.3-{{ arch }}-{{ checksum "stack.yaml" }}-{{ checksum "common-syntax/package.yaml" }}
-          paths:
-            - "common-syntax/.stack-work"
-      - save_cache:
-          name: Cache Executables Local Data
-          key: circleci-minicute-executables-local-v3.3-{{ arch }}-{{ checksum "stack.yaml" }}-{{ checksum "executables/package.yaml" }}
-          paths:
-            - "executables/.stack-work"
-      - save_cache:
-          name: Cache Extensions Local Data
-          key: circleci-minicute-extensions-local-v3.3-{{ arch }}-{{ checksum "stack.yaml" }}-{{ checksum "extensions/package.yaml" }}
-          paths:
-            - "extensions/.stack-work"
-      - save_cache:
-          name: Cache G-Machine syntax Local Data
-          key: circleci-minicute-g-machine-syntax-local-v3.3-{{ arch }}-{{ checksum "stack.yaml" }}-{{ checksum "g-machine-syntax/package.yaml" }}
-          paths:
-            - "g-machine-syntax/.stack-work"
-      - save_cache:
-          name: Cache G-Machinizer Local Data
-          key: circleci-minicute-g-machinizer-local-v3.3-{{ arch }}-{{ checksum "stack.yaml" }}-{{ checksum "g-machinizer/package.yaml" }}
-          paths:
-            - "g-machinizer/.stack-work"
-      - save_cache:
-          name: Cache LLVM-generator Local Data
-          key: circleci-minicute-llvm-generator-local-v3.3-{{ arch }}-{{ checksum "stack.yaml" }}-{{ checksum "llvm-generator/package.yaml" }}
-          paths:
-            - "llvm-generator/.stack-work"
-      - save_cache:
-          name: Cache miniCUTE optimizer Local Data
-          key: circleci-minicute-minicute-optimizer-local-v3.3-{{ arch }}-{{ checksum "stack.yaml" }}-{{ checksum "minicute-optimizer/package.yaml" }}
-          paths:
-            - "minicute-optimizer/.stack-work"
-      - save_cache:
-          name: Cache miniCUTE syntax Local Data
-          key: circleci-minicute-minicute-syntax-local-v3.3-{{ arch }}-{{ checksum "stack.yaml" }}-{{ checksum "minicute-syntax/package.yaml" }}
-          paths:
-            - "minicute-syntax/.stack-work"
 
   restore-all-node-caches:
     description: "Restore all cached parts of node packages."
@@ -266,8 +201,8 @@ commands:
       - restore_cache:
           name: Restore Global Data
           keys:
-            - circleci-minicute-node-global-v3.3
-            - circleci-minicute-node-global-v3.3
+            - circleci-minicute-node-global-v4.0
+            - circleci-minicute-node-global-v4.0
             - circleci-minicute-node-global-v3
 
   save-all-node-caches:
@@ -275,6 +210,6 @@ commands:
     steps:
       - save_cache:
           name: Cache Global Data
-          key: circleci-minicute-node-global-v3.3
+          key: circleci-minicute-node-global-v4.0
           paths:
             - "~/.npm"
