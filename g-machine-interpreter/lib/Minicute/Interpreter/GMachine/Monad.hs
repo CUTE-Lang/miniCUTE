@@ -14,6 +14,7 @@ module Minicute.Interpreter.GMachine.Monad
 
   , fetchNextInstruction
   , putInstruction
+  , putInstructions
   , assertLastCode
 
   , allocNodeOnHeap
@@ -29,6 +30,7 @@ module Minicute.Interpreter.GMachine.Monad
   , popAllAddrsFromAddrStack
   , peekAddrOnAddrStack
   , peekNthAddrOnAddrStack
+  , checkAddrStackSize
 
   , pushValueToValueStack
   , popValueFromValueStack
@@ -90,6 +92,9 @@ fetchNextInstruction = undefined
 putInstruction :: Instruction -> InterpreterStepMonadT m ()
 putInstruction = undefined
 
+putInstructions :: [Instruction] -> InterpreterStepMonadT m ()
+putInstructions = undefined
+
 assertLastCode :: (MonadFail m) => InterpreterStepMonadT m ()
 assertLastCode = undefined
 
@@ -128,6 +133,9 @@ peekAddrOnAddrStack = undefined
 
 peekNthAddrOnAddrStack :: Int -> InterpreterStepMonadT m InterpreterAddress
 peekNthAddrOnAddrStack = undefined
+
+checkAddrStackSize :: Int -> InterpreterStepMonadT m Bool
+checkAddrStackSize = undefined
 
 
 pushValueToValueStack :: Integer -> InterpreterStepMonadT m ()

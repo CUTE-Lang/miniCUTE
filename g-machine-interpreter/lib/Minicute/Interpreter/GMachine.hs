@@ -1,9 +1,13 @@
 {-# LANGUAGE NamedFieldPuns #-}
 module Minicute.Interpreter.GMachine
-  ( interpretProgram
+  ( module Minicute.Interpreter.GMachine.Common
+  , module Minicute.Interpreter.GMachine.Monad
+
+  , interpretProgram
   ) where
 
-import Control.Monad
+import Control.Monad.Extra
+import Data.List.Extra
 import Minicute.Data.Common
 import Minicute.Data.GMachine.Instruction
 import Minicute.Interpreter.GMachine.Common
@@ -36,6 +40,8 @@ interpretInstruction (IUpdateAsInteger n) = interpretUpdateAsInteger n
 interpretInstruction (IUpdateAsStructure n) = interpretUpdateAsStructure n
 
 interpretInstruction (IPrimitive op) = interpretPrimitive op
+
+interpretInstruction IUnwind = interpretUnwind
 
 interpretInstruction IEval = interpretEval
 interpretInstruction IReturn = interpretReturn
@@ -163,6 +169,47 @@ interpretPrimitive op
       <> show op
       <> " case is not yet implemented"
     )
+
+interpretUnwind :: InterpreterStepMonad ()
+interpretUnwind = do
+  assertLastCode
+  addr <- popAddrFromAddrStack
+  node <- findNodeOnHeap addr
+  case node of
+    NInteger _ -> do
+      loadStateFromDump
+      pushAddrToAddrStack addr
+    NStructure _ _ -> do
+      loadStateFromDump
+      pushAddrToAddrStack addr
+    NApplication funAddr _ -> do
+      putInstruction IUnwind
+      pushAddrToAddrStack addr
+      pushAddrToAddrStack funAddr
+    NIndirect addr' -> do
+      putInstruction IUnwind
+      pushAddrToAddrStack addr'
+    NGlobal n code ->
+      ifM (checkAddrStackSize (fromInteger n))
+        (putInstructions code >> rearrangeStack (fromInteger (n - 1)))
+        (putInstruction IReturn)
+    _ ->
+      error
+      ( "interpretUnwind: "
+        <> show node
+        <> " case is not allowed"
+      )
+  where
+    rearrangeStack n = do
+      addrs <- snoc <$> popAddrsFromAddrStack n <*> peekAddrOnAddrStack
+      applyeeAddrs <- forM addrs $ \addr -> do
+        node <- findNodeOnHeap addr
+        case node of
+          NApplication _ applyeeAddr ->
+            return applyeeAddr
+          _ ->
+            error "rearrangeStack: Invalid invocation of the function. Top most n nodes have to be NApplication nodes"
+      pushAddrsToAddrStack applyeeAddrs
 
 interpretEval :: InterpreterStepMonad ()
 interpretEval = do
