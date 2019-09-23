@@ -47,7 +47,7 @@ interpretInstruction IEval = interpretEval
 interpretInstruction IReturn = interpretReturn
 
 interpretInstruction inst
-  = error
+  = fail
     ( "interpretInstruction: "
       <> show inst
       <> " case is not yet implemented"
@@ -116,15 +116,15 @@ interpretPushExtractedValue = do
       fieldsNode <- findNodeOnHeap fieldsAddr
       case fieldsNode of
         NStructureFields 0 _ -> pushValueToValueStack v
-        _ -> invalidNodeError fieldsNode
-    _ -> invalidNodeError node
+        _ -> invalidNodeFail fieldsNode
+    _ -> invalidNodeFail node
   where
-    invalidNodeError node =
-      error
-      ( "interpretPushExtractedValue: "
-        <> show node
-        <> " node cannot be used as a primitive value"
-      )
+    invalidNodeFail node
+      = fail
+        ( "interpretPushExtractedValue: "
+          <> show node
+          <> " node cannot be used as a primitive value"
+        )
 
 interpretWrapAsInteger :: InterpreterStepMonad ()
 interpretWrapAsInteger = do
@@ -164,7 +164,7 @@ interpretPrimitive op
       v <- popValueFromValueStack
       pushValueToValueStack (unaryFun v)
   | otherwise
-  = error
+  = fail
     ( "interpretInstruction: "
       <> show op
       <> " case is not yet implemented"
@@ -194,7 +194,7 @@ interpretUnwind = do
         (putInstructions code >> rearrangeStack (fromInteger (n - 1)))
         (putInstruction IReturn)
     _ ->
-      error
+      fail
       ( "interpretUnwind: "
         <> show node
         <> " case is not allowed"
@@ -208,7 +208,7 @@ interpretUnwind = do
           NApplication _ applyeeAddr ->
             return applyeeAddr
           _ ->
-            error "rearrangeStack: Invalid invocation of the function. Top most n nodes have to be NApplication nodes"
+            fail "rearrangeStack: Invalid invocation of the function. Top most n nodes have to be NApplication nodes"
       pushAddrsToAddrStack applyeeAddrs
 
 interpretEval :: InterpreterStepMonad ()
@@ -222,10 +222,10 @@ interpretReturn :: InterpreterStepMonad ()
 interpretReturn = do
   assertLastCode
   addrs <- popAllAddrsFromAddrStack
-  let addr =
-        case addrs of
-          [] -> error "???"
-          _ -> last addrs
+  addr <-
+    case addrs of
+      [] -> fail "interpretReturn: address stack should contain more than one address"
+      _ -> return (last addrs)
   loadStateFromDump
   pushAddrToAddrStack addr
 
