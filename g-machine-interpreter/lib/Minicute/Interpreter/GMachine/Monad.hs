@@ -1,7 +1,9 @@
-{-# LANGUAGE DeriveDataTypeable #-}
+{-# LANGUAGE DeriveFunctor #-}
 {-# LANGUAGE DeriveGeneric #-}
-{-# LANGUAGE DeriveLift #-}
+{-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE StandaloneDeriving #-}
 module Minicute.Interpreter.GMachine.Monad
   ( InterpreterMonadT
   , InterpreterMonad
@@ -40,50 +42,49 @@ module Minicute.Interpreter.GMachine.Monad
   ) where
 
 import Control.Monad.Fail
+import Control.Monad.State
+import Control.Monad.Writer
 import Data.Data
 import GHC.Generics
-import Language.Haskell.TH.Syntax
 import Minicute.Data.Common
 import Minicute.Data.GMachine.Instruction
 import Minicute.Interpreter.GMachine.Common
+import Minicute.Interpreter.GMachine.State
 
-type InterpreterMonad = InterpreterMonadT Maybe
+type InterpreterMonad = InterpreterMonadT Maybe Maybe
 
-newtype InterpreterMonadT m a = InterpreterMonadT (m a)
+newtype InterpreterMonadT m' m a
+  = InterpreterMonadT
+    (WriterT [InterpreterStepMonadT m' ()] m a)
   deriving ( Generic
            , Typeable
-           , Data
-           , Lift
-           , Eq
-           , Ord
            , Functor
            , Applicative
            , Monad
            , MonadFail
            )
 
+deriving instance (Monad m) => MonadWriter [InterpreterStepMonadT m' ()] (InterpreterMonadT m' m)
 
-initializeInterpreterWith :: GMachineProgram -> InterpreterMonadT m ()
-initializeInterpreterWith = undefined
+initializeInterpreterWith :: (Monad m) => GMachineProgram -> InterpreterMonadT m' m ()
+initializeInterpreterWith = pure . const ()
 
-addInterpreterStep :: InterpreterStepMonadT m a -> InterpreterMonadT m a
-addInterpreterStep = undefined
+addInterpreterStep :: (Monad m) => InterpreterStepMonadT m' () -> InterpreterMonadT m' m ()
+addInterpreterStep = tell . pure
 
 
 type InterpreterStepMonad = InterpreterStepMonadT Maybe
 
-newtype InterpreterStepMonadT m a = InterpreterStepMonadT (m a)
+newtype InterpreterStepMonadT m a = InterpreterStepMonadT (StateT InterpreterState m a)
   deriving ( Generic
            , Typeable
-           , Data
-           , Lift
-           , Eq
-           , Ord
            , Functor
            , Applicative
            , Monad
            , MonadFail
            )
+
+deriving instance (Monad m) => MonadState InterpreterState (InterpreterStepMonadT m)
 
 
 fetchNextInstruction :: (MonadFail m) => InterpreterStepMonadT m Instruction
