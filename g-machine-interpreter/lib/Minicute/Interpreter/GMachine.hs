@@ -13,9 +13,10 @@ interpretProgram :: GMachineProgram -> InterpreterMonad ()
 interpretProgram program
   = initializeInterpreterWith program >> go
   where
-    go = fetchNextInstruction >>= interpretInstruction >> go
+    go = addInterpreterStep step >> go
+    step = fetchNextInstruction >>= interpretInstruction
 
-interpretInstruction :: Instruction -> InterpreterMonad ()
+interpretInstruction :: Instruction -> InterpreterStepMonad ()
 
 interpretInstruction (IMakeInteger n) = interpretMakeInteger n
 interpretInstruction IMakeApplication = interpretMakeApplication
@@ -47,17 +48,17 @@ interpretInstruction inst
     )
 
 -- interpreter functions for each instruction
-interpretMakeInteger :: Integer -> InterpreterMonad ()
+interpretMakeInteger :: Integer -> InterpreterStepMonad ()
 interpretMakeInteger n = do
   addr <- allocNodeOnHeap (NInteger n)
   pushAddrToAddrStack addr
 
-interpretMakeGlobal :: Identifier -> InterpreterMonad ()
+interpretMakeGlobal :: Identifier -> InterpreterStepMonad ()
 interpretMakeGlobal i = do
   addr <- findGlobalNode i
   pushAddrToAddrStack addr
 
-interpretMakeApplication :: InterpreterMonad ()
+interpretMakeApplication :: InterpreterStepMonad ()
 interpretMakeApplication = do
   applyerAddr <- popAddrFromAddrStack
   applyeeAddr <- popAddrFromAddrStack
@@ -66,7 +67,7 @@ interpretMakeApplication = do
 
 -- Please check the direction of addrs.
 -- (Thankfully, it only affects performance, not correctness)
-interpretMakePlaceholders :: Int -> InterpreterMonad ()
+interpretMakePlaceholders :: Int -> InterpreterStepMonad ()
 interpretMakePlaceholders n = do
   addrs <- allocPlaceholders
   -- To reverse, or not to reverse, that is the question.
@@ -75,31 +76,31 @@ interpretMakePlaceholders n = do
     allocPlaceholders = replicateM n $ allocNodeOnHeap NEmpty
 
 
-interpretPop :: Int -> InterpreterMonad ()
+interpretPop :: Int -> InterpreterStepMonad ()
 interpretPop n = void (popAddrsFromAddrStack n)
 
-interpretDig :: Int -> InterpreterMonad ()
+interpretDig :: Int -> InterpreterStepMonad ()
 interpretDig n = do
   addr <- popAddrFromAddrStack
   _ <- popAddrsFromAddrStack n
   pushAddrToAddrStack addr
 
-interpretUpdate :: Int -> InterpreterMonad ()
+interpretUpdate :: Int -> InterpreterStepMonad ()
 interpretUpdate n = do
   valueAddr <- peekAddrOnAddrStack
   targetAddr <- peekNthAddrOnAddrStack n
   updateNodeOnHeap targetAddr (NIndirect valueAddr)
 
-interpretCopy :: Int -> InterpreterMonad ()
+interpretCopy :: Int -> InterpreterStepMonad ()
 interpretCopy n = do
   addr <- peekNthAddrOnAddrStack n
   pushAddrToAddrStack addr
 
 
-interpretPushBasicValue :: Integer -> InterpreterMonad ()
+interpretPushBasicValue :: Integer -> InterpreterStepMonad ()
 interpretPushBasicValue = pushValueToValueStack
 
-interpretPushExtractedValue :: InterpreterMonad ()
+interpretPushExtractedValue :: InterpreterStepMonad ()
 interpretPushExtractedValue = do
   addr <- popAddrFromAddrStack
   node <- findNodeOnHeap addr
@@ -119,33 +120,33 @@ interpretPushExtractedValue = do
         <> " node cannot be used as a primitive value"
       )
 
-interpretWrapAsInteger :: InterpreterMonad ()
+interpretWrapAsInteger :: InterpreterStepMonad ()
 interpretWrapAsInteger = do
   v <- popValueFromValueStack
   addr <- allocNodeOnHeap (NInteger v)
   pushAddrToAddrStack addr
 
-interpretWrapAsStructure :: InterpreterMonad ()
+interpretWrapAsStructure :: InterpreterStepMonad ()
 interpretWrapAsStructure = do
   v <- popValueFromValueStack
   fieldsAddr <- allocNodeOnHeap (NStructureFields 0 [])
   addr <- allocNodeOnHeap (NStructure v fieldsAddr)
   pushAddrToAddrStack addr
 
-interpretUpdateAsInteger :: Int -> InterpreterMonad ()
+interpretUpdateAsInteger :: Int -> InterpreterStepMonad ()
 interpretUpdateAsInteger n = do
   targetAddr <- peekNthAddrOnAddrStack n
   v <- popValueFromValueStack
   updateNodeOnHeap targetAddr (NInteger v)
 
-interpretUpdateAsStructure :: Int -> InterpreterMonad ()
+interpretUpdateAsStructure :: Int -> InterpreterStepMonad ()
 interpretUpdateAsStructure n = do
   targetAddr <- peekNthAddrOnAddrStack n
   v <- popValueFromValueStack
   fieldsAddr <- allocNodeOnHeap (NStructureFields 0 [])
   updateNodeOnHeap targetAddr (NStructure v fieldsAddr)
 
-interpretPrimitive :: PrimitiveOperator -> InterpreterMonad ()
+interpretPrimitive :: PrimitiveOperator -> InterpreterStepMonad ()
 interpretPrimitive op
   | Just binaryFun <- primitiveOpToBinaryFun op
   = do
@@ -163,14 +164,14 @@ interpretPrimitive op
       <> " case is not yet implemented"
     )
 
-interpretEval :: InterpreterMonad ()
+interpretEval :: InterpreterStepMonad ()
 interpretEval = do
   addr <- popAddrFromAddrStack
   saveStateToDump
   pushAddrToAddrStack addr
   putInstruction IUnwind
 
-interpretReturn :: InterpreterMonad ()
+interpretReturn :: InterpreterStepMonad ()
 interpretReturn = do
   assertLastCode
   addrs <- popAllAddrsFromAddrStack

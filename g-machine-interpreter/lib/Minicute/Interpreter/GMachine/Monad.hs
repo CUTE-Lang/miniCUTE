@@ -7,6 +7,10 @@ module Minicute.Interpreter.GMachine.Monad
   , InterpreterMonad
 
   , initializeInterpreterWith
+  , addInterpreterStep
+
+  , InterpreterStepMonadT
+  , InterpreterStepMonad
 
   , fetchNextInstruction
   , putInstruction
@@ -43,7 +47,7 @@ import Minicute.Interpreter.GMachine.Common
 
 type InterpreterMonad = InterpreterMonadT Maybe
 
-newtype InterpreterMonadT m a = InterpreterM (m a)
+newtype InterpreterMonadT m a = InterpreterMonadT (m a)
   deriving ( Generic
            , Typeable
            , Data
@@ -56,65 +60,85 @@ newtype InterpreterMonadT m a = InterpreterM (m a)
            , MonadFail
            )
 
+
 initializeInterpreterWith :: GMachineProgram -> InterpreterMonadT m ()
 initializeInterpreterWith = undefined
 
+addInterpreterStep :: InterpreterStepMonadT m a -> InterpreterMonadT m a
+addInterpreterStep = undefined
 
-fetchNextInstruction :: (MonadFail m) => InterpreterMonadT m Instruction
+
+type InterpreterStepMonad = InterpreterStepMonadT Maybe
+
+newtype InterpreterStepMonadT m a = InterpreterStepMonadT (m a)
+  deriving ( Generic
+           , Typeable
+           , Data
+           , Lift
+           , Eq
+           , Ord
+           , Functor
+           , Applicative
+           , Monad
+           , MonadFail
+           )
+
+
+fetchNextInstruction :: (MonadFail m) => InterpreterStepMonadT m Instruction
 fetchNextInstruction = undefined
 
-putInstruction :: Instruction -> InterpreterMonadT m ()
+putInstruction :: Instruction -> InterpreterStepMonadT m ()
 putInstruction = undefined
 
-assertLastCode :: (MonadFail m) => InterpreterMonadT m ()
+assertLastCode :: (MonadFail m) => InterpreterStepMonadT m ()
 assertLastCode = undefined
 
 
-allocNodeOnHeap :: (MonadFail m) => InterpreterNode -> InterpreterMonadT m InterpreterAddress
+allocNodeOnHeap :: (MonadFail m) => InterpreterNode -> InterpreterStepMonadT m InterpreterAddress
 allocNodeOnHeap = undefined
 
-updateNodeOnHeap :: InterpreterAddress -> InterpreterNode -> InterpreterMonadT m ()
+updateNodeOnHeap :: InterpreterAddress -> InterpreterNode -> InterpreterStepMonadT m ()
 updateNodeOnHeap = undefined
 
-findNodeOnHeap :: InterpreterAddress -> InterpreterMonadT m InterpreterNode
+findNodeOnHeap :: InterpreterAddress -> InterpreterStepMonadT m InterpreterNode
 findNodeOnHeap = undefined
 
 
-findGlobalNode :: Identifier -> InterpreterMonadT m InterpreterAddress
+findGlobalNode :: Identifier -> InterpreterStepMonadT m InterpreterAddress
 findGlobalNode = undefined
 
 
-pushAddrToAddrStack :: InterpreterAddress -> InterpreterMonadT m ()
+pushAddrToAddrStack :: InterpreterAddress -> InterpreterStepMonadT m ()
 pushAddrToAddrStack = undefined
 
-pushAddrsToAddrStack :: [InterpreterAddress] -> InterpreterMonadT m ()
+pushAddrsToAddrStack :: [InterpreterAddress] -> InterpreterStepMonadT m ()
 pushAddrsToAddrStack = undefined
 
-popAddrFromAddrStack :: InterpreterMonadT m InterpreterAddress
+popAddrFromAddrStack :: InterpreterStepMonadT m InterpreterAddress
 popAddrFromAddrStack = undefined
 
-popAddrsFromAddrStack :: Int -> InterpreterMonadT m [InterpreterAddress]
+popAddrsFromAddrStack :: Int -> InterpreterStepMonadT m [InterpreterAddress]
 popAddrsFromAddrStack = undefined
 
-popAllAddrsFromAddrStack :: InterpreterMonadT m [InterpreterAddress]
+popAllAddrsFromAddrStack :: InterpreterStepMonadT m [InterpreterAddress]
 popAllAddrsFromAddrStack = undefined
 
-peekAddrOnAddrStack :: InterpreterMonadT m InterpreterAddress
+peekAddrOnAddrStack :: InterpreterStepMonadT m InterpreterAddress
 peekAddrOnAddrStack = undefined
 
-peekNthAddrOnAddrStack :: Int -> InterpreterMonadT m InterpreterAddress
+peekNthAddrOnAddrStack :: Int -> InterpreterStepMonadT m InterpreterAddress
 peekNthAddrOnAddrStack = undefined
 
 
-pushValueToValueStack :: Integer -> InterpreterMonadT m ()
+pushValueToValueStack :: Integer -> InterpreterStepMonadT m ()
 pushValueToValueStack = undefined
 
-popValueFromValueStack :: InterpreterMonadT m Integer
+popValueFromValueStack :: InterpreterStepMonadT m Integer
 popValueFromValueStack = undefined
 
 
-saveStateToDump :: InterpreterMonadT m ()
+saveStateToDump :: InterpreterStepMonadT m ()
 saveStateToDump = undefined
 
-loadStateFromDump :: InterpreterMonadT m ()
+loadStateFromDump :: InterpreterStepMonadT m ()
 loadStateFromDump = undefined
