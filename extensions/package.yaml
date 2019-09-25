@@ -51,6 +51,7 @@ library:
     - -Wstar-is-type
   dependencies:
     - prettyprinter >= 1.2 && < 2
+    - template-haskell >= 2.14 && < 3
 
 # internal-libraries:
 
