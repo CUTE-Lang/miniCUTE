@@ -15,9 +15,12 @@ import Minicute.Interpreter.GMachine.Monad
 
 interpretProgram :: GMachineProgram -> InterpreterMonad ()
 interpretProgram program
-  = initializeInterpreterWith program >> go
+  = initializeInterpreterWith program >> buildSteps
   where
-    go = addInterpreterStep step >> go
+    buildSteps
+      = ifM checkInterpreterFinished
+        (addInterpreterStep step >> buildSteps)
+        (return ())
     step = fetchNextInstruction >>= interpretInstruction
 
 interpretInstruction :: Instruction -> InterpreterStepMonad ()

@@ -10,6 +10,7 @@ module Minicute.Interpreter.GMachine.Monad
 
   , initializeInterpreterWith
   , addInterpreterStep
+  , checkInterpreterFinished
 
   , InterpreterStepMonadT
   , InterpreterStepMonad
@@ -71,6 +72,9 @@ initializeInterpreterWith = pure . const ()
 
 addInterpreterStep :: (Monad m) => InterpreterStepMonadT m' () -> InterpreterMonadT m' m ()
 addInterpreterStep = tell . pure
+
+checkInterpreterFinished :: (Monad m) => InterpreterMonadT m' m Bool
+checkInterpreterFinished = undefined
 
 
 type InterpreterStepMonad = InterpreterStepMonadT Maybe
