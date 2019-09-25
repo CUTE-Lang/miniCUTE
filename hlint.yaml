@@ -6,6 +6,10 @@
 - arguments: [-XNoMagicHash]
 
 # enabled rules
+- warn: {name: "Use module export list"}
+- warn: {name: "Use explicit module export list"}
+- warn: {name: "Use DerivingStrategies"}
+
 - group:
     name: generalise
     enabled: true
@@ -14,11 +18,19 @@
     enabled: true
 
 # custom rules
-- warn: {name: "Use module export list"}
-- warn: {name: "Use explicit module export list"}
-- warn: {name: "Use DerivingStrategies"}
-- warn: {lhs: "- a", rhs: "negate a", name: "Use negate"}
-      
+- package:
+    name: containers
+    modules:
+    - import Data.Set as Set
+
+- group:
+    name: default
+    enabled: true
+    imports:
+    - package base
+    rules:
+      - warn: {lhs: "- a", rhs: "negate a", name: "Use negate"}
+
 - group:
     name: pretty-printer
     enabled: true
@@ -75,10 +87,12 @@
     enabled: true
     imports:
     - package base
+    - package containers
     - package lens
     rules:
     - warn: {lhs: "(^. partsOf a)", rhs: "(^.. a)"}
     - warn: {lhs: "traverse (a %%~ b)", rhs: "(each . a) %%~ b"}
+    - warn: {lhs: "Set.fromList (a ^.. b)", rhs: "a ^. setFrom b"}
 
 - extensions:
   - name: ["MagicHash"]
