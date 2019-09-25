@@ -3,6 +3,7 @@
 module Data.Text.Prettyprint.Doc.Minicute
   ( PrettyPrec( .. )
   , prettyShow
+  , prettyIndent
   ) where
 
 import Data.Text.Prettyprint.Doc
@@ -25,3 +26,9 @@ class (Pretty a) => PrettyPrec a where
 prettyShow :: (Pretty a) => a -> String
 prettyShow = PPS.renderString . layoutPretty defaultLayoutOptions . pretty
 {-# INLINABLE prettyShow #-}
+
+-- |
+-- @prettyIndent doc@ make a document indented with an appropriate size.
+prettyIndent :: Doc ann -> Doc ann
+prettyIndent = indent 2
+{-# INLINEABLE prettyIndent #-}

@@ -45,9 +45,6 @@ module Minicute.Data.Minicute.Expression
   , MainExpressionLLMC
   , pattern EApplication2
   , pattern EApplication3
-
-  -- __TODO: remove this__
-  , prettyIndent
   ) where
 
 import Control.Lens.TH
@@ -229,15 +226,6 @@ instance (Pretty a) => PrettyPrec (Expression t a) where
         , PP.line
         , prettyIndent . pretty $ bodyExpr
         ]
-
-
--- |
--- @prettyIndent doc@ make a document indented with an appropriate size.
---
--- __TODO: extract this function into a separated module__
-prettyIndent :: PP.Doc ann -> PP.Doc ann
-prettyIndent = PP.indent 2
-{-# INLINEABLE prettyIndent #-}
 
 
 makeWrapped ''LetDefinition
