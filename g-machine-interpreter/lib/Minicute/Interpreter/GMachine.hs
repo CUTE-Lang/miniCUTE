@@ -203,6 +203,8 @@ interpretUnwind = do
         <> " case is not allowed"
       )
   where
+    -- Please check the direction of addrs.
+    -- __WARNING: the direction actually affects correctness.__
     rearrangeStack n = do
       addrs <- snoc <$> popAddrsFromAddrStack n <*> peekAddrOnAddrStack
       applyeeAddrs <- forM addrs $ \addr -> do
@@ -221,6 +223,8 @@ interpretEval = do
   pushAddrToAddrStack addr
   putInstruction IUnwind
 
+-- Please check the direction of addrs.
+-- __WARNING: the direction actually affects correctness.__
 interpretReturn :: InterpreterStepMonad ()
 interpretReturn = do
   assertLastCode
