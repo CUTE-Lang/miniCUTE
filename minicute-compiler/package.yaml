@@ -46,7 +46,7 @@ executables:
 
     ### Common fields ###
     source-dirs:
-      - app
+      - minicute
     ghc-options:
       - -threaded
       - -rtsopts

@@ -72,7 +72,7 @@ executables:
 
     ### Common fields ###
     source-dirs:
-      - app
+      - minicute-g
     ghc-options:
       - -threaded
       - -rtsopts

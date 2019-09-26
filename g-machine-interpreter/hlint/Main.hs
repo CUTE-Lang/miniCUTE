@@ -12,7 +12,7 @@ main =
     putStrLn ""
     let
       hlintArgs =
-        [ "app"
+        [ "minicute-g"
         , "lib"
         , "test"
         , "--hint=../hlint.yaml"
