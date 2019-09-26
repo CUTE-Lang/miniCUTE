@@ -157,8 +157,6 @@ formFVsEMC _a (ELambda args expr) = do
 
 -- |
 -- __TODO: move this definition into a separate utility module.__
---
--- __TODO: add an hlint rule from 'Set.fromList $ a ^.. b' to 'a ^. setFrom b'__
 setFrom :: Getting (Set.Set a) s a -> Getter s (Set.Set a)
 setFrom = to . Set.setOf
 {-# INLINABLE setFrom #-}

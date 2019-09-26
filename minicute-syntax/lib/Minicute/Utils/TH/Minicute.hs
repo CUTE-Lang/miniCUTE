@@ -7,10 +7,6 @@ module Minicute.Utils.TH.Minicute
   , qqRawCode
   ) where
 
-import Data.Char
-import Data.List
-import Data.List.Extra
-import Data.String.Minicute
 import Language.Haskell.TH
 import Language.Haskell.TH.Quote
 import Language.Haskell.TH.Syntax
