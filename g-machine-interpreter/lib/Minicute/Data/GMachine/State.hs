@@ -7,31 +7,31 @@
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TypeFamilies #-}
-module Minicute.Interpreter.GMachine.State
-  ( InterpreterState( .. )
+module Minicute.Data.GMachine.State
+  ( GMachineState( .. )
   , _stateCode
   , _stateStack
   , _stateHeap
   , _stateGlobal
   , getNextInstruction
 
-  , InterpreterCode
+  , GMachineCode
   , initialCode
   , popInstructionFromCode
 
-  , InterpreterStack
+  , GMachineStack
   , emptyStack
 
-  , InterpreterHeap
+  , GMachineHeap
   , emptyHeap
   , allocNode
 
-  , InterpreterGlobal
+  , GMachineGlobal
   , emptyGlobal
   , addSupercombinatorToGlobal
   , updateNodeInGlobal
 
-  , InterpreterNode( .. )
+  , GMachineNode( .. )
   ) where
 
 import Prelude hiding ( fail )
@@ -47,18 +47,19 @@ import Data.List
 import GHC.Generics
 import Language.Haskell.TH.Syntax
 import Minicute.Data.Common
+import Minicute.Data.GMachine.Address
 import Minicute.Data.GMachine.Instruction
-import Minicute.Interpreter.GMachine.Common
+import Minicute.Data.GMachine.Node
 
 import qualified Data.Map as Map
 import qualified Minicute.Transpilers.GMachine as GMachine ( initialCode )
 
-data InterpreterState
-  = InterpreterState
-    { stateCode :: InterpreterCode
-    , stateStack :: InterpreterStack
-    , stateHeap :: InterpreterHeap
-    , stateGlobal ::InterpreterGlobal
+data GMachineState
+  = GMachineState
+    { stateCode :: GMachineCode
+    , stateStack :: GMachineStack
+    , stateHeap :: GMachineHeap
+    , stateGlobal ::GMachineGlobal
     }
   deriving ( Generic
            , Typeable
@@ -68,8 +69,8 @@ data InterpreterState
            , Ord
            )
 
-newtype InterpreterCode
-  = InterpreterCode [Instruction]
+newtype GMachineCode
+  = GMachineCode [Instruction]
   deriving ( Generic
            , Typeable
            , Data
@@ -78,8 +79,8 @@ newtype InterpreterCode
            , Ord
            )
 
-newtype InterpreterStack
-  = InterpreterStack [InterpreterAddress]
+newtype GMachineStack
+  = GMachineStack [GMachineAddress]
   deriving ( Generic
            , Typeable
            , Data
@@ -88,8 +89,8 @@ newtype InterpreterStack
            , Ord
            )
 
-newtype InterpreterHeap
-  = InterpreterHeap [InterpreterNode]
+newtype GMachineHeap
+  = GMachineHeap [GMachineNode]
   deriving ( Generic
            , Typeable
            , Data
@@ -98,8 +99,8 @@ newtype InterpreterHeap
            , Ord
            )
 
-newtype InterpreterGlobal
-  = InterpreterGlobal (Map.Map Identifier InterpreterNode)
+newtype GMachineGlobal
+  = GMachineGlobal (Map.Map Identifier GMachineNode)
   deriving ( Generic
            , Typeable
            , Data
@@ -113,12 +114,12 @@ instance (Lift a, Lift b) => Lift (Map.Map a b) where
     where
       m' = Map.toList m
 
-makeWrapped ''InterpreterCode
+makeWrapped ''GMachineCode
 
-initialCode :: InterpreterCode
-initialCode = InterpreterCode GMachine.initialCode
+initialCode :: GMachineCode
+initialCode = GMachineCode GMachine.initialCode
 
-popInstructionFromCode :: (MonadState s m, s ~ InterpreterCode, MonadFail m) => m Instruction
+popInstructionFromCode :: (MonadState s m, s ~ GMachineCode, MonadFail m) => m Instruction
 popInstructionFromCode = do
   code <- use _Wrapped
   case uncons code of
@@ -128,29 +129,29 @@ popInstructionFromCode = do
     Nothing ->
       fail "no more instruction"
 
-makeWrapped ''InterpreterStack
+makeWrapped ''GMachineStack
 
-emptyStack :: InterpreterStack
-emptyStack = InterpreterStack []
+emptyStack :: GMachineStack
+emptyStack = GMachineStack []
 
-makeWrapped ''InterpreterHeap
+makeWrapped ''GMachineHeap
 
-emptyHeap :: InterpreterHeap
-emptyHeap = InterpreterHeap []
+emptyHeap :: GMachineHeap
+emptyHeap = GMachineHeap []
 
-allocNode :: (MonadState s m, s ~ InterpreterHeap) => InterpreterNode -> m InterpreterAddress
+allocNode :: (MonadState s m, s ~ GMachineHeap) => GMachineNode -> m GMachineAddress
 allocNode = undefined
 
-makeWrapped ''InterpreterGlobal
+makeWrapped ''GMachineGlobal
 
-emptyGlobal :: InterpreterGlobal
-emptyGlobal = InterpreterGlobal Map.empty
+emptyGlobal :: GMachineGlobal
+emptyGlobal = GMachineGlobal Map.empty
 
-addSupercombinatorToGlobal :: (MonadState s m, s ~ InterpreterGlobal, MonadFail m) => GMachineSupercombinator -> m ()
+addSupercombinatorToGlobal :: (MonadState s m, s ~ GMachineGlobal, MonadFail m) => GMachineSupercombinator -> m ()
 addSupercombinatorToGlobal (ident, arity, code)
   = _Wrapped %= Map.insert ident (NGlobal (toInteger arity) code)
 
-updateNodeInGlobal :: Identifier -> InterpreterNode -> InterpreterGlobal -> InterpreterGlobal
+updateNodeInGlobal :: Identifier -> GMachineNode -> GMachineGlobal -> GMachineGlobal
 updateNodeInGlobal ident node = _Wrapped %~ Map.insert ident node
 
 makeLensesFor
@@ -159,9 +160,9 @@ makeLensesFor
   , ("stateHeap", "_stateHeap")
   , ("stateGlobal", "_stateGlobal")
   ]
-  ''InterpreterState
+  ''GMachineState
 
-getNextInstruction :: (MonadState s m, s ~ InterpreterState, MonadFail m) => m Instruction
+getNextInstruction :: (MonadState s m, s ~ GMachineState, MonadFail m) => m Instruction
 getNextInstruction = do
   code <- use _stateCode
   (instr, code') <- runStateT popInstructionFromCode code
