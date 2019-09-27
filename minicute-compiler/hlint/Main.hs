@@ -12,7 +12,7 @@ main =
     putStrLn ""
     let
       hlintArgs =
-        [ "app"
+        [ "minicute"
         , "--hint=../hlint.yaml"
         ]
     hints <- hlint hlintArgs

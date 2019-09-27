@@ -1,6 +1,6 @@
 #### Top-level fields ####
 spec-version:                       0.31.0
-name:                               minicute-executables
+name:                               minicute-g-machine-interpreter
 version:                            0.1.0.0
 synopsis:                           Experimental package for a language implemented by Haskell
 description: >
@@ -25,7 +25,7 @@ license-file:                       LICENSE
 extra-doc-files:                    README.md
 # data-files:
 # data-dir:
-github:                             CUTE-Lang/miniCUTE/executables
+github:                             CUTE-Lang/miniCUTE/g-machine-interpreter
 ## Following is ignored when "github" field exists
 # git:
 # custom-setup:
@@ -33,12 +33,38 @@ github:                             CUTE-Lang/miniCUTE/executables
 #### Sections ####
 # flags:
 
-# library:
+library:
+  ### Library fields ###
+  # exposed:
+  # exposed-modules:
+  # generated-exposed-modules:
+  # other-modules:
+  # generated-other-modules:
+  # reexported-modules:
+  # signatures:
+
+  ### Common fields ###
+  source-dirs:
+    - lib
+  ghc-options:
+    - -Wall
+    - -Wstar-is-type
+  dependencies:
+    - containers >= 0.6 && < 0.7
+    - extra >= 1.6 && < 2
+    - lens >= 4.17 && < 5
+    - mtl >= 2.2 && < 3
+    - template-haskell >= 2.14 && < 3
+
+    - minicute-common-syntax == 0.1.0.0
+    - minicute-extensions == 0.1.0.0
+    - minicute-g-machine-syntax == 0.1.0.0
+    - minicute-g-machinizer == 0.1.0.0
 
 # internal-libraries:
 
 executables:
-  minicute:
+  minicute-g:
     ### Executable fields ###
     main:                           Main.hs
     # other-modules:
@@ -46,7 +72,7 @@ executables:
 
     ### Common fields ###
     source-dirs:
-      - app
+      - minicute-g
     ghc-options:
       - -threaded
       - -rtsopts
@@ -55,15 +81,30 @@ executables:
       ## Remove following dependence if possible
       - megaparsec >= 7.0 && < 8
 
-      - minicute-extensions == 0.1.0.0
-      - minicute-g-machinizer == 0.1.0.0
-      - minicute-llvm-generator == 0.1.0.0
-      - minicute-minicute-optimizer == 0.1.0.0
-      - minicute-minicute-syntax == 0.1.0.0
+      - minicute-g-machine-interpreter == 0.1.0.0
 
 # executable:
 
 tests:
+  test:
+    ### Test fields ###
+    main:                           Spec.hs
+    # other-modules:
+    # generated-other-modules:
+
+    ### Common fields ###
+    source-dirs:
+      - test
+    ghc-options:
+      - -threaded
+      - -rtsopts
+      - -with-rtsopts=-N
+    dependencies:
+      - hspec
+
+      - minicute-common-syntax
+      - minicute-g-machine-interpreter
+
   hlint:
     ### Test fields ###
     main:                           Main.hs
@@ -80,7 +121,22 @@ tests:
     dependencies:
       - hlint
 
-# benchmarks:
+benchmarks:
+  bench:
+    ### Benchmark fields ###
+    main:                           Bench.hs
+    # other-modules:
+    # generated-other-modules:
+
+    ### Common fields ###
+    source-dirs:
+      - bench
+    ghc-options:
+      - -threaded
+      - -rtsopts
+      - -with-rtsopts=-N
+    dependencies:
+      - minicute-g-machine-interpreter
 
 # defaults:
   # github:

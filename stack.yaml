@@ -34,11 +34,12 @@ resolver: lts-13.27
 #  - wai
 packages:
 - ./common-syntax
-- ./executables
 - ./extensions
+- ./g-machine-interpreter
 - ./g-machine-syntax
 - ./g-machinizer
 - ./llvm-generator
+- ./minicute-compiler
 - ./minicute-optimizer
 - ./minicute-syntax
 
