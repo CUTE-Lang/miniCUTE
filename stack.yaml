@@ -33,15 +33,16 @@ resolver: lts-13.27
 #  - auto-update
 #  - wai
 packages:
-- ./common-syntax
 - ./extensions
-- ./g-machine-interpreter
-- ./g-machine-syntax
-- ./g-machinizer
-- ./llvm-generator
-- ./minicute-compiler
-- ./minicute-optimizer
-- ./minicute-syntax
+
+- ./main-packages/common-syntax
+- ./main-packages/g-machine-interpreter
+- ./main-packages/g-machine-syntax
+- ./main-packages/g-machinizer
+- ./main-packages/llvm-generator
+- ./main-packages/minicute-compiler
+- ./main-packages/minicute-optimizer
+- ./main-packages/minicute-syntax
 
 # Dependency packages to be pulled from upstream that are not in the resolver
 # using the same syntax as the packages field.
