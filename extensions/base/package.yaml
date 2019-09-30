@@ -73,7 +73,7 @@ tests:
       - -rtsopts
       - -with-rtsopts=-N
     dependencies:
-      - hlint
+      - hlint-minicute-utilities
 
 # benchmarks:
 

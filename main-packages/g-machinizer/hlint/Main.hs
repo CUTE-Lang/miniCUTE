@@ -2,7 +2,7 @@ module Main
   ( main
   ) where
 
-import Language.Haskell.HLint3 ( hlint )
+import Language.Haskell.HLint.Minicute ( hlint )
 import System.Exit ( exitFailure, exitSuccess )
 
 main :: IO ()
@@ -10,13 +10,7 @@ main =
   do
     -- This 'putStrLn' is to format stack test output
     putStrLn ""
-    let
-      hlintArgs =
-        [ "lib"
-        , "test"
-        , "--hint=../../hlint.yaml"
-        ]
-    hints <- hlint hlintArgs
+    hints <- hlint ["lib", "test"]
     if null hints
     then exitSuccess
     else exitFailure
