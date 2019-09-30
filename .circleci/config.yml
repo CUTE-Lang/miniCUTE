@@ -105,9 +105,10 @@ commands:
   stack-build-deps:
     description: "Build only dependencies with haskell tool stack."
     steps:
-      - run: stack build --only-dependencies -j2
-      - run: stack test --only-dependencies -j2
-      - run: stack haddock --only-dependencies -j2
+      # Use `-j1` as a memory-safe way.
+      - run: stack build --only-dependencies -j1
+      - run: stack test --only-dependencies -j1
+      - run: stack haddock --only-dependencies -j1
   stack-test-all:
     description: "Test everything related with the haskell codes in this repo with haskell tool stack."
     steps:
@@ -166,32 +167,29 @@ commands:
       - restore_cache:
           name: Restore Global Data
           keys:
-            - circleci-minicute-haskell-global-v4.0-{{ arch }}-{{ checksum "stack.yaml" }}-{{ checksum "hpack-hash.txt" }}
-            - circleci-minicute-haskell-global-v4.0-{{ arch }}-{{ checksum "stack.yaml" }}
-            - circleci-minicute-haskell-global-v4.0-{{ arch }}
+            - circleci-minicute-haskell-global-v5.0-{{ arch }}-{{ checksum "stack.yaml" }}-{{ checksum "hpack-hash.txt" }}
+            - circleci-minicute-haskell-global-v5.0-{{ arch }}-{{ checksum "stack.yaml" }}
+            - circleci-minicute-haskell-global-v5.0-{{ arch }}
+            - circleci-minicute-haskell-global-v5.0
             - circleci-minicute-haskell-global-v4.0
-            - circleci-minicute-haskell-global-v3.3
-            - circleci-minicute-haskell-global-v3.2
-            - circleci-minicute-haskell-global-v3.1
-            - circleci-minicute-haskell-global-v3
 
       - restore_cache:
           name: Restore Project Local Data
           keys:
-            - circleci-minicute-project-local-v4.0-{{ arch }}-{{ checksum "stack.yaml" }}-{{ checksum "hpack-hash.txt" }}
+            - circleci-minicute-project-local-v5.0-{{ arch }}-{{ checksum "stack.yaml" }}-{{ checksum "hpack-hash.txt" }}
 
   save-all-haskell-caches:
     description: "Save all cachable parts of haskell packages."
     steps:
       - save_cache:
           name: Cache Global Data
-          key: circleci-minicute-haskell-global-v4.0-{{ arch }}-{{ checksum "stack.yaml" }}-{{ checksum "hpack-hash.txt" }}
+          key: circleci-minicute-haskell-global-v5.0-{{ arch }}-{{ checksum "stack.yaml" }}-{{ checksum "hpack-hash.txt" }}
           paths:
             - "~/.stack"
 
       - save_cache:
           name: Cache Project Local Data
-          key: circleci-minicute-project-local-v4.0-{{ arch }}-{{ checksum "stack.yaml" }}-{{ checksum "hpack-hash.txt" }}
+          key: circleci-minicute-project-local-v5.0-{{ arch }}-{{ checksum "stack.yaml" }}-{{ checksum "hpack-hash.txt" }}
           paths:
             - ".stack-work"
 
@@ -201,15 +199,14 @@ commands:
       - restore_cache:
           name: Restore Global Data
           keys:
+            - circleci-minicute-node-global-v5.0
             - circleci-minicute-node-global-v4.0
-            - circleci-minicute-node-global-v4.0
-            - circleci-minicute-node-global-v3
 
   save-all-node-caches:
     description: "Save all cachable parts of node packages."
     steps:
       - save_cache:
           name: Cache Global Data
-          key: circleci-minicute-node-global-v4.0
+          key: circleci-minicute-node-global-v5.0
           paths:
             - "~/.npm"
