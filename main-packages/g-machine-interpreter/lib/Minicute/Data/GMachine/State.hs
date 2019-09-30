@@ -9,10 +9,10 @@
 {-# LANGUAGE TypeFamilies #-}
 module Minicute.Data.GMachine.State
   ( GMachineState( .. )
-  , _stateCode
-  , _stateStack
-  , _stateHeap
-  , _stateGlobal
+  , _code
+  , _stack
+  , _heap
+  , _global
   , getNextInstruction
 
   , GMachineCode
@@ -56,10 +56,10 @@ import qualified Minicute.Transpilers.GMachine as GMachine ( initialCode )
 
 data GMachineState
   = GMachineState
-    { stateCode :: GMachineCode
-    , stateStack :: GMachineStack
-    , stateHeap :: GMachineHeap
-    , stateGlobal ::GMachineGlobal
+    { code :: GMachineCode
+    , stack :: GMachineStack
+    , heap :: GMachineHeap
+    , global ::GMachineGlobal
     }
   deriving ( Generic
            , Typeable
@@ -121,10 +121,10 @@ initialCode = GMachineCode GMachine.initialCode
 
 popInstructionFromCode :: (MonadState s m, s ~ GMachineCode, MonadFail m) => m Instruction
 popInstructionFromCode = do
-  code <- use _Wrapped
-  case uncons code of
-    Just (instr, code') -> do
-      _Wrapped .= code'
+  instrs <- use _Wrapped
+  case uncons instrs of
+    Just (instr, instrs') -> do
+      _Wrapped .= instrs'
       return instr
     Nothing ->
       fail "no more instruction"
@@ -148,23 +148,23 @@ emptyGlobal :: GMachineGlobal
 emptyGlobal = GMachineGlobal Map.empty
 
 addSupercombinatorToGlobal :: (MonadState s m, s ~ GMachineGlobal, MonadFail m) => GMachineSupercombinator -> m ()
-addSupercombinatorToGlobal (ident, arity, code)
-  = _Wrapped %= Map.insert ident (NGlobal (toInteger arity) code)
+addSupercombinatorToGlobal (ident, arity, c)
+  = _Wrapped %= Map.insert ident (NGlobal (toInteger arity) c)
 
 updateNodeInGlobal :: Identifier -> GMachineNode -> GMachineGlobal -> GMachineGlobal
 updateNodeInGlobal ident node = _Wrapped %~ Map.insert ident node
 
 makeLensesFor
-  [ ("stateCode", "_stateCode")
-  , ("stateStack", "_stateStack")
-  , ("stateHeap", "_stateHeap")
-  , ("stateGlobal", "_stateGlobal")
+  [ ("code", "_code")
+  , ("stack", "_stack")
+  , ("heap", "_heap")
+  , ("global", "_global")
   ]
   ''GMachineState
 
 getNextInstruction :: (MonadState s m, s ~ GMachineState, MonadFail m) => m Instruction
 getNextInstruction = do
-  code <- use _stateCode
-  (instr, code') <- runStateT popInstructionFromCode code
-  _stateCode .= code'
+  c <- use _code
+  (instr, c') <- runStateT popInstructionFromCode c
+  _code .= c'
   return instr

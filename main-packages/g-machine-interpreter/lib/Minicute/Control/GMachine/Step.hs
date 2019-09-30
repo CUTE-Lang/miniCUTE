@@ -43,7 +43,7 @@ import Minicute.Data.Common
 import Minicute.Data.GMachine.Address
 import Minicute.Data.GMachine.Instruction
 import Minicute.Data.GMachine.Node
-import Minicute.Data.GMachine.State
+import Minicute.Data.GMachine.State ( GMachineState )
 
 type GMachineStepMonad = GMachineStepMonadT Maybe
 
