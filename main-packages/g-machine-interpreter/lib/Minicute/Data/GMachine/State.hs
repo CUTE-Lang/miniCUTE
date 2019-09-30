@@ -8,7 +8,9 @@
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TypeFamilies #-}
 module Minicute.Data.GMachine.State
-  ( GMachineState( .. )
+  ( module Minicute.Data.GMachine.Node
+
+  , GMachineState( .. )
   , _code
   , _stack
   , _heap
@@ -30,8 +32,6 @@ module Minicute.Data.GMachine.State
   , emptyGlobal
   , addSupercombinatorToGlobal
   , updateNodeInGlobal
-
-  , GMachineNode( .. )
   ) where
 
 import Prelude hiding ( fail )
