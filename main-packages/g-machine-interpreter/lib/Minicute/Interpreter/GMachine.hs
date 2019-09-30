@@ -1,4 +1,3 @@
-{-# LANGUAGE NamedFieldPuns #-}
 module Minicute.Interpreter.GMachine
   ( module Minicute.Control.GMachine
 
