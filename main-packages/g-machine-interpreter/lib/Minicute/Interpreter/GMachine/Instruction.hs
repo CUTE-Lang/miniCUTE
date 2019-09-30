@@ -7,10 +7,10 @@ module Minicute.Interpreter.GMachine.Instruction
 
 import Control.Monad.Extra
 import Data.List.Extra
+import Minicute.Control.GMachine.Step
 import Minicute.Data.Common
 import Minicute.Data.GMachine.Instruction
 import Minicute.Data.GMachine.Node
-import Minicute.Control.GMachine.Step
 
 interpretInstruction :: Instruction -> GMachineStepMonad ()
 

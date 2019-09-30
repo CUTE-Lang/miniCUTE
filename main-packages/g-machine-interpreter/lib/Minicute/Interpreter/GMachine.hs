@@ -6,9 +6,9 @@ module Minicute.Interpreter.GMachine
   ) where
 
 import Control.Monad.Extra
+import Minicute.Control.GMachine
 import Minicute.Data.GMachine.Instruction
 import Minicute.Interpreter.GMachine.Instruction
-import Minicute.Control.GMachine
 
 interpretProgram :: GMachineProgram -> GMachineMonad ()
 interpretProgram program

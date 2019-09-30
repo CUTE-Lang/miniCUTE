@@ -40,8 +40,8 @@ import Control.Monad.State
 import Data.Data
 import GHC.Generics
 import Minicute.Data.Common
-import Minicute.Data.GMachine.Instruction
 import Minicute.Data.GMachine.Address
+import Minicute.Data.GMachine.Instruction
 import Minicute.Data.GMachine.Node
 import Minicute.Data.GMachine.State
 

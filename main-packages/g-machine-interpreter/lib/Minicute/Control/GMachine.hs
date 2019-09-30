@@ -19,8 +19,8 @@ import Control.Monad.Fail
 import Control.Monad.Writer
 import Data.Data
 import GHC.Generics
-import Minicute.Data.GMachine.Instruction
 import Minicute.Control.GMachine.Step
+import Minicute.Data.GMachine.Instruction
 
 type GMachineMonad = GMachineMonadT Maybe Maybe
 

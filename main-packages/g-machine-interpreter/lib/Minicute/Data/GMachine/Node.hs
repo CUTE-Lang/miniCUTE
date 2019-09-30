@@ -9,8 +9,8 @@ module Minicute.Data.GMachine.Node
 import Data.Data
 import GHC.Generics
 import Language.Haskell.TH.Syntax
-import Minicute.Data.GMachine.Instruction
 import Minicute.Data.GMachine.Address
+import Minicute.Data.GMachine.Instruction
 
 data GMachineNode
   = NEmpty
