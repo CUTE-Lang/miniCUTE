@@ -103,22 +103,7 @@ tests:
     dependencies:
       - hlint
 
-benchmarks:
-  bench:
-    ### Benchmark fields ###
-    main:                           Bench.hs
-    # other-modules:
-    # generated-other-modules:
-
-    ### Common fields ###
-    source-dirs:
-      - bench
-    ghc-options:
-      - -threaded
-      - -rtsopts
-      - -with-rtsopts=-N
-    dependencies:
-      - minicute-common-syntax
+# benchmarks:
 
 # defaults:
   # github:
