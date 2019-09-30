@@ -105,9 +105,10 @@ commands:
   stack-build-deps:
     description: "Build only dependencies with haskell tool stack."
     steps:
-      - run: stack build --only-dependencies -j2
-      - run: stack test --only-dependencies -j2
-      - run: stack haddock --only-dependencies -j2
+      # Use `-j1` as a memory-safe way.
+      - run: stack build --only-dependencies -j1
+      - run: stack test --only-dependencies -j1
+      - run: stack haddock --only-dependencies -j1
   stack-test-all:
     description: "Test everything related with the haskell codes in this repo with haskell tool stack."
     steps:
