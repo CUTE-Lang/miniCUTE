@@ -50,14 +50,13 @@ library:
     - -Wall
     - -Wstar-is-type
   dependencies:
+    - base-minicute == 0.1.0.0
     - extra >= 1.6 && < 2
     - lens >= 4.17 && < 5
     - megaparsec >= 7.0 && < 8
     - parser-combinators
     - prettyprinter >= 1.2 && < 2
     - template-haskell >= 2.14 && < 3
-
-    - minicute-extensions == 0.1.0.0
 
 # internal-libraries:
 
@@ -80,12 +79,12 @@ tests:
       - -rtsopts
       - -with-rtsopts=-N
     dependencies:
+      - base-minicute
       - megaparsec
 
       - hspec
       - hspec-megaparsec
 
-      - minicute-extensions
       - minicute-common-syntax
 
   hlint:

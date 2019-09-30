@@ -1,6 +1,6 @@
 #### Top-level fields ####
 spec-version:                       0.31.0
-name:                               minicute-extensions
+name:                               prettyprinter-minicute
 version:                            0.1.0.0
 synopsis:                           Experimental package for a language implemented by Haskell
 description: >
@@ -25,7 +25,7 @@ license-file:                       LICENSE
 extra-doc-files:                    README.md
 # data-files:
 # data-dir:
-github:                             CUTE-Lang/miniCUTE/extensions
+github:                             CUTE-Lang/miniCUTE/extensions/prettyprinter
 ## Following is ignored when "github" field exists
 # git:
 # custom-setup:
@@ -76,22 +76,7 @@ tests:
     dependencies:
       - hlint
 
-benchmarks:
-  bench:
-    ### Benchmark fields ###
-    main:                           Bench.hs
-    # other-modules:
-    # generated-other-modules:
-
-    ### Common fields ###
-    source-dirs:
-      - bench
-    ghc-options:
-      - -threaded
-      - -rtsopts
-      - -with-rtsopts=-N
-    dependencies:
-      - minicute-extensions
+# benchmarks:
 
 # defaults:
   # github:
@@ -121,7 +106,7 @@ benchmarks:
 # extra-frameworks-dirs:
 # ld-options:
 dependencies:
-  - base >= 4.12 && < 5  
+  - base >= 4.12 && < 5
 # pkg-config-dependencies:
 # build-tools:
 # system-build-tools:

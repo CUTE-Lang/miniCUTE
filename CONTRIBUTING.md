@@ -14,7 +14,7 @@ To download and build the haskell codes in this project completely, you need the
 
 However, if you want to change only a part of this project, you may not need all of these. For more detail,
 
-- `minicute-common-syntax`, `minicute-extensions`, `minicute-g-machine-interpreter`, `minicute-g-machine-syntax`, `minicute-g-machinizer`, `minicute-minicute-optimizer`, and `minicute-minicute-syntax`
+- `base-minicute`, `prettyprinter-minicute`, `minicute-common-syntax`, `minicute-g-machine-interpreter`, `minicute-g-machine-syntax`, `minicute-g-machinizer`, `minicute-minicute-optimizer`, and `minicute-minicute-syntax`
   You don't need `llvm`.
 - `minicute-llvm-generator` and `minicute-minicute-compiler`
   You need all of those tools.

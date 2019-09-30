@@ -33,7 +33,8 @@ resolver: lts-13.27
 #  - auto-update
 #  - wai
 packages:
-- ./extensions
+- ./extensions/base
+- ./extensions/prettyprinter
 
 - ./main-packages/common-syntax
 - ./main-packages/g-machine-interpreter

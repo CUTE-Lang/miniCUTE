@@ -57,7 +57,6 @@ library:
     - template-haskell >= 2.14 && < 3
 
     - minicute-common-syntax == 0.1.0.0
-    - minicute-extensions == 0.1.0.0
     - minicute-g-machine-syntax == 0.1.0.0
     - minicute-g-machinizer == 0.1.0.0
 

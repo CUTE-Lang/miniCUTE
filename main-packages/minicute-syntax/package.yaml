@@ -57,10 +57,10 @@ library:
     - mtl >= 2.2 && < 3
     - parser-combinators
     - prettyprinter >= 1.2 && < 2
+    - prettyprinter-minicute == 0.1.0.0
     - template-haskell >= 2.14 && < 3
 
     - minicute-common-syntax == 0.1.0.0
-    - minicute-extensions == 0.1.0.0
 
 # internal-libraries:
 
@@ -83,13 +83,14 @@ tests:
       - -rtsopts
       - -with-rtsopts=-N
     dependencies:
+      - base-minicute
       - megaparsec
+      - prettyprinter-minicute
 
       - hspec
       - hspec-megaparsec
 
       - minicute-common-syntax
-      - minicute-extensions
       - minicute-minicute-syntax
 
   hlint:

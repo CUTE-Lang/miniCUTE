@@ -13,7 +13,7 @@ main =
     let
       hlintArgs =
         [ "lib"
-        , "--hint=../hlint.yaml"
+        , "--hint=../../hlint.yaml"
         ]
     hints <- hlint hlintArgs
     if null hints
