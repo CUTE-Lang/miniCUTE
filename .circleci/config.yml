@@ -55,7 +55,10 @@ jobs:
       - restore-all-haskell-caches
 
       - stack-haddock
-      - run: "mv $(stack path --local-doc-root) /tmp/haddock"
+      - run:
+          name: Move haddock documents into a temporary directory
+          command: |
+            mv $(stack path --local-doc-root) /tmp/haddock
       - persist_to_workspace:
           root: "/tmp"
           paths:
@@ -67,7 +70,10 @@ jobs:
       - checkout
 
       - doxygen
-      - run: "mv runtime/doc/html /tmp/doxygen"
+      - run:
+          name: Move doxygen documents into a temporary directory
+          command: |
+            mv runtime/doc/html /tmp/doxygen
       - persist_to_workspace:
           root: "/tmp"
           paths:
@@ -99,51 +105,77 @@ executors:
 
 commands:
   stack-setup:
-    description: "Setup haskell tool stack."
+    description: Setup haskell tool stack.
     steps:
-      - run: stack setup -j2
+      - run:
+          name: Get appropriate GHC for this project
+          command: |
+            stack setup -j2
   stack-build-deps:
-    description: "Build only dependencies with haskell tool stack."
+    description: Build only dependencies with haskell tool stack.
     steps:
       # Use `-j1` as a memory-safe way.
-      - run: stack build --only-dependencies -j1
-      - run: stack test --only-dependencies -j1
-      - run: stack haddock --only-dependencies -j1
+      - run:
+          name: Build dependencies
+          command: |
+            stack build --only-dependencies -j1
+      - run:
+          name: Build test dependencies
+          command: |
+            stack test --only-dependencies -j1
+      - run:
+          name: Build haddock dependencies
+          command: |
+            stack haddock --only-dependencies -j1
   stack-test-all:
-    description: "Test everything related with the haskell codes in this repo with haskell tool stack."
+    description: Test everything related with the haskell codes in this repo with haskell tool stack.
     steps:
-      - run: stack test -j2
+      - run:
+          name: Execute tests
+          command: |
+            stack test -j2
   stack-build-all:
-    description: "Build everything related with the haskell codes in this repo with haskell tool stack."
+    description: Build everything related with the haskell codes in this repo with haskell tool stack.
     steps:
-      - run: stack build -j2
+      - run:
+          name: Build executables
+          command: |
+            stack build -j2
   stack-verify-all:
-    description: "Verify everything related with the haskell codes in this repo with haskell tool stack."
+    description: Verify everything related with the haskell codes in this repo with haskell tool stack.
     steps:
       - stack-test-all
       - stack-build-all
 
   stack-haddock:
-    description: "Build haddock documents for the haskell codes in this repo."
+    description: Build haddock documents for the haskell codes in this repo.
     steps:
-      - run: stack haddock -j2
+      - run:
+          name: Build haddock documents
+          command: |
+            stack haddock -j2
 
   doxygen:
-    description: "Build doxygen documents for runtime."
+    description: Build doxygen documents for runtime.
     steps:
-      - run: |
-          cd runtime
-          make html
-          cd ..
+      - run:
+          name: Build doxygen documents
+          command: |
+            cd runtime
+            make html
+            cd ..
 
   copy-templates:
-    description: "Copy template files to the document directory."
+    description: Copy template files to the document directory.
     steps:
       # Use relative path because of gh-pages cli
-      - run: cp -r .gh-page-templates/* .gh-pages/
+      - run:
+          name: Copy the content of .gh-page-templates directory to the document directory
+          command: |
+            cp -r .gh-page-templates/* .gh-pages/
 
   deploy-documents:
-    description: "Deploy documents."
+    description: Deploy documents.
     steps:
       - add_ssh_keys:
           fingerprints:
@@ -151,15 +183,19 @@ commands:
       - deploy:
           # gh-pages cli does not support absolute paths.
           # It recognizes an absolute path as a relative path from the project root.
+          name: Deploy documents to gh-pages branch
           command: |
             git config user.email "miniCUTE-documents@github.com"
             git config user.name "miniCUTE-documents"
             npx gh-pages --dotfiles --message "Update to sync with ${CIRCLE_SHA1} [skip ci]" -d .gh-pages/
 
   make-hpack-hash-target-file:
-    description: "Create a file to calculate hpack hashes for caching."
+    description: Compose a file to calculate hpack hashes for caching.
     steps:
-      - run: find . -name "package.yaml" -print0 | sort -z -n | xargs -0 cat > hpack-hash.txt
+      - run:
+          name: Compose a file to calculate hpack hashes for caching
+          command: |
+            find . -name \"package.yaml\" -print0 | sort -z -n | xargs -0 cat > hpack-hash.txt
 
   restore-all-haskell-caches:
     description: "Restore all cached parts of haskell packages."
