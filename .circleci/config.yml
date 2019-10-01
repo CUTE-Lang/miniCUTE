@@ -159,7 +159,7 @@ commands:
   make-hpack-hash-target-file:
     description: "Create a file to calculate hpack hashes for caching."
     steps:
-      - run: find . -name "package.yaml" -exec cat {} + > hpack-hash.txt
+      - run: find . -name "package.yaml" -print0 | sort -z -n | xargs -0 cat > hpack-hash.txt
 
   restore-all-haskell-caches:
     description: "Restore all cached parts of haskell packages."
@@ -171,12 +171,14 @@ commands:
             - circleci-minicute-haskell-global-v5.0-{{ arch }}-{{ checksum "stack.yaml" }}
             - circleci-minicute-haskell-global-v5.0-{{ arch }}
             - circleci-minicute-haskell-global-v5.0
-            - circleci-minicute-haskell-global-v4.0
 
       - restore_cache:
           name: Restore Project Local Data
           keys:
             - circleci-minicute-project-local-v5.0-{{ arch }}-{{ checksum "stack.yaml" }}-{{ checksum "hpack-hash.txt" }}
+            - circleci-minicute-project-local-v5.0-{{ arch }}-{{ checksum "stack.yaml" }}
+            - circleci-minicute-project-local-v5.0-{{ arch }}
+            - circleci-minicute-project-local-v5.0
 
   save-all-haskell-caches:
     description: "Save all cachable parts of haskell packages."
@@ -200,7 +202,6 @@ commands:
           name: Restore Global Data
           keys:
             - circleci-minicute-node-global-v5.0
-            - circleci-minicute-node-global-v4.0
 
   save-all-node-caches:
     description: "Save all cachable parts of node packages."
