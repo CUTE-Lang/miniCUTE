@@ -187,6 +187,7 @@ commands:
           command: |
             git config user.email "miniCUTE-documents@github.com"
             git config user.name "miniCUTE-documents"
+            git push :gh-pages
             npx gh-pages --dotfiles --message "Update to sync with ${CIRCLE_SHA1} [skip ci]" -d .gh-pages/
 
   make-hpack-hash-target-file:
