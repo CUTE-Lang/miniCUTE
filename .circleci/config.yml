@@ -116,17 +116,17 @@ commands:
     steps:
       # Use `-j1` as a memory-safe way.
       - run:
-          name: Build dependencies
+          name: Build haddock dependencies
           command: |
-            stack build --only-dependencies -j1
+            stack haddock --only-dependencies -j1
       - run:
           name: Build test dependencies
           command: |
             stack test --only-dependencies -j1
       - run:
-          name: Build haddock dependencies
+          name: Build dependencies
           command: |
-            stack haddock --only-dependencies -j1
+            stack build --only-dependencies -j1
   stack-test-all:
     description: Test everything related with the haskell codes in this repo with haskell tool stack.
     steps:
