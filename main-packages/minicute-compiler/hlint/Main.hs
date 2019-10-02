@@ -1,16 +1,2 @@
-module Main
-  ( main
-  ) where
-
-import Language.Haskell.HLint.Minicute ( hlint )
-import System.Exit ( exitFailure, exitSuccess )
-
-main :: IO ()
-main =
-  do
-    -- This 'putStrLn' is to format stack test output
-    putStrLn ""
-    hints <- hlint ["minicute"]
-    if null hints
-    then exitSuccess
-    else exitFailure
+{-# OPTIONS_GHC -F -pgmF hlint-run #-}
+{-# OPTIONS_GHC -optF minicute #-}

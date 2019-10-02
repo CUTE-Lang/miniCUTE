@@ -2,22 +2,26 @@ module Language.Haskell.HLint.Minicute
   ( hlint
   ) where
 
-import System.Directory
-import System.FilePath
+import System.Directory ( canonicalizePath, getCurrentDirectory, findFile )
+import System.Exit ( exitFailure, exitSuccess )
+import System.FilePath ( isDrive, (</>) )
 
 import qualified Language.Haskell.HLint3 as HLINT
 
--- |
--- __TODO: Autodetect 'dirs'__
-hlint :: [FilePath] -> IO [HLINT.Idea]
+hlint :: [FilePath] -> IO ()
 hlint dirs = do
+  -- This 'putStrLn' is to format stack test output
+  putStrLn ""
   maybeHlintPath <- findHlintPath
   case maybeHlintPath of
     Just hlintPath ->
       let
         hlintArgs = dirs <> ["--hint=" <> hlintPath]
-      in
-        HLINT.hlint hlintArgs
+      in do
+        hints <- HLINT.hlint hlintArgs
+        if null hints
+        then exitSuccess
+        else exitFailure
     Nothing ->
       fail "The setting file hlint.yaml does not exist in any ancestor directories"
 
