@@ -18,7 +18,9 @@ module Minicute.Data.GMachine.State
   , updateNodeOnHeap
   , findNodeOnHeap
 
-  , findGlobalNode
+  , allocAddressOnGlobal
+  , updateAddressOnGlobal
+  , findAddressOnGlobal
 
   , pushAddrToAddrStack
   , pushAddrsToAddrStack
@@ -99,8 +101,14 @@ findNodeOnHeap :: (MonadState s m, s ~ GMachineState, MonadFail m) => Address ->
 findNodeOnHeap = applySubstructuralState _heap . Heap.findNode
 
 
-findGlobalNode :: (MonadState s m, s ~ GMachineState) => Identifier -> m Address
-findGlobalNode = undefined
+allocAddressOnGlobal :: (MonadState s m, s ~ GMachineState) => Identifier -> Address -> m ()
+allocAddressOnGlobal = (applySubstructuralState _global .) . Global.allocAddress
+
+updateAddressOnGlobal :: (MonadState s m, s ~ GMachineState, MonadFail m) => Identifier -> Address -> m ()
+updateAddressOnGlobal = (applySubstructuralState _global .) . Global.updateAddress
+
+findAddressOnGlobal :: (MonadState s m, s ~ GMachineState, MonadFail m) => Identifier -> m Address
+findAddressOnGlobal = applySubstructuralState _global . Global.findAddress
 
 
 pushAddrToAddrStack :: (MonadState s m, s ~ GMachineState) => Address -> m ()

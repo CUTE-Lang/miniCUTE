@@ -1,3 +1,4 @@
+{-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE ViewPatterns #-}
 module Minicute.Interpreter.GMachine.Instruction
   ( module Minicute.Data.Common
@@ -53,7 +54,7 @@ interpretMakeInteger n = do
 
 interpretMakeGlobal :: Identifier -> GMachineStepMonad ()
 interpretMakeGlobal i = do
-  addr <- findGlobalNode i
+  addr <- findAddressOnGlobal i
   pushAddrToAddrStack addr
 
 interpretMakeApplication :: GMachineStepMonad ()
