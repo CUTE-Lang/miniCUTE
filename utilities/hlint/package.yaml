@@ -56,7 +56,22 @@ library:
 
 # internal-libraries:
 
-# executables:
+executables:
+  hlint-run:
+    ### Executable fields ###
+    main:                           Main.hs
+    # other-modules:
+    # generated-other-modules:
+
+    ### Common fields ###
+    source-dirs:
+      - hlint-run
+    ghc-options:
+      - -threaded
+      - -rtsopts
+      - -with-rtsopts=-N
+    dependencies:
+      - hlint-minicute-utilities == 0.1.0.0
 
 # executable:
 
@@ -76,6 +91,8 @@ tests:
       - -with-rtsopts=-N
     dependencies:
       - hlint-minicute-utilities
+    build-tools:
+      - hlint-run
 
 # benchmarks:
 
