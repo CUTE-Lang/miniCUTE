@@ -6,8 +6,7 @@
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TypeFamilies #-}
 module Minicute.Data.GMachine.Code
-  ( module Minicute.Data.Common
-  , module Minicute.Data.GMachine.Instruction
+  ( module Minicute.Data.GMachine.Instruction
 
   , Code
   , initialCode
@@ -23,7 +22,6 @@ import Control.Monad.State
 import Data.Data
 import Data.List
 import GHC.Generics
-import Minicute.Data.Common
 import Minicute.Data.GMachine.Instruction
 
 import qualified Minicute.Transpilers.GMachine as GMachine ( initialCode )

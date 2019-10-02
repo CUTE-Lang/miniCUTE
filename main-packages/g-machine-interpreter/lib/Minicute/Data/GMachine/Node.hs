@@ -1,7 +1,10 @@
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE DeriveGeneric #-}
 module Minicute.Data.GMachine.Node
-  ( Node( .. )
+  ( module Minicute.Data.GMachine.Address
+  , module Minicute.Data.GMachine.Instruction
+
+  , Node( .. )
   , isValueNode
   ) where
 

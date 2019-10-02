@@ -34,7 +34,7 @@ data GMachineState
     { code :: Code.Code
     , stack :: Stack.Stack
     , heap :: Heap.Heap
-    , global ::Global.Global
+    , global :: Global.Global
     }
   deriving ( Generic
            , Typeable

@@ -22,7 +22,7 @@ import Control.Monad.Fail ( MonadFail )
 import Control.Monad.State
 import Data.Data
 import GHC.Generics
-import Minicute.Data.Common
+import Minicute.Data.Common ( Identifier( .. ) )
 import Minicute.Data.GMachine.Address
 
 import qualified Data.Map as Map

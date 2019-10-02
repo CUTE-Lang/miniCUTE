@@ -6,8 +6,7 @@
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TypeFamilies #-}
 module Minicute.Data.GMachine.Heap
-  ( module Minicute.Data.Common
-  , module Minicute.Data.GMachine.Address
+  ( module Minicute.Data.GMachine.Address
 
   , Heap
   , emptyHeap
@@ -18,7 +17,6 @@ import Control.Lens.TH
 import Control.Monad.State
 import Data.Data
 import GHC.Generics
-import Minicute.Data.Common
 import Minicute.Data.GMachine.Address
 import Minicute.Data.GMachine.Node
 

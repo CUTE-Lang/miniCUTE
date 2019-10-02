@@ -6,8 +6,7 @@
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TypeFamilies #-}
 module Minicute.Data.GMachine.Stack
-  ( module Minicute.Data.Common
-  , module Minicute.Data.GMachine.Address
+  ( module Minicute.Data.GMachine.Address
 
   , Stack
   , emptyStack
@@ -16,7 +15,6 @@ module Minicute.Data.GMachine.Stack
 import Control.Lens.TH
 import Data.Data
 import GHC.Generics
-import Minicute.Data.Common
 import Minicute.Data.GMachine.Address
 
 newtype Stack
