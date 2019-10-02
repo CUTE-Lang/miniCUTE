@@ -23,6 +23,7 @@ newtype Stack
            , Typeable
            , Data
            , Eq
+           , Ord
            )
 
 makeWrapped ''Stack

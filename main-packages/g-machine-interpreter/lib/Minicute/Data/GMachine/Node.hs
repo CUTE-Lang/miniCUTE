@@ -25,6 +25,7 @@ data Node
            , Typeable
            , Data
            , Eq
+           , Ord
            , Show
            )
 

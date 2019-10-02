@@ -26,6 +26,7 @@ newtype Heap
            , Typeable
            , Data
            , Eq
+           , Ord
            )
 
 makeWrapped ''Heap

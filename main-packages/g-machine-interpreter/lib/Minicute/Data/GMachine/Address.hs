@@ -16,6 +16,7 @@ newtype Address
            , Typeable
            , Data
            , Eq
+           , Ord
            , Show
            )
 

@@ -40,6 +40,7 @@ data GMachineState
            , Typeable
            , Data
            , Eq
+           , Ord
            )
 
 makeLensesFor

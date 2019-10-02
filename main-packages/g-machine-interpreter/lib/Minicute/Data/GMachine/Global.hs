@@ -32,6 +32,7 @@ newtype Global
            , Typeable
            , Data
            , Eq
+           , Ord
            )
 
 makeWrapped ''Global

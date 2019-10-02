@@ -31,6 +31,7 @@ newtype Code
            , Typeable
            , Data
            , Eq
+           , Ord
            )
 
 makeWrapped ''Code
