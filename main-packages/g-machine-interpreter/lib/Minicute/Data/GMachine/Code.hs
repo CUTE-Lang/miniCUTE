@@ -11,6 +11,9 @@ module Minicute.Data.GMachine.Code
   , Code
   , initialCode
   , fetchNextInstruction
+  , putInstruction
+  , putInstructions
+  , assertLastCode
   ) where
 
 import Control.Lens.Getter ( use )
@@ -48,3 +51,16 @@ fetchNextInstruction = do
       return inst
     _ ->
       fail "popInstructionFromCode: No more instructions exist"
+
+putInstruction :: (MonadState s m, s ~ Code) => Instruction -> m ()
+putInstruction inst = _Wrapped %= (inst :)
+
+putInstructions :: (MonadState s m, s ~ Code) => [Instruction] -> m ()
+putInstructions insts = _Wrapped %= (insts <>)
+
+assertLastCode :: (MonadState s m, s ~ Code, MonadFail m) => m ()
+assertLastCode = do
+  insts <- use _Wrapped
+  case insts of
+    [] -> return ()
+    _ -> fail "assertLastCode: Not a last code"

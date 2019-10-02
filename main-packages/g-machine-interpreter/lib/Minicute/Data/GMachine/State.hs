@@ -80,13 +80,13 @@ fetchNextInstruction :: (MonadState s m, s ~ GMachineState, MonadFail m) => m Co
 fetchNextInstruction = applySubstructuralState _code Code.fetchNextInstruction
 
 putInstruction :: (MonadState s m, s ~ GMachineState) => Code.Instruction -> m ()
-putInstruction = undefined
+putInstruction = applySubstructuralState _code . Code.putInstruction
 
 putInstructions :: (MonadState s m, s ~ GMachineState) => [Code.Instruction] -> m ()
-putInstructions = undefined
+putInstructions = applySubstructuralState _code . Code.putInstructions
 
 assertLastCode :: (MonadState s m, s ~ GMachineState, MonadFail m) => m ()
-assertLastCode = undefined
+assertLastCode = applySubstructuralState _code Code.assertLastCode
 
 
 allocNodeOnHeap :: (MonadState s m, s ~ GMachineState, MonadFail m) => Node -> m Address
