@@ -10,7 +10,7 @@ module Minicute.Data.GMachine.Code
 
   , Code
   , initialCode
-  , popInstructionFromCode
+  , fetchNextInstruction
   ) where
 
 import Control.Lens.Getter ( use )
@@ -39,8 +39,8 @@ makeWrapped ''Code
 initialCode :: Code
 initialCode = Code GMachine.initialCode
 
-popInstructionFromCode :: (MonadState s m, s ~ Code, MonadFail m) => m Instruction
-popInstructionFromCode = do
+fetchNextInstruction :: (MonadState s m, s ~ Code, MonadFail m) => m Instruction
+fetchNextInstruction = do
   insts <- use _Wrapped
   case insts of
     inst : insts' -> do
