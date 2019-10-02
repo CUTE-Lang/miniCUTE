@@ -20,7 +20,6 @@ import Control.Lens.Wrapped ( _Wrapped )
 import Control.Monad.Fail ( MonadFail )
 import Control.Monad.State
 import Data.Data
-import Data.List
 import GHC.Generics
 import Minicute.Data.GMachine.Instruction
 
@@ -41,10 +40,10 @@ initialCode = Code GMachine.initialCode
 
 popInstructionFromCode :: (MonadState s m, s ~ Code, MonadFail m) => m Instruction
 popInstructionFromCode = do
-  instrs <- use _Wrapped
-  case uncons instrs of
-    Just (instr, instrs') -> do
-      _Wrapped .= instrs'
-      return instr
-    Nothing ->
-      fail "no more instruction"
+  insts <- use _Wrapped
+  case insts of
+    inst : insts' -> do
+      _Wrapped .= insts'
+      return inst
+    _ ->
+      fail "popInstructionFromCode: No more instructions exist"
