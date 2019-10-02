@@ -2,7 +2,8 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 module Minicute.Data.GMachine.Address
-  ( GMachineAddress( .. )
+  ( GMachineAddress
+  , gMachineAddress
   ) where
 
 import Data.Data
@@ -17,3 +18,8 @@ newtype GMachineAddress
            , Num
            , Show
            )
+
+-- |
+-- Alias of 'fromInteger'
+gMachineAddress :: Integer -> GMachineAddress
+gMachineAddress = fromInteger
