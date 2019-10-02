@@ -14,22 +14,22 @@ module Minicute.Data.GMachine.State
   , putInstructions
   , assertLastCode
 
-  , allocNodeOnHeap
-  , updateNodeOnHeap
-  , findNodeOnHeap
+  , allocNodeOnNodeHeap
+  , updateNodeOnNodeHeap
+  , findNodeOnNodeHeap
 
   , allocAddressOnGlobal
   , updateAddressOnGlobal
   , findAddressOnGlobal
 
-  , pushAddrToAddrStack
-  , pushAddrsToAddrStack
-  , popAddrFromAddrStack
-  , popAddrsFromAddrStack
-  , popAllAddrsFromAddrStack
-  , peekAddrOnAddrStack
-  , peekNthAddrOnAddrStack
-  , checkAddrStackSize
+  , pushAddrToAddressStack
+  , pushAddrsToAddressStack
+  , popAddrFromAddressStack
+  , popAddrsFromAddressStack
+  , popAllAddrsFromAddressStack
+  , peekAddrOnAddressStack
+  , peekNthAddrOnAddressStack
+  , checkAddressStackSize
 
   , pushValueToValueStack
   , popValueFromValueStack
@@ -50,16 +50,16 @@ import Minicute.Data.Common
 import Minicute.Data.GMachine.Address
 import Minicute.Data.GMachine.Node
 
+import qualified Minicute.Data.GMachine.AddressStack as AddressStack
 import qualified Minicute.Data.GMachine.Code as Code
 import qualified Minicute.Data.GMachine.Global as Global
-import qualified Minicute.Data.GMachine.Heap as Heap
-import qualified Minicute.Data.GMachine.Stack as Stack
+import qualified Minicute.Data.GMachine.NodeHeap as NodeHeap
 
 data GMachineState
   = GMachineState
     { code :: Code.Code
-    , stack :: Stack.Stack
-    , heap :: Heap.Heap
+    , addressStack :: AddressStack.AddressStack
+    , nodeHeap :: NodeHeap.NodeHeap
     , global :: Global.Global
     }
   deriving ( Generic
@@ -71,8 +71,8 @@ data GMachineState
 
 makeLensesFor
   [ ("code", "_code")
-  , ("stack", "_stack")
-  , ("heap", "_heap")
+  , ("addressStack", "_addressStack")
+  , ("nodeHeap", "_nodeHeap")
   , ("global", "_global")
   ]
   ''GMachineState
@@ -91,14 +91,14 @@ assertLastCode :: (MonadState s m, s ~ GMachineState, MonadFail m) => m ()
 assertLastCode = applySubstructuralState _code Code.assertLastCode
 
 
-allocNodeOnHeap :: (MonadState s m, s ~ GMachineState) => Node -> m Address
-allocNodeOnHeap = applySubstructuralState _heap . Heap.allocNode
+allocNodeOnNodeHeap :: (MonadState s m, s ~ GMachineState) => Node -> m Address
+allocNodeOnNodeHeap = applySubstructuralState _nodeHeap . NodeHeap.allocNode
 
-updateNodeOnHeap :: (MonadState s m, s ~ GMachineState, MonadFail m) => Address -> Node -> m ()
-updateNodeOnHeap = (applySubstructuralState _heap .) . Heap.updateNode
+updateNodeOnNodeHeap :: (MonadState s m, s ~ GMachineState, MonadFail m) => Address -> Node -> m ()
+updateNodeOnNodeHeap = (applySubstructuralState _nodeHeap .) . NodeHeap.updateNode
 
-findNodeOnHeap :: (MonadState s m, s ~ GMachineState, MonadFail m) => Address -> m Node
-findNodeOnHeap = applySubstructuralState _heap . Heap.findNode
+findNodeOnNodeHeap :: (MonadState s m, s ~ GMachineState, MonadFail m) => Address -> m Node
+findNodeOnNodeHeap = applySubstructuralState _nodeHeap . NodeHeap.findNode
 
 
 allocAddressOnGlobal :: (MonadState s m, s ~ GMachineState) => Identifier -> Address -> m ()
@@ -111,29 +111,29 @@ findAddressOnGlobal :: (MonadState s m, s ~ GMachineState, MonadFail m) => Ident
 findAddressOnGlobal = applySubstructuralState _global . Global.findAddress
 
 
-pushAddrToAddrStack :: (MonadState s m, s ~ GMachineState) => Address -> m ()
-pushAddrToAddrStack = undefined
+pushAddrToAddressStack :: (MonadState s m, s ~ GMachineState) => Address -> m ()
+pushAddrToAddressStack = undefined
 
-pushAddrsToAddrStack :: (MonadState s m, s ~ GMachineState) => [Address] -> m ()
-pushAddrsToAddrStack = undefined
+pushAddrsToAddressStack :: (MonadState s m, s ~ GMachineState) => [Address] -> m ()
+pushAddrsToAddressStack = undefined
 
-popAddrFromAddrStack :: (MonadState s m, s ~ GMachineState) => m Address
-popAddrFromAddrStack = undefined
+popAddrFromAddressStack :: (MonadState s m, s ~ GMachineState) => m Address
+popAddrFromAddressStack = undefined
 
-popAddrsFromAddrStack :: (MonadState s m, s ~ GMachineState) => Int -> m [Address]
-popAddrsFromAddrStack = undefined
+popAddrsFromAddressStack :: (MonadState s m, s ~ GMachineState) => Int -> m [Address]
+popAddrsFromAddressStack = undefined
 
-popAllAddrsFromAddrStack :: (MonadState s m, s ~ GMachineState) => m [Address]
-popAllAddrsFromAddrStack = undefined
+popAllAddrsFromAddressStack :: (MonadState s m, s ~ GMachineState) => m [Address]
+popAllAddrsFromAddressStack = undefined
 
-peekAddrOnAddrStack :: (MonadState s m, s ~ GMachineState) => m Address
-peekAddrOnAddrStack = undefined
+peekAddrOnAddressStack :: (MonadState s m, s ~ GMachineState) => m Address
+peekAddrOnAddressStack = undefined
 
-peekNthAddrOnAddrStack :: (MonadState s m, s ~ GMachineState) => Int -> m Address
-peekNthAddrOnAddrStack = undefined
+peekNthAddrOnAddressStack :: (MonadState s m, s ~ GMachineState) => Int -> m Address
+peekNthAddrOnAddressStack = undefined
 
-checkAddrStackSize :: (MonadState s m, s ~ GMachineState) => Int -> m Bool
-checkAddrStackSize = undefined
+checkAddressStackSize :: (MonadState s m, s ~ GMachineState) => Int -> m Bool
+checkAddressStackSize = undefined
 
 
 pushValueToValueStack :: (MonadState s m, s ~ GMachineState) => Integer -> m ()

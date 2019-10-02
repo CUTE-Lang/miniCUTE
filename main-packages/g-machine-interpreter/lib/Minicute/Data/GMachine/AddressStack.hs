@@ -5,11 +5,11 @@
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TypeFamilies #-}
-module Minicute.Data.GMachine.Stack
+module Minicute.Data.GMachine.AddressStack
   ( module Minicute.Data.GMachine.Address
 
-  , Stack
-  , emptyStack
+  , AddressStack
+  , emptyAddressStack
   ) where
 
 import Control.Lens.TH
@@ -17,8 +17,8 @@ import Data.Data
 import GHC.Generics
 import Minicute.Data.GMachine.Address
 
-newtype Stack
-  = Stack [Address]
+newtype AddressStack
+  = AddressStack [Address]
   deriving ( Generic
            , Typeable
            , Data
@@ -26,7 +26,7 @@ newtype Stack
            , Ord
            )
 
-makeWrapped ''Stack
+makeWrapped ''AddressStack
 
-emptyStack :: Stack
-emptyStack = Stack []
+emptyAddressStack :: AddressStack
+emptyAddressStack = AddressStack []

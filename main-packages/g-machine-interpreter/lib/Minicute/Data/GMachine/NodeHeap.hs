@@ -6,11 +6,11 @@
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TypeFamilies #-}
-module Minicute.Data.GMachine.Heap
+module Minicute.Data.GMachine.NodeHeap
   ( module Minicute.Data.GMachine.Address
 
-  , Heap
-  , emptyHeap
+  , NodeHeap
+  , emptyNodeHeap
   , allocNode
   , updateNode
   , findNode
@@ -31,8 +31,8 @@ import Minicute.Data.GMachine.Node
 
 import qualified Data.Map as Map
 
-newtype Heap
-  = Heap (Address, Map.Map Address Node)
+newtype NodeHeap
+  = NodeHeap (Address, Map.Map Address Node)
   deriving ( Generic
            , Typeable
            , Data
@@ -40,24 +40,24 @@ newtype Heap
            , Ord
            )
 
-makeWrapped ''Heap
+makeWrapped ''NodeHeap
 
-emptyHeap :: Heap
-emptyHeap = Heap (minimumAddress, Map.empty)
+emptyNodeHeap :: NodeHeap
+emptyNodeHeap = NodeHeap (minimumAddress, Map.empty)
 
-allocNode :: (MonadState s m, s ~ Heap) => Node -> m Address
+allocNode :: (MonadState s m, s ~ NodeHeap) => Node -> m Address
 allocNode node = do
   addr <- _Wrapped . _1 <%= increaseAddress
   _Wrapped . _2 %= Map.insert addr node
   return addr
 
-updateNode :: (MonadState s m, s ~ Heap, MonadFail m) => Address -> Node -> m ()
+updateNode :: (MonadState s m, s ~ NodeHeap, MonadFail m) => Address -> Node -> m ()
 updateNode addr node = _Wrapped . _2 %= Map.alter alter addr
   where
     alter (Just _) = Just node
     alter Nothing = fail ("updateNode: there is no node for address " <> show addr)
 
-findNode :: (MonadState s m, s ~ Heap, MonadFail m) => Address -> m Node
+findNode :: (MonadState s m, s ~ NodeHeap, MonadFail m) => Address -> m Node
 findNode addr = do
   mayNode <- use (_Wrapped . _2 . at addr)
   case mayNode of
