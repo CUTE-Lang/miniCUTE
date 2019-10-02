@@ -89,14 +89,14 @@ assertLastCode :: (MonadState s m, s ~ GMachineState, MonadFail m) => m ()
 assertLastCode = applySubstructuralState _code Code.assertLastCode
 
 
-allocNodeOnHeap :: (MonadState s m, s ~ GMachineState, MonadFail m) => Node -> m Address
-allocNodeOnHeap = undefined
+allocNodeOnHeap :: (MonadState s m, s ~ GMachineState) => Node -> m Address
+allocNodeOnHeap = applySubstructuralState _heap . Heap.allocNode
 
-updateNodeOnHeap :: (MonadState s m, s ~ GMachineState) => Address -> Node -> m ()
-updateNodeOnHeap = undefined
+updateNodeOnHeap :: (MonadState s m, s ~ GMachineState, MonadFail m) => Address -> Node -> m ()
+updateNodeOnHeap = (applySubstructuralState _heap .) . Heap.updateNode
 
-findNodeOnHeap :: (MonadState s m, s ~ GMachineState) => Address -> m Node
-findNodeOnHeap = undefined
+findNodeOnHeap :: (MonadState s m, s ~ GMachineState, MonadFail m) => Address -> m Node
+findNodeOnHeap = applySubstructuralState _heap . Heap.findNode
 
 
 findGlobalNode :: (MonadState s m, s ~ GMachineState) => Identifier -> m Address
