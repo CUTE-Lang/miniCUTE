@@ -13,15 +13,20 @@ module Minicute.Data.GMachine.Heap
   , allocNode
   ) where
 
+import Control.Lens.Operators
 import Control.Lens.TH
+import Control.Lens.Tuple
+import Control.Lens.Wrapped ( _Wrapped )
 import Control.Monad.State
 import Data.Data
 import GHC.Generics
 import Minicute.Data.GMachine.Address
 import Minicute.Data.GMachine.Node
 
+import qualified Data.Map as Map
+
 newtype Heap
-  = Heap [Node]
+  = Heap (Address, Map.Map Address Node)
   deriving ( Generic
            , Typeable
            , Data
@@ -32,7 +37,10 @@ newtype Heap
 makeWrapped ''Heap
 
 emptyHeap :: Heap
-emptyHeap = Heap []
+emptyHeap = Heap (minimumAddress, Map.empty)
 
 allocNode :: (MonadState s m, s ~ Heap) => Node -> m Address
-allocNode = undefined
+allocNode node = do
+  addr <- _Wrapped . _1 <%= increaseAddress
+  _Wrapped . _2 %= Map.insert addr node
+  return addr
