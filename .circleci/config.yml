@@ -110,7 +110,7 @@ commands:
       - run:
           name: Get appropriate GHC for this project
           command: |
-            stack setup -j2
+            stack setup --no-terminal -j2
   stack-build-deps:
     description: Build only dependencies with haskell tool stack.
     steps:
@@ -118,29 +118,29 @@ commands:
       - run:
           name: Build haddock dependencies
           command: |
-            stack haddock --only-dependencies -j1
+            stack haddock --only-dependencies --no-terminal -j1
       - run:
           name: Build test dependencies
           command: |
-            stack test --only-dependencies -j1
+            stack test --only-dependencies --no-terminal -j1
       - run:
           name: Build dependencies
           command: |
-            stack build --only-dependencies -j1
+            stack build --only-dependencies --no-terminal -j1
   stack-test-all:
     description: Test everything related with the haskell codes in this repo with haskell tool stack.
     steps:
       - run:
           name: Execute tests
           command: |
-            stack test -j2
+            stack test --no-terminal -j2
   stack-build-all:
     description: Build everything related with the haskell codes in this repo with haskell tool stack.
     steps:
       - run:
           name: Build executables
           command: |
-            stack build -j2
+            stack build --no-terminal -j2
   stack-verify-all:
     description: Verify everything related with the haskell codes in this repo with haskell tool stack.
     steps:
@@ -153,7 +153,7 @@ commands:
       - run:
           name: Build haddock documents
           command: |
-            stack haddock -j2
+            stack haddock --no-terminal -j2
 
   doxygen:
     description: Build doxygen documents for runtime.
