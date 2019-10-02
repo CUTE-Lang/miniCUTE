@@ -2,15 +2,15 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 module Minicute.Data.GMachine.Address
-  ( GMachineAddress
-  , gMachineAddress
+  ( Address
+  , address
   ) where
 
 import Data.Data
 import GHC.Generics
 
-newtype GMachineAddress
-  = GMachineAddress Integer
+newtype Address
+  = Address Integer
   deriving ( Generic
            , Typeable
            , Data
@@ -21,5 +21,5 @@ newtype GMachineAddress
 
 -- |
 -- Alias of 'fromInteger'
-gMachineAddress :: Integer -> GMachineAddress
-gMachineAddress = fromInteger
+address :: Integer -> Address
+address = fromInteger

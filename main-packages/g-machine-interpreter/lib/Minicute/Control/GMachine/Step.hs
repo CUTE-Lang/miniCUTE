@@ -72,39 +72,39 @@ assertLastCode :: (MonadFail m) => GMachineStepMonadT m ()
 assertLastCode = undefined
 
 
-allocNodeOnHeap :: (MonadFail m) => GMachineNode -> GMachineStepMonadT m GMachineAddress
+allocNodeOnHeap :: (MonadFail m) => Node -> GMachineStepMonadT m Address
 allocNodeOnHeap = undefined
 
-updateNodeOnHeap :: GMachineAddress -> GMachineNode -> GMachineStepMonadT m ()
+updateNodeOnHeap :: Address -> Node -> GMachineStepMonadT m ()
 updateNodeOnHeap = undefined
 
-findNodeOnHeap :: GMachineAddress -> GMachineStepMonadT m GMachineNode
+findNodeOnHeap :: Address -> GMachineStepMonadT m Node
 findNodeOnHeap = undefined
 
 
-findGlobalNode :: Identifier -> GMachineStepMonadT m GMachineAddress
+findGlobalNode :: Identifier -> GMachineStepMonadT m Address
 findGlobalNode = undefined
 
 
-pushAddrToAddrStack :: GMachineAddress -> GMachineStepMonadT m ()
+pushAddrToAddrStack :: Address -> GMachineStepMonadT m ()
 pushAddrToAddrStack = undefined
 
-pushAddrsToAddrStack :: [GMachineAddress] -> GMachineStepMonadT m ()
+pushAddrsToAddrStack :: [Address] -> GMachineStepMonadT m ()
 pushAddrsToAddrStack = undefined
 
-popAddrFromAddrStack :: GMachineStepMonadT m GMachineAddress
+popAddrFromAddrStack :: GMachineStepMonadT m Address
 popAddrFromAddrStack = undefined
 
-popAddrsFromAddrStack :: Int -> GMachineStepMonadT m [GMachineAddress]
+popAddrsFromAddrStack :: Int -> GMachineStepMonadT m [Address]
 popAddrsFromAddrStack = undefined
 
-popAllAddrsFromAddrStack :: GMachineStepMonadT m [GMachineAddress]
+popAllAddrsFromAddrStack :: GMachineStepMonadT m [Address]
 popAllAddrsFromAddrStack = undefined
 
-peekAddrOnAddrStack :: GMachineStepMonadT m GMachineAddress
+peekAddrOnAddrStack :: GMachineStepMonadT m Address
 peekAddrOnAddrStack = undefined
 
-peekNthAddrOnAddrStack :: Int -> GMachineStepMonadT m GMachineAddress
+peekNthAddrOnAddrStack :: Int -> GMachineStepMonadT m Address
 peekNthAddrOnAddrStack = undefined
 
 checkAddrStackSize :: Int -> GMachineStepMonadT m Bool

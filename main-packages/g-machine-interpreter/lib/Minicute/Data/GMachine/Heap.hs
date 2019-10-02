@@ -9,7 +9,7 @@ module Minicute.Data.GMachine.Heap
   ( module Minicute.Data.Common
   , module Minicute.Data.GMachine.Address
 
-  , GMachineHeap
+  , Heap
   , emptyHeap
   , allocNode
   ) where
@@ -22,18 +22,18 @@ import Minicute.Data.Common
 import Minicute.Data.GMachine.Address
 import Minicute.Data.GMachine.Node
 
-newtype GMachineHeap
-  = GMachineHeap [GMachineNode]
+newtype Heap
+  = Heap [Node]
   deriving ( Generic
            , Typeable
            , Data
            , Eq
            )
 
-makeWrapped ''GMachineHeap
+makeWrapped ''Heap
 
-emptyHeap :: GMachineHeap
-emptyHeap = GMachineHeap []
+emptyHeap :: Heap
+emptyHeap = Heap []
 
-allocNode :: (MonadState s m, s ~ GMachineHeap) => GMachineNode -> m GMachineAddress
+allocNode :: (MonadState s m, s ~ Heap) => Node -> m Address
 allocNode = undefined

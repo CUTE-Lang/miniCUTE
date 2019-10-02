@@ -9,7 +9,7 @@ module Minicute.Data.GMachine.Code
   ( module Minicute.Data.Common
   , module Minicute.Data.GMachine.Instruction
 
-  , GMachineCode
+  , Code
   , initialCode
   , popInstructionFromCode
   ) where
@@ -28,20 +28,20 @@ import Minicute.Data.GMachine.Instruction
 
 import qualified Minicute.Transpilers.GMachine as GMachine ( initialCode )
 
-newtype GMachineCode
-  = GMachineCode [Instruction]
+newtype Code
+  = Code [Instruction]
   deriving ( Generic
            , Typeable
            , Data
            , Eq
            )
 
-makeWrapped ''GMachineCode
+makeWrapped ''Code
 
-initialCode :: GMachineCode
-initialCode = GMachineCode GMachine.initialCode
+initialCode :: Code
+initialCode = Code GMachine.initialCode
 
-popInstructionFromCode :: (MonadState s m, s ~ GMachineCode, MonadFail m) => m Instruction
+popInstructionFromCode :: (MonadState s m, s ~ Code, MonadFail m) => m Instruction
 popInstructionFromCode = do
   instrs <- use _Wrapped
   case uncons instrs of

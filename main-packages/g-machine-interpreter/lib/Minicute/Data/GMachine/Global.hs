@@ -9,7 +9,7 @@ module Minicute.Data.GMachine.Global
   ( module Minicute.Data.Common
   , module Minicute.Data.GMachine.Address
 
-  , GMachineGlobal
+  , Global
   , emptyGlobal
   , addAddressToGlobal
   , updateAddressInGlobal
@@ -27,22 +27,22 @@ import Minicute.Data.GMachine.Address
 
 import qualified Data.Map as Map
 
-newtype GMachineGlobal
-  = GMachineGlobal (Map.Map Identifier GMachineAddress)
+newtype Global
+  = Global (Map.Map Identifier Address)
   deriving ( Generic
            , Typeable
            , Data
            , Eq
            )
 
-makeWrapped ''GMachineGlobal
+makeWrapped ''Global
 
-emptyGlobal :: GMachineGlobal
-emptyGlobal = GMachineGlobal Map.empty
+emptyGlobal :: Global
+emptyGlobal = Global Map.empty
 
-addAddressToGlobal :: (MonadState s m, s ~ GMachineGlobal, MonadFail m) => Identifier -> GMachineAddress -> m ()
+addAddressToGlobal :: (MonadState s m, s ~ Global, MonadFail m) => Identifier -> Address -> m ()
 addAddressToGlobal ident addr
   = _Wrapped %= Map.insert ident addr
 
-updateAddressInGlobal :: Identifier -> GMachineAddress -> GMachineGlobal -> GMachineGlobal
+updateAddressInGlobal :: Identifier -> Address -> Global -> Global
 updateAddressInGlobal ident addr = _Wrapped %~ Map.insert ident addr

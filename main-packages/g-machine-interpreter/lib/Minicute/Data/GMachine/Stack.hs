@@ -9,7 +9,7 @@ module Minicute.Data.GMachine.Stack
   ( module Minicute.Data.Common
   , module Minicute.Data.GMachine.Address
 
-  , GMachineStack
+  , Stack
   , emptyStack
   ) where
 
@@ -19,15 +19,15 @@ import GHC.Generics
 import Minicute.Data.Common
 import Minicute.Data.GMachine.Address
 
-newtype GMachineStack
-  = GMachineStack [GMachineAddress]
+newtype Stack
+  = Stack [Address]
   deriving ( Generic
            , Typeable
            , Data
            , Eq
            )
 
-makeWrapped ''GMachineStack
+makeWrapped ''Stack
 
-emptyStack :: GMachineStack
-emptyStack = GMachineStack []
+emptyStack :: Stack
+emptyStack = Stack []

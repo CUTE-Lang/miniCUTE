@@ -31,10 +31,10 @@ import qualified Minicute.Data.GMachine.Stack as Stack
 
 data GMachineState
   = GMachineState
-    { code :: Code.GMachineCode
-    , stack :: Stack.GMachineStack
-    , heap :: Heap.GMachineHeap
-    , global ::Global.GMachineGlobal
+    { code :: Code.Code
+    , stack :: Stack.Stack
+    , heap :: Heap.Heap
+    , global ::Global.Global
     }
   deriving ( Generic
            , Typeable

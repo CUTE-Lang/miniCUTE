@@ -179,7 +179,7 @@ interpretUnwind = do
       ifM (checkAddrStackSize (fromInteger n))
         (putInstructions code >> rearrangeStack (fromInteger (n - 1)))
         (putInstruction IReturn)
-    (isValueGMachineNode -> True) -> do
+    (isValueNode -> True) -> do
       loadStateFromDump
       pushAddrToAddrStack addr
     _ ->
