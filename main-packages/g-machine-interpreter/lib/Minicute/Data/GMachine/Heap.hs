@@ -28,7 +28,6 @@ newtype GMachineHeap
            , Typeable
            , Data
            , Eq
-           , Ord
            )
 
 makeWrapped ''GMachineHeap

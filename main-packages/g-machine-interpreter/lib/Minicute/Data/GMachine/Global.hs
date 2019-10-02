@@ -33,7 +33,6 @@ newtype GMachineGlobal
            , Typeable
            , Data
            , Eq
-           , Ord
            )
 
 makeWrapped ''GMachineGlobal

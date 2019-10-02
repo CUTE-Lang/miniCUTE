@@ -34,7 +34,6 @@ newtype GMachineCode
            , Typeable
            , Data
            , Eq
-           , Ord
            )
 
 makeWrapped ''GMachineCode

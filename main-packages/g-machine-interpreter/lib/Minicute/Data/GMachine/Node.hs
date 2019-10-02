@@ -1,6 +1,5 @@
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE DeriveGeneric #-}
-{-# LANGUAGE DeriveLift #-}
 module Minicute.Data.GMachine.Node
   ( GMachineNode( .. )
   , isValueGMachineNode
@@ -8,7 +7,6 @@ module Minicute.Data.GMachine.Node
 
 import Data.Data
 import GHC.Generics
-import Language.Haskell.TH.Syntax
 import Minicute.Data.GMachine.Address
 import Minicute.Data.GMachine.Instruction
 
@@ -23,9 +21,7 @@ data GMachineNode
   deriving ( Generic
            , Typeable
            , Data
-           , Lift
            , Eq
-           , Ord
            , Show
            )
 

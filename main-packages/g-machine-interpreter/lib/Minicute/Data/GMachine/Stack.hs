@@ -25,7 +25,6 @@ newtype GMachineStack
            , Typeable
            , Data
            , Eq
-           , Ord
            )
 
 makeWrapped ''GMachineStack
