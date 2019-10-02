@@ -1,9 +1,10 @@
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE DeriveGeneric #-}
-{-# LANGUAGE GeneralizedNewtypeDeriving #-}
 module Minicute.Data.GMachine.Address
   ( Address
   , address
+  , minimumAddress
+  , increaseAddress
   ) where
 
 import Data.Data
@@ -15,11 +16,16 @@ newtype Address
            , Typeable
            , Data
            , Eq
-           , Num
            , Show
            )
 
 -- |
--- Alias of 'fromInteger'
+-- Constructor for 'Address'
 address :: Integer -> Address
-address = fromInteger
+address = Address
+
+minimumAddress :: Address
+minimumAddress = Address 0
+
+increaseAddress :: Address -> Address
+increaseAddress (Address addr) = Address (addr + 1)
