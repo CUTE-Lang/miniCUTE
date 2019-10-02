@@ -18,11 +18,10 @@ module Minicute.Data.GMachine.Global
 import Control.Lens.Operators
 import Control.Lens.TH
 import Control.Lens.Wrapped ( _Wrapped )
-import Control.Monad.Fail ( MonadFail )
 import Control.Monad.State
 import Data.Data
 import GHC.Generics
-import Minicute.Data.Common ( Identifier( .. ) )
+import Minicute.Data.Common ( Identifier(..) )
 import Minicute.Data.GMachine.Address
 
 import qualified Data.Map as Map
@@ -40,9 +39,8 @@ makeWrapped ''Global
 emptyGlobal :: Global
 emptyGlobal = Global Map.empty
 
-addAddressToGlobal :: (MonadState s m, s ~ Global, MonadFail m) => Identifier -> Address -> m ()
-addAddressToGlobal ident addr
-  = _Wrapped %= Map.insert ident addr
+addAddressToGlobal :: (MonadState s m, s ~ Global) => Identifier -> Address -> m ()
+addAddressToGlobal ident addr = _Wrapped %= Map.insert ident addr
 
-updateAddressInGlobal :: Identifier -> Address -> Global -> Global
-updateAddressInGlobal ident addr = _Wrapped %~ Map.insert ident addr
+updateAddressInGlobal :: (MonadState s m, s ~ Global) => Identifier -> Address -> m ()
+updateAddressInGlobal ident addr = _Wrapped %= Map.insert ident addr
