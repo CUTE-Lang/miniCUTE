@@ -54,11 +54,13 @@ import qualified Minicute.Data.GMachine.AddressStack as AddressStack
 import qualified Minicute.Data.GMachine.Code as Code
 import qualified Minicute.Data.GMachine.Global as Global
 import qualified Minicute.Data.GMachine.NodeHeap as NodeHeap
+import qualified Minicute.Data.GMachine.ValueStack as ValueStack
 
 data GMachineState
   = GMachineState
     { code :: Code.Code
     , addressStack :: AddressStack.AddressStack
+    , valueStack :: ValueStack.ValueStack
     , nodeHeap :: NodeHeap.NodeHeap
     , global :: Global.Global
     }
@@ -72,6 +74,7 @@ data GMachineState
 makeLensesFor
   [ ("code", "_code")
   , ("addressStack", "_addressStack")
+  , ("valueStack", "_valueStack")
   , ("nodeHeap", "_nodeHeap")
   , ("global", "_global")
   ]
