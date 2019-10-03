@@ -1,9 +1,13 @@
 main<0> {
   MakeGlobal f;
+  Update 1;
+  Pop 1;
   Unwind;
 }
 
 f<0> {
   MakeInteger 4;
+  Update 1;
+  Pop 1;
   Unwind;
 }
