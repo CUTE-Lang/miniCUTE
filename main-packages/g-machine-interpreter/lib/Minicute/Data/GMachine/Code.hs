@@ -60,10 +60,10 @@ fetchNextInstruction = do
       fail "popInstructionFromCode: No more instructions exist"
 
 putInstruction :: (MonadState s m, s ~ Code) => Instruction -> m ()
-putInstruction inst = _Wrapped %= (inst :)
+putInstruction inst = _Wrapped .= [inst]
 
 putInstructions :: (MonadState s m, s ~ Code) => [Instruction] -> m ()
-putInstructions insts = _Wrapped %= (insts <>)
+putInstructions insts = _Wrapped .= insts
 
 assertLastCode :: (MonadState s m, s ~ Code, MonadFail m) => m ()
 assertLastCode = do
