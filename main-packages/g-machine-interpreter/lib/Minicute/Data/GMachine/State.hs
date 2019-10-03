@@ -39,12 +39,15 @@ module Minicute.Data.GMachine.State
   ) where
 
 import Control.Lens.Getter ( use )
+import Control.Lens.Iso ( iso )
 import Control.Lens.Operators
 import Control.Lens.TH
 import Control.Lens.Type
+import Control.Lens.Unsound
 import Control.Monad.Fail ( MonadFail )
 import Control.Monad.State
 import Data.Data
+import Data.Tuple.Minicute
 import GHC.Generics
 import Minicute.Data.Common
 import Minicute.Data.GMachine.Address
@@ -52,6 +55,7 @@ import Minicute.Data.GMachine.Node
 
 import qualified Minicute.Data.GMachine.AddressStack as AddressStack
 import qualified Minicute.Data.GMachine.Code as Code
+import qualified Minicute.Data.GMachine.Dump as Dump
 import qualified Minicute.Data.GMachine.Global as Global
 import qualified Minicute.Data.GMachine.NodeHeap as NodeHeap
 import qualified Minicute.Data.GMachine.ValueStack as ValueStack
@@ -61,6 +65,7 @@ data GMachineState
     { code :: Code.Code
     , addressStack :: AddressStack.AddressStack
     , valueStack :: ValueStack.ValueStack
+    , dump :: Dump.Dump
     , nodeHeap :: NodeHeap.NodeHeap
     , global :: Global.Global
     }
@@ -75,6 +80,7 @@ makeLensesFor
   [ ("code", "_code")
   , ("addressStack", "_addressStack")
   , ("valueStack", "_valueStack")
+  , ("dump", "_dump")
   , ("nodeHeap", "_nodeHeap")
   , ("global", "_global")
   ]
@@ -147,14 +153,14 @@ popValueFromValueStack = applySubstructuralState _valueStack ValueStack.popValue
 
 
 saveStateToDump :: (MonadState s m, s ~ GMachineState) => m ()
-saveStateToDump = undefined
+saveStateToDump = _di <<.= Dump.emptyDumpItem >>= applySubstructuralState _dump . Dump.saveState
 
-loadStateFromDump :: (MonadState s m, s ~ GMachineState) => m ()
-loadStateFromDump = undefined
+loadStateFromDump :: (MonadState s m, s ~ GMachineState, MonadFail m) => m ()
+loadStateFromDump = _di <~ applySubstructuralState _dump Dump.loadState
 
 
-applySubstructuralState :: (MonadState s m, s ~ GMachineState) => Lens' s a -> StateT a m r -> m r
-applySubstructuralState _l action = do
+_di :: Lens' GMachineState Dump.DumpItem
+_di = lensProduct _code (lensProduct _addressStack _valueStack) . iso tupleUnzip2 tupleZip2
   substructure <- use _l
   (result, substructure') <- runStateT action substructure
   _l .= substructure'
