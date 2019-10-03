@@ -1,35 +1,35 @@
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE DeriveGeneric #-}
-{-# LANGUAGE DeriveLift #-}
 module Minicute.Data.GMachine.Node
-  ( GMachineNode( .. )
-  , isValueGMachineNode
+  ( module Minicute.Data.GMachine.Address
+  , module Minicute.Data.GMachine.Instruction
+
+  , Node( .. )
+  , isValueNode
   ) where
 
 import Data.Data
 import GHC.Generics
-import Language.Haskell.TH.Syntax
 import Minicute.Data.GMachine.Address
 import Minicute.Data.GMachine.Instruction
 
-data GMachineNode
+data Node
   = NEmpty
   | NInteger Integer
-  | NStructure Integer GMachineAddress
-  | NStructureFields Integer [GMachineAddress]
-  | NApplication GMachineAddress GMachineAddress
-  | NIndirect GMachineAddress
+  | NStructure Integer Address
+  | NStructureFields Integer [Address]
+  | NApplication Address Address
+  | NIndirect Address
   | NGlobal Integer GMachineExpression
   deriving ( Generic
            , Typeable
            , Data
-           , Lift
            , Eq
            , Ord
            , Show
            )
 
-isValueGMachineNode :: GMachineNode -> Bool
-isValueGMachineNode (NInteger _) = True
-isValueGMachineNode (NStructure _ _) = True
-isValueGMachineNode _ = False
+isValueNode :: Node -> Bool
+isValueNode (NInteger _) = True
+isValueNode (NStructure _ _) = True
+isValueNode _ = False

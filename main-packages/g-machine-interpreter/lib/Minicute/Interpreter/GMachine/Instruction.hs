@@ -5,8 +5,10 @@ module Minicute.Interpreter.GMachine.Instruction
   , interpretInstruction
   ) where
 
-import Control.Monad.Extra
-import Data.List.Extra
+import Prelude hiding ( fail )
+
+import Control.Monad.Extra ( forM, ifM, replicateM, void )
+import Control.Monad.Fail
 import Minicute.Control.GMachine.Step
 import Minicute.Data.Common
 import Minicute.Data.GMachine.Instruction
@@ -48,20 +50,20 @@ interpretInstruction inst
 -- interpreter functions for each instruction
 interpretMakeInteger :: Integer -> GMachineStepMonad ()
 interpretMakeInteger n = do
-  addr <- allocNodeOnHeap (NInteger n)
-  pushAddrToAddrStack addr
+  addr <- allocNodeOnNodeHeap (NInteger n)
+  pushAddrToAddressStack addr
 
 interpretMakeGlobal :: Identifier -> GMachineStepMonad ()
 interpretMakeGlobal i = do
-  addr <- findGlobalNode i
-  pushAddrToAddrStack addr
+  addr <- findAddressOnGlobal i
+  pushAddrToAddressStack addr
 
 interpretMakeApplication :: GMachineStepMonad ()
 interpretMakeApplication = do
-  applyerAddr <- popAddrFromAddrStack
-  applyeeAddr <- popAddrFromAddrStack
-  addr <- allocNodeOnHeap (NApplication applyeeAddr applyerAddr)
-  pushAddrToAddrStack addr
+  applyerAddr <- popAddrFromAddressStack
+  applyeeAddr <- popAddrFromAddressStack
+  addr <- allocNodeOnNodeHeap (NApplication applyeeAddr applyerAddr)
+  pushAddrToAddressStack addr
 
 -- Please check the direction of addrs.
 -- (Thankfully, it only affects performance, not correctness)
@@ -69,30 +71,30 @@ interpretMakePlaceholders :: Int -> GMachineStepMonad ()
 interpretMakePlaceholders n = do
   addrs <- allocPlaceholders
   -- To reverse, or not to reverse, that is the question.
-  pushAddrsToAddrStack addrs
+  pushAddrsToAddressStack addrs
   where
-    allocPlaceholders = replicateM n $ allocNodeOnHeap NEmpty
+    allocPlaceholders = replicateM n $ allocNodeOnNodeHeap NEmpty
 
 
 interpretPop :: Int -> GMachineStepMonad ()
-interpretPop n = void (popAddrsFromAddrStack n)
+interpretPop n = void (popAddrsFromAddressStack n)
 
 interpretDig :: Int -> GMachineStepMonad ()
 interpretDig n = do
-  addr <- popAddrFromAddrStack
-  _ <- popAddrsFromAddrStack n
-  pushAddrToAddrStack addr
+  addr <- popAddrFromAddressStack
+  _ <- popAddrsFromAddressStack n
+  pushAddrToAddressStack addr
 
 interpretUpdate :: Int -> GMachineStepMonad ()
 interpretUpdate n = do
-  valueAddr <- peekAddrOnAddrStack
-  targetAddr <- peekNthAddrOnAddrStack n
-  updateNodeOnHeap targetAddr (NIndirect valueAddr)
+  valueAddr <- peekAddrOnAddressStack
+  targetAddr <- peekNthAddrOnAddressStack n
+  updateNodeOnNodeHeap targetAddr (NIndirect valueAddr)
 
 interpretCopy :: Int -> GMachineStepMonad ()
 interpretCopy n = do
-  addr <- peekNthAddrOnAddrStack n
-  pushAddrToAddrStack addr
+  addr <- peekNthAddrOnAddressStack n
+  pushAddrToAddressStack addr
 
 
 interpretPushBasicValue :: Integer -> GMachineStepMonad ()
@@ -100,12 +102,12 @@ interpretPushBasicValue = pushValueToValueStack
 
 interpretPushExtractedValue :: GMachineStepMonad ()
 interpretPushExtractedValue = do
-  addr <- popAddrFromAddrStack
-  node <- findNodeOnHeap addr
+  addr <- popAddrFromAddressStack
+  node <- findNodeOnNodeHeap addr
   case node of
     NInteger v -> pushValueToValueStack v
     NStructure v fieldsAddr -> do
-      fieldsNode <- findNodeOnHeap fieldsAddr
+      fieldsNode <- findNodeOnNodeHeap fieldsAddr
       case fieldsNode of
         NStructureFields 0 _ -> pushValueToValueStack v
         _ -> invalidNodeFail fieldsNode
@@ -121,28 +123,28 @@ interpretPushExtractedValue = do
 interpretWrapAsInteger :: GMachineStepMonad ()
 interpretWrapAsInteger = do
   v <- popValueFromValueStack
-  addr <- allocNodeOnHeap (NInteger v)
-  pushAddrToAddrStack addr
+  addr <- allocNodeOnNodeHeap (NInteger v)
+  pushAddrToAddressStack addr
 
 interpretWrapAsStructure :: GMachineStepMonad ()
 interpretWrapAsStructure = do
   v <- popValueFromValueStack
-  fieldsAddr <- allocNodeOnHeap (NStructureFields 0 [])
-  addr <- allocNodeOnHeap (NStructure v fieldsAddr)
-  pushAddrToAddrStack addr
+  fieldsAddr <- allocNodeOnNodeHeap (NStructureFields 0 [])
+  addr <- allocNodeOnNodeHeap (NStructure v fieldsAddr)
+  pushAddrToAddressStack addr
 
 interpretUpdateAsInteger :: Int -> GMachineStepMonad ()
 interpretUpdateAsInteger n = do
-  targetAddr <- peekNthAddrOnAddrStack n
+  targetAddr <- peekNthAddrOnAddressStack n
   v <- popValueFromValueStack
-  updateNodeOnHeap targetAddr (NInteger v)
+  updateNodeOnNodeHeap targetAddr (NInteger v)
 
 interpretUpdateAsStructure :: Int -> GMachineStepMonad ()
 interpretUpdateAsStructure n = do
-  targetAddr <- peekNthAddrOnAddrStack n
+  targetAddr <- peekNthAddrOnAddressStack n
   v <- popValueFromValueStack
-  fieldsAddr <- allocNodeOnHeap (NStructureFields 0 [])
-  updateNodeOnHeap targetAddr (NStructure v fieldsAddr)
+  fieldsAddr <- allocNodeOnNodeHeap (NStructureFields 0 [])
+  updateNodeOnNodeHeap targetAddr (NStructure v fieldsAddr)
 
 interpretPrimitive :: PrimitiveOperator -> GMachineStepMonad ()
 interpretPrimitive op
@@ -165,23 +167,23 @@ interpretPrimitive op
 interpretUnwind :: GMachineStepMonad ()
 interpretUnwind = do
   assertLastCode
-  addr <- popAddrFromAddrStack
-  node <- findNodeOnHeap addr
+  addr <- popAddrFromAddressStack
+  node <- findNodeOnNodeHeap addr
   case node of
     NApplication funAddr _ -> do
       putInstruction IUnwind
-      pushAddrToAddrStack addr
-      pushAddrToAddrStack funAddr
+      pushAddrToAddressStack addr
+      pushAddrToAddressStack funAddr
     NIndirect addr' -> do
       putInstruction IUnwind
-      pushAddrToAddrStack addr'
+      pushAddrToAddressStack addr'
     NGlobal n code ->
-      ifM (checkAddrStackSize (fromInteger n))
+      ifM (checkSizeOfAddressStack (fromInteger n))
         (putInstructions code >> rearrangeStack (fromInteger (n - 1)))
         (putInstruction IReturn)
-    (isValueGMachineNode -> True) -> do
+    (isValueNode -> True) -> do
       loadStateFromDump
-      pushAddrToAddrStack addr
+      pushAddrToAddressStack addr
     _ ->
       fail
       ( "interpretUnwind: "
@@ -191,22 +193,24 @@ interpretUnwind = do
   where
     -- Please check the direction of addrs.
     -- __WARNING: the direction actually affects correctness.__
+    rearrangeStack :: Int -> GMachineStepMonad ()
     rearrangeStack n = do
-      addrs <- snoc <$> popAddrsFromAddrStack n <*> peekAddrOnAddrStack
+      addrs <- popAddrsFromAddressStack (n + 1)
+      pushAddrToAddressStack (last addrs)
       applyeeAddrs <- forM addrs $ \addr -> do
-        node <- findNodeOnHeap addr
+        node <- findNodeOnNodeHeap addr
         case node of
           NApplication _ applyeeAddr ->
-            return applyeeAddr
+            pure applyeeAddr
           _ ->
             fail "rearrangeStack: Invalid invocation of the function. Top most n nodes have to be NApplication nodes"
-      pushAddrsToAddrStack applyeeAddrs
+      pushAddrsToAddressStack applyeeAddrs
 
 interpretEval :: GMachineStepMonad ()
 interpretEval = do
-  addr <- popAddrFromAddrStack
+  addr <- popAddrFromAddressStack
   saveStateToDump
-  pushAddrToAddrStack addr
+  pushAddrToAddressStack addr
   putInstruction IUnwind
 
 -- Please check the direction of addrs.
@@ -214,13 +218,13 @@ interpretEval = do
 interpretReturn :: GMachineStepMonad ()
 interpretReturn = do
   assertLastCode
-  addrs <- popAllAddrsFromAddrStack
+  addrs <- popAllAddrsFromAddressStack
   addr <-
     case addrs of
-      _ : _ -> return (last addrs)
+      _ : _ -> pure (last addrs)
       _ -> fail "interpretReturn: address stack should contain more than one address"
   loadStateFromDump
-  pushAddrToAddrStack addr
+  pushAddrToAddressStack addr
 
 primitiveOpToBinaryFun :: PrimitiveOperator -> Maybe (Integer -> Integer -> Integer)
 primitiveOpToBinaryFun POAdd = Just (+)

@@ -1,23 +1,32 @@
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE DeriveGeneric #-}
-{-# LANGUAGE DeriveLift #-}
-{-# LANGUAGE GeneralizedNewtypeDeriving #-}
 module Minicute.Data.GMachine.Address
-  ( GMachineAddress( .. )
+  ( Address
+  , address
+  , minimumAddress
+  , increaseAddress
   ) where
 
 import Data.Data
 import GHC.Generics
-import Language.Haskell.TH.Syntax
 
-newtype GMachineAddress
-  = GMachineAddress Integer
+newtype Address
+  = Address Integer
   deriving ( Generic
            , Typeable
            , Data
-           , Lift
            , Eq
            , Ord
-           , Num
            , Show
            )
+
+-- |
+-- Constructor for 'Address'
+address :: Integer -> Address
+address = Address
+
+minimumAddress :: Address
+minimumAddress = Address 0
+
+increaseAddress :: Address -> Address
+increaseAddress (Address addr) = Address (addr + 1)

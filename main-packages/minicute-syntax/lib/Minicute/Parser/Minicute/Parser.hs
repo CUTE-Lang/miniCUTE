@@ -11,6 +11,9 @@ module Minicute.Parser.Minicute.Parser
   , mainProgramLLMC
   ) where
 
+import Prelude hiding ( fail )
+
+import Control.Monad.Fail
 import Control.Monad.Reader ( ReaderT, ask, mapReaderT, runReaderT )
 import Data.Functor
 import Data.List.Extra
@@ -75,11 +78,11 @@ program pA pExpr = do
   setParserState ps
   result <- Program <$> runReaderT (sepEndBy (supercombinator pA pExpr) (L.symbol ";")) pt
   void eof
-  return result
+  pure result
 
 
 precedenceTable :: (MonadParser e s m) => m PrecedenceTable
-precedenceTable = return defaultPrecedenceTable
+precedenceTable = pure defaultPrecedenceTable
 {-# INLINEABLE precedenceTable #-}
 
 

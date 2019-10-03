@@ -6,6 +6,9 @@ module Minicute.Utils.TH.GMachine
   , qqRawCode
   ) where
 
+import Prelude hiding ( fail )
+
+import Control.Monad.Fail
 import Language.Haskell.TH
 import Language.Haskell.TH.Quote
 import Language.Haskell.TH.Syntax
