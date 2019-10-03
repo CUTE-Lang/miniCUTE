@@ -21,6 +21,7 @@ import Prelude hiding ( fail )
 
 import Control.Lens.Getter ( use )
 import Control.Lens.Operators
+import Control.Lens.Operators.Minicute
 import Control.Lens.TH
 import Control.Lens.Wrapped ( _Wrapped )
 import Control.Monad ( unless )
@@ -51,14 +52,10 @@ initialCode :: Code
 initialCode = Code GMachine.initialCode
 
 fetchNextInstruction :: (MonadState s m, s ~ Code, MonadFail m) => m Instruction
-fetchNextInstruction = do
-  insts <- use _Wrapped
-  case insts of
-    inst : insts' -> do
-      _Wrapped .= insts'
-      pure inst
-    _ ->
-      fail "popInstructionFromCode: No more instructions exist"
+fetchNextInstruction = _Wrapped %%~= fetchNextInstruction'
+  where
+    fetchNextInstruction' (inst : insts) = pure (inst, insts)
+    fetchNextInstruction' _ = fail "popInstructionFromCode: No more instructions exist"
 
 putInstruction :: (MonadState s m, s ~ Code) => Instruction -> m ()
 putInstruction inst = _Wrapped .= [inst]

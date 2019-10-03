@@ -42,9 +42,9 @@ module Minicute.Data.GMachine.State
 
 import Prelude hiding ( fail )
 
-import Control.Lens.Getter ( use )
 import Control.Lens.Iso ( iso )
 import Control.Lens.Operators
+import Control.Lens.Operators.Minicute
 import Control.Lens.TH
 import Control.Lens.Type
 import Control.Lens.Unsound
@@ -199,8 +199,4 @@ _di :: Lens' GMachineState Dump.DumpItem
 _di = lensProduct _code (lensProduct _addressStack _valueStack) . iso tupleUnzip2 tupleZip2
 
 applySubstructuralAction :: (MonadState s m, s ~ GMachineState) => Lens' s a -> StateT a m r -> m r
-applySubstructuralAction _l action = do
-  substructure <- use _l
-  (result, substructure') <- runStateT action substructure
-  _l .= substructure'
-  pure result
+applySubstructuralAction _l action = _l %%~= runStateT action

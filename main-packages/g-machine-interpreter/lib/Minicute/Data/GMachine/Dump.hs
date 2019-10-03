@@ -17,8 +17,8 @@ module Minicute.Data.GMachine.Dump
 
 import Prelude hiding ( fail )
 
-import Control.Lens.Getter ( use )
 import Control.Lens.Operators
+import Control.Lens.Operators.Minicute
 import Control.Lens.TH
 import Control.Lens.Wrapped ( _Wrapped )
 import Control.Monad.Fail
@@ -51,13 +51,10 @@ saveState :: (MonadState s m, s ~ Dump) => DumpItem -> m ()
 saveState di = _Wrapped %= (di :)
 
 loadState :: (MonadState s m, s ~ Dump, MonadFail m) => m DumpItem
-loadState = do
-  dis <- use _Wrapped
-  case dis of
-    di : dis' -> do
-      _Wrapped .= dis'
-      pure di
-    _ -> fail "loadState: There is no dumped state to load"
+loadState = _Wrapped %%~= loadState'
+  where
+    loadState' (di : dis) = pure (di, dis)
+    loadState' _ = fail "loadState: There is no dumped state to load"
 
 
 emptyDumpItem :: DumpItem

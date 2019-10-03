@@ -14,8 +14,8 @@ module Minicute.Data.GMachine.ValueStack
 
 import Prelude hiding ( fail )
 
-import Control.Lens.Getter ( use )
 import Control.Lens.Operators
+import Control.Lens.Operators.Minicute
 import Control.Lens.TH
 import Control.Lens.Wrapped ( _Wrapped )
 import Control.Monad.Fail
@@ -42,10 +42,7 @@ pushValue :: (MonadState s m, s ~ ValueStack) => Integer -> m ()
 pushValue n = _Wrapped %= (n :)
 
 popValue :: (MonadState s m, s ~ ValueStack, MonadFail m) => m Integer
-popValue = do
-  values <- use _Wrapped
-  case values of
-    value : values' -> do
-      _Wrapped .= values'
-      pure value
-    _ -> fail "popValue: There is no value to pop"
+popValue = _Wrapped %%~= popValue'
+  where
+    popValue' (value : values) = pure (value, values)
+    popValue' _ = fail "popValue: There is no value to pop"
