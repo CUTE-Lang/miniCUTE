@@ -7,7 +7,7 @@
 {-# LANGUAGE TypeFamilies #-}
 module Minicute.Data.GMachine.ValueStack
   ( ValueStack
-  , emptyValueStack
+  , empty
   , pushValue
   , popValue
   ) where
@@ -33,8 +33,8 @@ newtype ValueStack
 
 makeWrapped ''ValueStack
 
-emptyValueStack :: ValueStack
-emptyValueStack = ValueStack []
+empty :: ValueStack
+empty = ValueStack []
 
 pushValue :: (MonadState s m, s ~ ValueStack) => Integer -> m ()
 pushValue n = _Wrapped %= (n :)

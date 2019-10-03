@@ -9,7 +9,7 @@ module Minicute.Data.GMachine.Code
   ( module Minicute.Data.GMachine.Instruction
 
   , Code
-  , emptyCode
+  , empty
   , initialCode
   , fetchNextInstruction
   , putInstruction
@@ -41,8 +41,8 @@ newtype Code
 
 makeWrapped ''Code
 
-emptyCode :: Code
-emptyCode = Code []
+empty :: Code
+empty = Code []
 
 initialCode :: Code
 initialCode = Code GMachine.initialCode

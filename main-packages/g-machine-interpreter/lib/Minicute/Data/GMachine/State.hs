@@ -93,17 +93,17 @@ buildInitialState :: Code.GMachineProgram -> GMachineState
 buildInitialState program
   = GMachineState
     { code = Code.initialCode
-    , addressStack = AddressStack.emptyAddressStack
-    , valueStack = ValueStack.emptyValueStack
-    , dump = Dump.emptyDump
+    , addressStack = AddressStack.empty
+    , valueStack = ValueStack.empty
+    , dump = Dump.empty
     , nodeHeap = initialNodeHeap
     , global = initialGlobal
     }
   where
     (globalEntries, initialNodeHeap)
-      = runState buildGlobalEntriesAndHeap NodeHeap.emptyNodeHeap
+      = runState buildGlobalEntriesAndHeap NodeHeap.empty
     initialGlobal
-      = execState buildGlobal Global.emptyGlobal
+      = execState buildGlobal Global.empty
 
     buildGlobalEntriesAndHeap
       = forM program

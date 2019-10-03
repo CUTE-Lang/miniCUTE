@@ -10,7 +10,7 @@ module Minicute.Data.GMachine.Global
   , module Minicute.Data.GMachine.Address
 
   , Global
-  , emptyGlobal
+  , empty
   , allocAddress
   , updateAddress
   , findAddress
@@ -42,8 +42,8 @@ newtype Global
 
 makeWrapped ''Global
 
-emptyGlobal :: Global
-emptyGlobal = Global Map.empty
+empty :: Global
+empty = Global Map.empty
 
 allocAddress :: (MonadState s m, s ~ Global) => Identifier -> Address -> m ()
 allocAddress ident addr = _Wrapped %= Map.insert ident addr

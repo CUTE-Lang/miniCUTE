@@ -9,7 +9,7 @@ module Minicute.Data.GMachine.AddressStack
   ( module Minicute.Data.GMachine.Address
 
   , AddressStack
-  , emptyAddressStack
+  , empty
   , pushAddr
   , pushAddrs
   , popAddr
@@ -43,8 +43,8 @@ newtype AddressStack
 
 makeWrapped ''AddressStack
 
-emptyAddressStack :: AddressStack
-emptyAddressStack = AddressStack []
+empty :: AddressStack
+empty = AddressStack []
 
 pushAddr :: (MonadState s m, s ~ AddressStack) => Address -> m ()
 pushAddr addr = _Wrapped %= (addr :)

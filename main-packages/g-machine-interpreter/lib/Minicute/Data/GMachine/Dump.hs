@@ -7,7 +7,7 @@
 {-# LANGUAGE TypeFamilies #-}
 module Minicute.Data.GMachine.Dump
   ( Dump
-  , emptyDump
+  , empty
   , saveState
   , loadState
 
@@ -42,8 +42,8 @@ type DumpItem = (Code.Code, AddressStack.AddressStack, ValueStack.ValueStack)
 
 makeWrapped ''Dump
 
-emptyDump :: Dump
-emptyDump = Dump []
+empty :: Dump
+empty = Dump []
 
 saveState :: (MonadState s m, s ~ Dump) => DumpItem -> m ()
 saveState di = _Wrapped %= (di :)
@@ -60,7 +60,7 @@ loadState = do
 
 emptyDumpItem :: DumpItem
 emptyDumpItem
-  = ( Code.emptyCode
-    , AddressStack.emptyAddressStack
-    , ValueStack.emptyValueStack
+  = ( Code.empty
+    , AddressStack.empty
+    , ValueStack.empty
     )

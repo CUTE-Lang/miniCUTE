@@ -10,7 +10,7 @@ module Minicute.Data.GMachine.NodeHeap
   ( module Minicute.Data.GMachine.Address
 
   , NodeHeap
-  , emptyNodeHeap
+  , empty
   , allocNode
   , updateNode
   , findNode
@@ -43,8 +43,8 @@ newtype NodeHeap
 
 makeWrapped ''NodeHeap
 
-emptyNodeHeap :: NodeHeap
-emptyNodeHeap = NodeHeap (minimumAddress, Map.empty)
+empty :: NodeHeap
+empty = NodeHeap (minimumAddress, Map.empty)
 
 allocNode :: (MonadState s m, s ~ NodeHeap) => Node -> m Address
 allocNode node = do
