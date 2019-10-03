@@ -29,7 +29,7 @@ module Minicute.Data.GMachine.State
   , popAllAddrsFromAddressStack
   , peekAddrOnAddressStack
   , peekNthAddrOnAddressStack
-  , checkAddressStackSize
+  , checkSizeOfAddressStack
 
   , pushValueToValueStack
   , popValueFromValueStack
@@ -115,28 +115,28 @@ findAddressOnGlobal = applySubstructuralState _global . Global.findAddress
 
 
 pushAddrToAddressStack :: (MonadState s m, s ~ GMachineState) => Address -> m ()
-pushAddrToAddressStack = undefined
+pushAddrToAddressStack = applySubstructuralState _addressStack . AddressStack.pushAddr
 
 pushAddrsToAddressStack :: (MonadState s m, s ~ GMachineState) => [Address] -> m ()
-pushAddrsToAddressStack = undefined
+pushAddrsToAddressStack = applySubstructuralState _addressStack . AddressStack.pushAddrs
 
-popAddrFromAddressStack :: (MonadState s m, s ~ GMachineState) => m Address
-popAddrFromAddressStack = undefined
+popAddrFromAddressStack :: (MonadState s m, s ~ GMachineState, MonadFail m) => m Address
+popAddrFromAddressStack = applySubstructuralState _addressStack AddressStack.popAddr
 
-popAddrsFromAddressStack :: (MonadState s m, s ~ GMachineState) => Int -> m [Address]
-popAddrsFromAddressStack = undefined
+popAddrsFromAddressStack :: (MonadState s m, s ~ GMachineState, MonadFail m) => Int -> m [Address]
+popAddrsFromAddressStack = applySubstructuralState _addressStack . AddressStack.popAddrs
 
 popAllAddrsFromAddressStack :: (MonadState s m, s ~ GMachineState) => m [Address]
-popAllAddrsFromAddressStack = undefined
+popAllAddrsFromAddressStack = applySubstructuralState _addressStack AddressStack.popAllAddrs
 
 peekAddrOnAddressStack :: (MonadState s m, s ~ GMachineState) => m Address
-peekAddrOnAddressStack = undefined
+peekAddrOnAddressStack = applySubstructuralState _addressStack AddressStack.peekAddr
 
 peekNthAddrOnAddressStack :: (MonadState s m, s ~ GMachineState) => Int -> m Address
-peekNthAddrOnAddressStack = undefined
+peekNthAddrOnAddressStack = applySubstructuralState _addressStack . AddressStack.peekNthAddr
 
-checkAddressStackSize :: (MonadState s m, s ~ GMachineState) => Int -> m Bool
-checkAddressStackSize = undefined
+checkSizeOfAddressStack :: (MonadState s m, s ~ GMachineState) => Int -> m Bool
+checkSizeOfAddressStack = applySubstructuralState _addressStack . AddressStack.checkSize
 
 
 pushValueToValueStack :: (MonadState s m, s ~ GMachineState) => Integer -> m ()

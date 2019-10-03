@@ -177,7 +177,7 @@ interpretUnwind = do
       putInstruction IUnwind
       pushAddrToAddressStack addr'
     NGlobal n code ->
-      ifM (checkAddressStackSize (fromInteger n))
+      ifM (checkSizeOfAddressStack (fromInteger n))
         (putInstructions code >> rearrangeStack (fromInteger (n - 1)))
         (putInstruction IReturn)
     (isValueNode -> True) -> do
