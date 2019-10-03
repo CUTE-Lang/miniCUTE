@@ -1,5 +1,6 @@
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
@@ -8,6 +9,7 @@
 {-# LANGUAGE TypeFamilies #-}
 module Minicute.Data.GMachine.State
   ( GMachineState
+  , buildInitialState
 
   , fetchNextInstruction
   , putInstruction
@@ -86,6 +88,30 @@ makeLensesFor
   , ("global", "_global")
   ]
   ''GMachineState
+
+buildInitialState :: Code.GMachineProgram -> GMachineState
+buildInitialState program
+  = GMachineState
+    { code = Code.initialCode
+    , addressStack = AddressStack.emptyAddressStack
+    , valueStack = ValueStack.emptyValueStack
+    , dump = Dump.emptyDump
+    , nodeHeap = initialNodeHeap
+    , global = initialGlobal
+    }
+  where
+    (globalEntries, initialNodeHeap)
+      = runState buildGlobalEntriesAndHeap NodeHeap.emptyNodeHeap
+    initialGlobal
+      = execState buildGlobal Global.emptyGlobal
+
+    buildGlobalEntriesAndHeap
+      = forM program
+        $ \(ident, arity, c) ->
+            (,) ident <$> NodeHeap.allocNode (NGlobal (toInteger arity) c)
+    buildGlobal
+      = forM globalEntries
+        $ uncurry Global.allocAddress
 
 
 fetchNextInstruction :: (MonadState s m, s ~ GMachineState, MonadFail m) => m Code.Instruction
