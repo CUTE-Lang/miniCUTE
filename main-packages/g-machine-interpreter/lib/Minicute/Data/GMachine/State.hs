@@ -88,79 +88,82 @@ makeLensesFor
 
 
 fetchNextInstruction :: (MonadState s m, s ~ GMachineState, MonadFail m) => m Code.Instruction
-fetchNextInstruction = applySubstructuralState _code Code.fetchNextInstruction
+fetchNextInstruction = applySubstructuralAction _code Code.fetchNextInstruction
 
 putInstruction :: (MonadState s m, s ~ GMachineState) => Code.Instruction -> m ()
-putInstruction = applySubstructuralState _code . Code.putInstruction
+putInstruction = applySubstructuralAction _code . Code.putInstruction
 
 putInstructions :: (MonadState s m, s ~ GMachineState) => [Code.Instruction] -> m ()
-putInstructions = applySubstructuralState _code . Code.putInstructions
+putInstructions = applySubstructuralAction _code . Code.putInstructions
 
 assertLastCode :: (MonadState s m, s ~ GMachineState, MonadFail m) => m ()
-assertLastCode = applySubstructuralState _code Code.assertLastCode
+assertLastCode = applySubstructuralAction _code Code.assertLastCode
 
 
 allocNodeOnNodeHeap :: (MonadState s m, s ~ GMachineState) => Node -> m Address
-allocNodeOnNodeHeap = applySubstructuralState _nodeHeap . NodeHeap.allocNode
+allocNodeOnNodeHeap = applySubstructuralAction _nodeHeap . NodeHeap.allocNode
 
 updateNodeOnNodeHeap :: (MonadState s m, s ~ GMachineState, MonadFail m) => Address -> Node -> m ()
-updateNodeOnNodeHeap = (applySubstructuralState _nodeHeap .) . NodeHeap.updateNode
+updateNodeOnNodeHeap = (applySubstructuralAction _nodeHeap .) . NodeHeap.updateNode
 
 findNodeOnNodeHeap :: (MonadState s m, s ~ GMachineState, MonadFail m) => Address -> m Node
-findNodeOnNodeHeap = applySubstructuralState _nodeHeap . NodeHeap.findNode
+findNodeOnNodeHeap = applySubstructuralAction _nodeHeap . NodeHeap.findNode
 
 
 allocAddressOnGlobal :: (MonadState s m, s ~ GMachineState) => Identifier -> Address -> m ()
-allocAddressOnGlobal = (applySubstructuralState _global .) . Global.allocAddress
+allocAddressOnGlobal = (applySubstructuralAction _global .) . Global.allocAddress
 
 updateAddressOnGlobal :: (MonadState s m, s ~ GMachineState, MonadFail m) => Identifier -> Address -> m ()
-updateAddressOnGlobal = (applySubstructuralState _global .) . Global.updateAddress
+updateAddressOnGlobal = (applySubstructuralAction _global .) . Global.updateAddress
 
 findAddressOnGlobal :: (MonadState s m, s ~ GMachineState, MonadFail m) => Identifier -> m Address
-findAddressOnGlobal = applySubstructuralState _global . Global.findAddress
+findAddressOnGlobal = applySubstructuralAction _global . Global.findAddress
 
 
 pushAddrToAddressStack :: (MonadState s m, s ~ GMachineState) => Address -> m ()
-pushAddrToAddressStack = applySubstructuralState _addressStack . AddressStack.pushAddr
+pushAddrToAddressStack = applySubstructuralAction _addressStack . AddressStack.pushAddr
 
 pushAddrsToAddressStack :: (MonadState s m, s ~ GMachineState) => [Address] -> m ()
-pushAddrsToAddressStack = applySubstructuralState _addressStack . AddressStack.pushAddrs
+pushAddrsToAddressStack = applySubstructuralAction _addressStack . AddressStack.pushAddrs
 
 popAddrFromAddressStack :: (MonadState s m, s ~ GMachineState, MonadFail m) => m Address
-popAddrFromAddressStack = applySubstructuralState _addressStack AddressStack.popAddr
+popAddrFromAddressStack = applySubstructuralAction _addressStack AddressStack.popAddr
 
 popAddrsFromAddressStack :: (MonadState s m, s ~ GMachineState, MonadFail m) => Int -> m [Address]
-popAddrsFromAddressStack = applySubstructuralState _addressStack . AddressStack.popAddrs
+popAddrsFromAddressStack = applySubstructuralAction _addressStack . AddressStack.popAddrs
 
 popAllAddrsFromAddressStack :: (MonadState s m, s ~ GMachineState) => m [Address]
-popAllAddrsFromAddressStack = applySubstructuralState _addressStack AddressStack.popAllAddrs
+popAllAddrsFromAddressStack = applySubstructuralAction _addressStack AddressStack.popAllAddrs
 
 peekAddrOnAddressStack :: (MonadState s m, s ~ GMachineState) => m Address
-peekAddrOnAddressStack = applySubstructuralState _addressStack AddressStack.peekAddr
+peekAddrOnAddressStack = applySubstructuralAction _addressStack AddressStack.peekAddr
 
 peekNthAddrOnAddressStack :: (MonadState s m, s ~ GMachineState) => Int -> m Address
-peekNthAddrOnAddressStack = applySubstructuralState _addressStack . AddressStack.peekNthAddr
+peekNthAddrOnAddressStack = applySubstructuralAction _addressStack . AddressStack.peekNthAddr
 
 checkSizeOfAddressStack :: (MonadState s m, s ~ GMachineState) => Int -> m Bool
-checkSizeOfAddressStack = applySubstructuralState _addressStack . AddressStack.checkSize
+checkSizeOfAddressStack = applySubstructuralAction _addressStack . AddressStack.checkSize
 
 
 pushValueToValueStack :: (MonadState s m, s ~ GMachineState) => Integer -> m ()
-pushValueToValueStack = applySubstructuralState _valueStack . ValueStack.pushValue
+pushValueToValueStack = applySubstructuralAction _valueStack . ValueStack.pushValue
 
 popValueFromValueStack :: (MonadState s m, s ~ GMachineState, MonadFail m) => m Integer
-popValueFromValueStack = applySubstructuralState _valueStack ValueStack.popValue
+popValueFromValueStack = applySubstructuralAction _valueStack ValueStack.popValue
 
 
 saveStateToDump :: (MonadState s m, s ~ GMachineState) => m ()
-saveStateToDump = _di <<.= Dump.emptyDumpItem >>= applySubstructuralState _dump . Dump.saveState
+saveStateToDump = _di <<.= Dump.emptyDumpItem >>= applySubstructuralAction _dump . Dump.saveState
 
 loadStateFromDump :: (MonadState s m, s ~ GMachineState, MonadFail m) => m ()
-loadStateFromDump = _di <~ applySubstructuralState _dump Dump.loadState
+loadStateFromDump = _di <~ applySubstructuralAction _dump Dump.loadState
 
 
 _di :: Lens' GMachineState Dump.DumpItem
 _di = lensProduct _code (lensProduct _addressStack _valueStack) . iso tupleUnzip2 tupleZip2
+
+applySubstructuralAction :: (MonadState s m, s ~ GMachineState) => Lens' s a -> StateT a m r -> m r
+applySubstructuralAction _l action = do
   substructure <- use _l
   (result, substructure') <- runStateT action substructure
   _l .= substructure'
