@@ -140,10 +140,10 @@ checkSizeOfAddressStack = applySubstructuralState _addressStack . AddressStack.c
 
 
 pushValueToValueStack :: (MonadState s m, s ~ GMachineState) => Integer -> m ()
-pushValueToValueStack = undefined
+pushValueToValueStack = applySubstructuralState _valueStack . ValueStack.pushValue
 
-popValueFromValueStack :: (MonadState s m, s ~ GMachineState) => m Integer
-popValueFromValueStack = undefined
+popValueFromValueStack :: (MonadState s m, s ~ GMachineState, MonadFail m) => m Integer
+popValueFromValueStack = applySubstructuralState _valueStack ValueStack.popValue
 
 
 saveStateToDump :: (MonadState s m, s ~ GMachineState) => m ()
