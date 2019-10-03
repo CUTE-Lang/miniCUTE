@@ -1,4 +1,3 @@
-{-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE ViewPatterns #-}
 module Minicute.Interpreter.GMachine.Instruction
   ( module Minicute.Data.Common
@@ -192,8 +191,10 @@ interpretUnwind = do
   where
     -- Please check the direction of addrs.
     -- __WARNING: the direction actually affects correctness.__
+    rearrangeStack :: Int -> GMachineStepMonad ()
     rearrangeStack n = do
-      addrs <- snoc <$> popAddrsFromAddressStack n <*> peekAddrOnAddressStack
+      addrs <- popAddrsFromAddressStack (n + 1)
+      pushAddrToAddressStack (last addrs)
       applyeeAddrs <- forM addrs $ \addr -> do
         node <- findNodeOnNodeHeap addr
         case node of
