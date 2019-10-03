@@ -82,6 +82,7 @@ executables:
       - megaparsec >= 7.0 && < 8
 
       - minicute-g-machine-interpreter == 0.1.0.0
+      - minicute-g-machine-syntax == 0.1.0.0
 
 # executable:
 
