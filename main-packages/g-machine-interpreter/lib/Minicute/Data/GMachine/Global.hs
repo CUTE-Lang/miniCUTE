@@ -48,14 +48,18 @@ empty :: Global
 empty = Global Map.empty
 
 allocAddress :: (MonadState s m, s ~ Global) => Identifier -> Address -> m ()
-allocAddress ident addr = _Wrapped %= Map.insert ident addr
+allocAddress ident addr = _Wrapped . at ident .= Just addr
 
-updateAddress :: (MonadState s m, s ~ Global) => Identifier -> Address -> m ()
-updateAddress ident addr = _Wrapped %= Map.insert ident addr
+updateAddress :: (MonadState s m, s ~ Global, MonadFail m) => Identifier -> Address -> m ()
+updateAddress ident addr = do
+  mayAddr <- use (_Wrapped . at ident)
+  case mayAddr of
+    Just _ -> _Wrapped . at ident .= Just addr
+    Nothing -> fail $ "updateAddress: No registered address for the identifier " <> show ident
 
 findAddress :: (MonadState s m, s ~ Global, MonadFail m) => Identifier -> m Address
 findAddress ident = do
-  mayAddress <- use (_Wrapped . at ident)
-  case mayAddress of
+  mayAddr <- use (_Wrapped . at ident)
+  case mayAddr of
     Just addr -> pure addr
-    Nothing -> fail ("findAddress: No registered address for the identifier " <> show ident)
+    Nothing -> fail $ "findAddress: No registered address for the identifier " <> show ident
