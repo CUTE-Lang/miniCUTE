@@ -16,5 +16,5 @@ interpretProgram program
     buildSteps
       = ifM checkInterpreterFinished
         (addInterpreterStep step >> buildSteps)
-        (return ())
+        (pure ())
     step = fetchNextInstruction >>= interpretInstruction

@@ -69,8 +69,8 @@ type FVELEnvironment = Set.Set Identifier
 type FVFormer e e' = e -> Reader FVELEnvironment e'
 
 formFVsEMC :: Getter a Identifier -> FVFormer (ExpressionMC a) (ExpressionMCWithFreeVariables a)
-formFVsEMC _ (EInteger n) = return (AEInteger Set.empty n)
-formFVsEMC _ (EConstructor tag arity) = return (AEConstructor Set.empty tag arity)
+formFVsEMC _ (EInteger n) = pure (AEInteger Set.empty n)
+formFVsEMC _ (EConstructor tag arity) = pure (AEConstructor Set.empty tag arity)
 formFVsEMC _ (EVariable v) = do
   env <- ask
 
@@ -80,7 +80,7 @@ formFVsEMC _ (EVariable v) = do
       | otherwise = Set.empty
 
     {-# INLINEABLE fvs #-}
-  return (AEVariable fvs v)
+  pure (AEVariable fvs v)
 formFVsEMC _a (EApplication expr1 expr2) = do
   expr1' <- formFVsEMC _a expr1
   expr2' <- formFVsEMC _a expr2
@@ -89,7 +89,7 @@ formFVsEMC _a (EApplication expr1 expr2) = do
     fvs = expr1' ^. _annotation <> expr2' ^. _annotation
 
     {-# INLINEABLE fvs #-}
-  return (AEApplication fvs expr1' expr2')
+  pure (AEApplication fvs expr1' expr2')
 formFVsEMC _a (ELet flag lDefs expr) = do
   env <- ask
 
@@ -118,7 +118,7 @@ formFVsEMC _a (ELet flag lDefs expr) = do
     {-# INLINEABLE fvsLDefs' #-}
     {-# INLINEABLE fvsExpr' #-}
     {-# INLINEABLE fvs #-}
-  return (AELet fvs flag lDefs' expr')
+  pure (AELet fvs flag lDefs' expr')
   where
     lDefsBinderIdSet = lDefs ^. setFrom (each . _letDefinitionBinder . _a)
 formFVsEMC _a (EMatch expr mCases) = do
@@ -139,7 +139,7 @@ formFVsEMC _a (EMatch expr mCases) = do
     {-# INLINEABLE fvssMCasesBodies' #-}
     {-# INLINEABLE fvsMCases' #-}
     {-# INLINEABLE fvs #-}
-  return (AEMatch fvs expr' mCases')
+  pure (AEMatch fvs expr' mCases')
   where
     mCasesArgumentSets = mCases ^.. each . _matchCaseArguments . setFrom (each . _a)
 formFVsEMC _a (ELambda args expr) = do
@@ -151,7 +151,7 @@ formFVsEMC _a (ELambda args expr) = do
 
     {-# INLINEABLE fvsExpr' #-}
     {-# INLINEABLE fvs #-}
-  return (AELambda fvs args expr')
+  pure (AELambda fvs args expr')
   where
     argIdSet = args ^. setFrom (each . _a)
 

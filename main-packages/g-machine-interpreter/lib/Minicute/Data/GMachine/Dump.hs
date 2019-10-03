@@ -54,7 +54,7 @@ loadState = do
   case dis of
     di : dis' -> do
       _Wrapped .= dis'
-      return di
+      pure di
     _ -> fail "loadState: There is no dumped state to load"
 
 

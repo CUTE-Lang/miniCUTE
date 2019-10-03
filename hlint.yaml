@@ -29,6 +29,7 @@
     - package base
     rules:
       - warn: {lhs: "- a", rhs: "negate a", name: "Use negate"}
+      - warn: {lhs: "return a", rhs: "pure a", name: "Use pure"}
 
 - group:
     name: pretty-printer

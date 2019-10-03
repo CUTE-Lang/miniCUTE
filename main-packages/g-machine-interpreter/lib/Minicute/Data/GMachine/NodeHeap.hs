@@ -50,7 +50,7 @@ allocNode :: (MonadState s m, s ~ NodeHeap) => Node -> m Address
 allocNode node = do
   addr <- _Wrapped . _1 <%= increaseAddress
   _Wrapped . _2 %= Map.insert addr node
-  return addr
+  pure addr
 
 updateNode :: (MonadState s m, s ~ NodeHeap, MonadFail m) => Address -> Node -> m ()
 updateNode addr node = _Wrapped . _2 %= Map.alter alter addr

@@ -25,7 +25,7 @@ generateMachineCodeSc :: GMachineSupercombinator -> ModuleBuilder ()
 generateMachineCodeSc (Identifier binder, _, expr) = do
   _ <- global nodeName typeNodeNGlobal nodeBodyBuilder
   _ <- function codeName [] ASTT.void codeBodyBuilder
-  return ()
+  pure ()
   where
     codeName = fromString ("minicute__user_defined__" <> binder <> "__code")
     codeBodyBuilder _ = do

@@ -198,7 +198,7 @@ interpretUnwind = do
         node <- findNodeOnNodeHeap addr
         case node of
           NApplication _ applyeeAddr ->
-            return applyeeAddr
+            pure applyeeAddr
           _ ->
             fail "rearrangeStack: Invalid invocation of the function. Top most n nodes have to be NApplication nodes"
       pushAddrsToAddressStack applyeeAddrs
@@ -218,7 +218,7 @@ interpretReturn = do
   addrs <- popAllAddrsFromAddressStack
   addr <-
     case addrs of
-      _ : _ -> return (last addrs)
+      _ : _ -> pure (last addrs)
       _ -> fail "interpretReturn: address stack should contain more than one address"
   loadStateFromDump
   pushAddrToAddressStack addr

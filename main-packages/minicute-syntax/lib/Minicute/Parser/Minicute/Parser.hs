@@ -75,11 +75,11 @@ program pA pExpr = do
   setParserState ps
   result <- Program <$> runReaderT (sepEndBy (supercombinator pA pExpr) (L.symbol ";")) pt
   void eof
-  return result
+  pure result
 
 
 precedenceTable :: (MonadParser e s m) => m PrecedenceTable
-precedenceTable = return defaultPrecedenceTable
+precedenceTable = pure defaultPrecedenceTable
 {-# INLINEABLE precedenceTable #-}
 
 

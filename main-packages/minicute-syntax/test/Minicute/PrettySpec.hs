@@ -35,7 +35,7 @@ programMCTest name programString = do
     parseProgramMC ps = do
       parse P.mainProgramMC "" ps `shouldSatisfy` isRight
       case parse P.mainProgramMC "" ps of
-        Right program -> return program
+        Right program -> pure program
         Left e -> error (errorBundlePretty e)
 
 type TestName = String

@@ -58,7 +58,7 @@ popAddr = do
   case addrs of
     addr : addrs' -> do
       _Wrapped .= addrs'
-      return addr
+      pure addr
     _ -> fail "popAddr: There is no address to pop"
 
 popAddrs :: (MonadState s m, s ~ AddressStack, MonadFail m) => Int -> m [Address]
@@ -68,7 +68,7 @@ popAddrs n = do
   when (length result < n) $
     fail $ "popAddrs: there are not enough addresses to pop " <> show n <> " addresses"
   _Wrapped .= addrs'
-  return result
+  pure result
 
 popAllAddrs :: (MonadState s m, s ~ AddressStack) => m [Address]
 popAllAddrs = _Wrapped <<.= []
@@ -77,14 +77,14 @@ peekAddr :: (MonadState s m, s ~ AddressStack) => m Address
 peekAddr = do
   addrs <- use _Wrapped
   case addrs of
-    addr : _ -> return addr
+    addr : _ -> pure addr
     _ -> fail "peekAddr: There is no address to peek"
 
 peekNthAddr :: (MonadState s m, s ~ AddressStack) => Int -> m Address
 peekNthAddr n = do
   addrs <- use _Wrapped
   case drop (n - 1) addrs of
-    addr : _ -> return addr
+    addr : _ -> pure addr
     _ -> fail $ "peekNthAddr: There are not enough addresses to peek the " <> show n <> "th address"
 
 checkSize :: (MonadState s m, s ~ AddressStack) => Int -> m Bool

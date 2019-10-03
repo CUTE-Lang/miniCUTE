@@ -62,7 +62,7 @@ identifier = try identifier' <?> "identifier"
       | i `elem` keywordList = do
           setOffset pos
           fail $ "keyword " <> show i <> " cannot be an identifier"
-      | otherwise = return i
+      | otherwise = pure i
 
     {-# INLINEABLE identifier' #-}
     {-# INLINEABLE checkKeywords #-}
@@ -129,7 +129,7 @@ integer
         _ -> error ("Minicute.Parser.Lexer.integer: unexpected prefix " <> show b)
 
     zero
-      = return 0
+      = pure 0
         <?> "one of the integer prefixes ('b', 'B', 'o', 'O', 'd', 'D', 'x', 'X')"
 
     endOfInteger

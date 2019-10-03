@@ -55,5 +55,5 @@ findAddress :: (MonadState s m, s ~ Global, MonadFail m) => Identifier -> m Addr
 findAddress ident = do
   mayAddress <- use (_Wrapped . at ident)
   case mayAddress of
-    Just addr -> return addr
+    Just addr -> pure addr
     Nothing -> fail ("findAddress: No registered address for the identifier " <> show ident)

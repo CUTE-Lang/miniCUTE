@@ -45,5 +45,5 @@ popValue = do
   case values of
     value : values' -> do
       _Wrapped .= values'
-      return value
+      pure value
     _ -> fail "popValue: There is no value to pop"

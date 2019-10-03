@@ -53,7 +53,7 @@ fetchNextInstruction = do
   case insts of
     inst : insts' -> do
       _Wrapped .= insts'
-      return inst
+      pure inst
     _ ->
       fail "popInstructionFromCode: No more instructions exist"
 
@@ -67,5 +67,5 @@ assertLastCode :: (MonadState s m, s ~ Code, MonadFail m) => m ()
 assertLastCode = do
   insts <- use _Wrapped
   case insts of
-    [] -> return ()
+    [] -> pure ()
     _ -> fail "assertLastCode: Not a last code"

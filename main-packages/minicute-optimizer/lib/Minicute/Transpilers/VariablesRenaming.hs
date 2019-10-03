@@ -63,15 +63,15 @@ renameVariablesMC _a
         {-# INLINABLE renameScsArgsAndBody #-}
 
     renameScBinder binder
-      | binder == "main" = return binder
+      | binder == "main" = pure binder
       | otherwise = renameIdentifier binder
 
     {-# INLINABLE renameScBinder #-}
 {-# INLINABLE renameVariablesMC #-}
 
 renameVariablesEMC :: ALens' a Identifier -> Renamer (ExpressionMC a)
-renameVariablesEMC _ e@(EInteger _) = return e
-renameVariablesEMC _ e@(EConstructor _ _) = return e
+renameVariablesEMC _ e@(EInteger _) = pure e
+renameVariablesEMC _ e@(EConstructor _ _) = pure e
 renameVariablesEMC _ (EVariable v)
   = asks (EVariable . Map.findWithDefault v v)
 renameVariablesEMC _a (EApplication e1 e2)
@@ -173,5 +173,5 @@ generateId :: Identifier -> State IdGeneratorState Identifier
 generateId (Identifier n) = do
   st <- get
   put (nextIdGeneratorState st)
-  return (Identifier (n <> show st))
+  pure (Identifier (n <> show st))
 {-# INLINABLE generateId #-}

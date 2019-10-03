@@ -194,4 +194,4 @@ applySubstructuralAction _l action = do
   substructure <- use _l
   (result, substructure') <- runStateT action substructure
   _l .= substructure'
-  return result
+  pure result
