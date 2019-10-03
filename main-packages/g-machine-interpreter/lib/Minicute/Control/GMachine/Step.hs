@@ -9,6 +9,7 @@ module Minicute.Control.GMachine.Step
   , GMachineStepMonadT
   , GMachineStepMonad
   , runGMachineStepT
+  , execGMachineStepT
   ) where
 
 
@@ -33,3 +34,6 @@ deriving instance (Monad m) => MonadState GMachineState (GMachineStepMonadT m)
 
 runGMachineStepT :: GMachineStepMonadT m a -> GMachineState -> m (a, GMachineState)
 runGMachineStepT (GMachineStepMonadT st) = runStateT st
+
+execGMachineStepT :: (Monad m) => GMachineStepMonadT m a -> GMachineState -> m GMachineState
+execGMachineStepT = (fmap snd .) . runGMachineStepT
