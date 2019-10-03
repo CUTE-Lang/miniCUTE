@@ -98,6 +98,10 @@ makeLensesFor
   ]
   ''GMachineState
 
+_di :: Lens' GMachineState Dump.DumpItem
+_di = lensProduct _code (lensProduct _addressStack _valueStack) . iso tupleUnzip2 tupleZip2
+
+
 buildInitialState :: Code.GMachineProgram -> GMachineState
 buildInitialState program
   = GMachineState
@@ -194,9 +198,6 @@ saveStateToDump = _di <<.= Dump.emptyDumpItem >>= applySubstructuralAction _dump
 loadStateFromDump :: (MonadState s m, s ~ GMachineState, MonadFail m) => m ()
 loadStateFromDump = _di <~ applySubstructuralAction _dump Dump.loadState
 
-
-_di :: Lens' GMachineState Dump.DumpItem
-_di = lensProduct _code (lensProduct _addressStack _valueStack) . iso tupleUnzip2 tupleZip2
 
 applySubstructuralAction :: (MonadState s m, s ~ GMachineState) => Lens' s a -> StateT a m r -> m r
 applySubstructuralAction _l action = _l %%~= runStateT action
