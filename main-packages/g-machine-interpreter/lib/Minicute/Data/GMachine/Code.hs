@@ -23,6 +23,7 @@ import Control.Lens.Getter ( use )
 import Control.Lens.Operators
 import Control.Lens.TH
 import Control.Lens.Wrapped ( _Wrapped )
+import Control.Monad ( unless )
 import Control.Monad.Fail
 import Control.Monad.State ( MonadState )
 import Data.Data
@@ -68,6 +69,5 @@ putInstructions insts = _Wrapped .= insts
 assertLastCode :: (MonadState s m, s ~ Code, MonadFail m) => m ()
 assertLastCode = do
   insts <- use _Wrapped
-  case insts of
-    [] -> pure ()
-    _ -> fail "assertLastCode: Not a last code"
+  unless (null insts) $
+    fail "assertLastCode: Not a last code"
