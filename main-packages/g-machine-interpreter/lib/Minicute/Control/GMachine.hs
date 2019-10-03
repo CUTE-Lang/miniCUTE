@@ -24,6 +24,9 @@ import Minicute.Data.GMachine.Instruction
 
 type GMachineMonad = GMachineMonadT Maybe Maybe
 
+-- |
+-- _TODO: Add a 'GMachineState' component to build
+-- 'checkInterpreterFinished' action
 newtype GMachineMonadT m' m a
   = GMachineMonadT
     (WriterT [GMachineStepMonadT m' ()] m a)
