@@ -1,0 +1,9 @@
+main<0> {
+  MakeGlobal f;
+  Unwind;
+}
+
+f<0> {
+  MakeInteger 4;
+  Unwind;
+}
