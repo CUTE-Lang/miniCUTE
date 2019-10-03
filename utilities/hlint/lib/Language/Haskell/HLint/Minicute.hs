@@ -2,6 +2,9 @@ module Language.Haskell.HLint.Minicute
   ( hlint
   ) where
 
+import Prelude hiding ( fail )
+
+import Control.Monad.Fail
 import System.Directory ( canonicalizePath, getCurrentDirectory, findFile )
 import System.Exit ( exitFailure, exitSuccess )
 import System.FilePath ( isDrive, (</>) )

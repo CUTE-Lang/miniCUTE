@@ -15,8 +15,10 @@ module Minicute.Control.GMachine
   , checkInterpreterFinished
   ) where
 
+import Prelude hiding ( fail )
+
 import Control.Monad.Fail
-import Control.Monad.Writer
+import Control.Monad.Writer ( MonadWriter(..), WriterT )
 import Data.Data
 import GHC.Generics
 import Minicute.Control.GMachine.Step

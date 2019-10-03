@@ -20,13 +20,15 @@ module Minicute.Data.GMachine.AddressStack
   , checkSize
   ) where
 
+import Prelude hiding ( fail )
+
 import Control.Lens.Getter ( to, use )
 import Control.Lens.Operators
 import Control.Lens.TH
 import Control.Lens.Wrapped ( _Wrapped )
-import Control.Monad
-import Control.Monad.Fail ( MonadFail )
-import Control.Monad.State
+import Control.Monad ( when )
+import Control.Monad.Fail
+import Control.Monad.State ( MonadState )
 import Data.Data ( Data, Typeable )
 import GHC.Generics ( Generic )
 import Minicute.Data.GMachine.Address
@@ -73,14 +75,14 @@ popAddrs n = do
 popAllAddrs :: (MonadState s m, s ~ AddressStack) => m [Address]
 popAllAddrs = _Wrapped <<.= []
 
-peekAddr :: (MonadState s m, s ~ AddressStack) => m Address
+peekAddr :: (MonadState s m, s ~ AddressStack, MonadFail m) => m Address
 peekAddr = do
   addrs <- use _Wrapped
   case addrs of
     addr : _ -> pure addr
     _ -> fail "peekAddr: There is no address to peek"
 
-peekNthAddr :: (MonadState s m, s ~ AddressStack) => Int -> m Address
+peekNthAddr :: (MonadState s m, s ~ AddressStack, MonadFail m) => Int -> m Address
 peekNthAddr n = do
   addrs <- use _Wrapped
   case drop (n - 1) addrs of

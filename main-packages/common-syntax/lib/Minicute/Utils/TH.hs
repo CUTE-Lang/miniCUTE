@@ -6,6 +6,9 @@ module Minicute.Utils.TH
   , normalizeCode
   ) where
 
+import Prelude hiding ( fail )
+
+import Control.Monad.Fail
 import Data.Char
 import Data.List
 import Data.List.Extra

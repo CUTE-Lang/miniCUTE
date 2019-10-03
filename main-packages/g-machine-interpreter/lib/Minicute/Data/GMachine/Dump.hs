@@ -15,12 +15,14 @@ module Minicute.Data.GMachine.Dump
   , emptyDumpItem
   ) where
 
+import Prelude hiding ( fail )
+
 import Control.Lens.Getter ( use )
 import Control.Lens.Operators
 import Control.Lens.TH
 import Control.Lens.Wrapped ( _Wrapped )
-import Control.Monad.Fail ( MonadFail )
-import Control.Monad.State
+import Control.Monad.Fail
+import Control.Monad.State ( MonadState )
 import Data.Data
 import GHC.Generics
 

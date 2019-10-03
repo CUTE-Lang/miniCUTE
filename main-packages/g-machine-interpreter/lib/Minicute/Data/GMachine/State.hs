@@ -40,14 +40,23 @@ module Minicute.Data.GMachine.State
   , loadStateFromDump
   ) where
 
+import Prelude hiding ( fail )
+
 import Control.Lens.Getter ( use )
 import Control.Lens.Iso ( iso )
 import Control.Lens.Operators
 import Control.Lens.TH
 import Control.Lens.Type
 import Control.Lens.Unsound
-import Control.Monad.Fail ( MonadFail )
+import Control.Monad ( forM )
+import Control.Monad.Fail
 import Control.Monad.State
+  ( MonadState
+  , StateT
+  , execState
+  , runState
+  , runStateT
+  )
 import Data.Data
 import Data.Tuple.Minicute
 import GHC.Generics
@@ -162,10 +171,10 @@ popAddrsFromAddressStack = applySubstructuralAction _addressStack . AddressStack
 popAllAddrsFromAddressStack :: (MonadState s m, s ~ GMachineState) => m [Address]
 popAllAddrsFromAddressStack = applySubstructuralAction _addressStack AddressStack.popAllAddrs
 
-peekAddrOnAddressStack :: (MonadState s m, s ~ GMachineState) => m Address
+peekAddrOnAddressStack :: (MonadState s m, s ~ GMachineState, MonadFail m) => m Address
 peekAddrOnAddressStack = applySubstructuralAction _addressStack AddressStack.peekAddr
 
-peekNthAddrOnAddressStack :: (MonadState s m, s ~ GMachineState) => Int -> m Address
+peekNthAddrOnAddressStack :: (MonadState s m, s ~ GMachineState, MonadFail m) => Int -> m Address
 peekNthAddrOnAddressStack = applySubstructuralAction _addressStack . AddressStack.peekNthAddr
 
 checkSizeOfAddressStack :: (MonadState s m, s ~ GMachineState) => Int -> m Bool

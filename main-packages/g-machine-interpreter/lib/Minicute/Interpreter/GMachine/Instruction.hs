@@ -5,8 +5,10 @@ module Minicute.Interpreter.GMachine.Instruction
   , interpretInstruction
   ) where
 
-import Control.Monad.Extra
-import Data.List.Extra
+import Prelude hiding ( fail )
+
+import Control.Monad.Extra ( forM, ifM, replicateM, void )
+import Control.Monad.Fail
 import Minicute.Control.GMachine.Step
 import Minicute.Data.Common
 import Minicute.Data.GMachine.Instruction

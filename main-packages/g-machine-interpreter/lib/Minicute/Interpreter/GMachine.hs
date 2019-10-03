@@ -4,7 +4,7 @@ module Minicute.Interpreter.GMachine
   , interpretProgram
   ) where
 
-import Control.Monad.Extra
+import Control.Monad.Extra ( ifM )
 import Minicute.Control.GMachine
 import Minicute.Data.GMachine.Instruction
 import Minicute.Interpreter.GMachine.Instruction

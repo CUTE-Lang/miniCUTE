@@ -12,9 +12,10 @@ module Minicute.Control.GMachine.Step
   , execGMachineStepT
   ) where
 
+import Prelude hiding ( fail )
 
 import Control.Monad.Fail
-import Control.Monad.State
+import Control.Monad.State ( MonadState, StateT, runStateT )
 import Data.Data
 import GHC.Generics
 import Minicute.Data.GMachine.State

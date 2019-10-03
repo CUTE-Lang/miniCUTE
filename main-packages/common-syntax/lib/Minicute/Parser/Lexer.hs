@@ -16,7 +16,10 @@ module Minicute.Parser.Lexer
   , spacesConsumer
   ) where
 
+import Prelude hiding ( fail )
+
 import Control.Monad ( void )
+import Control.Monad.Fail
 import Data.List
 import Data.List.Extra
 import Data.Proxy
