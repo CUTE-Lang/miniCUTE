@@ -36,6 +36,7 @@ newtype Code
            , Data
            , Eq
            , Ord
+           , Show
            )
 
 makeWrapped ''Code

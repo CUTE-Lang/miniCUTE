@@ -74,6 +74,7 @@ data GMachineState
            , Data
            , Eq
            , Ord
+           , Show
            )
 
 makeLensesFor

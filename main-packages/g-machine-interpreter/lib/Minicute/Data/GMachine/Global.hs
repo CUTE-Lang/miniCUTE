@@ -37,6 +37,7 @@ newtype Global
            , Data
            , Eq
            , Ord
+           , Show
            )
 
 makeWrapped ''Global

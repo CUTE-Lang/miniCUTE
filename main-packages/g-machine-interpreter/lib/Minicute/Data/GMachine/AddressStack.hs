@@ -38,6 +38,7 @@ newtype AddressStack
            , Data
            , Eq
            , Ord
+           , Show
            )
 
 makeWrapped ''AddressStack

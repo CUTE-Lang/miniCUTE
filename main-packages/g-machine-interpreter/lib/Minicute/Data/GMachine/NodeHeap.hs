@@ -38,6 +38,7 @@ newtype NodeHeap
            , Data
            , Eq
            , Ord
+           , Show
            )
 
 makeWrapped ''NodeHeap

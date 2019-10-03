@@ -28,6 +28,7 @@ newtype ValueStack
            , Data
            , Eq
            , Ord
+           , Show
            )
 
 makeWrapped ''ValueStack

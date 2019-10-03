@@ -35,6 +35,7 @@ newtype Dump
            , Data
            , Eq
            , Ord
+           , Show
            )
 
 type DumpItem = (Code.Code, AddressStack.AddressStack, ValueStack.ValueStack)
