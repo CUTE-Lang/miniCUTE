@@ -31,7 +31,7 @@ import Minicute.Data.GMachine.Instruction
 
 import qualified Data.List.NonEmpty as NonEmpty
 
-type GMachineMonad = GMachineMonadT Maybe
+type GMachineMonad = GMachineMonadT IO
 
 newtype GMachineMonadT m a
   = GMachineMonadT

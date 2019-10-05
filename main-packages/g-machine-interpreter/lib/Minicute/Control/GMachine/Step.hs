@@ -21,7 +21,7 @@ import Data.Data
 import GHC.Generics
 import Minicute.Data.GMachine.State
 
-type GMachineStepMonad = GMachineStepMonadT Maybe
+type GMachineStepMonad = GMachineStepMonadT IO
 
 newtype GMachineStepMonadT m a = GMachineStepMonadT (StateT GMachineState m a)
   deriving ( Generic
