@@ -134,14 +134,22 @@ instance (PrettyMC a, PrettyMC (expr a)) => PrettyMC (MatchCase expr a) where
 -- |
 -- A basic miniCUTE expression of @a@.
 data Expression (t :: ExpressionLevel) a where
-  EInteger :: Integer -> Expression t a -- ^ @5@
-  EConstructor :: Integer -> Integer -> Expression t a -- ^ @$C{tag;arity}@
-  EVariable :: Identifier -> Expression t a -- ^ @var@
-  EPrimitive :: Primitive -> Expression t a -- ^ @+@
-  EApplication :: Expression t a -> Expression t a -> Expression t a -- ^ @fun arg@
-  ELet :: IsRecursive -> [LetDefinition (Expression t) a] -> Expression t a -> Expression t a -- ^ @let var = 4 in var@
-  EMatch :: Expression t a -> [MatchCase (Expression t) a] -> Expression t a -- ^ @match $C{1;0} with \<1\> -> 4@
-  ELambda :: [a] -> ExpressionMC a -> ExpressionMC a -- ^ @\\arg.arg@
+  -- | @5@
+  EInteger :: Integer -> Expression t a
+  -- | @$C{t;a}@
+  EConstructor :: Integer -> Integer -> Expression t a
+  -- | @+@
+  EPrimitive :: Primitive -> Expression t a
+  -- | @v@
+  EVariable :: Identifier -> Expression t a
+  -- | @f 4@
+  EApplication :: Expression t a -> Expression t a -> Expression t a
+  -- | @let x = 4 in x@
+  ELet :: IsRecursive -> [LetDefinition (Expression t) a] -> Expression t a -> Expression t a
+  -- | @match $C{1;0} with \<1\> -> 4@
+  EMatch :: Expression t a -> [MatchCase (Expression t) a] -> Expression t a
+  -- | @\\x.x@
+  ELambda :: [a] -> ExpressionMC a -> ExpressionMC a
   deriving ( Typeable
            )
 -- |

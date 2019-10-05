@@ -1,4 +1,4 @@
-{-# OPTIONS_HADDOCK prune #-}
+{-# OPTIONS_HADDOCK hide #-}
 -- |
 -- TH functions to define tuple functions
 module Data.Tuple.Internal.Minicute.TH

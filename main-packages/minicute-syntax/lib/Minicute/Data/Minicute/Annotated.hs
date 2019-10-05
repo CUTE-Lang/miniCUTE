@@ -64,14 +64,22 @@ type MainAnnotatedProgramMC ann = AnnotatedProgramMC ann Identifier
 --
 -- [@a@] an identifier type of the expression.
 data AnnotatedExpressionMC ann a
-  = AEInteger ann Integer -- ^ @5@
-  | AEConstructor ann Integer Integer -- ^ @$C{t;a}@
-  | AEVariable ann Identifier -- ^ @v@
-  | AEPrimitive ann Primitive -- ^ @v@
-  | AEApplication ann (AnnotatedExpressionMC ann a) (AnnotatedExpressionMC ann a) -- ^ @f 4@
-  | AELet ann IsRecursive [LetDefinition (AnnotatedExpressionMC ann) a] (AnnotatedExpressionMC ann a) -- ^ @let x = 4 in x@
-  | AEMatch ann (AnnotatedExpressionMC ann a) [MatchCase (AnnotatedExpressionMC ann) a] -- ^ @match $C{1;0} with \<1\> -> 4@
-  | AELambda ann [a] (AnnotatedExpressionMC ann a) -- ^ @\\x.x@
+  -- | @5@
+  = AEInteger ann Integer
+  -- | @$C{t;a}@
+  | AEConstructor ann Integer Integer
+  -- | @v@
+  | AEVariable ann Identifier
+  -- | @+@
+  | AEPrimitive ann Primitive
+  -- | @f 4@
+  | AEApplication ann (AnnotatedExpressionMC ann a) (AnnotatedExpressionMC ann a)
+  -- | @let x = 4 in x@
+  | AELet ann IsRecursive [LetDefinition (AnnotatedExpressionMC ann) a] (AnnotatedExpressionMC ann a)
+  -- | @match $C{1;0} with \<1\> -> 4@
+  | AEMatch ann (AnnotatedExpressionMC ann a) [MatchCase (AnnotatedExpressionMC ann) a]
+  -- | @\\x.x@
+  | AELambda ann [a] (AnnotatedExpressionMC ann a)
   deriving ( Generic
            , Typeable
            , Data

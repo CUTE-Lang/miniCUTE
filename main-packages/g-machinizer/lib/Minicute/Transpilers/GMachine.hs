@@ -1,4 +1,3 @@
-{-# OPTIONS_HADDOCK not-home #-}
 -- |
 -- Transpilers from a miniCUTE program to a G-Machine program
 module Minicute.Transpilers.GMachine

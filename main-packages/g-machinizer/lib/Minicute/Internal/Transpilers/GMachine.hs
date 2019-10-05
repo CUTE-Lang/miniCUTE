@@ -1,4 +1,4 @@
-{-# OPTIONS_HADDOCK prune #-}
+{-# OPTIONS_HADDOCK hide #-}
 {-# LANGUAGE OverloadedStrings #-}
 -- |
 -- Implementation detail of the transpiler from a miniCUTE program to a G-Machine program
