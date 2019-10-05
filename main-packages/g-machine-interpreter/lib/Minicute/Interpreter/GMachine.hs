@@ -11,10 +11,10 @@ import Minicute.Interpreter.GMachine.Instruction
 
 interpretProgram :: GMachineProgram -> GMachineMonad ()
 interpretProgram program
-  = initializeInterpreterWith program >> buildSteps
+  = initializeGMachineWith program >> buildSteps
   where
     buildSteps
-      = ifM checkInterpreterFinished
-        (addInterpreterStep step >> buildSteps)
+      = ifM checkGMachineFinished
+        (executeGMachineStep step >> buildSteps)
         (pure ())
     step = fetchNextInstruction >>= interpretInstruction
