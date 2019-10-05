@@ -15,7 +15,8 @@ module Minicute.Control.GMachine.Step
 import Prelude hiding ( fail )
 
 import Control.Monad.Fail
-import Control.Monad.State ( MonadState, StateT, runStateT )
+import Control.Monad.State ( MonadState(..), StateT, runStateT )
+import Control.Monad.Trans ( MonadTrans(..) )
 import Data.Data
 import GHC.Generics
 import Minicute.Data.GMachine.State
@@ -29,6 +30,7 @@ newtype GMachineStepMonadT m a = GMachineStepMonadT (StateT GMachineState m a)
            , Applicative
            , Monad
            , MonadFail
+           , MonadTrans
            )
 
 deriving instance (Monad m) => MonadState GMachineState (GMachineStepMonadT m)
