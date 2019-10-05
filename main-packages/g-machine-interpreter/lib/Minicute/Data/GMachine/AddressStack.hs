@@ -89,6 +89,6 @@ peekNthAddr n = use _Wrapped >>= peekNthAddr'
         _ -> fail $ "peekNthAddr: There are not enough addresses to peek the " <> show n <> "th address"
 
 checkSize :: (MonadState s m, s ~ AddressStack) => Int -> m Bool
-checkSize n = isLongerThan n <$> use _Wrapped
+checkSize n = isLongEnough <$> use _Wrapped
   where
-    isLongerThan len = not . null . drop (len - 1)
+    isLongEnough = (n ==) . length . take n

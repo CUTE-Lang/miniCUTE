@@ -15,6 +15,6 @@ interpretProgram program
   where
     buildSteps
       = ifM checkGMachineFinished
-        (executeGMachineStep step >> buildSteps)
         (pure ())
+        (executeGMachineStep step >> buildSteps)
     step = fetchNextInstruction >>= interpretInstruction
