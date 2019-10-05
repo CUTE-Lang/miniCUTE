@@ -8,6 +8,7 @@ module Minicute.Control.GMachine
 
   , GMachineMonadT
   , GMachineMonad
+  , execGMachineT
 
   , initializeGMachineWith
   , executeGMachineStep
@@ -18,7 +19,7 @@ import Prelude hiding ( fail )
 
 import Control.Monad ( (<=<) )
 import Control.Monad.Fail
-import Control.Monad.State ( MonadState(..), StateT, gets, modify )
+import Control.Monad.State ( MonadState(..), StateT, gets, modify, execStateT )
 import Control.Monad.Trans ( MonadTrans(..) )
 import Control.Monad.Writer ( MonadWriter(..), Writer, runWriter )
 import Data.Data
@@ -61,6 +62,13 @@ instance (Monad m) => MonadState (NonEmpty GMachineState) (GMachineMonadT m) whe
 
 instance MonadTrans GMachineMonadT where
   lift = GMachineMonadT . pure . lift
+
+execGMachineT :: (Monad m) => GMachineMonadT m () -> m (NonEmpty GMachineState)
+execGMachineT (GMachineMonadT a)
+  | Just st <- maySt = execStateT b (st :| [])
+  | otherwise = error "execGMachineT: input G-Machine is not initialized"
+  where
+    (b, First maySt) = runWriter a
 
 
 initializeGMachineWith :: (Monad m) => GMachineProgram -> GMachineMonadT m ()
