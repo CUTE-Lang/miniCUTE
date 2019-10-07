@@ -74,9 +74,9 @@ type GMachineExpression = [Instruction]
 --
 --     \[
 --     \begin{array}{r r r r r l l l}
---       ( & IMakeInteger\ n : codes, &        addrs, & values, & dump, & heap, &                    global & )\\
+--       ( & \text{IMakeInteger}\ n : codes, &        addrs, & values, & dump, & heap, &                           global & )\\
 --       \hline
---       ( &                   codes, & addr : addrs, & values, & dump, & heap[addr: NInteger\ n], & global & )
+--       ( &                          codes, & addr : addrs, & values, & dump, & heap[addr: \text{NInteger}\ n], & global & )
 --     \end{array}
 --     \]
 --
@@ -85,9 +85,9 @@ type GMachineExpression = [Instruction]
 --
 --     \[
 --     \begin{array}{r r r r r l l l}
---       ( & IMakeConstructor\ t\ n : codes, &        addrs, & values, & dump, & heap, &                           global & )\\
+--       ( & \text{IMakeConstructor}\ t\ n : codes, &        addrs, & values, & dump, & heap, &                                  global & )\\
 --       \hline
---       ( &                          codes, & addr : addrs, & values, & dump, & heap[addr: NConstructor\ t\ n], & global & )
+--       ( &                                 codes, & addr : addrs, & values, & dump, & heap[addr: \text{NConstructor}\ t\ n], & global & )
 --     \end{array}
 --     \]
 --
@@ -95,9 +95,9 @@ type GMachineExpression = [Instruction]
 --
 --     \[
 --     \begin{array}{r r r r r l l l}
---       ( & IMakeStructure\ t\ n : codes, & addr_0 : addr_1 : ... : addr_{n - 1} : addrs, & values, & dump, & heap, &                                                           global & )\\
+--       ( & \text{IMakeStructure}\ t\ n : codes, & addr_0 : addr_1 : ... : addr_{n - 1} : addrs, & values, & dump, & heap, &                                                                  global & )\\
 --       \hline
---       ( &                        codes, &                                 addr : addrs, & values, & dump, & heap[addr: NStructure\ t\ [addr_{n - 1}, ..., addr_1, addr_0]], & global & )
+--       ( &                               codes, &                                 addr : addrs, & values, & dump, & heap[addr: \text{NStructure}\ t\ [addr_{n - 1}, ..., addr_1, addr_0]], & global & )
 --     \end{array}
 --     \]
 --
@@ -105,9 +105,9 @@ type GMachineExpression = [Instruction]
 --
 --     \[
 --     \begin{array}{r r r r r l l l}
---       ( & IMakeApplication : codes, & addr_0 : addr_1 : addrs, & values, & dump, & heap, &                                     global & )\\
+--       ( & \text{IMakeApplication} : codes, & addr_0 : addr_1 : addrs, & values, & dump, & heap, &                                            global & )\\
 --       \hline
---       ( &                    codes, &            addr : addrs, & values, & dump, & heap[addr: NApplication\ addr_1\ addr_0], & global & )
+--       ( &                           codes, &            addr : addrs, & values, & dump, & heap[addr: \text{NApplication}\ addr_1\ addr_0], & global & )
 --     \end{array}
 --     \]
 --
@@ -115,9 +115,9 @@ type GMachineExpression = [Instruction]
 --
 --     \[
 --     \begin{array}{r r r r r l l l}
---       ( & IMakeGlobal\ id : codes, &        addrs, & values, & dump, & heap, & global[id: addr] & )\\
+--       ( & \text{IMakeGlobal}\ id : codes, &        addrs, & values, & dump, & heap, & global[id: addr] & )\\
 --       \hline
---       ( &                   codes, & addr : addrs, & values, & dump, & heap, & global[id: addr] & )
+--       ( &                          codes, & addr : addrs, & values, & dump, & heap, & global[id: addr] & )
 --     \end{array}
 --     \]
 --
@@ -126,11 +126,11 @@ type GMachineExpression = [Instruction]
 --     \[
 --     \begin{align}
 --     & \begin{array}{r r r r r l l l}
---       ( & IMakePlaceholders\ n : codes, &                                  addrs, & values, & dump, & heap, &  global & )\\
+--       ( & \text{IMakePlaceholders}\ n : codes, &                                  addrs, & values, & dump, & heap, &  global & )\\
 --       \hline
---       ( &                        codes, & addr_0 : addr_1 : ... : addr_n : addrs, & values, & dump, & heap', & global & )
+--       ( &                               codes, & addr_0 : addr_1 : ... : addr_n : addrs, & values, & dump, & heap', & global & )
 --     \end{array}\\
---     & heap' = heap[addr_0: NEmpty, addr_1: NEmpty, ..., addr_n: NEmpty]
+--     & heap' = heap[addr_0: \text{NEmpty}, addr_1: \text{NEmpty}, ..., addr_n: \text{NEmpty}]
 --     \end{align}
 --     \]
 --
@@ -141,9 +141,9 @@ type GMachineExpression = [Instruction]
 --
 --     \[
 --     \begin{array}{r r r r r l l l}
---       ( & IPop\ n : codes, & addr_0 : addr_1 : ... : addr_{n - 1} : addrs, & values, & dump, & heap, & global & )\\
+--       ( & \text{IPop}\ n : codes, & addr_0 : addr_1 : ... : addr_{n - 1} : addrs, & values, & dump, & heap, & global & )\\
 --       \hline
---       ( &           codes, &                                        addrs, & values, & dump, & heap, & global & )
+--       ( &                  codes, &                                        addrs, & values, & dump, & heap, & global & )
 --     \end{array}
 --     \]
 --
@@ -151,9 +151,9 @@ type GMachineExpression = [Instruction]
 --
 --     \[
 --     \begin{array}{r r r r r l l l}
---       ( & IDig\ n : codes, & addr_0 : addr_1 : ... : addr_n : addrs, & values, & dump, & heap, & global & )\\
+--       ( & \text{IDig}\ n : codes, & addr_0 : addr_1 : ... : addr_n : addrs, & values, & dump, & heap, & global & )\\
 --       \hline
---       ( &           codes, &                         addr_0 : addrs, & values, & dump, & heap, & global & )
+--       ( &                  codes, &                         addr_0 : addrs, & values, & dump, & heap, & global & )
 --     \end{array}
 --     \]
 --
@@ -161,9 +161,9 @@ type GMachineExpression = [Instruction]
 --
 --     \[
 --     \begin{array}{r r r r r l l l}
---       ( & IUpdate\ n : codes, & addr_0 : addr_1 : ... : addr_n : addrs, & values, & dump, & heap, &                            global & )\\
+--       ( & \text{IUpdate}\ n : codes, & addr_0 : addr_1 : ... : addr_n : addrs, & values, & dump, & heap, &                                   global & )\\
 --       \hline
---       ( &              codes, & addr_0 : addr_1 : ... : addr_n : addrs, & values, & dump, & heap[addr_n: NIndirect\ addr_0], & global & )
+--       ( &                     codes, & addr_0 : addr_1 : ... : addr_n : addrs, & values, & dump, & heap[addr_n: \text{NIndirect}\ addr_0], & global & )
 --     \end{array}
 --     \]
 --
@@ -171,9 +171,9 @@ type GMachineExpression = [Instruction]
 --
 --     \[
 --     \begin{array}{r r r r r l l l}
---       ( & ICopy\ n : codes, &          addr_0 : addr_1 : ... : addr_n : addrs, & values, & dump, & heap, & global & )\\
+--       ( & \text{ICopy}\ n : codes, &          addr_0 : addr_1 : ... : addr_n : addrs, & values, & dump, & heap, & global & )\\
 --       \hline
---       ( &            codes, & addr_n : addr_0 : addr_1 : ... : addr_n : addrs, & values, & dump, & heap, & global & )
+--       ( &                   codes, & addr_n : addr_0 : addr_1 : ... : addr_n : addrs, & values, & dump, & heap, & global & )
 --     \end{array}
 --     \]
 --
@@ -182,9 +182,9 @@ type GMachineExpression = [Instruction]
 --
 --     \[
 --     \begin{array}{r r r r r l l l}
---       ( & IPushBasicValue\ v : codes, & addrs, &     values, & dump, & heap, & global & )\\
+--       ( & \text{IPushBasicValue}\ v : codes, & addrs, &     values, & dump, & heap, & global & )\\
 --       \hline
---       ( &                      codes, & addrs, & v : values, & dump, & heap, & global & )
+--       ( &                             codes, & addrs, & v : values, & dump, & heap, & global & )
 --     \end{array}
 --     \]
 --
@@ -192,17 +192,17 @@ type GMachineExpression = [Instruction]
 --
 --     \[
 --     \begin{array}{r r r r r l l l}
---       ( & IPushExtractedValue : codes, & addr : addrs, &     values, & dump, & heap[addr: NInteger\ v], & global & )\\
+--       ( & \text{IPushExtractedValue} : codes, & addr : addrs, &     values, & dump, & heap[addr: \text{NInteger}\ v], & global & )\\
 --       \hline
---       ( &                       codes, &        addrs, & v : values, & dump, & heap, &                    global & )
+--       ( &                              codes, &        addrs, & v : values, & dump, & heap, &                           global & )
 --     \end{array}
 --     \]
 --
 --     \[
 --     \begin{array}{r r r r r l l l}
---       ( & IPushExtractedValue : codes, & addr : addrs, &     values, & dump, & heap[addr: NStructure\ v\ []], & global & )\\
+--       ( & \text{IPushExtractedValue} : codes, & addr : addrs, &     values, & dump, & heap[addr: \text{NStructure}\ v\ []], & global & )\\
 --       \hline
---       ( &                       codes, &        addrs, & v : values, & dump, & heap, &                          global & )
+--       ( &                              codes, &        addrs, & v : values, & dump, & heap, &                                 global & )
 --     \end{array}
 --     \]
 --
@@ -210,9 +210,9 @@ type GMachineExpression = [Instruction]
 --
 --     \[
 --     \begin{array}{r r r r r l l l}
---       ( & IWrapAsInteger : codes, &        addrs, & v : values, & dump, & heap, &                    global & )\\
+--       ( & \text{IWrapAsInteger} : codes, &        addrs, & v : values, & dump, & heap, &                           global & )\\
 --       \hline
---       ( &                  codes, & addr : addrs, &     values, & dump, & heap[addr: NInteger\ v], & global & )
+--       ( &                         codes, & addr : addrs, &     values, & dump, & heap[addr: \text{NInteger}\ v], & global & )
 --     \end{array}
 --     \]
 --
@@ -220,9 +220,9 @@ type GMachineExpression = [Instruction]
 --
 --     \[
 --     \begin{array}{r r r r r l l l}
---       ( & IWrapAsStructure : codes, &        addrs, & v : values, & dump, & heap, &                          global & )\\
+--       ( & \text{IWrapAsStructure} : codes, &        addrs, & v : values, & dump, & heap, &                                 global & )\\
 --       \hline
---       ( &                    codes, & addr : addrs, &     values, & dump, & heap[addr: NStructure\ v\ []], & global & )
+--       ( &                           codes, & addr : addrs, &     values, & dump, & heap[addr: \text{NStructure}\ v\ []], & global & )
 --     \end{array}
 --     \]
 --
@@ -230,9 +230,9 @@ type GMachineExpression = [Instruction]
 --
 --     \[
 --     \begin{array}{r r r r r l l l}
---       ( & IUpdateAsInteger\ n : codes, & addr_0 : addr_1 : ... : addr_n : addrs, & v : values, & dump, & heap, &                      global & )\\
+--       ( & \text{IUpdateAsInteger}\ n : codes, & addr_0 : addr_1 : ... : addr_n : addrs, & v : values, & dump, & heap, &                             global & )\\
 --       \hline
---       ( &                       codes, & addr_0 : addr_1 : ... : addr_n : addrs, &     values, & dump, & heap[addr_n: NInteger\ v], & global & )
+--       ( &                              codes, & addr_0 : addr_1 : ... : addr_n : addrs, &     values, & dump, & heap[addr_n: \text{NInteger}\ v], & global & )
 --     \end{array}
 --     \]
 --
@@ -240,9 +240,9 @@ type GMachineExpression = [Instruction]
 --
 --     \[
 --     \begin{array}{r r r r r l l l}
---       ( & IUpdateAsStructure\ n : codes, & addr_0 : addr_1 : ... : addr_n : addrs, & v : values, & dump, & heap, &                            global & )\\
+--       ( & \text{IUpdateAsStructure}\ n : codes, & addr_0 : addr_1 : ... : addr_n : addrs, & v : values, & dump, & heap, &                                   global & )\\
 --       \hline
---       ( &                         codes, & addr_0 : addr_1 : ... : addr_n : addrs, &     values, & dump, & heap[addr_n: NStructure\ v\ []], & global & )
+--       ( &                                codes, & addr_0 : addr_1 : ... : addr_n : addrs, &     values, & dump, & heap[addr_n: \text{NStructure}\ v\ []], & global & )
 --     \end{array}
 --     \]
 --
@@ -252,9 +252,9 @@ type GMachineExpression = [Instruction]
 --     \[
 --     \begin{align}
 --     & \begin{array}{r r r r r l l l}
---       ( & IPrimitive\ op : codes, & addrs, & v_0 : v_1 : values, & dump, & heap, & global & )\\
+--       ( & \text{IPrimitive}\ op : codes, & addrs, & v_0 : v_1 : values, & dump, & heap, & global & )\\
 --       \hline
---       ( &                  codes, & addrs, &        v' : values, & dump, & heap, & global & )
+--       ( &                         codes, & addrs, &        v' : values, & dump, & heap, & global & )
 --     \end{array}\\
 --     & v' = v_0\ R\ v1\\
 --     & \text{(when $op$ represents a binary operation $R$)}
@@ -264,9 +264,9 @@ type GMachineExpression = [Instruction]
 --     \[
 --     \begin{align}
 --     & \begin{array}{r r r r r l l l}
---       ( & IPrimitive\ op : codes, & addrs, &  v : values, & dump, & heap, & global & )\\
+--       ( & \text{IPrimitive}\ op : codes, & addrs, &  v : values, & dump, & heap, & global & )\\
 --       \hline
---       ( &                  codes, & addrs, & v' : values, & dump, & heap, & global & )
+--       ( &                         codes, & addrs, & v' : values, & dump, & heap, & global & )
 --     \end{array}\\
 --     & v' = R\ v\\
 --     & \text{(when $op$ represents a unary operation $R$)}
@@ -278,50 +278,50 @@ type GMachineExpression = [Instruction]
 --
 --     \[
 --     \begin{array}{r r r r r l l l}
---       ( & [IUnwind], &  addr : addrs, &  values, & (codes', addrs', values') : dump, & heap[addr: NInteger\ n], & global & )\\
+--       ( & [\text{IUnwind}], &  addr : addrs, &  values, & (codes', addrs', values') : dump, & heap[addr: \text{NInteger}\ n], & global & )\\
 --       \hline
---       ( &    codes', & addr : addrs', & values', &                             dump, & heap, &                    global & )
+--       ( &           codes', & addr : addrs', & values', &                             dump, & heap, &                           global & )
 --     \end{array}
 --     \]
 --
 --     \[
 --     \begin{array}{r r r r r l l l}
---       ( & [IUnwind], &  addr : addrs, &  values, & (codes', addrs', values') : dump, & heap[addr: NStructure\ t\ fAddrs], & global & )\\
+--       ( & [\text{IUnwind}], &  addr : addrs, &  values, & (codes', addrs', values') : dump, & heap[addr: \text{NStructure}\ t\ fAddrs], & global & )\\
 --       \hline
---       ( &    codes', & addr : addrs', & values', &                             dump, & heap, &                              global & )
+--       ( &           codes', & addr : addrs', & values', &                             dump, & heap, &                                     global & )
 --     \end{array}
 --     \]
 --
 --     \[
 --     \begin{array}{r r r r r l l l}
---       ( & [IUnwind], &          addr : addrs, & values, & dump, & heap[addr: NApplication\ addr_1\ addr_0], & global & )\\
+--       ( & [\text{IUnwind}], &          addr : addrs, & values, & dump, & heap[addr: \text{NApplication}\ addr_1\ addr_0], & global & )\\
 --       \hline
---       ( & [IUnwind], & addr_1 : addr : addrs, & values, & dump, & heap, &                                     global & )
+--       ( & [\text{IUnwind}], & addr_1 : addr : addrs, & values, & dump, & heap, &                                            global & )
 --     \end{array}
 --     \]
 --
 --     \[
 --     \begin{array}{r r r r r l l l}
---       ( & [IUnwind], &  addr : addrs, & values, & dump, & heap[addr: NIndirect\ addr'], & global & )\\
+--       ( & [\text{IUnwind}], &  addr : addrs, & values, & dump, & heap[addr: \text{NIndirect}\ addr'], & global & )\\
 --       \hline
---       ( & [IUnwind], & addr' : addrs, & values, & dump, & heap, &                         global & )
+--       ( & [\text{IUnwind}], & addr' : addrs, & values, & dump, & heap, &                                global & )
 --     \end{array}
 --     \]
 --
 --     \[
 --     \begin{array}{r r r r r l l l}
---       ( &          [IUnwind], & addr : addrs, & values, & dump, & heap[addr: NConstructor\ t\ 0], & global & )\\
+--       ( &          [\text{IUnwind}], & addr : addrs, & values, & dump, & heap[addr: \text{NConstructor}\ t\ 0], & global & )\\
 --       \hline
---       ( & constructorCode\ t, & addr : addrs, & values, & dump, & heap, &                           global & )
+--       ( & \text{constructorCode}\ t, & addr : addrs, & values, & dump, & heap, &                                  global & )
 --     \end{array}
 --     \]
 --
 --     \[
 --     \begin{align}
 --     & \begin{array}{r r r r r l l l}
---       ( &                          [IUnwind], & addr_0 : addr_1 : ... : addr_n : addrs, & values, & dump, & heap[addr_0: NConstructor\ t\ n], & global & )\\
+--       ( &                                 [\text{IUnwind}], & addr_0 : addr_1 : ... : addr_n : addrs, & values, & dump, & heap[addr_0: \text{NConstructor}\ t\ n], & global & )\\
 --       \hline
---       ( & IRearrange\ n : constructorCode\ t, &          addr_1 : ... : addr_n : addrs, & values, & dump, & heap, &                             global & )
+--       ( & \text{IRearrange}\ n : \text{constructorCode}\ t, &          addr_1 : ... : addr_n : addrs, & values, & dump, & heap, &                                    global & )
 --     \end{array}\\
 --     & \text{(when $n > 0$)}
 --     \end{align}
@@ -330,9 +330,9 @@ type GMachineExpression = [Instruction]
 --     \[
 --     \begin{align}
 --     & \begin{array}{r r r r r l l l}
---       ( & [IUnwind], & [addr_0, addr_1, ..., addr_m], & values, & dump, & heap[addr_0: NConstructor\ t\ n], & global & )\\
+--       ( & [\text{IUnwind}], & [addr_0, addr_1, ..., addr_m], & values, & dump, & heap[addr_0: \text{NConstructor}\ t\ n], & global & )\\
 --       \hline
---       ( &  [Return], & [addr_0, addr_1, ..., addr_m], & values, & dump, & heap, &                             global & )
+--       ( &  [\text{Return}], & [addr_0, addr_1, ..., addr_m], & values, & dump, & heap, &                                    global & )
 --     \end{array}\\
 --     & \text{(when $m < n$)}
 --     \end{align}
@@ -340,18 +340,18 @@ type GMachineExpression = [Instruction]
 --
 --     \[
 --     \begin{array}{r r r r r l l l}
---       ( & [IUnwind], & addr : addrs, & values, & dump, & heap[addr: NGlobal\ 0\ codes'], & global & )\\
+--       ( & [\text{IUnwind}], & addr : addrs, & values, & dump, & heap[addr: \text{NGlobal}\ 0\ codes'], & global & )\\
 --       \hline
---       ( &    codes', & addr : addrs, & values, & dump, & heap, &                           global & )
+--       ( &           codes', & addr : addrs, & values, & dump, & heap, &                                  global & )
 --     \end{array}
 --     \]
 --
 --     \[
 --     \begin{align}
 --     & \begin{array}{r r r r r l l l}
---       ( &              [IUnwind], & addr_0 : addr_1 : ... : addr_n : addrs, & values, & dump, & heap[addr_0: NGlobal\ n\ codes'], & global & )\\
+--       ( &              [\text{IUnwind}], & addr_0 : addr_1 : ... : addr_n : addrs, & values, & dump, & heap[addr_0: \text{NGlobal}\ n\ codes'], & global & )\\
 --       \hline
---       ( & IRearrange\ n : codes', &          addr_1 : ... : addr_n : addrs, & values, & dump, & heap, &                             global & )
+--       ( & \text{IRearrange}\ n : codes', &          addr_1 : ... : addr_n : addrs, & values, & dump, & heap, &                                    global & )
 --     \end{array}\\
 --     & \text{(when $n > 0$)}
 --     \end{align}
@@ -360,9 +360,9 @@ type GMachineExpression = [Instruction]
 --     \[
 --     \begin{align}
 --     & \begin{array}{r r r r r l l l}
---       ( & [IUnwind], & [addr_0, addr_1, ..., addr_m], & values, & dump, & heap[addr_0: NGlobal\ t\ codes'], & global & )\\
+--       ( & [\text{IUnwind}], & [addr_0, addr_1, ..., addr_m], & values, & dump, & heap[addr_0: \text{NGlobal}\ t\ codes'], & global & )\\
 --       \hline
---       ( &  [Return], & [addr_0, addr_1, ..., addr_m], & values, & dump, & heap, &                             global & )
+--       ( &  [\text{Return}], & [addr_0, addr_1, ..., addr_m], & values, & dump, & heap, &                                    global & )
 --     \end{array}\\
 --     & \text{(when $m < n$)}
 --     \end{align}
@@ -372,9 +372,9 @@ type GMachineExpression = [Instruction]
 --
 --     \[
 --     \begin{array}{r r r r r l l l}
---       ( & IDestruct\ n : codes, &                                 addr : addrs, & values, & dump, & heap[addr: NStructure\ t\ [addr_{n - 1}, ..., addr_1, addr_0]], & global & )\\
+--       ( & \text{IDestruct}\ n : codes, &                                 addr : addrs, & values, & dump, & heap[addr: \text{NStructure}\ t\ [addr_{n - 1}, ..., addr_1, addr_0]], & global & )\\
 --       \hline
---       ( &                codes, & addr_0 : addr_1 : ... : addr_{n - 1} : addrs, & values, & dump, & heap, &                                                           global & )
+--       ( &                       codes, & addr_0 : addr_1 : ... : addr_{n - 1} : addrs, & values, & dump, & heap, &                                                                  global & )
 --     \end{array}
 --     \]
 --
@@ -384,9 +384,9 @@ type GMachineExpression = [Instruction]
 --
 --     \[
 --     \begin{array}{r r r r r l l l}
---       ( & IEval : codes, & addr : addrs, & values, &                          dump, & heap, & global & )\\
+--       ( & \text{IEval} : codes, & addr : addrs, & values, &                          dump, & heap, & global & )\\
 --       \hline
---       ( &     [IUnwind], &       [addr], &     [], & (codes, addrs, values) : dump, & heap, & global & )
+--       ( &     [\text{IUnwind}], &       [addr], &     [], & (codes, addrs, values) : dump, & heap, & global & )
 --     \end{array}
 --     \]
 --
@@ -394,9 +394,9 @@ type GMachineExpression = [Instruction]
 --
 --     \[
 --     \begin{array}{r r r r r l l l}
---       ( & [IReturn], & [addr_0, addr_1, ..., addr_n], &  values, & (codes', addrs', values') : dump, & heap, & global & )\\
+--       ( & [\text{IReturn}], & [addr_0, addr_1, ..., addr_n], &  values, & (codes', addrs', values') : dump, & heap, & global & )\\
 --       \hline
---       ( &    codes', &               addr_n : addrs', & values', &                             dump, & heap, & global & )
+--       ( &           codes', &               addr_n : addrs', & values', &                             dump, & heap, & global & )
 --     \end{array}
 --     \]
 --
@@ -406,9 +406,9 @@ type GMachineExpression = [Instruction]
 --
 --     \[
 --     \begin{array}{r r r r r l l l}
---       ( & IMatch\ table[t: caseCode] : codes, & addr : addrs, & values, & dump, & heap[addr: NStructure\ t\ fAddrs], & global & )\\
+--       ( & \text{IMatch}\ table[t: casecode_t] : codes, & addr : addrs, & values, & dump, & heap[addr: \text{NStructure}\ t\ fAddrs], & global & )\\
 --       \hline
---       ( &            caseCode \diamond codes, & addr : addrs, & values, & dump, & heap, &                              global & )
+--       ( &                   casecode_t \diamond codes, & addr : addrs, & values, & dump, & heap, &                                     global & )
 --     \end{array}
 --     \]
 --
@@ -420,9 +420,9 @@ type GMachineExpression = [Instruction]
 --
 --     \[
 --     \begin{array}{r r r r r l l l}
---       ( & IRearrange\ n : codes, &                    addr_0 : addr_1 : ... : addr_{n - 1} : addrs, & values, & dump, & heap[addr_i: NApplication\ addr'_i\ addr''_i], & global & )\\
+--       ( & \text{IRearrange}\ n : codes, &                    addr_0 : addr_1 : ... : addr_{n - 1} : addrs, & values, & dump, & heap[addr_i: \text{NApplication}\ addr'_i\ addr''_i], & global & )\\
 --       \hline
---       ( &                 codes, & addr''_0 : addr''_1 : ... : addr''_{n - 1} : addr_{n - 1} : addrs, & values, & dump, & heap, &                                         global & )
+--       ( &                        codes, & addr''_0 : addr''_1 : ... : addr''_{n - 1} : addr_{n - 1} : addrs, & values, & dump, & heap, &                                               global & )
 --     \end{array}\\
 --     \]
 
