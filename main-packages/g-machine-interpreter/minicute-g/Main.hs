@@ -2,6 +2,9 @@ module Main
   ( main
   ) where
 
+import Control.Monad ( forM_ )
+import Data.List.NonEmpty ( toList )
+import Minicute.Interpreter.GMachine ( execGMachineT, interpretProgram )
 import Minicute.Parser.GMachine.Parser ( gMachineProgram )
 import System.Environment
 import System.IO
@@ -22,6 +25,12 @@ interpret handle = do
     Right program -> do
       putStrLn "program by show:"
       print program
+      states <- execGMachineT (interpretProgram program)
+      putStrLn "Execution states:"
+      let indexedStates = zip (reverse (toList states)) [(0 :: Integer)..]
+      forM_ indexedStates $ \(state, index) -> do
+        putStrLn $ "  state<" <> show index <> ">:"
+        putStrLn $ "    " <> show  state
     Left err -> do
       putStrLn "error:"
       putStrLn (errorBundlePretty err)

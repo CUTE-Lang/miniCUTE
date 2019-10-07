@@ -88,12 +88,12 @@ interpretDig n = do
 interpretUpdate :: Int -> GMachineStepMonad ()
 interpretUpdate n = do
   valueAddr <- peekAddrOnAddressStack
-  targetAddr <- peekNthAddrOnAddressStack n
+  targetAddr <- peekNthAddrOnAddressStack (n + 1)
   updateNodeOnNodeHeap targetAddr (NIndirect valueAddr)
 
 interpretCopy :: Int -> GMachineStepMonad ()
 interpretCopy n = do
-  addr <- peekNthAddrOnAddressStack n
+  addr <- peekNthAddrOnAddressStack (n + 1)
   pushAddrToAddressStack addr
 
 
@@ -135,13 +135,13 @@ interpretWrapAsStructure = do
 
 interpretUpdateAsInteger :: Int -> GMachineStepMonad ()
 interpretUpdateAsInteger n = do
-  targetAddr <- peekNthAddrOnAddressStack n
+  targetAddr <- peekNthAddrOnAddressStack (n + 1)
   v <- popValueFromValueStack
   updateNodeOnNodeHeap targetAddr (NInteger v)
 
 interpretUpdateAsStructure :: Int -> GMachineStepMonad ()
 interpretUpdateAsStructure n = do
-  targetAddr <- peekNthAddrOnAddressStack n
+  targetAddr <- peekNthAddrOnAddressStack (n + 1)
   v <- popValueFromValueStack
   fieldsAddr <- allocNodeOnNodeHeap (NStructureFields 0 [])
   updateNodeOnNodeHeap targetAddr (NStructure v fieldsAddr)
@@ -177,9 +177,12 @@ interpretUnwind = do
     NIndirect addr' -> do
       putInstruction IUnwind
       pushAddrToAddressStack addr'
+    NGlobal 0 code -> do
+      pushAddrToAddressStack addr
+      putInstructions code
     NGlobal n code ->
       ifM (checkSizeOfAddressStack (fromInteger n))
-        (putInstructions code >> rearrangeStack (fromInteger (n - 1)))
+        (putInstructions code >> rearrangeStack (fromInteger n))
         (putInstruction IReturn)
     (isValueNode -> True) -> do
       loadStateFromDump
@@ -191,11 +194,13 @@ interpretUnwind = do
         <> " case is not allowed"
       )
   where
+    -- @n@ should be greater than @1@.
+    --
     -- Please check the direction of addrs.
     -- __WARNING: the direction actually affects correctness.__
     rearrangeStack :: Int -> GMachineStepMonad ()
     rearrangeStack n = do
-      addrs <- popAddrsFromAddressStack (n + 1)
+      addrs <- popAddrsFromAddressStack n
       pushAddrToAddressStack (last addrs)
       applyeeAddrs <- forM addrs $ \addr -> do
         node <- findNodeOnNodeHeap addr
@@ -203,7 +208,7 @@ interpretUnwind = do
           NApplication _ applyeeAddr ->
             pure applyeeAddr
           _ ->
-            fail "rearrangeStack: Invalid invocation of the function. Top most n nodes have to be NApplication nodes"
+            fail $ "rearrangeStack: Invalid invocation of the function. Top most " <> show n <> " nodes have to be NApplication nodes"
       pushAddrsToAddressStack applyeeAddrs
 
 interpretEval :: GMachineStepMonad ()

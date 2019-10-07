@@ -3,50 +3,86 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE StandaloneDeriving #-}
 module Minicute.Control.GMachine
   ( module Minicute.Control.GMachine.Step
 
   , GMachineMonadT
   , GMachineMonad
+  , execGMachineT
 
-  , initializeInterpreterWith
-  , addInterpreterStep
-  , checkInterpreterFinished
+  , initializeGMachineWith
+  , executeGMachineStep
+  , checkGMachineFinished
   ) where
 
 import Prelude hiding ( fail )
 
+import Control.Monad ( (<=<) )
 import Control.Monad.Fail
-import Control.Monad.Writer ( MonadWriter(..), WriterT )
+import Control.Monad.State ( MonadState(..), StateT, gets, modify, execStateT )
+import Control.Monad.Trans ( MonadTrans(..) )
+import Control.Monad.Writer ( MonadWriter(..), Writer, runWriter )
 import Data.Data
+import Data.List.NonEmpty ( NonEmpty(..), (<|) )
+import Data.Monoid ( First(..) )
 import GHC.Generics
 import Minicute.Control.GMachine.Step
 import Minicute.Data.GMachine.Instruction
 
-type GMachineMonad = GMachineMonadT Maybe Maybe
+import qualified Data.List.NonEmpty as NonEmpty
 
--- |
--- _TODO: Add a 'GMachineState' component to build
--- 'checkInterpreterFinished' action
-newtype GMachineMonadT m' m a
+type GMachineMonad = GMachineMonadT IO
+
+newtype GMachineMonadT m a
   = GMachineMonadT
-    (WriterT [GMachineStepMonadT m' ()] m a)
+    { runGMachineMonadT :: Writer (First GMachineState) (StateT (NonEmpty GMachineState) m a)
+    }
   deriving ( Generic
            , Typeable
            , Functor
-           , Applicative
-           , Monad
-           , MonadFail
            )
 
-deriving instance (Monad m) => MonadWriter [GMachineStepMonadT m' ()] (GMachineMonadT m' m)
+instance (Monad m) => Applicative (GMachineMonadT m) where
+  pure = GMachineMonadT . pure . pure
+  (GMachineMonadT f) <*> (GMachineMonadT a)
+    = GMachineMonadT $ fmap (<*>) f <*> a
 
-initializeInterpreterWith :: (Monad m) => GMachineProgram -> GMachineMonadT m' m ()
-initializeInterpreterWith = pure . const ()
+instance (Monad m) => Monad (GMachineMonadT m) where
+  (GMachineMonadT a) >>= f
+    = GMachineMonadT
+      $ (>>= fst . runWriter . runGMachineMonadT . f) <$> a
 
-addInterpreterStep :: (Monad m) => GMachineStepMonadT m' () -> GMachineMonadT m' m ()
-addInterpreterStep = tell . pure
+instance (MonadFail m) => MonadFail (GMachineMonadT m) where
+  fail = GMachineMonadT . pure . fail
 
-checkInterpreterFinished :: (Monad m) => GMachineMonadT m' m Bool
-checkInterpreterFinished = undefined
+instance (Monad m) => MonadState (NonEmpty GMachineState) (GMachineMonadT m) where
+  get = GMachineMonadT . pure $ get
+  put = GMachineMonadT . pure . put
+  state = GMachineMonadT . pure . state
+
+instance MonadTrans GMachineMonadT where
+  lift = GMachineMonadT . pure . lift
+
+execGMachineT :: (Monad m) => GMachineMonadT m a -> m (NonEmpty GMachineState)
+execGMachineT (GMachineMonadT a)
+  | Just st <- maySt = execStateT b (st :| [])
+  | otherwise = error "execGMachineT: input G-Machine is not initialized"
+  where
+    (b, First maySt) = runWriter a
+
+
+initializeGMachineWith :: (Monad m) => GMachineProgram -> GMachineMonadT m ()
+initializeGMachineWith
+  = GMachineMonadT
+    . ( pure . pure
+        <=< tell . First . Just . buildInitialState
+      )
+
+executeGMachineStep :: (Monad m) => GMachineStepMonadT m () -> GMachineMonadT m ()
+executeGMachineStep step = do
+  st <- gets NonEmpty.head
+  st' <- lift . execGMachineStepT step $ st
+  modify (st' <|)
+
+checkGMachineFinished :: (Monad m) => GMachineMonadT m Bool
+checkGMachineFinished = gets (checkTerminalState . NonEmpty.head)

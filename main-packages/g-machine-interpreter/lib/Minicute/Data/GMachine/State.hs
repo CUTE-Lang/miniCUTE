@@ -4,12 +4,14 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TypeFamilies #-}
 module Minicute.Data.GMachine.State
   ( GMachineState
   , buildInitialState
+  , checkTerminalState
 
   , fetchNextInstruction
   , putInstruction
@@ -53,6 +55,7 @@ import Control.Monad.Fail
 import Control.Monad.State
   ( MonadState
   , StateT
+  , evalState
   , execState
   , runState
   , runStateT
@@ -125,6 +128,12 @@ buildInitialState program
     buildGlobal
       = forM globalEntries
         $ uncurry Global.allocAddress
+
+checkTerminalState :: GMachineState -> Bool
+checkTerminalState state
+  = state ^. _code == Code.empty
+  && evalState (AddressStack.checkSize 1) (state ^. _addressStack)
+  && state ^. _valueStack == ValueStack.empty
 
 
 fetchNextInstruction :: (MonadState s m, s ~ GMachineState, MonadFail m) => m Code.Instruction
