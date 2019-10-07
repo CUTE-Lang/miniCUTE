@@ -27,7 +27,7 @@ interpret handle = do
       print program
       states <- execGMachineT (interpretProgram program)
       putStrLn "Execution states:"
-      let indexedStates = zip (toList states) [(0 :: Integer)..]
+      let indexedStates = zip (reverse (toList states)) [(0 :: Integer)..]
       forM_ indexedStates $ \(state, index) -> do
         putStrLn $ "  state<" <> show index <> ">:"
         putStrLn $ "    " <> show  state
