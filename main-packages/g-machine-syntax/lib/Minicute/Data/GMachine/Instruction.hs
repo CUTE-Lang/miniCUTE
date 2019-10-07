@@ -64,6 +64,18 @@ type GMachineExpression = [Instruction]
 --
 -- [@GlobalEnvironment@] a map from identifiers to addresses of corresponding nodes.
 --
+-- The following tuple describes the initial state for the machine.
+--
+--     \[
+--     \begin{align}
+--     & \begin{array}{r r r r r l l l}
+--       ( & [\text{IMakeGlobal}\ \unicode{x201C}main\unicode{x201D}, \text{IEval}], & [], & [], & [], & initialHeap, & initialGlobal & )
+--     \end{array}\\
+--     & \text{(when $initialHeap$ is a heap including all NGlobals for the supercombinators in a program)}\\
+--     & \text{(when $initialGlobal$ is a global including all supercombinators in a program)}
+--     \end{align}
+--     \]
+--
 -- __TODO: make this G-Machine be parallel__
 
 -- $operationalSemantics
