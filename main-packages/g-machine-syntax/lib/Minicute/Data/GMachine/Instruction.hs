@@ -129,7 +129,7 @@ type GMachineExpression = [Instruction]
 --       ( & IMakePlaceholders\ n : codes, &                                  addrs, & values, & dump, & heap, &  global & )\\
 --       \hline
 --       ( &                        codes, & addr_0 : addr_1 : ... : addr_n : addrs, & values, & dump, & heap', & global & )
---     \end{array}\\[1em]
+--     \end{array}\\
 --     & heap' = heap[addr_0: NEmpty, addr_1: NEmpty, ..., addr_n: NEmpty]
 --     \end{align}
 --     \]
@@ -310,10 +310,21 @@ type GMachineExpression = [Instruction]
 --
 --     \[
 --     \begin{array}{r r r r r l l l}
---       ( &                                [IUnwind], &    addr_0 : addr_1 : ... : addr_n : addrs, & values, & dump, & heap[addr_0: NConstructor\ t\ n], & global & )\\
+--       ( &          [IUnwind], & addr : addrs, & values, & dump, & heap[addr: NConstructor\ t\ 0], & global & )\\
 --       \hline
---       ( & IRearrange\ (n - 1) : constructorCode\ t, &             addr_1 : ... : addr_n : addrs, & values, & dump, & heap, &                             global & )
+--       ( & constructorCode\ t, & addr : addrs, & values, & dump, & heap, &                           global & )
 --     \end{array}
+--     \]
+--
+--     \[
+--     \begin{align}
+--     & \begin{array}{r r r r r l l l}
+--       ( &                          [IUnwind], & addr_0 : addr_1 : ... : addr_n : addrs, & values, & dump, & heap[addr_0: NConstructor\ t\ n], & global & )\\
+--       \hline
+--       ( & IRearrange\ n : constructorCode\ t, &          addr_1 : ... : addr_n : addrs, & values, & dump, & heap, &                             global & )
+--     \end{array}\\
+--     & \text{(when $n > 0$)}
+--     \end{align}
 --     \]
 --
 --     \[
@@ -329,10 +340,21 @@ type GMachineExpression = [Instruction]
 --
 --     \[
 --     \begin{array}{r r r r r l l l}
---       ( &                    [IUnwind], &    addr_0 : addr_1 : ... : addr_n : addrs, & values, & dump, & heap[addr_0: NGlobal\ n\ codes'], & global & )\\
+--       ( & [IUnwind], & addr : addrs, & values, & dump, & heap[addr: NGlobal\ 0\ codes'], & global & )\\
 --       \hline
---       ( & IRearrange\ (n - 1) : codes', &             addr_1 : ... : addr_n : addrs, & values, & dump, & heap, &                             global & )
+--       ( &    codes', & addr : addrs, & values, & dump, & heap, &                           global & )
 --     \end{array}
+--     \]
+--
+--     \[
+--     \begin{align}
+--     & \begin{array}{r r r r r l l l}
+--       ( &              [IUnwind], & addr_0 : addr_1 : ... : addr_n : addrs, & values, & dump, & heap[addr_0: NGlobal\ n\ codes'], & global & )\\
+--       \hline
+--       ( & IRearrange\ n : codes', &          addr_1 : ... : addr_n : addrs, & values, & dump, & heap, &                             global & )
+--     \end{array}\\
+--     & \text{(when $n > 0$)}
+--     \end{align}
 --     \]
 --
 --     \[
@@ -386,7 +408,7 @@ type GMachineExpression = [Instruction]
 --     \begin{array}{r r r r r l l l}
 --       ( & IMatch\ table[t: caseCode] : codes, & addr : addrs, & values, & dump, & heap[addr: NStructure\ t\ fAddrs], & global & )\\
 --       \hline
---       ( &                 caseCode <> codes, & addr : addrs, & values, & dump, & heap, &                              global & )
+--       ( &            caseCode \diamond codes, & addr : addrs, & values, & dump, & heap, &                              global & )
 --     \end{array}
 --     \]
 --
@@ -398,9 +420,9 @@ type GMachineExpression = [Instruction]
 --
 --     \[
 --     \begin{array}{r r r r r l l l}
---       ( & IRearrange\ n : codes, &             addr_0 : addr_1 : ... : addr_n : addrs, & values, & dump, & heap[addr_i: NApplication\ addr_i''\ addr_i'], & global & )\\
+--       ( & IRearrange\ n : codes, &                    addr_0 : addr_1 : ... : addr_{n - 1} : addrs, & values, & dump, & heap[addr_i: NApplication\ addr'_i\ addr''_i], & global & )\\
 --       \hline
---       ( &                 codes, & addr_0' : addr_1' : ... : addr_n' : addr_n : addrs, & values, & dump, & heap, &                                         global & )
+--       ( &                 codes, & addr''_0 : addr''_1 : ... : addr''_{n - 1} : addr_{n - 1} : addrs, & values, & dump, & heap, &                                         global & )
 --     \end{array}\\
 --     \]
 
