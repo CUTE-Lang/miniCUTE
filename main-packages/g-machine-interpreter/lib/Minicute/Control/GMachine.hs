@@ -63,7 +63,7 @@ instance (Monad m) => MonadState (NonEmpty GMachineState) (GMachineMonadT m) whe
 instance MonadTrans GMachineMonadT where
   lift = GMachineMonadT . pure . lift
 
-execGMachineT :: (Monad m) => GMachineMonadT m () -> m (NonEmpty GMachineState)
+execGMachineT :: (Monad m) => GMachineMonadT m a -> m (NonEmpty GMachineState)
 execGMachineT (GMachineMonadT a)
   | Just st <- maySt = execStateT b (st :| [])
   | otherwise = error "execGMachineT: input G-Machine is not initialized"
