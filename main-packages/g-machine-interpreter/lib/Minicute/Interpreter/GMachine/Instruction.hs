@@ -88,12 +88,12 @@ interpretDig n = do
 interpretUpdate :: Int -> GMachineStepMonad ()
 interpretUpdate n = do
   valueAddr <- peekAddrOnAddressStack
-  targetAddr <- peekNthAddrOnAddressStack n
+  targetAddr <- peekNthAddrOnAddressStack (n + 1)
   updateNodeOnNodeHeap targetAddr (NIndirect valueAddr)
 
 interpretCopy :: Int -> GMachineStepMonad ()
 interpretCopy n = do
-  addr <- peekNthAddrOnAddressStack n
+  addr <- peekNthAddrOnAddressStack (n + 1)
   pushAddrToAddressStack addr
 
 
@@ -135,13 +135,13 @@ interpretWrapAsStructure = do
 
 interpretUpdateAsInteger :: Int -> GMachineStepMonad ()
 interpretUpdateAsInteger n = do
-  targetAddr <- peekNthAddrOnAddressStack n
+  targetAddr <- peekNthAddrOnAddressStack (n + 1)
   v <- popValueFromValueStack
   updateNodeOnNodeHeap targetAddr (NInteger v)
 
 interpretUpdateAsStructure :: Int -> GMachineStepMonad ()
 interpretUpdateAsStructure n = do
-  targetAddr <- peekNthAddrOnAddressStack n
+  targetAddr <- peekNthAddrOnAddressStack (n + 1)
   v <- popValueFromValueStack
   fieldsAddr <- allocNodeOnNodeHeap (NStructureFields 0 [])
   updateNodeOnNodeHeap targetAddr (NStructure v fieldsAddr)
