@@ -3,6 +3,7 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TypeFamilies #-}
 module Minicute.Data.GMachine.AddressStack
@@ -30,8 +31,11 @@ import Control.Lens.Wrapped ( _Wrapped )
 import Control.Monad.Fail
 import Control.Monad.State ( MonadState )
 import Data.Data ( Data, Typeable )
+import Data.Text.Prettyprint.Doc ( Pretty(..) )
 import GHC.Generics ( Generic )
 import Minicute.Data.GMachine.Address
+
+import qualified Data.Text.Prettyprint.Doc as PP
 
 newtype AddressStack
   = AddressStack [Address]
@@ -42,6 +46,9 @@ newtype AddressStack
            , Ord
            , Show
            )
+
+instance Pretty AddressStack where
+  pretty (AddressStack addrs) = "address" PP.<+> "stack" PP.<+> prettyList addrs
 
 makeWrapped ''AddressStack
 

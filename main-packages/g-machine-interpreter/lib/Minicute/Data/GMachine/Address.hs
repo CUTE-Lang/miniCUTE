@@ -1,5 +1,6 @@
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE OverloadedStrings #-}
 module Minicute.Data.GMachine.Address
   ( Address
   , address
@@ -8,7 +9,10 @@ module Minicute.Data.GMachine.Address
   ) where
 
 import Data.Data
+import Data.Text.Prettyprint.Doc ( Pretty(..) )
 import GHC.Generics
+
+import qualified Data.Text.Prettyprint.Doc as PP
 
 newtype Address
   = Address Integer
@@ -19,6 +23,9 @@ newtype Address
            , Ord
            , Show
            )
+
+instance Pretty Address where
+  pretty (Address addr) = PP.fuse PP.Shallow $ "&" PP.<> pretty addr
 
 -- |
 -- Constructor for 'Address'

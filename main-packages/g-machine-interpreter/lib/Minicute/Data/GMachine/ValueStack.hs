@@ -3,6 +3,7 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TypeFamilies #-}
 module Minicute.Data.GMachine.ValueStack
@@ -21,7 +22,10 @@ import Control.Lens.Wrapped ( _Wrapped )
 import Control.Monad.Fail
 import Control.Monad.State ( MonadState )
 import Data.Data ( Data, Typeable )
+import Data.Text.Prettyprint.Doc ( Pretty(..) )
 import GHC.Generics ( Generic )
+
+import qualified Data.Text.Prettyprint.Doc as PP
 
 newtype ValueStack
   = ValueStack [Integer]
@@ -32,6 +36,9 @@ newtype ValueStack
            , Ord
            , Show
            )
+
+instance Pretty ValueStack where
+  pretty (ValueStack vs) = "value" PP.<+> "stack" PP.<+> PP.unsafeViaShow vs
 
 makeWrapped ''ValueStack
 

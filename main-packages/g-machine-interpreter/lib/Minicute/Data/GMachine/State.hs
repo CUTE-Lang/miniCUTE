@@ -61,12 +61,14 @@ import Control.Monad.State
   , runStateT
   )
 import Data.Data
+import Data.Text.Prettyprint.Doc ( Pretty(..) )
 import Data.Tuple.Minicute
 import GHC.Generics
 import Minicute.Data.Common
 import Minicute.Data.GMachine.Address
 import Minicute.Data.GMachine.Node
 
+import qualified Data.Text.Prettyprint.Doc as PP
 import qualified Minicute.Data.GMachine.AddressStack as AddressStack
 import qualified Minicute.Data.GMachine.Code as Code
 import qualified Minicute.Data.GMachine.Dump as Dump
@@ -90,6 +92,21 @@ data GMachineState
            , Ord
            , Show
            )
+
+instance Pretty GMachineState where
+  pretty s
+    = PP.align . PP.vsep
+      $ [ "{"
+        , PP.indent 2 . PP.vsep $
+          [ pretty $ code s
+          , pretty $ addressStack s
+          , pretty $ valueStack s
+          , pretty $ dump s
+          , pretty $ nodeHeap s
+          , pretty $ global s
+          ]
+        , "}"
+        ]
 
 makeLensesFor
   [ ("code", "_code")

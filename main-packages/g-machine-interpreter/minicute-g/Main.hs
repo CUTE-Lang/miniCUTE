@@ -1,3 +1,4 @@
+{-# LANGUAGE OverloadedStrings #-}
 module Main
   ( main
   ) where
@@ -9,6 +10,8 @@ import Minicute.Parser.GMachine.Parser ( gMachineProgram )
 import System.Environment
 import System.IO
 import Text.Megaparsec
+
+import qualified Data.Text.Prettyprint.Doc as PP
 
 main :: IO ()
 main = do
@@ -28,9 +31,11 @@ interpret handle = do
       states <- execGMachineT (interpretProgram program)
       putStrLn "Execution states:"
       let indexedStates = zip (reverse (toList states)) [(0 :: Integer)..]
-      forM_ indexedStates $ \(state, index) -> do
-        putStrLn $ "  state<" <> show index <> ">:"
-        putStrLn $ "    " <> show  state
+      forM_ indexedStates $ \(state, index) ->
+        print
+        $ PP.indent 2
+          $ "state<" PP.<> PP.pretty index PP.<> ">:" PP.<> PP.hardline
+          PP.<> PP.indent 2 (PP.pretty state)
     Left err -> do
       putStrLn "error:"
       putStrLn (errorBundlePretty err)

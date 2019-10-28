@@ -3,6 +3,7 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TypeFamilies #-}
 module Minicute.Data.GMachine.Code
@@ -28,9 +29,11 @@ import Control.Monad ( unless )
 import Control.Monad.Fail
 import Control.Monad.State ( MonadState )
 import Data.Data
+import Data.Text.Prettyprint.Doc ( Pretty(..) )
 import GHC.Generics
 import Minicute.Data.GMachine.Instruction
 
+import qualified Data.Text.Prettyprint.Doc as PP
 import qualified Minicute.Transpilers.GMachine as GMachine ( initialCode )
 
 newtype Code
@@ -42,6 +45,9 @@ newtype Code
            , Ord
            , Show
            )
+
+instance Pretty Code where
+  pretty (Code insts) = "code" PP.<+> PP.unsafeViaShow insts
 
 makeWrapped ''Code
 

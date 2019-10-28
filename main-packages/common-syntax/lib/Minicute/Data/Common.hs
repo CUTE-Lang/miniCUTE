@@ -50,8 +50,11 @@ instance IsString Identifier where
 instance Semigroup Identifier where
   (Identifier a) <> (Identifier b) = Identifier (a <> b)
 
+instance PP.Pretty Identifier where
+  pretty (Identifier v) = PP.pretty v
+
 instance PrettyMC Identifier where
-  prettyMC _ (Identifier v) = prettyMC0 v
+  prettyMC _ = PP.pretty
 
 
 -- |

@@ -3,6 +3,7 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TypeFamilies #-}
 module Minicute.Data.GMachine.Global
@@ -27,11 +28,13 @@ import Control.Lens.Wrapped ( _Wrapped )
 import Control.Monad.Fail
 import Control.Monad.State ( MonadState )
 import Data.Data
+import Data.Text.Prettyprint.Doc ( Pretty(..) )
 import GHC.Generics
 import Minicute.Data.Common ( Identifier(..) )
 import Minicute.Data.GMachine.Address
 
 import qualified Data.Map as Map
+import qualified Data.Text.Prettyprint.Doc as PP
 
 newtype Global
   = Global (Map.Map Identifier Address)
@@ -42,6 +45,34 @@ newtype Global
            , Ord
            , Show
            )
+
+instance Pretty Global where
+  pretty (Global m)
+    = "global"
+      PP.<+>
+      PP.vsep
+      ( if Map.null m
+        then
+          [ "{"
+          , "}"
+          ]
+        else
+          [ "{"
+          , PP.indent 2 . prettyGlobalItems $ globalItems
+          , "}"
+          ]
+      )
+    where
+      globalMaxIdLen
+        = maximum
+          . fmap (length . \(Identifier str, _) -> str)
+          $ globalItems
+      globalItems = Map.toAscList m
+
+      prettyGlobalItems = PP.vsep . fmap prettyGlobalItem
+      prettyGlobalItem (ident, addr)
+        = PP.fill globalMaxIdLen (pretty ident)
+          PP.<+> "->" PP.<+> pretty addr
 
 makeWrapped ''Global
 

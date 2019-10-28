@@ -4,6 +4,7 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TupleSections #-}
 {-# LANGUAGE TypeFamilies #-}
@@ -29,11 +30,13 @@ import Control.Lens.Wrapped ( _Wrapped )
 import Control.Monad.Fail
 import Control.Monad.State ( MonadState )
 import Data.Data
+import Data.Text.Prettyprint.Doc ( Pretty(..) )
 import GHC.Generics
 import Minicute.Data.GMachine.Address
 import Minicute.Data.GMachine.Node
 
 import qualified Data.Map as Map
+import qualified Data.Text.Prettyprint.Doc as PP
 
 newtype NodeHeap
   = NodeHeap (Address, Map.Map Address Node)
@@ -44,6 +47,28 @@ newtype NodeHeap
            , Ord
            , Show
            )
+
+instance Pretty NodeHeap where
+  pretty (NodeHeap (lastAddr, m))
+    = "node" PP.<+> "heap" PP.<+> "<" PP.<> pretty lastAddr PP.<> ">"
+      PP.<+>
+      PP.vsep
+      ( if Map.null m
+        then
+          [ "{"
+          , "}"
+          ]
+        else
+          [ "{"
+          , PP.indent 2 . prettyNodeHeapItems $ Map.toAscList m
+          , "}"
+          ]
+      )
+    where
+      prettyNodeHeapItems = PP.vsep . fmap prettyNodeHeapItem
+      prettyNodeHeapItem (addr, node)
+        = pretty addr PP.<> ":" PP.<+> pretty node
+
 
 makeWrapped ''NodeHeap
 
