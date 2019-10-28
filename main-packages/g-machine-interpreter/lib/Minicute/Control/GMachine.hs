@@ -19,7 +19,7 @@ import Prelude hiding ( fail )
 
 import Control.Monad ( (<=<) )
 import Control.Monad.Fail
-import Control.Monad.State ( MonadState(..), StateT, gets, modify, execStateT )
+import Control.Monad.State ( MonadState(..), StateT, execStateT, gets, modify )
 import Control.Monad.Trans ( MonadTrans(..) )
 import Control.Monad.Writer ( MonadWriter(..), Writer, runWriter )
 import Data.Data
