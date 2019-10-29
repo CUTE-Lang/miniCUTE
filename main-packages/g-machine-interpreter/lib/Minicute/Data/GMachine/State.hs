@@ -95,17 +95,17 @@ data GMachineState
 
 instance Pretty GMachineState where
   pretty s
-    = PP.align . PP.vsep
-      $ [ "{"
-        , PP.indent 2 . PP.vsep $
-          [ pretty $ code s
-          , pretty $ addressStack s
-          , pretty $ valueStack s
-          , pretty $ dump s
-          , pretty $ nodeHeap s
-          , pretty $ global s
-          ]
-        , "}"
+    = PP.align
+      . PP.braces
+      . PP.enclose PP.hardline PP.hardline
+      . PP.indent 2
+      . PP.vsep
+      $ [ Code.prettyCode $ code s
+        , AddressStack.prettyAddressStack $ addressStack s
+        , ValueStack.prettyValueStack $ valueStack s
+        , Dump.prettyDump $ dump s
+        , NodeHeap.prettyNodeHeap $ nodeHeap s
+        , Global.prettyGlobal $ global s
         ]
 
 makeLensesFor

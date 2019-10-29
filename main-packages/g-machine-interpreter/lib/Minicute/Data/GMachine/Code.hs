@@ -16,6 +16,8 @@ module Minicute.Data.GMachine.Code
   , putInstruction
   , putInstructions
   , assertLastCode
+
+  , prettyCode
   ) where
 
 import Prelude hiding ( fail )
@@ -29,7 +31,6 @@ import Control.Monad ( unless )
 import Control.Monad.Fail
 import Control.Monad.State ( MonadState )
 import Data.Data
-import Data.Text.Prettyprint.Doc ( Pretty(..) )
 import GHC.Generics
 import Minicute.Data.GMachine.Instruction
 
@@ -45,9 +46,6 @@ newtype Code
            , Ord
            , Show
            )
-
-instance Pretty Code where
-  pretty (Code insts) = "code" PP.<+> PP.unsafeViaShow insts
 
 makeWrapped ''Code
 
@@ -74,3 +72,7 @@ assertLastCode = do
   insts <- use _Wrapped
   unless (null insts) $
     fail "assertLastCode: Not a last code"
+
+prettyCode :: Code -> PP.Doc ann
+prettyCode (Code insts)
+  = "code" PP.<+> PP.unsafeViaShow insts

@@ -19,6 +19,8 @@ module Minicute.Data.GMachine.AddressStack
   , peekAddr
   , peekNthAddr
   , checkSize
+
+  , prettyAddressStack
   ) where
 
 import Prelude hiding ( fail )
@@ -31,7 +33,6 @@ import Control.Lens.Wrapped ( _Wrapped )
 import Control.Monad.Fail
 import Control.Monad.State ( MonadState )
 import Data.Data ( Data, Typeable )
-import Data.Text.Prettyprint.Doc ( Pretty(..) )
 import GHC.Generics ( Generic )
 import Minicute.Data.GMachine.Address
 
@@ -46,9 +47,6 @@ newtype AddressStack
            , Ord
            , Show
            )
-
-instance Pretty AddressStack where
-  pretty (AddressStack addrs) = "address" PP.<+> "stack" PP.<+> prettyList addrs
 
 makeWrapped ''AddressStack
 
@@ -99,3 +97,7 @@ checkSize :: (MonadState s m, s ~ AddressStack) => Int -> m Bool
 checkSize n = isLongEnough <$> use _Wrapped
   where
     isLongEnough = (n ==) . length . take n
+
+prettyAddressStack :: AddressStack -> PP.Doc ann
+prettyAddressStack (AddressStack addrs)
+  = "address" PP.<+> "stack" PP.<+> PP.list (fmap prettyAddress addrs)

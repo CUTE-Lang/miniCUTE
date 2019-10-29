@@ -14,6 +14,8 @@ module Minicute.Data.GMachine.Dump
 
   , DumpItem
   , emptyDumpItem
+
+  , prettyDump
   ) where
 
 import Prelude hiding ( fail )
@@ -25,7 +27,6 @@ import Control.Lens.Wrapped ( _Wrapped )
 import Control.Monad.Fail
 import Control.Monad.State ( MonadState )
 import Data.Data
-import Data.Text.Prettyprint.Doc ( Pretty(..) )
 import GHC.Generics
 
 import qualified Data.Text.Prettyprint.Doc as PP
@@ -45,44 +46,6 @@ newtype Dump
 
 type DumpItem = (Code.Code, AddressStack.AddressStack, ValueStack.ValueStack)
 
-instance Pretty Dump where
-  -- |
-  -- This function uses if statement to render empty dump in a shorter way,
-  -- which is not an appropriate way of using prettyprinter libraries.
-  -- __TODO: refactor this to use proper prettyprinter functions.__
-  pretty (Dump dis)
-    = "dump"
-      PP.<+>
-      PP.vsep
-      ( if null dis
-        then
-          [ "{"
-          , "}"
-          ]
-        else
-          [ "{"
-          , PP.indent 2 . prettyIndexedDumpItems . reverse
-            $ zip ([1..] :: [Integer]) (reverse dis)
-          , "}"
-          ]
-      )
-    where
-      prettyIndexedDumpItems = PP.vsep . fmap prettyIndexedDumpItem
-      prettyIndexedDumpItem (ind, di)
-        = "dump" PP.<+> "item"
-          PP.<+> "<" PP.<> pretty ind PP.<> ">:"
-          PP.<> prettyDumpItem di
-      prettyDumpItem :: DumpItem -> PP.Doc ann
-      prettyDumpItem (code, addressStack, valueStack)
-        = PP.vsep
-          [ " {"
-          , PP.indent 2 . PP.vsep $
-            [ pretty code
-            , pretty addressStack
-            , pretty valueStack
-            ]
-          , "}"
-          ]
 
 makeWrapped ''Dump
 
@@ -105,3 +68,34 @@ emptyDumpItem
     , AddressStack.empty
     , ValueStack.empty
     )
+
+prettyDump :: Dump -> PP.Doc ann
+prettyDump (Dump dis)
+  = "dump"
+    PP.<+>
+    PP.braces
+    ( if null dis
+      then
+        PP.hardline
+      else
+        PP.enclose PP.hardline PP.hardline
+        . PP.indent 2
+        . prettyIndexedDumpItems
+        $ reverse
+        . zip ([1..] :: [Integer])
+        . reverse
+        $ dis
+    )
+  where
+    prettyIndexedDumpItems = PP.vsep . fmap prettyIndexedDumpItem
+    prettyIndexedDumpItem (ind, di)
+      = "dump" PP.<+> "item"
+        PP.<+> PP.angles (PP.pretty ind) PP.<> PP.colon
+        PP.<+> prettyDumpItem di
+    prettyDumpItem :: DumpItem -> PP.Doc ann
+    prettyDumpItem (code, addressStack, valueStack)
+      = PP.braces . (PP.hardline PP.<>) . PP.indent 2 . PP.vsep
+        $ [ Code.prettyCode code
+          , AddressStack.prettyAddressStack addressStack
+          , ValueStack.prettyValueStack valueStack
+          ]

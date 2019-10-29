@@ -15,6 +15,8 @@ module Minicute.Data.GMachine.Global
   , allocAddress
   , updateAddress
   , findAddress
+
+  , prettyGlobal
   ) where
 
 import Prelude hiding ( fail )
@@ -28,7 +30,6 @@ import Control.Lens.Wrapped ( _Wrapped )
 import Control.Monad.Fail
 import Control.Monad.State ( MonadState )
 import Data.Data
-import Data.Text.Prettyprint.Doc ( Pretty(..) )
 import GHC.Generics
 import Minicute.Data.Common ( Identifier(..) )
 import Minicute.Data.GMachine.Address
@@ -45,34 +46,6 @@ newtype Global
            , Ord
            , Show
            )
-
-instance Pretty Global where
-  pretty (Global m)
-    = "global"
-      PP.<+>
-      PP.vsep
-      ( if Map.null m
-        then
-          [ "{"
-          , "}"
-          ]
-        else
-          [ "{"
-          , PP.indent 2 . prettyGlobalItems $ globalItems
-          , "}"
-          ]
-      )
-    where
-      globalMaxIdLen
-        = maximum
-          . fmap (length . \(Identifier str, _) -> str)
-          $ globalItems
-      globalItems = Map.toAscList m
-
-      prettyGlobalItems = PP.vsep . fmap prettyGlobalItem
-      prettyGlobalItem (ident, addr)
-        = PP.fill globalMaxIdLen (pretty ident)
-          PP.<+> "->" PP.<+> pretty addr
 
 makeWrapped ''Global
 
@@ -93,3 +66,29 @@ findAddress ident = use (_Wrapped . at ident) >>= findAddress'
   where
     findAddress' (Just addr) = pure addr
     findAddress' Nothing = fail $ "findAddress: No registered address for the identifier " <> show ident
+
+prettyGlobal :: Global -> PP.Doc ann
+prettyGlobal (Global m)
+  = "global"
+    PP.<+>
+    PP.braces
+    ( if Map.null m
+      then
+        PP.hardline
+      else
+        PP.enclose PP.hardline PP.hardline
+        . PP.indent 2
+        . prettyGlobalItems
+        $ globalItems
+    )
+  where
+    globalMaxIdLen
+      = maximum
+        . fmap (length . \(Identifier str, _) -> str)
+        $ globalItems
+    globalItems = Map.toAscList m
+
+    prettyGlobalItems = PP.vsep . fmap prettyGlobalItem
+    prettyGlobalItem (ident, addr)
+      = PP.fill globalMaxIdLen (PP.pretty ident)
+        PP.<+> "->" PP.<+> prettyAddress addr

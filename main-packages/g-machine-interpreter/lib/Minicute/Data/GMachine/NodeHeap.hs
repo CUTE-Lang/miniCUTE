@@ -16,6 +16,8 @@ module Minicute.Data.GMachine.NodeHeap
   , allocNode
   , updateNode
   , findNode
+
+  , prettyNodeHeap
   ) where
 
 import Prelude hiding ( fail )
@@ -30,7 +32,6 @@ import Control.Lens.Wrapped ( _Wrapped )
 import Control.Monad.Fail
 import Control.Monad.State ( MonadState )
 import Data.Data
-import Data.Text.Prettyprint.Doc ( Pretty(..) )
 import GHC.Generics
 import Minicute.Data.GMachine.Address
 import Minicute.Data.GMachine.Node
@@ -47,28 +48,6 @@ newtype NodeHeap
            , Ord
            , Show
            )
-
-instance Pretty NodeHeap where
-  pretty (NodeHeap (lastAddr, m))
-    = "node" PP.<+> "heap" PP.<+> "<" PP.<> pretty lastAddr PP.<> ">"
-      PP.<+>
-      PP.vsep
-      ( if Map.null m
-        then
-          [ "{"
-          , "}"
-          ]
-        else
-          [ "{"
-          , PP.indent 2 . prettyNodeHeapItems $ Map.toAscList m
-          , "}"
-          ]
-      )
-    where
-      prettyNodeHeapItems = PP.vsep . fmap prettyNodeHeapItem
-      prettyNodeHeapItem (addr, node)
-        = pretty addr PP.<> ":" PP.<+> pretty node
-
 
 makeWrapped ''NodeHeap
 
@@ -91,3 +70,22 @@ findNode addr = use (_Wrapped . _2 . at addr) >>= findNode'
   where
     findNode' (Just node) = pure node
     findNode' Nothing = fail $ "findNode: there is no node for address " <> show addr
+
+prettyNodeHeap :: NodeHeap -> PP.Doc ann
+prettyNodeHeap (NodeHeap (lastAddr, m))
+  = "node" PP.<+> "heap" PP.<+> PP.angles (prettyAddress lastAddr)
+    PP.<+>
+    PP.braces
+    ( if Map.null m
+      then
+        PP.hardline
+      else
+        PP.enclose PP.hardline PP.hardline
+        . PP.indent 2
+        . prettyNodeHeapItems
+        $ Map.toAscList m
+    )
+  where
+    prettyNodeHeapItems = PP.vsep . fmap prettyNodeHeapItem
+    prettyNodeHeapItem (addr, node)
+      = prettyAddress addr PP.<> PP.colon PP.<+> prettyNode node

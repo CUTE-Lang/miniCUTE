@@ -7,10 +7,11 @@ module Minicute.Data.GMachine.Node
 
   , Node( .. )
   , isValueNode
+
+  , prettyNode
   ) where
 
 import Data.Data
-import Data.Text.Prettyprint.Doc ( Pretty(..) )
 import GHC.Generics
 import Minicute.Data.GMachine.Address
 import Minicute.Data.GMachine.Instruction
@@ -33,21 +34,21 @@ data Node
            , Show
            )
 
-instance Pretty Node where
-  pretty NEmpty = "empty"
-  pretty (NInteger n) = pretty n
-  pretty (NStructure tag addr)
-    = "$C{" PP.<> pretty tag PP.<> ";" PP.<> pretty addr PP.<> "}"
-  pretty (NStructureFields _ addrs)
-    = "$F" PP.<+> prettyList addrs
-  pretty (NApplication fAddr argAddr)
-    = pretty fAddr PP.<+> "$" PP.<+> pretty argAddr
-  pretty (NIndirect addr)
-    = "~>" PP.<+> pretty addr
-  pretty (NGlobal arity insts)
-    = "global<" PP.<> pretty arity PP.<> ">" PP.<+> PP.unsafeViaShow insts
-
 isValueNode :: Node -> Bool
 isValueNode (NInteger _) = True
 isValueNode (NStructure _ _) = True
 isValueNode _ = False
+
+prettyNode :: Node -> PP.Doc ann
+prettyNode NEmpty = "empty"
+prettyNode (NInteger n) = PP.pretty n
+prettyNode (NStructure tag addr)
+  = "$C" PP.<> PP.braces (PP.pretty tag PP.<> PP.semi PP.<> prettyAddress addr)
+prettyNode (NStructureFields _ addrs)
+  = "$F" PP.<+> PP.list (fmap prettyAddress addrs)
+prettyNode (NApplication fAddr argAddr)
+  = prettyAddress fAddr PP.<+> "$" PP.<+> prettyAddress argAddr
+prettyNode (NIndirect addr)
+  = "~>" PP.<+> prettyAddress addr
+prettyNode (NGlobal arity insts)
+  = "global" PP.<> PP.angles (PP.pretty arity) PP.<+> PP.unsafeViaShow insts
