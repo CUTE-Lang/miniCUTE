@@ -65,7 +65,7 @@ instance MonadTrans GMachineMonadT where
 
 execGMachineT :: (Monad m) => GMachineMonadT m a -> m (NonEmpty GMachineState)
 execGMachineT (GMachineMonadT a)
-  | Just st <- maySt = execStateT b (st :| [])
+  | Just st <- maySt = NonEmpty.reverse <$> execStateT b (st :| [])
   | otherwise = error "execGMachineT: input G-Machine is not initialized"
   where
     (b, First maySt) = runWriter a

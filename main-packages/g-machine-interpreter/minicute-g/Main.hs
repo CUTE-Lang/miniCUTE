@@ -1,16 +1,17 @@
+{-# LANGUAGE OverloadedLists #-}
 {-# LANGUAGE OverloadedStrings #-}
 module Main
   ( main
   ) where
 
 import Control.Monad ( forM_ )
-import Data.List.NonEmpty ( toList )
 import Minicute.Interpreter.GMachine ( execGMachineT, interpretProgram )
 import Minicute.Parser.GMachine.Parser ( gMachineProgram )
 import System.Environment
 import System.IO
 import Text.Megaparsec
 
+import qualified Data.List.NonEmpty as NonEmpty
 import qualified Data.Text.Prettyprint.Doc as PP
 
 main :: IO ()
@@ -30,7 +31,7 @@ interpret handle = do
       print program
       states <- execGMachineT (interpretProgram program)
       putStrLn "Execution states:"
-      let indexedStates = zip (reverse (toList states)) [(0 :: Integer)..]
+      let indexedStates = NonEmpty.zip states [(0 :: Integer)..]
       forM_ indexedStates $ \(state, index) ->
         print
         $ PP.indent 2
