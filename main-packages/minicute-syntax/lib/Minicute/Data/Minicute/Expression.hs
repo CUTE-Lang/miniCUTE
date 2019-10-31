@@ -52,7 +52,6 @@ import Control.Lens.Tuple
 import Control.Lens.Type
 import Control.Lens.Wrapped ( _Wrapped )
 import Data.Data
-import Data.Text.Prettyprint.Doc ( Pretty(..) )
 import Data.Text.Prettyprint.Doc.Minicute
 import GHC.Generics
 import Language.Haskell.TH.Syntax
@@ -86,12 +85,12 @@ type MainLetDefinitionMC = LetDefinition ExpressionMC Identifier
 -- A 'LetDefinition' for 'ExpressionLLMC' with 'Identifier'.
 type MainLetDefinitionLLMC = LetDefinition ExpressionLLMC Identifier
 
-instance (Pretty a, Pretty (expr a)) => Pretty (LetDefinition expr a) where
-  pretty (LetDefinition (binder, expr))
+instance (PrettyMC a, PrettyMC (expr a)) => PrettyMC (LetDefinition expr a) where
+  prettyMC _ (LetDefinition (binder, expr))
     = PP.hsep
-      [ pretty binder
+      [ prettyMC0 binder
       , PP.equals
-      , pretty expr
+      , prettyMC0 expr
       ]
 
 
@@ -120,16 +119,16 @@ type MainMatchCaseMC = MatchCase ExpressionMC Identifier
 -- A 'MatchCase' for 'ExpressionLLMC' with 'Identifier'.
 type MainMatchCaseLLMC = MatchCase ExpressionLLMC Identifier
 
-instance (Pretty a, Pretty (expr a)) => Pretty (MatchCase expr a) where
-  pretty (MatchCase (tag, argBinders, expr))
+instance (PrettyMC a, PrettyMC (expr a)) => PrettyMC (MatchCase expr a) where
+  prettyMC _ (MatchCase (tag, argBinders, expr))
     = PP.fuse PP.Shallow . PP.hcat
-      $ [ PP.angles (pretty tag)
+      $ [ PP.angles (prettyMC0 tag)
         , if null argBinders
           then PP.emptyDoc
           else PP.space
-        , PP.hcat . PP.punctuate PP.space . fmap pretty $ argBinders
+        , PP.hcat . PP.punctuate PP.space . fmap prettyMC0 $ argBinders
         , " -> "
-        , pretty expr
+        , prettyMC0 expr
         ]
 
 
@@ -171,60 +170,56 @@ deriving instance (Eq a) => Eq (Expression t a)
 deriving instance (Ord a) => Ord (Expression t a)
 deriving instance (Show a) => Show (Expression t a)
 
-instance (Pretty a) => Pretty (Expression t a) where
-  pretty = prettyPrec0
-  {-# INLINABLE pretty #-}
-
-instance (Pretty a) => PrettyPrec (Expression t a) where
-  prettyPrec _ (EInteger n) = pretty n
-  prettyPrec _ (EConstructor tag arity)
+instance (PrettyMC a) => PrettyMC (Expression t a) where
+  prettyMC _ (EInteger n) = prettyMC0 n
+  prettyMC _ (EConstructor tag arity)
     = PP.fuse PP.Shallow . PP.hcat
       $ [ "$C"
         , PP.braces . PP.hcat
-          $ [ pretty tag
+          $ [ prettyMC0 tag
             , PP.comma
-            , pretty arity
+            , prettyMC0 arity
             ]
         ]
-  prettyPrec _ (EVariable vId) = pretty vId
-  prettyPrec p (EApplication2 (EVariable op) e1 e2)
+  prettyMC _ (EVariable vId) = prettyMC0 vId
+  prettyMC p (EApplication2 (EVariable op) e1 e2)
     | Just opP <- lookup op binaryPrecedenceTable
-    = prettyBinaryExpressionPrec p opP (pretty op) (`prettyPrec` e1) (`prettyPrec` e2)
-  prettyPrec p (EApplication e1 e2)
+    = prettyBinaryExpressionPrec p opP (prettyMC0 op) (`prettyMC` e1) (`prettyMC` e2)
+  prettyMC p (EApplication e1 e2)
     = (if p > miniApplicationPrecedence then PP.parens else id) . PP.align . PP.hcat
-      $ [ prettyPrec miniApplicationPrecedence e1
+      $ [ prettyMC miniApplicationPrecedence e1
         , PP.space
-        , prettyPrec miniApplicationPrecedence1 e2
+        , prettyMC miniApplicationPrecedence1 e2
         ]
-  prettyPrec p (ELet flag letDefs e)
+  prettyMC p (ELet flag letDefs e)
     = (if p > 0 then PP.parens else id) . PP.align . PP.hcat
       $ [ keyword
         , PP.line
-        , prettyIndent . PP.vcat . PP.punctuate PP.semi . fmap pretty $ letDefs
+        , prettyIndent . PP.vcat . PP.punctuate PP.semi . fmap prettyMC0 $ letDefs
         , PP.line
         , "in"
         , PP.line
-        , prettyIndent . pretty $ e
+        , prettyIndent . prettyMC0 $ e
         ]
     where
       keyword
         | isRecursive flag = "letrec"
         | otherwise = "let"
-  prettyPrec p (EMatch e matchCases)
+  prettyMC p (EMatch e matchCases)
     = (if p > 0 then PP.parens else id) . PP.align . PP.hcat
       $ [ "match "
-        , pretty e
+        , prettyMC0 e
         , " with"
         , PP.line
-        , prettyIndent . PP.vcat . PP.punctuate PP.semi . fmap pretty $ matchCases
+        , prettyIndent . PP.vcat . PP.punctuate PP.semi . fmap prettyMC0 $ matchCases
         ]
-  prettyPrec p (ELambda argBinders bodyExpr)
+  prettyMC p (ELambda argBinders bodyExpr)
     = (if p > 0 then PP.parens else id) . PP.align . PP.hcat
       $ [ "\\"
-        , PP.hcat . PP.punctuate PP.space . fmap pretty $ argBinders
+        , PP.hcat . PP.punctuate PP.space . fmap prettyMC0 $ argBinders
         , " ->"
         , PP.line
-        , prettyIndent . pretty $ bodyExpr
+        , prettyIndent . prettyMC0 $ bodyExpr
         ]
 
 

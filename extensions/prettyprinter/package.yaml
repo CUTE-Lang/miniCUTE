@@ -52,6 +52,7 @@ library:
   dependencies:
     - prettyprinter >= 1.2 && < 2
     - template-haskell >= 2.14 && < 3
+    - text >= 1.2 && < 2
 
 # internal-libraries:
 

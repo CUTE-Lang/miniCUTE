@@ -31,7 +31,6 @@ module Minicute.Data.Minicute.Annotated
 import Control.Lens.Lens ( lens )
 import Control.Lens.Type
 import Data.Data
-import Data.Text.Prettyprint.Doc ( Pretty(..) )
 import Data.Text.Prettyprint.Doc.Minicute
 import GHC.Generics
 import Language.Haskell.TH.Syntax ( Lift )
@@ -92,72 +91,69 @@ pattern AEApplication2 ann2 ann1 e1 e2 e3 = AEApplication ann2 (AEApplication an
 -- Annotated 'EApplication3'.
 pattern AEApplication3 ann3 ann2 ann1 e1 e2 e3 e4 = AEApplication ann3 (AEApplication2 ann2 ann1 e1 e2 e3) e4
 
-instance (Pretty ann, Pretty a) => Pretty (AnnotatedExpressionMC ann a) where
-  pretty = prettyPrec0
-
-instance (Pretty ann, Pretty a) => PrettyPrec (AnnotatedExpressionMC ann a) where
-  prettyPrec _ (AEInteger ann n) = pretty n PP.<> PP.braces (pretty ann)
-  prettyPrec _ (AEConstructor ann tag arity)
+instance (PrettyMC ann, PrettyMC a) => PrettyMC (AnnotatedExpressionMC ann a) where
+  prettyMC _ (AEInteger ann n) = PP.pretty n PP.<> PP.braces (prettyMC0 ann)
+  prettyMC _ (AEConstructor ann tag arity)
     = ( PP.fuse PP.Shallow . PP.hcat
         $ [ "$C"
           , PP.braces . PP.hcat
-            $ [ pretty tag
+            $ [ PP.pretty tag
               , PP.comma
-              , pretty arity
+              , PP.pretty arity
               ]
           ]
-      ) PP.<> PP.braces (pretty ann)
-  prettyPrec _ (AEVariable ann vId) = pretty vId PP.<> PP.braces (pretty ann)
-  prettyPrec _ (AEApplication2 ann2 ann1 (AEVariable annOp op) e1 e2)
+      ) PP.<> PP.braces (prettyMC0 ann)
+  prettyMC _ (AEVariable ann vId) = prettyMC0 vId PP.<> PP.braces (prettyMC0 ann)
+  prettyMC _ (AEApplication2 ann2 ann1 (AEVariable annOp op) e1 e2)
     | Just opP <- lookup op binaryPrecedenceTable
-    = prettyBinaryExpressionPrec miniApplicationPrecedence1 opP opDoc (`prettyPrec` e1) (`prettyPrec` e2)
-      PP.<> PP.braces (pretty ann1 PP.<> PP.comma PP.<+> pretty ann2)
+    = prettyBinaryExpressionPrec miniApplicationPrecedence1 opP opDoc (`prettyMC` e1) (`prettyMC` e2)
+      PP.<> PP.braces (prettyMC0 ann1 PP.<> PP.comma PP.<+> prettyMC0 ann2)
     where
-      opDoc = pretty op PP.<> PP.braces (pretty annOp)
-  prettyPrec p (AEApplication ann e1 e2)
+      opDoc = prettyMC0 op PP.<> PP.braces (prettyMC0 annOp)
+  prettyMC p (AEApplication ann e1 e2)
     = (if p > miniApplicationPrecedence then PP.parens else id)
       $ ( PP.align . PP.hcat
-          $ [ prettyPrec miniApplicationPrecedence e1
+          $ [ prettyMC miniApplicationPrecedence e1
             , PP.space
-            , prettyPrec miniApplicationPrecedence1 e2
+            , prettyMC miniApplicationPrecedence1 e2
             ]
-        ) PP.<> PP.braces (pretty ann)
-  prettyPrec p (AELet ann flag letDefs e)
+        ) PP.<> PP.braces (prettyMC0 ann)
+  prettyMC p (AELet ann flag letDefs e)
     = (if p > 0 then PP.parens else id)
       $ ( PP.align . PP.hcat
           $ [ keyword
             , PP.line
-            , prettyIndent . PP.vcat . PP.punctuate PP.semi . fmap pretty $ letDefs
+            , prettyIndent . PP.vcat . PP.punctuate PP.semi . fmap prettyMC0 $ letDefs
             , PP.line
             , "in"
             , PP.line
-            , prettyIndent . pretty $ e
+            , prettyIndent . prettyMC0 $ e
             ]
-        ) PP.<> PP.braces (pretty ann)
+        ) PP.<> PP.braces (prettyMC0 ann)
     where
       keyword
         | isRecursive flag = "letrec"
         | otherwise = "let"
-  prettyPrec p (AEMatch ann e matchCases)
+  prettyMC p (AEMatch ann e matchCases)
     = (if p > 0 then PP.parens else id)
       $ ( PP.align . PP.hcat
           $ [ "match "
-            , pretty e
+            , prettyMC0 e
             , " with"
             , PP.line
-            , prettyIndent . PP.vcat . PP.punctuate PP.semi . fmap pretty $ matchCases
+            , prettyIndent . PP.vcat . PP.punctuate PP.semi . fmap prettyMC0 $ matchCases
             ]
-        ) PP.<> PP.braces (pretty ann)
-  prettyPrec p (AELambda ann argBinders bodyExpr)
+        ) PP.<> PP.braces (prettyMC0 ann)
+  prettyMC p (AELambda ann argBinders bodyExpr)
     = (if p > 0 then PP.parens else id)
       $ ( PP.align . PP.hcat
           $ [ "\\"
-            , PP.hcat . PP.punctuate PP.space . fmap pretty $ argBinders
+            , PP.hcat . PP.punctuate PP.space . fmap prettyMC0 $ argBinders
             , " ->"
             , PP.line
-            , prettyIndent . pretty $ bodyExpr
+            , prettyIndent . prettyMC0 $ bodyExpr
             ]
-        ) PP.<> PP.braces (pretty ann)
+        ) PP.<> PP.braces (prettyMC0 ann)
 
 
 -- |
