@@ -26,10 +26,10 @@ programMCTest name programString = do
   describe ("of " <> name) $ do
     it "prints re-parsable text" $ do
       program <- parseProgramMC programString
-      parse P.mainProgramMC "" (PP.prettyShow program) `shouldParse` program
+      parse P.mainProgramMC "" (show (PP.prettyMC0 program)) `shouldParse` program
     it "prints expected text" $ do
       program <- parseProgramMC programString
-      PP.prettyShow program `shouldBe` programString
+      show (PP.prettyMC0 program) `shouldBe` programString
   where
     parseProgramMC :: String -> IO MainProgramMC
     parseProgramMC ps = do

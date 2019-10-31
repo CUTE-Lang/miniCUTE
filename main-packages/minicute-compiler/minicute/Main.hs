@@ -2,7 +2,7 @@ module Main
   ( main
   ) where
 
-import Data.Text.Prettyprint.Doc.Minicute ( prettyShow )
+import Data.Text.Prettyprint.Doc.Minicute ( prettyMC0 )
 import Minicute.Parser.Minicute.Parser ( mainProgramMC )
 import Minicute.Transpilers.Lifting.Lambda ( lambdaLifting )
 import System.Environment
@@ -27,12 +27,12 @@ compile handle = do
       putStrLn "program by show:"
       print program
       putStrLn "program by pretty printing:"
-      putStrLn (prettyShow program)
+      print (prettyMC0 program)
       let liftedProgram = lambdaLifting program
       putStrLn "lifted program by show:"
       print liftedProgram
       putStrLn "lifted program by pretty printing:"
-      putStrLn (prettyShow liftedProgram)
+      print (prettyMC0 liftedProgram)
     Left err -> do
       putStrLn "error:"
       putStrLn (errorBundlePretty err)

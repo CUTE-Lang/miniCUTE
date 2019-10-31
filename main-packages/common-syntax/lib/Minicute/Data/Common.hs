@@ -23,9 +23,11 @@ module Minicute.Data.Common
 import Control.Lens.TH
 import Data.Data
 import Data.String ( IsString(..) )
-import Data.Text.Prettyprint.Doc ( Pretty(..) )
+import Data.Text.Prettyprint.Doc.Minicute
 import GHC.Generics
 import Language.Haskell.TH.Syntax
+
+import qualified Data.Text.Prettyprint.Doc as PP
 
 -- |
 -- miniCUTE identifier type.
@@ -48,8 +50,8 @@ instance IsString Identifier where
 instance Semigroup Identifier where
   (Identifier a) <> (Identifier b) = Identifier (a <> b)
 
-instance Pretty Identifier where
-  pretty (Identifier v) = pretty v
+instance PrettyMC Identifier where
+  prettyMC _ (Identifier v) = prettyMC0 v
 
 
 -- |

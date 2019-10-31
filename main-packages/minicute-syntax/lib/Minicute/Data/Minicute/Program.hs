@@ -36,7 +36,7 @@ import Control.Lens.Tuple
 import Control.Lens.Type
 import Control.Lens.Wrapped
 import Data.Data
-import Data.Text.Prettyprint.Doc ( Pretty(..) )
+import Data.Text.Prettyprint.Doc.Minicute
 import GHC.Generics
 import Language.Haskell.TH.Syntax
 import Minicute.Data.Minicute.Expression
@@ -74,18 +74,18 @@ type MainSupercombinatorMC = SupercombinatorMC Identifier
 -- A supercombinator of 'MainExpressionLLMC'
 type MainSupercombinatorLLMC = SupercombinatorLLMC Identifier
 
-instance (Pretty a, Pretty (expr a)) => Pretty (Supercombinator expr a) where
-  pretty (Supercombinator (scId, argBinders, expr))
+instance (PrettyMC a, PrettyMC (expr a)) => PrettyMC (Supercombinator expr a) where
+  prettyMC _ (Supercombinator (scId, argBinders, expr))
     = PP.hcat
-      [ pretty scId
+      [ prettyMC0 scId
       , if null argBinders
         then PP.emptyDoc
         else PP.space
-      , PP.hsep . fmap pretty $ argBinders
+      , PP.hsep . fmap prettyMC0 $ argBinders
       , PP.space
       , PP.equals
       , PP.space
-      , pretty expr
+      , prettyMC0 expr
       ]
 
 
@@ -114,8 +114,8 @@ type MainProgramMC = ProgramMC Identifier
 -- A program of 'MainExpressionLLMC'
 type MainProgramLLMC = ProgramLLMC Identifier
 
-instance (Pretty a, Pretty (expr a)) => Pretty (Program expr a) where
-  pretty (Program scs) = PP.vcat . PP.punctuate PP.semi . fmap pretty $ scs
+instance (PrettyMC a, PrettyMC (expr a)) => PrettyMC (Program expr a) where
+  prettyMC _ (Program scs) = PP.vcat . PP.punctuate PP.semi . fmap prettyMC0 $ scs
 
 
 makeWrapped ''Supercombinator
