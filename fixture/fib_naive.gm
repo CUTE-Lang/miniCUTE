@@ -1,0 +1,62 @@
+main<0> {
+  MakeGlobal fib5;
+  Update 1;
+  Pop 1;
+  Unwind;
+}
+
+fib5<0> {
+  MakeGlobal fib4;
+  Eval;
+  PushExtractedValue;
+  PushBasicValue 5;
+  Primitive *;
+  UpdateAsInteger 0;
+  Return;
+}
+
+fib4<0> {
+  MakeGlobal fib3;
+  Eval;
+  PushExtractedValue;
+  PushBasicValue 4;
+  Primitive *;
+  UpdateAsInteger 0;
+  Return;
+}
+
+fib3<0> {
+  MakeGlobal fib2;
+  Eval;
+  PushExtractedValue;
+  PushBasicValue 3;
+  Primitive *;
+  UpdateAsInteger 0;
+  Return;
+}
+
+fib2<0> {
+  MakeGlobal fib1;
+  Eval;
+  PushExtractedValue;
+  PushBasicValue 2;
+  Primitive *;
+  UpdateAsInteger 0;
+  Return;
+}
+
+fib1<0> {
+  MakeGlobal fib0;
+  Eval;
+  PushExtractedValue;
+  PushBasicValue 1;
+  Primitive *;
+  UpdateAsInteger 0;
+  Return;
+}
+
+fib0<0> {
+  PushBasicValue 1;
+  UpdateAsInteger 0;
+  Return;
+}
