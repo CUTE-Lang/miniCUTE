@@ -3,7 +3,6 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TypeFamilies #-}
 module Minicute.Data.GMachine.AddressStack
@@ -19,8 +18,6 @@ module Minicute.Data.GMachine.AddressStack
   , peekAddr
   , peekNthAddr
   , checkSize
-
-  , prettyAddressStack
   ) where
 
 import Prelude hiding ( fail )
@@ -35,8 +32,6 @@ import Control.Monad.State ( MonadState )
 import Data.Data ( Data, Typeable )
 import GHC.Generics ( Generic )
 import Minicute.Data.GMachine.Address
-
-import qualified Data.Text.Prettyprint.Doc as PP
 
 newtype AddressStack
   = AddressStack [Address]
@@ -97,7 +92,3 @@ checkSize :: (MonadState s m, s ~ AddressStack) => Int -> m Bool
 checkSize n = isLongEnough <$> use _Wrapped
   where
     isLongEnough = (n ==) . length . take n
-
-prettyAddressStack :: AddressStack -> PP.Doc ann
-prettyAddressStack (AddressStack addrs)
-  = "address" PP.<+> "stack" PP.<+> PP.list (fmap prettyAddress addrs)

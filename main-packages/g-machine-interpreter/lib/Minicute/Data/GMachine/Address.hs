@@ -6,11 +6,10 @@ module Minicute.Data.GMachine.Address
   , address
   , minimumAddress
   , increaseAddress
-
-  , prettyAddress
   ) where
 
 import Data.Data
+import Data.Text.Prettyprint.Doc ( Pretty(..) )
 import GHC.Generics
 
 import qualified Data.Text.Prettyprint.Doc as PP
@@ -36,5 +35,5 @@ minimumAddress = Address 0
 increaseAddress :: Address -> Address
 increaseAddress (Address addr) = Address (addr + 1)
 
-prettyAddress :: Address -> PP.Doc ann
-prettyAddress (Address addr) = PP.fuse PP.Shallow $ "&" PP.<> PP.pretty addr
+instance Pretty Address where
+  pretty (Address addr) = PP.fuse PP.Shallow $ "&" PP.<> pretty addr

@@ -3,7 +3,6 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TypeFamilies #-}
 module Minicute.Data.GMachine.Code
@@ -16,8 +15,6 @@ module Minicute.Data.GMachine.Code
   , putInstruction
   , putInstructions
   , assertLastCode
-
-  , prettyCode
   ) where
 
 import Prelude hiding ( fail )
@@ -34,7 +31,6 @@ import Data.Data
 import GHC.Generics
 import Minicute.Data.GMachine.Instruction
 
-import qualified Data.Text.Prettyprint.Doc as PP
 import qualified Minicute.Transpilers.GMachine as GMachine ( initialCode )
 
 newtype Code
@@ -72,7 +68,3 @@ assertLastCode = do
   insts <- use _Wrapped
   unless (null insts) $
     fail "assertLastCode: Not a last code"
-
-prettyCode :: Code -> PP.Doc ann
-prettyCode (Code insts)
-  = "code" PP.<+> PP.unsafeViaShow insts

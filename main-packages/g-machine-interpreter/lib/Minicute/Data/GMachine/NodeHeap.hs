@@ -4,7 +4,6 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TupleSections #-}
 {-# LANGUAGE TypeFamilies #-}
@@ -16,8 +15,6 @@ module Minicute.Data.GMachine.NodeHeap
   , allocNode
   , updateNode
   , findNode
-
-  , prettyNodeHeap
   ) where
 
 import Prelude hiding ( fail )
@@ -37,7 +34,6 @@ import Minicute.Data.GMachine.Address
 import Minicute.Data.GMachine.Node
 
 import qualified Data.Map as Map
-import qualified Data.Text.Prettyprint.Doc as PP
 
 newtype NodeHeap
   = NodeHeap (Address, Map.Map Address Node)
@@ -70,22 +66,3 @@ findNode addr = use (_Wrapped . _2 . at addr) >>= findNode'
   where
     findNode' (Just node) = pure node
     findNode' Nothing = fail $ "findNode: there is no node for address " <> show addr
-
-prettyNodeHeap :: NodeHeap -> PP.Doc ann
-prettyNodeHeap (NodeHeap (lastAddr, m))
-  = "node" PP.<+> "heap" PP.<+> PP.angles (prettyAddress lastAddr)
-    PP.<+>
-    PP.braces
-    ( if Map.null m
-      then
-        PP.hardline
-      else
-        PP.enclose PP.hardline PP.hardline
-        . PP.indent 2
-        . prettyNodeHeapItems
-        $ Map.toAscList m
-    )
-  where
-    prettyNodeHeapItems = PP.vsep . fmap prettyNodeHeapItem
-    prettyNodeHeapItem (addr, node)
-      = prettyAddress addr PP.<> PP.colon PP.<+> prettyNode node

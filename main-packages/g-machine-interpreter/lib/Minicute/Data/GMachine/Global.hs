@@ -3,7 +3,6 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TypeFamilies #-}
 module Minicute.Data.GMachine.Global
@@ -15,8 +14,6 @@ module Minicute.Data.GMachine.Global
   , allocAddress
   , updateAddress
   , findAddress
-
-  , prettyGlobal
   ) where
 
 import Prelude hiding ( fail )
@@ -35,7 +32,6 @@ import Minicute.Data.Common ( Identifier(..) )
 import Minicute.Data.GMachine.Address
 
 import qualified Data.Map as Map
-import qualified Data.Text.Prettyprint.Doc as PP
 
 newtype Global
   = Global (Map.Map Identifier Address)
@@ -66,29 +62,3 @@ findAddress ident = use (_Wrapped . at ident) >>= findAddress'
   where
     findAddress' (Just addr) = pure addr
     findAddress' Nothing = fail $ "findAddress: No registered address for the identifier " <> show ident
-
-prettyGlobal :: Global -> PP.Doc ann
-prettyGlobal (Global m)
-  = "global"
-    PP.<+>
-    PP.braces
-    ( if Map.null m
-      then
-        PP.hardline
-      else
-        PP.enclose PP.hardline PP.hardline
-        . PP.indent 2
-        . prettyGlobalItems
-        $ globalItems
-    )
-  where
-    globalMaxIdLen
-      = maximum
-        . fmap (length . \(Identifier str, _) -> str)
-        $ globalItems
-    globalItems = Map.toAscList m
-
-    prettyGlobalItems = PP.vsep . fmap prettyGlobalItem
-    prettyGlobalItem (ident, addr)
-      = PP.fill globalMaxIdLen (PP.pretty ident)
-        PP.<+> "->" PP.<+> prettyAddress addr

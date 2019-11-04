@@ -3,7 +3,6 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TypeFamilies #-}
 module Minicute.Data.GMachine.ValueStack
@@ -11,8 +10,6 @@ module Minicute.Data.GMachine.ValueStack
   , empty
   , pushValue
   , popValue
-
-  , prettyValueStack
   ) where
 
 import Prelude hiding ( fail )
@@ -25,8 +22,6 @@ import Control.Monad.Fail
 import Control.Monad.State ( MonadState )
 import Data.Data ( Data, Typeable )
 import GHC.Generics ( Generic )
-
-import qualified Data.Text.Prettyprint.Doc as PP
 
 newtype ValueStack
   = ValueStack [Integer]
@@ -51,7 +46,3 @@ popValue = _Wrapped %%~= popValue'
   where
     popValue' (value : values) = pure (value, values)
     popValue' _ = fail "popValue: There is no value to pop"
-
-prettyValueStack :: ValueStack -> PP.Doc ann
-prettyValueStack (ValueStack vs)
-  = "value" PP.<+> "stack" PP.<+> PP.unsafeViaShow vs

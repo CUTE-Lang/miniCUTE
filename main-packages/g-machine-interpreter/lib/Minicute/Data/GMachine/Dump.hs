@@ -3,7 +3,6 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TypeFamilies #-}
 module Minicute.Data.GMachine.Dump
@@ -14,8 +13,6 @@ module Minicute.Data.GMachine.Dump
 
   , DumpItem
   , emptyDumpItem
-
-  , prettyDump
   ) where
 
 import Prelude hiding ( fail )
@@ -29,7 +26,6 @@ import Control.Monad.State ( MonadState )
 import Data.Data
 import GHC.Generics
 
-import qualified Data.Text.Prettyprint.Doc as PP
 import qualified Minicute.Data.GMachine.AddressStack as AddressStack
 import qualified Minicute.Data.GMachine.Code as Code
 import qualified Minicute.Data.GMachine.ValueStack as ValueStack
@@ -68,34 +64,3 @@ emptyDumpItem
     , AddressStack.empty
     , ValueStack.empty
     )
-
-prettyDump :: Dump -> PP.Doc ann
-prettyDump (Dump dis)
-  = "dump"
-    PP.<+>
-    PP.braces
-    ( if null dis
-      then
-        PP.hardline
-      else
-        PP.enclose PP.hardline PP.hardline
-        . PP.indent 2
-        . prettyIndexedDumpItems
-        $ reverse
-        . zip ([1..] :: [Integer])
-        . reverse
-        $ dis
-    )
-  where
-    prettyIndexedDumpItems = PP.vsep . fmap prettyIndexedDumpItem
-    prettyIndexedDumpItem (ind, di)
-      = "dump" PP.<+> "item"
-        PP.<+> PP.angles (PP.pretty ind) PP.<> PP.colon
-        PP.<+> prettyDumpItem di
-    prettyDumpItem :: DumpItem -> PP.Doc ann
-    prettyDumpItem (code, addressStack, valueStack)
-      = PP.braces . (PP.hardline PP.<>) . PP.indent 2 . PP.vsep
-        $ [ Code.prettyCode code
-          , AddressStack.prettyAddressStack addressStack
-          , ValueStack.prettyValueStack valueStack
-          ]
