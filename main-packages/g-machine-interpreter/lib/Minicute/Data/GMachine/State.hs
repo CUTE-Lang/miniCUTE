@@ -60,6 +60,7 @@ import Control.Monad.State
   ( MonadState
   , StateT
   , evalState
+  , evalStateT
   , execState
   , runState
   , runStateT
@@ -248,31 +249,36 @@ class PrettyGMS a where
   prettyGMS :: GMachineState -> PrettyGMSVerbosity -> a -> PP.Doc ann
 
 instance PrettyGMS AddressStack.AddressStack where
-  prettyGMS _ _ addrStk
-    = "address" PP.<+> "stack" PP.<+> PP.list (addrStk ^. _Wrapped <&> pretty)
+  prettyGMS st v addrStk
+    = "address" PP.<+> "stack"
+      PP.<+>
+      prettyBracedItems prettyAddresses addrs
+    where
+      addrs = addrStk ^. _Wrapped
+
+      prettyAddresses = PP.vsep . fmap prettyAddress
+      prettyAddress addr
+        = pretty addr PP.<> PP.colon
+          PP.<+>
+          case v of
+            Normal -> prettyNodeOfAddr st addr
+            Simple -> "..."
 
 instance PrettyGMS Code.Code where
-  prettyGMS _ _ c
-    = "code" PP.<+> PP.unsafeViaShow (c ^. _Wrapped)
+  prettyGMS _ v c
+    = "code"
+      PP.<+>
+      case v of
+        Normal -> PP.unsafeViaShow (c ^. _Wrapped)
+        Simple -> PP.brackets "..."
 
 instance PrettyGMS Dump.Dump where
   prettyGMS st _ d
     = "dump"
       PP.<+>
-      PP.braces
-      ( if null dis
-        then
-          PP.hardline
-        else
-          PP.enclose PP.hardline PP.hardline
-          . PP.indent 2
-          . prettyIndexedDumpItems
-          $ reverse
-          . zip ([1..] :: [Integer])
-          . reverse
-          $ dis
-      )
+      prettyBracedItems prettyIndexedDumpItems indexedDis
     where
+      indexedDis = reverse . zip [1..] . reverse $ dis :: [(Integer, Dump.DumpItem)]
       dis = d ^. _Wrapped
 
       prettyIndexedDumpItems = PP.vsep . fmap prettyIndexedDumpItem
@@ -280,28 +286,18 @@ instance PrettyGMS Dump.Dump where
         = "dump" PP.<+> "item"
           PP.<+> PP.angles (pretty ind) <> PP.colon
           PP.<+> prettyDumpItem di
-      prettyDumpItem :: Dump.DumpItem -> PP.Doc ann
       prettyDumpItem (c, as, vs)
-        = PP.braces . (PP.hardline <>) . PP.indent 2 . PP.vsep
+        = PP.braces . PP.enclose PP.hardline PP.hardline . PP.indent 2 . PP.vsep
           $ [ prettyGMS st Simple c
             , prettyGMS st Simple as
             , prettyGMS st Simple vs
             ]
 
 instance PrettyGMS Global.Global where
-  prettyGMS _ _ gl
+  prettyGMS st v gl
     = "global"
       PP.<+>
-      PP.braces
-      ( if Map.null glMap
-        then
-          PP.hardline
-        else
-          PP.enclose PP.hardline PP.hardline
-          . PP.indent 2
-          . prettyGlobalItems
-          $ globalItems
-      )
+      prettyBracedItems prettyGlobalItems globalItems
     where
       glMap = gl ^. _Wrapped
       globalMaxIdLen
@@ -314,27 +310,23 @@ instance PrettyGMS Global.Global where
       prettyGlobalItem (ident, addr)
         = PP.fill globalMaxIdLen (pretty ident)
           PP.<+> "->" PP.<+> pretty addr
+          PP.<>
+          case v of
+            Normal -> PP.colon PP.<+> prettyNodeOfAddr st addr
+            Simple -> PP.emptyDoc
 
 instance PrettyGMS NodeHeap.NodeHeap where
-  prettyGMS v st nh
+  prettyGMS st v nh
     = "node" PP.<+> "heap" PP.<+> PP.angles (pretty lastAddr)
       PP.<+>
-      PP.braces
-      ( if Map.null nhMap
-        then
-          PP.hardline
-        else
-          PP.enclose PP.hardline PP.hardline
-          . PP.indent 2
-          . prettyNodeHeapItems
-          $ Map.toAscList nhMap
-      )
+      prettyBracedItems prettyNodeHeapItems nhItems
     where
+      nhItems = Map.toAscList nhMap
       (lastAddr, nhMap) = nh ^. _Wrapped
 
       prettyNodeHeapItems = PP.vsep . fmap prettyNodeHeapItem
       prettyNodeHeapItem (addr, node)
-        = pretty addr PP.<> PP.colon PP.<+> prettyGMS v st node
+        = pretty addr PP.<> PP.colon PP.<+> prettyGMS st v node
 
 instance PrettyGMS ValueStack.ValueStack where
   prettyGMS _ _ valStk
@@ -349,7 +341,32 @@ instance PrettyGMS Node where
     = "$F" PP.<+> PP.list (fmap pretty addrs)
   prettyGMS _ _ (NApplication fAddr argAddr)
     = pretty fAddr PP.<+> "$" PP.<+> pretty argAddr
-  prettyGMS _ _ (NIndirect addr)
-    = "~>" PP.<+> pretty addr
-  prettyGMS _ _ (NGlobal arity insts)
-    = "global" PP.<> PP.angles (PP.pretty arity) PP.<+> PP.unsafeViaShow insts
+  prettyGMS st v (NIndirect addr)
+    = "~>" PP.<+> pretty addr PP.<> PP.colon
+      PP.<+>
+      case v of
+        Normal -> prettyNodeOfAddr st addr
+        Simple -> "..."
+  prettyGMS _ v (NGlobal arity insts)
+    = "global" PP.<> PP.angles (PP.pretty arity)
+      PP.<+>
+      case v of
+        Normal -> PP.unsafeViaShow insts
+        Simple -> PP.brackets "..."
+
+prettyBracedItems :: ([a] -> PP.Doc ann) -> [a] -> PP.Doc ann
+prettyBracedItems _ []
+  = PP.braces PP.hardline
+prettyBracedItems f xs
+  = PP.braces
+    . PP.enclose PP.hardline PP.hardline
+    . PP.indent 2
+    $ f xs
+
+prettyNodeOfAddr :: GMachineState -> Address -> PP.Doc ann
+prettyNodeOfAddr st addr
+  = case st ^. _nodeHeap & evalStateT (NodeHeap.findNode addr) of
+      Just node ->
+        prettyGMS st Simple node
+      Nothing ->
+        "--invalid address--"
