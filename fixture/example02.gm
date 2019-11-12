@@ -1,0 +1,6 @@
+main<0> {
+  MakeInteger 0;
+  Update 1;
+  Pop 1;
+  Unwind;
+}

@@ -1,0 +1,5 @@
+main<0> {
+  PushBasicValue 0;
+  UpdateAsInteger 0;
+  Return;
+}
