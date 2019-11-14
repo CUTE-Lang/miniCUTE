@@ -18,6 +18,8 @@ module Minicute.Data.GMachine.State
   , putInstructions
   , assertLastCode
 
+  , garbageCollection
+
   , allocNodeOnNodeHeap
   , updateNodeOnNodeHeap
   , findNodeOnNodeHeap
@@ -173,6 +175,21 @@ assertLastCode :: (MonadState s m, s ~ GMachineState, MonadFail m) => m ()
 assertLastCode = applySubstructuralAction _code Code.assertLastCode
 
 
+garbageCollection :: (MonadState s m, s ~ GMachineState, MonadFail m) => m ()
+garbageCollection = do
+  rootAddrs <- findGarbageCollectionRoots
+  applySubstructuralAction _nodeHeap $ do
+    NodeHeap.mark rootAddrs
+    NodeHeap.sweep
+
+findGarbageCollectionRoots :: (MonadState s m, s ~ GMachineState, MonadFail m) => m [Address]
+findGarbageCollectionRoots = do
+  addrStkAddrs <- applySubstructuralAction _addressStack AddressStack.peekAllAddrs
+  dumpAddrs <- applySubstructuralAction _dump Dump.extractAllAddresses
+  globalAddrs <- applySubstructuralAction _global Global.findAllAddresses
+  pure $ addrStkAddrs <> dumpAddrs <> globalAddrs
+
+
 allocNodeOnNodeHeap :: (MonadState s m, s ~ GMachineState) => Node -> m Address
 allocNodeOnNodeHeap = applySubstructuralAction _nodeHeap . NodeHeap.allocNode
 
@@ -325,7 +342,7 @@ instance PrettyGMS NodeHeap.NodeHeap where
       (lastAddr, nhMap) = nh ^. _Wrapped
 
       prettyNodeHeapItems = PP.vsep . fmap prettyNodeHeapItem
-      prettyNodeHeapItem (addr, node)
+      prettyNodeHeapItem (addr, (_, node))
         = pretty addr PP.<> PP.colon PP.<+> prettyGMS st v node
 
 instance PrettyGMS ValueStack.ValueStack where

@@ -14,6 +14,7 @@ module Minicute.Data.GMachine.Global
   , allocAddress
   , updateAddress
   , findAddress
+  , findAllAddresses
   ) where
 
 import Prelude hiding ( fail )
@@ -23,6 +24,7 @@ import Control.Lens.Getter ( use )
 import Control.Lens.Operators
 import Control.Lens.Operators.Minicute
 import Control.Lens.TH
+import Control.Lens.Traversal ( partsOf )
 import Control.Lens.Wrapped ( _Wrapped )
 import Control.Monad.Fail
 import Control.Monad.State ( MonadState )
@@ -62,3 +64,6 @@ findAddress ident = use (_Wrapped . at ident) >>= findAddress'
   where
     findAddress' (Just addr) = pure addr
     findAddress' Nothing = fail $ "findAddress: No registered address for the identifier " <> show ident
+
+findAllAddresses :: (MonadState s m, s ~ Global, MonadFail m) => m [Address]
+findAllAddresses = use (_Wrapped . partsOf traverse)

@@ -10,6 +10,7 @@ module Minicute.Data.GMachine.Dump
   , empty
   , saveState
   , loadState
+  , extractAllAddresses
 
   , DumpItem
   , emptyDumpItem
@@ -17,14 +18,19 @@ module Minicute.Data.GMachine.Dump
 
 import Prelude hiding ( fail )
 
+import Control.Lens.Getter ( use )
 import Control.Lens.Operators
 import Control.Lens.Operators.Minicute
 import Control.Lens.TH
+import Control.Lens.Traversal ( partsOf )
+import Control.Lens.Tuple
 import Control.Lens.Wrapped ( _Wrapped )
+import Control.Monad ( join )
 import Control.Monad.Fail
-import Control.Monad.State ( MonadState )
+import Control.Monad.State ( MonadState, evalStateT )
 import Data.Data
 import GHC.Generics
+import Minicute.Data.GMachine.Address
 
 import qualified Minicute.Data.GMachine.AddressStack as AddressStack
 import qualified Minicute.Data.GMachine.Code as Code
@@ -56,6 +62,11 @@ loadState = _Wrapped %%~= loadState'
   where
     loadState' (di : dis) = pure (di, dis)
     loadState' _ = fail "loadState: There is no dumped state to load"
+
+extractAllAddresses :: (MonadState s m, s ~ Dump, MonadFail m) => m [Address]
+extractAllAddresses = do
+  addrStks <- use (_Wrapped . partsOf (traverse . _2))
+  fmap join . traverse (evalStateT AddressStack.peekAllAddrs) $ addrStks
 
 
 emptyDumpItem :: DumpItem

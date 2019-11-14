@@ -17,6 +17,7 @@ module Minicute.Data.GMachine.AddressStack
   , popAllAddrs
   , peekAddr
   , peekNthAddr
+  , peekAllAddrs
   , checkSize
   ) where
 
@@ -87,6 +88,9 @@ peekNthAddr n = use _Wrapped >>= peekNthAddr'
       case drop (n - 1) addrs of
         addr : _ -> pure addr
         _ -> fail $ "peekNthAddr: There are not enough addresses to peek the " <> show n <> "th address"
+
+peekAllAddrs :: (MonadState s m, s ~ AddressStack) => m [Address]
+peekAllAddrs = use _Wrapped
 
 checkSize :: (MonadState s m, s ~ AddressStack) => Int -> m Bool
 checkSize n = isLongEnough <$> use _Wrapped
