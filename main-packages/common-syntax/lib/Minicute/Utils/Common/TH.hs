@@ -1,6 +1,6 @@
 -- |
--- Basic utilities for miniCUTE compiler using TemplateHaskell
-module Minicute.Utils.TH
+-- Common utilities for miniCUTE compiler using TemplateHaskell
+module Minicute.Utils.Common.TH
   ( qqRawCode
 
   , normalizeCode

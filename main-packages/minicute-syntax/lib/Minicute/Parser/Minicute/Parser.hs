@@ -18,13 +18,12 @@ import Control.Monad.Reader ( ReaderT, ask, mapReaderT, runReaderT )
 import Data.Functor
 import Data.List.Extra
 import Minicute.Data.Minicute.Program
-import Minicute.Data.Precedence
 import Minicute.Parser.Common
 import Text.Megaparsec
 
 import qualified Control.Monad.Combinators as Comb
 import qualified Control.Monad.Combinators.Expr as CombExpr
-import qualified Minicute.Parser.Lexer as L
+import qualified Minicute.Parser.Common.Lexer as L
 
 type WithPrecedence m = ReaderT PrecedenceTable m
 

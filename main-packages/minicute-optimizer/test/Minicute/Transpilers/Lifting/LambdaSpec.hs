@@ -10,7 +10,7 @@ import Control.Monad
 import Data.Tuple.Extra
 import Minicute.Data.Minicute.Program
 import Minicute.Transpilers.Lifting.Lambda
-import Minicute.Utils.TH.Minicute
+import Minicute.Utils.Minicute.TH
 
 spec :: Spec
 spec = do

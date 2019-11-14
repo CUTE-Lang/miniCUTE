@@ -13,7 +13,7 @@ import Data.List
 import Data.Tuple.Extra
 import Minicute.Data.Minicute.Program
 import Minicute.Transpilers.VariablesRenaming
-import Minicute.Utils.TH.Minicute
+import Minicute.Utils.Minicute.TH
 
 import qualified Data.Set as Set
 

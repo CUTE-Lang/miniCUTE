@@ -56,7 +56,6 @@ import Data.Text.Prettyprint.Doc.Minicute
 import GHC.Generics
 import Language.Haskell.TH.Syntax
 import Minicute.Data.Common
-import Minicute.Data.Precedence
 
 import qualified Data.Text.Prettyprint.Doc as PP
 

@@ -37,7 +37,6 @@ import Language.Haskell.TH.Syntax ( Lift )
 import Minicute.Data.Common
 import Minicute.Data.Minicute.Expression
 import Minicute.Data.Minicute.Program
-import Minicute.Data.Precedence
 
 import qualified Data.Text.Prettyprint.Doc as PP
 

@@ -3,7 +3,7 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 -- |
 -- Common lexer functions used in miniCUTE compiler
-module Minicute.Parser.Lexer
+module Minicute.Parser.Common.Lexer
   ( betweenRoundBrackets
 
   , gMachineIdentifier

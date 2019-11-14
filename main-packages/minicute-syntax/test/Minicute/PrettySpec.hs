@@ -10,7 +10,7 @@ import Test.Hspec.Megaparsec
 import Control.Monad
 import Data.Either
 import Minicute.Data.Minicute.Program
-import Minicute.Utils.TH
+import Minicute.Utils.Common.TH
 import Text.Megaparsec
 
 import qualified Data.Text.Prettyprint.Doc.Minicute as PP

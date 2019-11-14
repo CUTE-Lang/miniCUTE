@@ -1,6 +1,6 @@
 -- |
 -- G-machine syntax utilities for miniCUTE compiler using TemplateHaskell
-module Minicute.Utils.TH.GMachine
+module Minicute.Utils.GMachine.TH
   ( qqGMachine
 
   , qqRawCode
@@ -13,7 +13,7 @@ import Language.Haskell.TH
 import Language.Haskell.TH.Quote
 import Language.Haskell.TH.Syntax
 import Minicute.Parser.GMachine.Parser
-import Minicute.Utils.TH
+import Minicute.Utils.Common.TH
 import Text.Megaparsec
 
 -- |

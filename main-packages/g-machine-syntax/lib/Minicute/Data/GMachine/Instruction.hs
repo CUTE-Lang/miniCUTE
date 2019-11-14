@@ -27,7 +27,7 @@ module Minicute.Data.GMachine.Instruction
 import Data.Data
 import GHC.Generics
 import Language.Haskell.TH.Syntax
-import Minicute.Data.Precedence
+import Minicute.Data.Common
 
 -- |
 -- A G-Machine program.

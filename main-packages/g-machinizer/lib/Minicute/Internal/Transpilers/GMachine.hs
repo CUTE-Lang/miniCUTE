@@ -14,7 +14,6 @@ import Control.Lens.Wrapped ( _Wrapped )
 import Data.List
 import Minicute.Data.GMachine.Instruction
 import Minicute.Data.Minicute.Program
-import Minicute.Data.Precedence
 
 import qualified Data.Map as Map
 

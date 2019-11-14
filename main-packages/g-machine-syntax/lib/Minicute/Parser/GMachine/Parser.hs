@@ -14,7 +14,7 @@ import Minicute.Data.GMachine.Instruction
 import Minicute.Parser.Common
 import Text.Megaparsec
 
-import qualified Minicute.Parser.Lexer as L
+import qualified Minicute.Parser.Common.Lexer as L
 
 -- |
 -- A parser for a G-Machine program.
