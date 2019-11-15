@@ -56,7 +56,6 @@ import Data.Text.Prettyprint.Doc.Minicute
 import GHC.Generics
 import Language.Haskell.TH.Syntax
 import Minicute.Data.Common
-import Minicute.Data.Precedence
 
 import qualified Data.Text.Prettyprint.Doc as PP
 
@@ -136,12 +135,13 @@ instance (PrettyMC a, PrettyMC (expr a)) => PrettyMC (MatchCase expr a) where
 -- A basic miniCUTE expression of @a@.
 data Expression (t :: ExpressionLevel) a where
   EInteger :: Integer -> Expression t a -- ^ @5@
-  EConstructor :: Integer -> Integer -> Expression t a-- ^ @$C{t;a}@
-  EVariable :: Identifier -> Expression t a-- ^ @v@
-  EApplication :: Expression t a -> Expression t a -> Expression t a-- ^ @f 4@
-  ELet :: IsRecursive -> [LetDefinition (Expression t) a] -> Expression t a -> Expression t a-- ^ @let x = 4 in x@
-  EMatch :: Expression t a -> [MatchCase (Expression t) a] -> Expression t a-- ^ @match $C{1;0} with \<1\> -> 4@
-  ELambda :: [a] -> ExpressionMC a -> ExpressionMC a -- ^ @\\x.x@
+  EConstructor :: Integer -> Integer -> Expression t a -- ^ @$C{tag;arity}@
+  EVariable :: Identifier -> Expression t a -- ^ @var@
+  EPrimitive :: Primitive -> Expression t a -- ^ @+@
+  EApplication :: Expression t a -> Expression t a -> Expression t a -- ^ @fun arg@
+  ELet :: IsRecursive -> [LetDefinition (Expression t) a] -> Expression t a -> Expression t a -- ^ @let var = 4 in var@
+  EMatch :: Expression t a -> [MatchCase (Expression t) a] -> Expression t a -- ^ @match $C{1;0} with \<1\> -> 4@
+  ELambda :: [a] -> ExpressionMC a -> ExpressionMC a -- ^ @\\arg.arg@
   deriving ( Typeable
            )
 -- |
@@ -182,9 +182,10 @@ instance (PrettyMC a) => PrettyMC (Expression t a) where
             ]
         ]
   prettyMC _ (EVariable vId) = prettyMC0 vId
-  prettyMC p (EApplication2 (EVariable op) e1 e2)
-    | Just opP <- lookup op binaryPrecedenceTable
-    = prettyBinaryExpressionPrec p opP (prettyMC0 op) (`prettyMC` e1) (`prettyMC` e2)
+  prettyMC _ (EPrimitive prim) = prettyMC0 prim
+  prettyMC p (EApplication2 (EPrimitive prim) e1 e2)
+    | Just primP <- lookup prim binaryPrimitivePrecedenceTable
+    = prettyBinaryExpressionPrec p primP (prettyMC0 prim) (`prettyMC` e1) (`prettyMC` e2)
   prettyMC p (EApplication e1 e2)
     = (if p > miniApplicationPrecedence then PP.parens else id) . PP.align . PP.hcat
       $ [ prettyMC miniApplicationPrecedence e1

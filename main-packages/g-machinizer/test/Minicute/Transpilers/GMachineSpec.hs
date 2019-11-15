@@ -10,8 +10,8 @@ import Test.Hspec
 import Control.Monad
 import Data.Tuple.Extra
 import Minicute.Transpilers.GMachine
-import Minicute.Utils.TH.GMachine
-import Minicute.Utils.TH.Minicute
+import Minicute.Utils.GMachine.TH
+import Minicute.Utils.Minicute.TH
 
 spec :: Spec
 spec = do
@@ -186,7 +186,7 @@ testCases
         |]
       )
 
-    , ( "program with a arithmetic operation in an application"
+    , ( "program with an arithmetic operation in an application"
       , [qqMiniMainLLMC|
                    f = g (3 * 4);
                    g x = x;

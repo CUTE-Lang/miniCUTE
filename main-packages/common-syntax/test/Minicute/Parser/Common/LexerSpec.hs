@@ -3,7 +3,7 @@
 {-# LANGUAGE BinaryLiterals #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TypeFamilies #-}
-module Minicute.Parser.LexerSpec
+module Minicute.Parser.Common.LexerSpec
   ( spec
   ) where
 
@@ -13,7 +13,7 @@ import Test.Hspec.Megaparsec
 import Minicute.Parser.Common ( Parser )
 import Text.Megaparsec
 
-import qualified Minicute.Parser.Lexer as L
+import qualified Minicute.Parser.Common.Lexer as L
 
 -- |
 -- __TODO: Update these tests to use QuickCheck__

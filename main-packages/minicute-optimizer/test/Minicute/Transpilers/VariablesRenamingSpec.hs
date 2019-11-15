@@ -13,7 +13,7 @@ import Data.List
 import Data.Tuple.Extra
 import Minicute.Data.Minicute.Program
 import Minicute.Transpilers.VariablesRenaming
-import Minicute.Utils.TH.Minicute
+import Minicute.Utils.Minicute.TH
 
 import qualified Data.Set as Set
 
@@ -106,6 +106,7 @@ haveNoIdentifierConflictMainEMC :: Set.Set Identifier -> MainExpressionMC -> (Se
 haveNoIdentifierConflictMainEMC env (EInteger _) = (env, True)
 haveNoIdentifierConflictMainEMC env (EConstructor _ _) = (env, True)
 haveNoIdentifierConflictMainEMC env (EVariable _) = (env, True)
+haveNoIdentifierConflictMainEMC env (EPrimitive _) = (env, True)
 haveNoIdentifierConflictMainEMC env (EApplication e1 e2)
   = (env2, noConflict1 && noConflict2)
   where

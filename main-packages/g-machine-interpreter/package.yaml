@@ -55,6 +55,7 @@ library:
     - extra >= 1.6 && < 2
     - lens >= 4.17 && < 5
     - mtl >= 2.2 && < 3
+    - prettyprinter >= 1.2 && < 2
     - template-haskell >= 2.14 && < 3
 
     - minicute-common-syntax == 0.1.0.0
@@ -80,6 +81,7 @@ executables:
     dependencies:
       ## Remove following dependence if possible
       - megaparsec >= 7.0 && < 8
+      - prettyprinter >= 1.2 && < 2
 
       - minicute-g-machine-interpreter == 0.1.0.0
       - minicute-g-machine-syntax == 0.1.0.0

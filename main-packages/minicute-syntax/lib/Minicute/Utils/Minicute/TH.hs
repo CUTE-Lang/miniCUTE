@@ -1,6 +1,6 @@
 -- |
 -- Minicute syntax utilities for miniCUTE compiler using TemplateHaskell
-module Minicute.Utils.TH.Minicute
+module Minicute.Utils.Minicute.TH
   ( qqMiniMainMC
   , qqMiniMainLLMC
 
@@ -14,7 +14,7 @@ import Language.Haskell.TH
 import Language.Haskell.TH.Quote
 import Language.Haskell.TH.Syntax
 import Minicute.Parser.Minicute.Parser
-import Minicute.Utils.TH
+import Minicute.Utils.Common.TH
 import Text.Megaparsec
 
 -- |

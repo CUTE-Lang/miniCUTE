@@ -1,36 +1,25 @@
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE DeriveLift #-}
-{-# LANGUAGE OverloadedStrings #-}
 -- |
 -- Types for precedences of primitive operators in miniCUTE
-module Minicute.Data.Precedence
-  ( module Minicute.Data.Common
-
-
-  , Precedence( .. )
-
-  , OperatorName
-  , PrecedenceTable
-  , PrecedenceTableEntry
-
-  , isInfix
-
-  , defaultPrecedenceTable
-  , binaryPrecedenceTable
-  , binaryIntegerPrecendenceTable
-  , binaryDataPrecendenceTable
+module Minicute.Data.Common.Precedence
+  ( Precedence( .. )
 
   , miniApplicationPrecedence
   , miniApplicationPrecedence1
 
+  , isInfix
+
   , prettyBinaryExpressionPrec
+
+  , PrecedenceTable
+  , PrecedenceTableEntry
   ) where
 
 import Data.Data
 import GHC.Generics
 import Language.Haskell.TH.Syntax
-import Minicute.Data.Common
 
 import qualified Data.Text.Prettyprint.Doc as PP
 
@@ -53,63 +42,6 @@ data Precedence
            )
 
 -- |
--- Name of an operator
-type OperatorName = Identifier
--- |
--- Precedence character of an operator
-type PrecedenceTableEntry = (OperatorName, Precedence)
--- |
--- Precedence characters of operators
-type PrecedenceTable = [PrecedenceTableEntry]
-
--- |
--- Check whether the input operator is infix (i.e. binary).
-isInfix :: Precedence -> Bool
-isInfix (PInfixN _) = True
-isInfix (PInfixL _) = True
-isInfix (PInfixR _) = True
-isInfix _ = False
-{-# INLINEABLE isInfix #-}
-
--- |
--- All predefined precedences.
---
--- All precedences should be smaller than 'miniApplicationPrecedence'.
--- Where do I need to check this condition?
-defaultPrecedenceTable :: PrecedenceTable
-defaultPrecedenceTable
-  = binaryPrecedenceTable
-
--- |
--- All predefined precedences of binary operators.
-binaryPrecedenceTable :: PrecedenceTable
-binaryPrecedenceTable
-  = binaryDataPrecendenceTable
-    <> binaryIntegerPrecendenceTable
-
--- |
--- All predefined precedences of binary integer operators.
-binaryIntegerPrecendenceTable :: PrecedenceTable
-binaryIntegerPrecendenceTable
-  = [ ("+", PInfixL 40)
-    , ("-", PInfixL 40)
-    , ("*", PInfixL 50)
-    , ("/", PInfixL 50)
-    ]
-
--- |
--- All predefined precedences of binary data structure operators.
-binaryDataPrecendenceTable :: PrecedenceTable
-binaryDataPrecendenceTable
-  = [ (">=", PInfixL 10)
-    , (">", PInfixL 10)
-    , ("<=", PInfixL 10)
-    , ("<", PInfixL 10)
-    , ("==", PInfixL 10)
-    , ("!=", PInfixL 10)
-    ]
-
--- |
 -- The maximum precedence value in miniCUTE.
 miniApplicationPrecedence :: Int
 miniApplicationPrecedence = 100
@@ -120,6 +52,15 @@ miniApplicationPrecedence = 100
 miniApplicationPrecedence1 :: Int
 miniApplicationPrecedence1 = 101
 {-# INLINEABLE miniApplicationPrecedence1 #-}
+
+-- |
+-- Check whether the input operator is infix (i.e. binary).
+isInfix :: Precedence -> Bool
+isInfix (PInfixN _) = True
+isInfix (PInfixL _) = True
+isInfix (PInfixR _) = True
+isInfix _ = False
+{-# INLINEABLE isInfix #-}
 
 
 -- |
@@ -141,3 +82,11 @@ prettyBinaryExpressionPrec p opPrec opDoc e1DocF e2DocF
           PInfixR opP' -> (opP' + 1, opP', opP')
           _ -> (miniApplicationPrecedence1, miniApplicationPrecedence, miniApplicationPrecedence1)
 {-# INLINEABLE prettyBinaryExpressionPrec #-}
+
+
+-- |
+-- Precedences of 'a's
+type PrecedenceTable a = [PrecedenceTableEntry a]
+-- |
+-- A precedence of 'a'
+type PrecedenceTableEntry a = (a, Precedence)

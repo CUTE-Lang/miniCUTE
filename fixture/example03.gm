@@ -1,0 +1,12 @@
+main<0> {
+  MakeGlobal f;
+  Update 1;
+  Pop 1;
+  Unwind;
+}
+
+f<0> {
+  PushBasicValue 1;
+  UpdateAsInteger 0;
+  Return;
+}

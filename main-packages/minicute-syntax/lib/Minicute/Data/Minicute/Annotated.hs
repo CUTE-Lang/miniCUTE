@@ -37,7 +37,6 @@ import Language.Haskell.TH.Syntax ( Lift )
 import Minicute.Data.Common
 import Minicute.Data.Minicute.Expression
 import Minicute.Data.Minicute.Program
-import Minicute.Data.Precedence
 
 import qualified Data.Text.Prettyprint.Doc as PP
 
@@ -68,6 +67,7 @@ data AnnotatedExpressionMC ann a
   = AEInteger ann Integer -- ^ @5@
   | AEConstructor ann Integer Integer -- ^ @$C{t;a}@
   | AEVariable ann Identifier -- ^ @v@
+  | AEPrimitive ann Primitive -- ^ @v@
   | AEApplication ann (AnnotatedExpressionMC ann a) (AnnotatedExpressionMC ann a) -- ^ @f 4@
   | AELet ann IsRecursive [LetDefinition (AnnotatedExpressionMC ann) a] (AnnotatedExpressionMC ann a) -- ^ @let x = 4 in x@
   | AEMatch ann (AnnotatedExpressionMC ann a) [MatchCase (AnnotatedExpressionMC ann) a] -- ^ @match $C{1;0} with \<1\> -> 4@
@@ -104,12 +104,13 @@ instance (PrettyMC ann, PrettyMC a) => PrettyMC (AnnotatedExpressionMC ann a) wh
           ]
       ) PP.<> PP.braces (prettyMC0 ann)
   prettyMC _ (AEVariable ann vId) = prettyMC0 vId PP.<> PP.braces (prettyMC0 ann)
-  prettyMC _ (AEApplication2 ann2 ann1 (AEVariable annOp op) e1 e2)
-    | Just opP <- lookup op binaryPrecedenceTable
-    = prettyBinaryExpressionPrec miniApplicationPrecedence1 opP opDoc (`prettyMC` e1) (`prettyMC` e2)
+  prettyMC _ (AEPrimitive ann prim) = prettyMC0 prim PP.<> PP.braces (prettyMC0 ann)
+  prettyMC _ (AEApplication2 ann2 ann1 (AEPrimitive annPrim prim) e1 e2)
+    | Just primP <- lookup prim binaryPrimitivePrecedenceTable
+    = prettyBinaryExpressionPrec miniApplicationPrecedence1 primP primDoc (`prettyMC` e1) (`prettyMC` e2)
       PP.<> PP.braces (prettyMC0 ann1 PP.<> PP.comma PP.<+> prettyMC0 ann2)
     where
-      opDoc = prettyMC0 op PP.<> PP.braces (prettyMC0 annOp)
+      primDoc = prettyMC0 prim PP.<> PP.braces (prettyMC0 annPrim)
   prettyMC p (AEApplication ann e1 e2)
     = (if p > miniApplicationPrecedence then PP.parens else id)
       $ ( PP.align . PP.hcat
@@ -164,6 +165,7 @@ _annotation = lens getter setter
     getter (AEInteger ann _) = ann
     getter (AEConstructor ann _ _) = ann
     getter (AEVariable ann _) = ann
+    getter (AEPrimitive ann _) = ann
     getter (AEApplication ann _ _) = ann
     getter (AELet ann _ _ _) = ann
     getter (AEMatch ann _ _) = ann
@@ -172,6 +174,7 @@ _annotation = lens getter setter
     setter (AEInteger _ n) ann = AEInteger ann n
     setter (AEConstructor _ t a) ann = AEConstructor ann t a
     setter (AEVariable _ v) ann = AEVariable ann v
+    setter (AEPrimitive _ p) ann = AEPrimitive ann p
     setter (AEApplication _ e1 e2) ann = AEApplication ann e1 e2
     setter (AELet _ flag lDefs expr) ann = AELet ann flag lDefs expr
     setter (AEMatch _ mCases expr) ann = AEMatch ann mCases expr

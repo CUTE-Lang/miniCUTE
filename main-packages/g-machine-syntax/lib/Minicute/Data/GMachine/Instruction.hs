@@ -19,7 +19,6 @@ module Minicute.Data.GMachine.Instruction
 
     -- ** Instructions
   , Instruction( .. )
-  , PrimitiveOperator( .. )
   , MatchTable( .. )
   , MatchEntry( .. )
   ) where
@@ -27,7 +26,7 @@ module Minicute.Data.GMachine.Instruction
 import Data.Data
 import GHC.Generics
 import Language.Haskell.TH.Syntax
-import Minicute.Data.Precedence
+import Minicute.Data.Common
 
 -- |
 -- A G-Machine program.
@@ -464,7 +463,7 @@ data Instruction
   | IUpdateAsStructure Int
 
   -- Primitive operations
-  | IPrimitive PrimitiveOperator
+  | IPrimitive Primitive
 
   -- Node inspecting operations
   | IUnwind
@@ -508,22 +507,6 @@ newtype MatchTable
 -- [@GMachineExpression@] the instructions of the case.
 newtype MatchEntry
   = MatchEntry (Integer, GMachineExpression)
-  deriving ( Generic
-           , Typeable
-           , Data
-           , Lift
-           , Eq
-           , Ord
-           , Show
-           )
-
--- |
--- Primitive operations done in the value stack.
-data PrimitiveOperator
-  = POAdd
-  | POSub
-  | POMul
-  | PODiv
   deriving ( Generic
            , Typeable
            , Data

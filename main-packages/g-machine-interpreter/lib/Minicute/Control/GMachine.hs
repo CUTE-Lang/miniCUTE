@@ -19,7 +19,7 @@ import Prelude hiding ( fail )
 
 import Control.Monad ( (<=<) )
 import Control.Monad.Fail
-import Control.Monad.State ( MonadState(..), StateT, gets, modify, execStateT )
+import Control.Monad.State ( MonadState(..), StateT, execStateT, gets, modify )
 import Control.Monad.Trans ( MonadTrans(..) )
 import Control.Monad.Writer ( MonadWriter(..), Writer, runWriter )
 import Data.Data
@@ -65,7 +65,7 @@ instance MonadTrans GMachineMonadT where
 
 execGMachineT :: (Monad m) => GMachineMonadT m a -> m (NonEmpty GMachineState)
 execGMachineT (GMachineMonadT a)
-  | Just st <- maySt = execStateT b (st :| [])
+  | Just st <- maySt = NonEmpty.reverse <$> execStateT b (st :| [])
   | otherwise = error "execGMachineT: input G-Machine is not initialized"
   where
     (b, First maySt) = runWriter a

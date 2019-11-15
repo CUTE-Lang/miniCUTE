@@ -12,9 +12,9 @@ import Control.Lens.Each
 import Control.Lens.Operators
 import Control.Lens.Wrapped ( _Wrapped )
 import Data.List
+import Data.String
 import Minicute.Data.GMachine.Instruction
 import Minicute.Data.Minicute.Program
-import Minicute.Data.Precedence
 
 import qualified Data.Map as Map
 
@@ -63,11 +63,9 @@ transpileSc sc = (scBinder, scArgsLength, scInsts)
 transpileRE :: TranspilerE MainExpressionLLMC
 transpileRE env (EInteger n) = [IPushBasicValue n, IUpdateAsInteger (getEnvSize env), IReturn]
 transpileRE env (EConstructor tag 0) = [IPushBasicValue tag, IUpdateAsStructure (getEnvSize env), IReturn]
-transpileRE env e@(EApplication2 (EVariable op) _ _)
-  | Just _ <- lookup op binaryIntegerPrecendenceTable
+transpileRE env e@(EApplication2 (EPrimitive prim) _ _)
+  | Just _ <- lookup prim binaryPrimitivePrecedenceTable
   = transpilePE env e <> [IUpdateAsInteger (getEnvSize env), IReturn]
-  | Just _ <- lookup op binaryDataPrecendenceTable
-  = transpilePE env e <> [IUpdateAsStructure (getEnvSize env), IReturn]
 transpileRE env (ELet flag lDefs body) = transpileLet transpileRE env (flag, lDefs, body)
 transpileRE env (EMatch body mCases) = transpileMatch transpileSE (const transpileRE) env (body, mCases)
 -- Should following really use a strict expression?
@@ -84,11 +82,9 @@ transpileSE :: TranspilerE MainExpressionLLMC
 transpileSE _ (EInteger n) = [IMakeInteger n]
 transpileSE _ (EConstructor tag 0) = [IMakeStructure tag 0]
 transpileSE _ (EConstructor tag arity) = [IMakeConstructor tag arity]
-transpileSE env e@(EApplication2 (EVariable op) _ _)
-  | Just _ <- lookup op binaryIntegerPrecendenceTable
+transpileSE env e@(EApplication2 (EPrimitive prim) _ _)
+  | Just _ <- lookup prim binaryPrimitivePrecedenceTable
   = transpilePE env e <> [IWrapAsInteger]
-  | Just _ <- lookup op binaryDataPrecendenceTable
-  = transpilePE env e <> [IWrapAsStructure]
 transpileSE env e = transpileNE env e <> [IEval]
 
 -- |
@@ -97,9 +93,9 @@ transpileSE env e = transpileNE env e <> [IEval]
 transpilePE :: TranspilerE MainExpressionLLMC
 transpilePE _ (EInteger n) = [IPushBasicValue n]
 transpilePE _ (EConstructor tag 0) = [IPushBasicValue tag]
-transpilePE env (EApplication2 (EVariable op) e1 e2)
-  | Just _ <- lookup op binaryPrecedenceTable
-  = transpilePE env e1 <> transpilePE env e2 <> [IPrimitive (getPrimitiveOperator op)]
+transpilePE env (EApplication2 (EPrimitive prim) e1 e2)
+  | Just _ <- lookup prim binaryPrimitivePrecedenceTable
+  = transpilePE env e1 <> transpilePE env e2 <> [IPrimitive prim]
 transpilePE env (ELet flag lDefs body) = transpileLet transpilePE env (flag, lDefs, body) <> [IPop (length lDefs)]
 transpilePE env e = transpileSE env e <> [IPushExtractedValue]
 
@@ -113,6 +109,7 @@ transpileNE _ (EConstructor tag arity) = [IMakeConstructor tag arity]
 transpileNE env (EVariable v)
   | Just index <- Map.lookup v env = [ICopy index]
   | otherwise = [IMakeGlobal v]
+transpileNE _ (EPrimitive prim) = [IMakeGlobal . fromString . toString $ prim]
 transpileNE env (EApplication e1 e2)
   = transpileNE env e1 <> transpileNE (addEnvOffset1 env) e2 <> [IMakeApplication]
 transpileNE env (ELet flag lDefs body) = transpileLet transpileNE env (flag, lDefs, body) <> [IDig (length lDefs)]
@@ -192,14 +189,6 @@ addEnvOffset1 = Map.map (+ 1)
 
 addEnvOffset :: Int -> TranspilerEEnv -> TranspilerEEnv
 addEnvOffset n = Map.map (+ n)
-
-
-getPrimitiveOperator :: Identifier -> PrimitiveOperator
-getPrimitiveOperator "+" = POAdd
-getPrimitiveOperator "-" = POSub
-getPrimitiveOperator "*" = POMul
-getPrimitiveOperator "/" = PODiv
-getPrimitiveOperator _ = error "Not implemented yet"
 
 
 -- * Initial Instructions

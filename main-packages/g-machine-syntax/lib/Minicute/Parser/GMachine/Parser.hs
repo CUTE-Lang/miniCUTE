@@ -12,9 +12,10 @@ import Data.Functor
 import Minicute.Data.Common
 import Minicute.Data.GMachine.Instruction
 import Minicute.Parser.Common
+import Minicute.Parser.Common.Parser
 import Text.Megaparsec
 
-import qualified Minicute.Parser.Lexer as L
+import qualified Minicute.Parser.Common.Lexer as L
 
 -- |
 -- A parser for a G-Machine program.
@@ -56,7 +57,7 @@ instruction
     , L.symbol "UpdateAsInteger" >> IUpdateAsInteger <$> L.integer
     , L.symbol "UpdateAsStructure" >> IUpdateAsStructure <$> L.integer
 
-    , L.symbol "Primitive" >> IPrimitive <$> primitiveOperator
+    , L.symbol "Primitive" >> IPrimitive <$> primitive
 
     , L.symbol "Unwind" $> IUnwind
     , L.symbol "Destruct" >> IDestruct <$> L.integer
@@ -65,15 +66,6 @@ instruction
     , L.symbol "Return" $> IReturn
 
     , L.symbol "Match" >> IMatch <$> matchTable
-    ]
-
-primitiveOperator :: Parser PrimitiveOperator
-primitiveOperator
-  = choice
-    [ L.symbol "+" $> POAdd
-    , L.symbol "-" $> POSub
-    , L.symbol "*" $> POMul
-    , L.symbol "/" $> PODiv
     ]
 
 matchTable :: Parser MatchTable
