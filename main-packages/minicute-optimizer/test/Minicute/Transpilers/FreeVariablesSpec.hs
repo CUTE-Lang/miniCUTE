@@ -52,7 +52,7 @@ testCases =
         , AEApplication2
           (Set.singleton "x")
           (Set.singleton "x")
-          (AEVariable Set.empty "+")
+          (AEPrimitive Set.empty PrimAdd)
           (AEVariable (Set.singleton "x") "x")
           (AEVariable (Set.singleton "x") "x")
         )
@@ -109,17 +109,17 @@ testCases =
             )
           , LetDefinition
             ( "g3"
-            , AEApplication2 Set.empty Set.empty (AEVariable Set.empty "-") (AEInteger Set.empty 8) (AEInteger Set.empty 4)
+            , AEApplication2 Set.empty Set.empty (AEPrimitive Set.empty PrimSub) (AEInteger Set.empty 8) (AEInteger Set.empty 4)
             )
           ]
           ( AEApplication2
             (Set.fromList ["g1", "g2", "g3"])
             (Set.fromList ["g1", "g2"])
-            (AEVariable Set.empty "/")
+            (AEPrimitive Set.empty PrimDiv)
             ( AEApplication2
               (Set.fromList ["g1", "g2"])
               (Set.singleton "g1")
-              (AEVariable Set.empty "*")
+              (AEPrimitive Set.empty PrimMul)
               (AEVariable (Set.singleton "g1") "g1")
               (AEVariable (Set.singleton "g2") "g2")
             )
@@ -153,7 +153,7 @@ testCases =
             , AEApplication2
               (Set.fromList ["h", "t"])
               (Set.singleton "h")
-              (AEVariable Set.empty "+")
+              (AEPrimitive Set.empty PrimAdd)
               (AEVariable (Set.singleton "h") "h")
               (AEApplication (Set.singleton "t") (AEVariable Set.empty "f") (AEVariable (Set.singleton "t") "t"))
             )
@@ -176,7 +176,7 @@ testCases =
           ( AEApplication2
             (Set.singleton "x")
             Set.empty
-            (AEVariable Set.empty "+")
+            (AEPrimitive Set.empty PrimAdd)
             (AEInteger Set.empty 4)
             (AEVariable (Set.singleton "x") "x")
           )

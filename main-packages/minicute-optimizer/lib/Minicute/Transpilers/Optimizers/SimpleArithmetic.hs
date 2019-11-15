@@ -22,11 +22,13 @@ simpleArithmeticMainEMC :: MainExpressionMC -> MainExpressionMC
 simpleArithmeticMainEMC = transformOf uniplate go
   where
     -- __TODO: replace hard-corded op checking__
-    go (EApplication2 (EVariable (Identifier op)) (EInteger n1) (EInteger n2))
-      | op == "+" = EInteger (n1 + n2)
-      | op == "-" = EInteger (n1 - n2)
-      | op == "*" = EInteger (n1 * n2)
-      -- "/" is not optimized yet... It needs a floating point support
+    go e@(EApplication2 (EPrimitive prim) (EInteger n1) (EInteger n2))
+      = case prim of
+          PrimAdd -> EInteger (n1 + n2)
+          PrimSub -> EInteger (n1 - n2)
+          PrimMul -> EInteger (n1 * n2)
+          _ -> e
+      -- 'PrimDiv' is not optimized yet... It needs a floating point support
       --
-      -- __TODO: Add "/" optimization__
+      -- __TODO: Add 'PrimDiv' optimization__
     go e = e

@@ -81,6 +81,7 @@ formFVsEMC _ (EVariable v) = do
 
     {-# INLINEABLE fvs #-}
   pure (AEVariable fvs v)
+formFVsEMC _ (EPrimitive prim) = pure (AEPrimitive Set.empty prim)
 formFVsEMC _a (EApplication expr1 expr2) = do
   expr1' <- formFVsEMC _a expr1
   expr2' <- formFVsEMC _a expr2

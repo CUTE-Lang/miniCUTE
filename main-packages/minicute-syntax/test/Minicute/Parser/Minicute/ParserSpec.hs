@@ -239,7 +239,7 @@ arithmeticOperatorMainProgramMCTestCases
           [ Supercombinator
             ( "f"
             , []
-            , EApplication2 (EVariable "+") (EInteger 1) (EInteger 1)
+            , EApplication2 (EPrimitive PrimAdd) (EInteger 1) (EInteger 1)
             )
           ]
         )
@@ -254,7 +254,7 @@ arithmeticOperatorMainProgramMCTestCases
           [ Supercombinator
             ( "f"
             , []
-            , EApplication2 (EVariable "*") (EInteger 1) (EVariable "g")
+            , EApplication2 (EPrimitive PrimMul) (EInteger 1) (EVariable "g")
             )
           , Supercombinator
             ( "g"
@@ -274,9 +274,9 @@ arithmeticOperatorMainProgramMCTestCases
             ( "f"
             , []
             , EApplication2
-              (EVariable "+")
+              (EPrimitive PrimAdd)
               (EInteger 1)
-              (EApplication2 (EVariable "+") (EInteger 3) (EInteger 4))
+              (EApplication2 (EPrimitive PrimAdd) (EInteger 3) (EInteger 4))
             )
           ]
         )
@@ -291,9 +291,9 @@ arithmeticOperatorMainProgramMCTestCases
             ( "f"
             , []
             , EApplication2
-              (EVariable "-")
+              (EPrimitive PrimSub)
               (EApplication2
-               (EVariable "-")
+               (EPrimitive PrimSub)
                (EInteger 3)
                (EInteger 2))
               (EInteger 1)
@@ -311,9 +311,9 @@ arithmeticOperatorMainProgramMCTestCases
             ( "f"
             , []
             , EApplication2
-              (EVariable "+")
+              (EPrimitive PrimAdd)
               (EApplication2
-               (EVariable "*")
+               (EPrimitive PrimMul)
                (EInteger 1)
                (EInteger 2))
               (EInteger 3)
@@ -444,7 +444,7 @@ applicationMainProgramMCTestCases
                   f = g []
         |]
       , Left
-        (err 6 (utok '[' <> etok ';' <> elabel "binary operator" <> elabel "constructor" <> elabel "integer" <> elabel "variable" <> elabel "expression with parentheses" <> eeof))
+        (err 6 (utok '[' <> etok ';' <> elabel "binary primitive" <> elabel "constructor" <> elabel "integer" <> elabel "variable" <> elabel "expression with parentheses" <> eeof))
       )
     ]
 
@@ -551,7 +551,7 @@ letAndLetrecMainProgramMCTestCases
               [ LetDefinition ("x", EInteger 5)
               , LetDefinition ("y", EInteger 4)
               ]
-              (EApplication2 (EVariable "+") (EVariable "x") (EVariable "y"))
+              (EApplication2 (EPrimitive PrimAdd) (EVariable "x") (EVariable "y"))
             )
           ]
         )
@@ -572,8 +572,8 @@ letAndLetrecMainProgramMCTestCases
             , ELet
               Recursive
               [ LetDefinition ("x", EInteger 5)
-              , LetDefinition ("y", EApplication2 (EVariable "+") (EVariable "x") (EVariable "x"))
-              , LetDefinition ("z", EApplication2 (EVariable "*") (EVariable "x") (EVariable "y"))
+              , LetDefinition ("y", EApplication2 (EPrimitive PrimAdd) (EVariable "x") (EVariable "x"))
+              , LetDefinition ("z", EApplication2 (EPrimitive PrimMul) (EVariable "x") (EVariable "y"))
               ]
               (EVariable "z")
             )
@@ -672,7 +672,7 @@ letAndLetrecMainProgramMCTestCases
                   f = let x = 5
         |]
       , Left
-        (err 13 (ueof <> etok ';' <> etoks "in" <> elabel "decimal digit" <> elabel "binary operator" <> elabel "constructor" <> elabel "integer" <> elabel "variable" <> elabel "expression with parentheses"))
+        (err 13 (ueof <> etok ';' <> etoks "in" <> elabel "decimal digit" <> elabel "binary primitive" <> elabel "constructor" <> elabel "integer" <> elabel "variable" <> elabel "expression with parentheses"))
       )
     ]
 
@@ -801,7 +801,7 @@ lambdaMainProgramMCTestCases
             , []
             , ELambda
               ["x", "y"]
-              (EApplication2 (EVariable "+") (EVariable "x") (EVariable "y"))
+              (EApplication2 (EPrimitive PrimAdd) (EVariable "x") (EVariable "y"))
             )
           ]
         )
@@ -819,7 +819,7 @@ lambdaMainProgramMCTestCases
               ["x"]
               ( ELambda
                 ["y"]
-                (EApplication2 (EVariable "+") (EVariable "x") (EVariable "y"))
+                (EApplication2 (EPrimitive PrimAdd) (EVariable "x") (EVariable "y"))
               )
             )
           ]
@@ -872,7 +872,7 @@ complexMainProgramMCTestCases
             ( "f"
             , []
             , EApplication2
-              (EVariable "+")
+              (EPrimitive PrimAdd)
               (EInteger 5)
               (ELet NonRecursive [LetDefinition ("k", EInteger 5)] (EVariable "k"))
             )
@@ -889,7 +889,7 @@ complexMainProgramMCTestCases
             ( "f"
             , []
             , EApplication2
-              (EVariable "+")
+              (EPrimitive PrimAdd)
               (EInteger 5)
               (EMatch (EConstructor 1 0) [MatchCase (1, [], EInteger 5)])
             )

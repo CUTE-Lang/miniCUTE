@@ -74,6 +74,7 @@ renameVariablesEMC _ e@(EInteger _) = pure e
 renameVariablesEMC _ e@(EConstructor _ _) = pure e
 renameVariablesEMC _ (EVariable v)
   = asks (EVariable . Map.findWithDefault v v)
+renameVariablesEMC _ e@(EPrimitive _) = pure e
 renameVariablesEMC _a (EApplication e1 e2)
   = EApplication <$> renameVariablesEMC _a e1 <*> renameVariablesEMC _a e2
 renameVariablesEMC _a (ELet flag lDefs expr) = do

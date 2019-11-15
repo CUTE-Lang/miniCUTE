@@ -19,13 +19,14 @@ import Data.Functor
 import Data.List.Extra
 import Minicute.Data.Minicute.Program
 import Minicute.Parser.Common
+import Minicute.Parser.Common.Parser
 import Text.Megaparsec
 
 import qualified Control.Monad.Combinators as Comb
 import qualified Control.Monad.Combinators.Expr as CombExpr
 import qualified Minicute.Parser.Common.Lexer as L
 
-type WithPrecedence m = ReaderT PrecedenceTable m
+type WithPrecedence m = ReaderT (PrecedenceTable Primitive) m
 
 
 -- |
@@ -73,16 +74,10 @@ program :: (MonadParser e s m) => WithPrecedence m a -> WithPrecedence m (expr a
 program pA pExpr = do
   void L.spacesConsumer
   ps <- getParserState
-  pt <- precedenceTable
   setParserState ps
-  result <- Program <$> runReaderT (sepEndBy (supercombinator pA pExpr) (L.symbol ";")) pt
+  result <- Program <$> runReaderT (sepEndBy (supercombinator pA pExpr) (L.symbol ";")) primitivePrecedenceTable
   void eof
   pure result
-
-
-precedenceTable :: (MonadParser e s m) => m PrecedenceTable
-precedenceTable = pure defaultPrecedenceTable
-{-# INLINEABLE precedenceTable #-}
 
 
 supercombinator :: (MonadParser e s m) => WithPrecedence m a -> WithPrecedence m (expr a) -> WithPrecedence m (Supercombinator expr a)
@@ -187,7 +182,7 @@ otherExpressionsByPrec
 otherExpressionsByPrec pExpr
   = ask
     >>= CombExpr.makeExprParser (applicationExpression pExpr)
-    . createOperatorTable EVariable EApplication EApplication2
+    . createPrimitiveOperatorTable EPrimitive EApplication EApplication2
 {-# INLINEABLE otherExpressionsByPrec #-}
 
 applicationExpression
@@ -238,23 +233,3 @@ identifier = Identifier <$> L.identifier
 separator :: (MonadParser e s m) => m ()
 separator = L.symbol ";"
 {-# INLINEABLE separator #-}
-
-
-createOperatorTable :: (MonadParser e s m) => (Identifier -> expr) -> (expr -> expr -> expr) -> (expr -> expr -> expr -> expr) -> PrecedenceTable -> [[CombExpr.Operator m expr]]
-createOperatorTable cVar cUn cBar = (fmap . fmap) (createOperator cVar cUn cBar) . groupSortOn (negate . precedence . snd)
-{-# INLINEABLE createOperatorTable #-}
-
-createOperator :: (MonadParser e s m) => (Identifier -> expr) -> (expr -> expr -> expr) -> (expr -> expr -> expr -> expr) -> PrecedenceTableEntry -> CombExpr.Operator m expr
-createOperator cVar _ cBin (op, PInfixN _) = CombExpr.InfixN (createOperatorBinParser cVar cBin op)
-createOperator cVar _ cBin (op, PInfixL _) = CombExpr.InfixL (createOperatorBinParser cVar cBin op)
-createOperator cVar _ cBin (op, PInfixR _) = CombExpr.InfixR (createOperatorBinParser cVar cBin op)
-createOperator cVar cUn _ (op, PPrefix _) = CombExpr.Prefix (createOperatorUnParser cVar cUn op)
-createOperator cVar cUn _ (op, PPostfix _) = CombExpr.Postfix (createOperatorUnParser cVar cUn op)
-
-createOperatorBinParser :: (MonadParser e s m) => (Identifier -> expr) -> (expr -> expr -> expr -> expr) -> Identifier -> m (expr -> expr -> expr)
-createOperatorBinParser cVar cBin op@(Identifier opName) = (L.symbol opName <?> "binary operator") $> cBin (cVar op)
-{-# INLINEABLE createOperatorBinParser #-}
-
-createOperatorUnParser :: (MonadParser e s m) => (Identifier -> expr) -> (expr -> expr -> expr) -> Identifier -> m (expr -> expr)
-createOperatorUnParser cVar cUn op@(Identifier opName) = (L.symbol opName <?> "unary operator") $> cUn (cVar op)
-{-# INLINEABLE createOperatorUnParser #-}

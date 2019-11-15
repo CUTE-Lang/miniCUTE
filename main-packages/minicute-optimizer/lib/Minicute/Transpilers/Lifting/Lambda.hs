@@ -36,6 +36,7 @@ replaceLambdaEMC :: MainExpressionMCWithFreeVariables -> MainExpressionMC
 replaceLambdaEMC (AEInteger _ n) = EInteger n
 replaceLambdaEMC (AEConstructor _ tag arity) = EConstructor tag arity
 replaceLambdaEMC (AEVariable _ v) = EVariable v
+replaceLambdaEMC (AEPrimitive _ prim) = EPrimitive prim
 replaceLambdaEMC (AEApplication _ e1 e2) = EApplication (replaceLambdaEMC e1) (replaceLambdaEMC e2)
 replaceLambdaEMC (AELet _ flag lDefs expr) = ELet flag (lDefs & each . _letDefinitionBody %~ replaceLambdaEMC) (replaceLambdaEMC expr)
 replaceLambdaEMC (AEMatch _ expr mCases) = EMatch (replaceLambdaEMC expr) (mCases & each . _matchCaseBody %~ replaceLambdaEMC)
@@ -54,6 +55,7 @@ liftAnnonsEMC :: MainExpressionMC -> ([MainSupercombinatorLLMC], MainExpressionL
 liftAnnonsEMC (EInteger n) = (mempty, EInteger n)
 liftAnnonsEMC (EConstructor tag arity) = (mempty, EConstructor tag arity)
 liftAnnonsEMC (EVariable v) = (mempty, EVariable v)
+liftAnnonsEMC (EPrimitive prim) = (mempty, EPrimitive prim)
 liftAnnonsEMC (EApplication e1 e2) = (scs1 <> scs2, EApplication e1' e2')
   where
     (scs1, e1') = liftAnnonsEMC e1

@@ -146,14 +146,14 @@ interpretUpdateAsStructure n = do
   fieldsAddr <- allocNodeOnNodeHeap (NStructureFields 0 [])
   updateNodeOnNodeHeap targetAddr (NStructure v fieldsAddr)
 
-interpretPrimitive :: PrimitiveOperator -> GMachineStepMonad ()
+interpretPrimitive :: Primitive -> GMachineStepMonad ()
 interpretPrimitive op
-  | Just binaryFun <- primitiveOpToBinaryFun op
+  | Just binaryFun <- primitiveToBinaryFun op
   = do
       v0 <- popValueFromValueStack
       v1 <- popValueFromValueStack
       pushValueToValueStack (v0 `binaryFun` v1)
-  | Just unaryFun <- primitiveOpToUnaryFun op
+  | Just unaryFun <- primitiveToUnaryFun op
   = do
       v <- popValueFromValueStack
       pushValueToValueStack (unaryFun v)
@@ -231,11 +231,30 @@ interpretReturn = do
   loadStateFromDump
   pushAddrToAddressStack addr
 
-primitiveOpToBinaryFun :: PrimitiveOperator -> Maybe (Integer -> Integer -> Integer)
-primitiveOpToBinaryFun POAdd = Just (+)
-primitiveOpToBinaryFun POSub = Just (-)
-primitiveOpToBinaryFun POMul = Just (*)
-primitiveOpToBinaryFun PODiv = Just div
+primitiveToBinaryFun :: Primitive -> Maybe (Integer -> Integer -> Integer)
+primitiveToBinaryFun PrimAdd = Just (+)
+primitiveToBinaryFun PrimSub = Just (-)
+primitiveToBinaryFun PrimMul = Just (*)
+primitiveToBinaryFun PrimDiv = Just div
+primitiveToBinaryFun PrimEq = Just ((boolToInteger .) . (==))
+primitiveToBinaryFun PrimNe = Just ((boolToInteger .) . (/=))
+primitiveToBinaryFun PrimLt = Just ((boolToInteger .) . (<))
+primitiveToBinaryFun PrimLe = Just ((boolToInteger .) . (<=))
+primitiveToBinaryFun PrimGt = Just ((boolToInteger .) . (>))
+primitiveToBinaryFun PrimGe = Just ((boolToInteger .) . (>=))
 
-primitiveOpToUnaryFun :: PrimitiveOperator -> Maybe (Integer -> Integer)
-primitiveOpToUnaryFun _ = Nothing
+primitiveToUnaryFun :: Primitive -> Maybe (Integer -> Integer)
+primitiveToUnaryFun PrimAdd = Nothing
+primitiveToUnaryFun PrimSub = Nothing
+primitiveToUnaryFun PrimMul = Nothing
+primitiveToUnaryFun PrimDiv = Nothing
+primitiveToUnaryFun PrimEq = Nothing
+primitiveToUnaryFun PrimNe = Nothing
+primitiveToUnaryFun PrimLt = Nothing
+primitiveToUnaryFun PrimLe = Nothing
+primitiveToUnaryFun PrimGt = Nothing
+primitiveToUnaryFun PrimGe = Nothing
+
+boolToInteger :: Bool -> Integer
+boolToInteger True = 1
+boolToInteger False = 0
