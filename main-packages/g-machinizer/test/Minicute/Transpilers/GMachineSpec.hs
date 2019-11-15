@@ -186,7 +186,7 @@ testCases
         |]
       )
 
-    , ( "program with a arithmetic operation in an application"
+    , ( "program with an arithmetic operation in an application"
       , [qqMiniMainLLMC|
                    f = g (3 * 4);
                    g x = x;
