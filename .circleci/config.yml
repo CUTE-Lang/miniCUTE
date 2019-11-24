@@ -98,7 +98,7 @@ executors:
       - image: cutelang/stack:minicute
   doxygen-minimal:
     docker:
-      - image: cutelang/doxygen-small:1.8.15
+      - image: cutelang/doxygen:minicute
   node-minimal:
     docker:
       - image: circleci/node:12
