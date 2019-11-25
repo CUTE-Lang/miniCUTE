@@ -3,7 +3,7 @@
 # When You Fix Bugs
 If you want to send a PR to fix some bugs, please use [bug report query parameters](?template=fix_bugs.md&labels=bug&expand=1).
 
-# When You Make New Features
+# When You Implement New Features
 If you want to send a PR to add a new feature, please use [feature request query parameters](?template=add_features.md&labels=enhancement&expand=1).
 
 # When You Refactor Codes
