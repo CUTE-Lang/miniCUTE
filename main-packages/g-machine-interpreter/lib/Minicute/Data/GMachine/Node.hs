@@ -1,5 +1,8 @@
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE DeriveGeneric #-}
+-- |
+-- Copyright: (c) 2018-present Junyoung Clare Jang
+-- License: BSD 3-Clause
 module Minicute.Data.GMachine.Node
   ( module Minicute.Data.GMachine.Address
   , module Minicute.Data.GMachine.Instruction

@@ -1,5 +1,8 @@
 {-# LANGUAGE GADTs #-}
 -- |
+-- Copyright: (c) 2018-present Junyoung Clare Jang
+-- License: BSD 3-Clause
+--
 -- Parser functions for G-Machine
 module Minicute.Parser.GMachine.Parser
   ( Parser

@@ -5,6 +5,9 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE PatternSynonyms #-}
 -- |
+-- Copyright: (c) 2018-present Junyoung Clare Jang
+-- License: BSD 3-Clause
+--
 -- Types for annotated programs
 module Minicute.Data.Minicute.Annotated
   ( module Minicute.Data.Common

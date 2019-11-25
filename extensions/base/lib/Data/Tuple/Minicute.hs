@@ -3,6 +3,9 @@
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TemplateHaskellQuotes #-}
 -- |
+-- Copyright: (c) 2018-present Junyoung Clare Jang
+-- License: BSD 3-Clause
+--
 -- Tuple functions used in miniCUTE compiler
 module Data.Tuple.Minicute
   ( module Data.Tuple

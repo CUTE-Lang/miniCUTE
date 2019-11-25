@@ -1,4 +1,7 @@
 -- |
+-- Copyright: (c) 2018-present Junyoung Clare Jang
+-- License: BSD 3-Clause
+--
 -- String functions used in miniCUTE compiler
 module Data.String.Minicute
   ( toUnix

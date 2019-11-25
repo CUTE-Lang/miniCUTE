@@ -6,6 +6,9 @@
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TypeFamilies #-}
 -- |
+-- Copyright: (c) 2018-present Junyoung Clare Jang
+-- License: BSD 3-Clause
+--
 -- Common basic types used to define many other types
 module Minicute.Data.Common.Identifier
   ( Identifier( .. )

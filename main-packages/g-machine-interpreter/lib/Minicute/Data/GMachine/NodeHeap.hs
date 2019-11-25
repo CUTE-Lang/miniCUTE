@@ -7,6 +7,9 @@
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TupleSections #-}
 {-# LANGUAGE TypeFamilies #-}
+-- |
+-- Copyright: (c) 2018-present Junyoung Clare Jang
+-- License: BSD 3-Clause
 module Minicute.Data.GMachine.NodeHeap
   ( module Minicute.Data.GMachine.Address
 

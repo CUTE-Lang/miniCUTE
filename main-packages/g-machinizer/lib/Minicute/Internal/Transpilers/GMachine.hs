@@ -1,6 +1,9 @@
 {-# OPTIONS_HADDOCK hide #-}
 {-# LANGUAGE OverloadedStrings #-}
 -- |
+-- Copyright: (c) 2018-present Junyoung Clare Jang
+-- License: BSD 3-Clause
+--
 -- Implementation detail of the transpiler from a miniCUTE program to a G-Machine program
 module Minicute.Internal.Transpilers.GMachine
   ( transpileProgram

@@ -1,5 +1,8 @@
 {-# LANGUAGE GADTs #-}
 -- |
+-- Copyright: (c) 2018-present Junyoung Clare Jang
+-- License: BSD 3-Clause
+--
 -- Parser functions for miniCUTE
 module Minicute.Parser.Minicute.Parser
   ( Parser

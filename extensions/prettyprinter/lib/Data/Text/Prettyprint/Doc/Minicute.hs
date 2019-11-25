@@ -1,6 +1,9 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE UndecidableInstances #-}
 -- |
+-- Copyright: (c) 2018-present Junyoung Clare Jang
+-- License: BSD 3-Clause
+--
 -- Additional prettyprinter functions for miniCUTE compiler
 module Data.Text.Prettyprint.Doc.Minicute
   ( PrettyMC( .. )
@@ -42,6 +45,11 @@ prettyMC0 = prettyMC 0
 prettyListMC0 :: (PrettyMC a) => [a] -> Doc ann
 prettyListMC0 = prettyListMC 0
 {-# INLINABLE prettyListMC0 #-}
+
+-- Replace the following instances by
+-- TH derived instances
+--  or
+-- Introduce default method implementation
 
 instance PrettyMC Bool where
   prettyMC _ = pretty

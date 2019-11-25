@@ -1,6 +1,9 @@
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE OverloadedStrings #-}
 -- |
+-- Copyright: (c) 2018-present Junyoung Clare Jang
+-- License: BSD 3-Clause
+--
 -- Transpilers to rename variables to avoid name collision.
 module Minicute.Transpilers.VariablesRenaming
   ( renameVariablesMainMC

@@ -12,6 +12,9 @@
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TypeFamilies #-}
 -- |
+-- Copyright: (c) 2018-present Junyoung Clare Jang
+-- License: BSD 3-Clause
+--
 -- Types for a miniCUTE expression
 module Minicute.Data.Minicute.Expression
   ( module Minicute.Data.Common

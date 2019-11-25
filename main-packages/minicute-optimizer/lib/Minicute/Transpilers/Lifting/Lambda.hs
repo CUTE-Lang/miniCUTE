@@ -1,6 +1,9 @@
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE OverloadedStrings #-}
 -- |
+-- Copyright: (c) 2018-present Junyoung Clare Jang
+-- License: BSD 3-Clause
+--
 -- Transpilers to lift all lambda expressions as
 -- supercombinators (top-level function definitions)
 module Minicute.Transpilers.Lifting.Lambda
