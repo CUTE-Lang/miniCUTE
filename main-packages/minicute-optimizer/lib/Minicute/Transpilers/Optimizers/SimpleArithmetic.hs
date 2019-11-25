@@ -1,4 +1,7 @@
 -- |
+-- Copyright: (c) 2018-present Junyoung Clare Jang
+-- License: BSD 3-Clause
+--
 -- Optimizers to reduce simple arithmetic expressions.
 module Minicute.Transpilers.Optimizers.SimpleArithmetic
   ( simpleArithmeticMainMC

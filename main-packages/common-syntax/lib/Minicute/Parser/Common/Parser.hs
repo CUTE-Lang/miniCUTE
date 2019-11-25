@@ -1,4 +1,7 @@
 {-# LANGUAGE GADTs #-}
+-- |
+-- Copyright: (c) 2018-present Junyoung Clare Jang
+-- License: BSD 3-Clause
 module Minicute.Parser.Common.Parser
   ( primitive
 

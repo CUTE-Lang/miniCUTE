@@ -1,5 +1,8 @@
-{-# OPTIONS_HADDOCK prune #-}
+{-# OPTIONS_HADDOCK hide #-}
 -- |
+-- Copyright: (c) 2018-present Junyoung Clare Jang
+-- License: BSD 3-Clause
+--
 -- TH functions to define tuple functions
 module Data.Tuple.Internal.Minicute.TH
   ( makeTupleZippers

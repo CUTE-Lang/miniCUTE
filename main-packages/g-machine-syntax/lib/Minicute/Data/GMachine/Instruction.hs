@@ -2,6 +2,9 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE DeriveLift #-}
 -- |
+-- Copyright: (c) 2018-present Junyoung Clare Jang
+-- License: BSD 3-Clause
+--
 -- Instructions and other helper types for G-Machine
 module Minicute.Data.GMachine.Instruction
   ( -- * G-Machine Architecture

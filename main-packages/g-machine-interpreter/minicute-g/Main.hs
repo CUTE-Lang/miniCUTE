@@ -1,5 +1,10 @@
 {-# LANGUAGE OverloadedLists #-}
 {-# LANGUAGE OverloadedStrings #-}
+-- |
+-- Copyright: (c) 2018-present Junyoung Clare Jang
+-- License: BSD 3-Clause
+--
+-- G-Machine interpreter of miniCUTE
 module Main
   ( main
   ) where

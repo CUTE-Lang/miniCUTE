@@ -1,6 +1,9 @@
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE RankNTypes #-}
 -- |
+-- Copyright: (c) 2018-present Junyoung Clare Jang
+-- License: BSD 3-Clause
+--
 -- Transpilers to extract free variable information of expressions
 module Minicute.Transpilers.FreeVariables
   ( ProgramMCWithFreeVariables

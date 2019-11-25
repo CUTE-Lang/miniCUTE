@@ -1,6 +1,9 @@
 {- HLINT ignore "Redundant do" -}
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE QuasiQuotes #-}
+-- |
+-- Copyright: (c) 2018-present Junyoung Clare Jang
+-- License: BSD 3-Clause
 module Minicute.Transpilers.VariablesRenamingSpec
   ( spec
   ) where

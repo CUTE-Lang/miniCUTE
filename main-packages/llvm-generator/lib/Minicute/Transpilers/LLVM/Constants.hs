@@ -1,5 +1,8 @@
 {- HLINT ignore "Use explicit module export list" -}
 {-# LANGUAGE OverloadedStrings #-}
+-- |
+-- Copyright: (c) 2018-present Junyoung Clare Jang
+-- License: BSD 3-Clause
 module Minicute.Transpilers.LLVM.Constants
   ( module Minicute.Transpilers.LLVM.Constants
   ) where

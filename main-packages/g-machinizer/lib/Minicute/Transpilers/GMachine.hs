@@ -1,5 +1,7 @@
-{-# OPTIONS_HADDOCK not-home #-}
 -- |
+-- Copyright: (c) 2018-present Junyoung Clare Jang
+-- License: BSD 3-Clause
+--
 -- Transpilers from a miniCUTE program to a G-Machine program
 module Minicute.Transpilers.GMachine
   ( module Minicute.Data.GMachine.Instruction

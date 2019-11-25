@@ -1,4 +1,7 @@
 -- |
+-- Copyright: (c) 2018-present Junyoung Clare Jang
+-- License: BSD 3-Clause
+--
 -- Minicute syntax utilities for miniCUTE compiler using TemplateHaskell
 module Minicute.Utils.Minicute.TH
   ( qqMiniMainMC
