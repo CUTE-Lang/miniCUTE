@@ -6,6 +6,9 @@ If you want to send a PR to fix some bugs, please use [bug report query paramete
 # When You Implement New Features
 If you want to send a PR to add a new feature, please use [feature request query parameters](?template=add_features.md&labels=enhancement&expand=1).
 
+# When You Update Documents
+If you want to send a PR to update documents, please use [document update query parameters](?template=update_documents.md&labels=documentation&expand=1).
+
 # When You Refactor Codes
 If you want to send a PR to refactor codes, please use [refactoring query parameters](?template=refactoring.md&labels=refactoring&expand=1).
 
