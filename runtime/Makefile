@@ -4,6 +4,8 @@ else
 EXEC_EXT := out
 endif
 CC := clang
+AR := llvm-ar
+LDFLAGS := $(LDFLAGS) -fuse-ld=lld
 
 LIB_DIR := lib
 BUILD_DIR := build
@@ -14,6 +16,8 @@ SCRATCH_DIR := scratch
 LIB_C_SRC := $(wildcard $(LIB_DIR)/*.c $(LIB_DIR)/**/*.c)
 LIB_C_OBJ := $(LIB_C_SRC:%.c=$(BUILD_DIR)/%.o)
 LIB_C_DEP := $(LIB_C_SRC:%.c=$(BUILD_DIR)/%.d)
+
+LIB_C_LIB := $(BUILD_DIR)/$(LIB_DIR)/libminicute.a
 
 SCRATCH_SRC := $(wildcard $(SCRATCH_DIR)/*.ll $(SCRATCH_DIR)/**/*.ll)
 SCRATCH_OBJ := $(SCRATCH_SRC:%.ll=$(BUILD_DIR)/%.o)
@@ -41,25 +45,31 @@ clean:
 html:
 	@doxygen
 
-$(SCRATCH_OUT): $(LIB_C_OBJ) $(SCRATCH_OBJ)
+# WARNING: The order is important (libraries should go after objects)!
+$(SCRATCH_OUT): $(SCRATCH_OBJ) $(LIB_C_LIB)
 	@mkdir -p $(dir $@)
-	@printf ">> %-7sBuild \x1b[92m%s\x1b[0m\n" "[O]" "$@"
+	@printf ">> [ \x1b[93m%-3s\x1b[0m ] Build \x1b[92m%s\x1b[0m\n" "O" "$@"
 	@$(CC) $(CFLAGS) $(CPPFLAGS) $(LDLIBS) $(LDFLAGS) -o $@ $^
+
+$(LIB_C_LIB): $(LIB_C_OBJ)
+	@mkdir -p $(dir $@)
+	@printf ">> [ \x1b[93m%-3s\x1b[0m ] Build \x1b[92m%s\x1b[0m\n" "A" "$@"
+	@$(AR) -rc $@ $^
 
 $(BUILD_DIR)/%.d: %.c
 	@mkdir -p $(dir $@)
 	@set -e
-	@printf ">> %-7sCreate \x1b[92m%s\x1b[0m for \x1b[92m%s\x1b[0m\n" "[C]" "$@" "$<"
+	@printf ">> [ \x1b[93m%-3s\x1b[0m ] Create \x1b[92m%s\x1b[0m for \x1b[92m%s\x1b[0m\n" "C" "$@" "$<"
 	@$(CC) -M $(CPPFLAGS) $< | sed 's^\($*\)\.o[ :]*^\1.o $@ : ^g' > $@
 	@[ -s $@ ] || rm -f $@
 
 $(BUILD_DIR)/%.o: %.c
 	@mkdir -p $(dir $@)
-	@printf ">> %-7sCompile \x1b[92m%s\x1b[0m to \x1b[92m%s\x1b[0m\n" "[C]" "$<" "$@"
+	@printf ">> [ \x1b[93m%-3s\x1b[0m ] Compile \x1b[92m%s\x1b[0m to \x1b[92m%s\x1b[0m\n" "C" "$<" "$@"
 	@$(CC) -c $(CFLAGS) $(CPPFLAGS) -o $@ $<
 $(BUILD_DIR)/%.o: %.ll
 	@mkdir -p $(dir $@)
-	@printf ">> %-7sCompile \x1b[92m%s\x1b[0m to \x1b[92m%s\x1b[0m\n" "[LL]" "$<" "$@"
+	@printf ">> [ \x1b[93m%-3s\x1b[0m ] Compile \x1b[92m%s\x1b[0m to \x1b[92m%s\x1b[0m\n" "LL" "$<" "$@"
 	@llvm-as < $< | opt -O2 | llc -filetype obj -o $@
 
 ifneq ($(MAKECMDGOALS),clean)
