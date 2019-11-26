@@ -3,9 +3,17 @@ EXEC_EXT := exe
 else
 EXEC_EXT := out
 endif
-CC := clang
+
 AR := llvm-ar
-LDFLAGS := $(LDFLAGS) -fuse-ld=lld
+ARFLAGS := -rcs
+CC := clang
+LDFLAGS += -fuse-ld=lld
+DOXYGEN := doxygen
+DOXYGENFLAGS :=
+LLC := llc
+LLCFLAGS := -filetype obj
+OPT := opt
+OPTFLAGS :=
 
 LIB_DIR := lib
 BUILD_DIR := build
@@ -28,10 +36,9 @@ SCRATCH_OUT := $(BUILD_DIR)/scratch.$(EXEC_EXT)
 .PHONY: all \
         clean \
         scratch \
-        html show-html
+        html
 
 ifneq ($(SHELL),)
-
 all: scratch
 scratch: $(SCRATCH_OUT)
 	@printf ">> \n"
@@ -43,44 +50,42 @@ clean:
 	@rm -rf $(BUILD_DIR)
 	@rm -rf $(DOC_DIR)
 html:
-	@doxygen
+	@$(DOXYGEN) $(DOXYGENFLAGS)
 
-# WARNING: The order is important (libraries should go after objects)!
 $(SCRATCH_OUT): $(SCRATCH_OBJ) $(LIB_C_LIB)
 	@mkdir -p $(dir $@)
-	@printf ">> [ \x1b[93m%-3s\x1b[0m ] Build \x1b[92m%s\x1b[0m\n" "O" "$@"
-	@$(CC) $(CFLAGS) $(CPPFLAGS) $(LDLIBS) $(LDFLAGS) -o $@ $^
+	@printf ">> [ \x1b[93m%-4s\x1b[0m ] Build \x1b[92m%s\x1b[0m\n" "O, A" "$@"
+	@$(CC) $(LDFLAGS) $^ $(LDLIBS) -o $@
 
 $(LIB_C_LIB): $(LIB_C_OBJ)
 	@mkdir -p $(dir $@)
-	@printf ">> [ \x1b[93m%-3s\x1b[0m ] Build \x1b[92m%s\x1b[0m\n" "A" "$@"
-	@$(AR) -rc $@ $^
+	@printf ">> [ \x1b[93m%-4s\x1b[0m ] Build \x1b[92m%s\x1b[0m\n" "O" "$@"
+	@$(AR) $(ARFLAGS) $@ $^
 
 $(BUILD_DIR)/%.d: %.c
 	@mkdir -p $(dir $@)
-	@set -e
-	@printf ">> [ \x1b[93m%-3s\x1b[0m ] Create \x1b[92m%s\x1b[0m for \x1b[92m%s\x1b[0m\n" "C" "$@" "$<"
-	@$(CC) -M $(CPPFLAGS) $< | sed 's^\($*\)\.o[ :]*^\1.o $@ : ^g' > $@
-	@[ -s $@ ] || rm -f $@
+	@printf ">> [ \x1b[93m%-4s\x1b[0m ] Create \x1b[92m%s\x1b[0m for \x1b[92m%s\x1b[0m\n" "C" "$@" "$<"
+	@$(CC) -M $(CPPFLAGS) $< -MQ $(<:%.c=$(BUILD_DIR)/%.o) -MQ $@ -MF $@
 
 $(BUILD_DIR)/%.o: %.c
 	@mkdir -p $(dir $@)
-	@printf ">> [ \x1b[93m%-3s\x1b[0m ] Compile \x1b[92m%s\x1b[0m to \x1b[92m%s\x1b[0m\n" "C" "$<" "$@"
-	@$(CC) -c $(CFLAGS) $(CPPFLAGS) -o $@ $<
-$(BUILD_DIR)/%.o: %.ll
+	@printf ">> [ \x1b[93m%-4s\x1b[0m ] Compile \x1b[92m%s\x1b[0m to \x1b[92m%s\x1b[0m\n" "C" "$<" "$@"
+	@$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
+$(BUILD_DIR)/%.bc: %.ll
 	@mkdir -p $(dir $@)
-	@printf ">> [ \x1b[93m%-3s\x1b[0m ] Compile \x1b[92m%s\x1b[0m to \x1b[92m%s\x1b[0m\n" "LL" "$<" "$@"
-	@llvm-as < $< | opt -O2 | llc -filetype obj -o $@
+	@printf ">> [ \x1b[93m%-4s\x1b[0m ] Compile \x1b[92m%s\x1b[0m to \x1b[92m%s\x1b[0m\n" "LL" "$<" "$@"
+	@$(OPT) $(OPTFLAGS) $< -o $@
+
+%.o: %.bc
+	@printf ">> [ \x1b[93m%-4s\x1b[0m ] Compile \x1b[92m%s\x1b[0m to \x1b[92m%s\x1b[0m\n" "BC" "$<" "$@"
+	@$(LLC) $(LLCFLAGS) $< -o $@
 
 ifneq ($(MAKECMDGOALS),clean)
-
 include $(LIB_C_DEP)
 include $(SCRATCH_DEP)
-
 endif # ($(MAKECMDGOALS),clean)
 
 else # ($(SHELL),)
-
 .PHONY: unsupported
 
 all: unsupported
@@ -100,5 +105,4 @@ ifneq ($(findstring unsupported,$(MAKECMDGOALS)),unsupported)
 else
 	@printf "Do not call \"unsupported\" target directly.\n"
 endif
-
 endif # ($(SHELL),)
