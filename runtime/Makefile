@@ -80,10 +80,19 @@ $(BUILD_DIR)/%.bc: %.ll
 	@printf ">> [ \x1b[93m%-4s\x1b[0m ] Compile \x1b[92m%s\x1b[0m to \x1b[92m%s\x1b[0m\n" "BC" "$<" "$@"
 	@$(LLC) $(LLCFLAGS) $< -o $@
 
-ifneq ($(MAKECMDGOALS),clean)
+# Following is a bad hack
+# Please add clang to our doxygen image
+LOAD_DEPS :=
+ifeq ($(MAKECMDGOALS),clean)
+LOAD_DEPS += yes
+endif # ($(MAKECMDGOALS),clean)
+ifeq ($(MAKECMDGOALS),html)
+LOAD_DEPS += yes
+endif # ($(MAKECMDGOALS),html)
+ifndef LOAD_DEPS
 include $(LIB_C_DEP)
 include $(SCRATCH_DEP)
-endif # ($(MAKECMDGOALS),clean)
+endif # LOAD_DEPS
 
 else # ($(SHELL),)
 .PHONY: unsupported
