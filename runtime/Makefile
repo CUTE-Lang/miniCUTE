@@ -62,30 +62,30 @@ clean_doc:
 
 $(SCRATCH_OUT): $(SCRATCH_OBJ) $(LIB_C_LIB)
 	@mkdir -p $(dir $@)
-	@printf ">> [ \e[93m%-4s\e[0m ] Build \e[92m%s\e[0m\n" "O, A" "$@"
+	@printf ">> [ \e[93m%-4s\e[0m ] Build \e[92m%s\e[0m\n" "EXE" "$@"
 	@$(CC) $(LDFLAGS) $^ $(LDLIBS) -o $@
 
 $(LIB_C_LIB): $(LIB_C_OBJ)
 	@mkdir -p $(dir $@)
-	@printf ">> [ \e[93m%-4s\e[0m ] Build \e[92m%s\e[0m\n" "O" "$@"
+	@printf ">> [ \e[93m%-4s\e[0m ] Build \e[92m%s\e[0m\n" "A" "$@"
 	@$(AR) $(ARFLAGS) $@ $^
 
 $(BUILD_DIR)/%.d: %.c
 	@mkdir -p $(dir $@)
-	@printf ">> [ \e[93m%-4s\e[0m ] Create \e[92m%s\e[0m for \e[92m%s\e[0m\n" "C" "$@" "$<"
+	@printf ">> [ \e[93m%-4s\e[0m ] Create \e[92m%s\e[0m for \e[92m%s\e[0m\n" "D" "$@" "$<"
 	@$(CC) -M $(CPPFLAGS) $< -MQ $(<:%.c=$(BUILD_DIR)/%.o) -MQ $@ -MF $@
 
 $(BUILD_DIR)/%.o: %.c
 	@mkdir -p $(dir $@)
-	@printf ">> [ \e[93m%-4s\e[0m ] Compile \e[92m%s\e[0m to \e[92m%s\e[0m\n" "C" "$<" "$@"
+	@printf ">> [ \e[93m%-4s\e[0m ] Compile \e[92m%s\e[0m to \e[92m%s\e[0m\n" "O" "$<" "$@"
 	@$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
 $(BUILD_DIR)/%.bc: %.ll
 	@mkdir -p $(dir $@)
-	@printf ">> [ \e[93m%-4s\e[0m ] Compile \e[92m%s\e[0m to \e[92m%s\e[0m\n" "LL" "$<" "$@"
+	@printf ">> [ \e[93m%-4s\e[0m ] Compile \e[92m%s\e[0m to \e[92m%s\e[0m\n" "BC" "$<" "$@"
 	@$(OPT) $(OPTFLAGS) $< -o $@
 
 %.o: %.bc
-	@printf ">> [ \e[93m%-4s\e[0m ] Compile \e[92m%s\e[0m to \e[92m%s\e[0m\n" "BC" "$<" "$@"
+	@printf ">> [ \e[93m%-4s\e[0m ] Compile \e[92m%s\e[0m to \e[92m%s\e[0m\n" "O" "$<" "$@"
 	@$(LLC) $(LLCFLAGS) $< -o $@
 
 # Following is a bad hack
