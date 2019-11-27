@@ -54,10 +54,10 @@ html:
 
 clean: clean_build clean_doc
 clean_build:
-	@printf "Remove \e[91m%s\e[0m\n" "$(BUILD_DIR)"
+	@printf ">> [ \e[93m%-4s\e[0m ] Remove \e[91m%s\e[0m\n" "_" "$(BUILD_DIR)"
 	@rm -rf $(BUILD_DIR)
 clean_doc:
-	@printf "Remove \e[91m%s\e[0m\n" "$(DOC_DIR)"
+	@printf ">> [ \e[93m%-4s\e[0m ] Remove \e[91m%s\e[0m\n" "_" "$(DOC_DIR)"
 	@rm -rf $(DOC_DIR)
 
 $(SCRATCH_OUT): $(SCRATCH_OBJ) $(LIB_C_LIB)
