@@ -40,44 +40,47 @@ SCRATCH_OUT := $(BUILD_DIR)/scratch.$(EXEC_EXT)
 
 ifneq ($(SHELL),)
 all: scratch
+
 scratch: $(SCRATCH_OUT)
 	@printf ">> \n"
-	@printf ">> Execute \x1b[92m%s\x1b[0m\n" "$(SCRATCH_OUT)"
-	@printf ">> The output of \x1b[92m%s\x1b[0m is following:\n" "$(SCRATCH_OUT)"
+	@printf ">> Execute \e[92m%s\e[0m\n" "$(SCRATCH_OUT)"
+	@printf ">> The output of \e[92m%s\e[0m is following:\n" "$(SCRATCH_OUT)"
 	@./$(SCRATCH_OUT)
-clean:
-	@printf "Remove \x1b[91m%s\x1b[0m\n" "$(BUILD_DIR)"
-	@rm -rf $(BUILD_DIR)
-	@rm -rf $(DOC_DIR)
+
 html:
 	@$(DOXYGEN) $(DOXYGENFLAGS)
 
+clean:
+	@printf "Remove \e[91m%s\e[0m\n" "$(BUILD_DIR)"
+	@rm -rf $(BUILD_DIR)
+	@rm -rf $(DOC_DIR)
+
 $(SCRATCH_OUT): $(SCRATCH_OBJ) $(LIB_C_LIB)
 	@mkdir -p $(dir $@)
-	@printf ">> [ \x1b[93m%-4s\x1b[0m ] Build \x1b[92m%s\x1b[0m\n" "O, A" "$@"
+	@printf ">> [ \e[93m%-4s\e[0m ] Build \e[92m%s\e[0m\n" "O, A" "$@"
 	@$(CC) $(LDFLAGS) $^ $(LDLIBS) -o $@
 
 $(LIB_C_LIB): $(LIB_C_OBJ)
 	@mkdir -p $(dir $@)
-	@printf ">> [ \x1b[93m%-4s\x1b[0m ] Build \x1b[92m%s\x1b[0m\n" "O" "$@"
+	@printf ">> [ \e[93m%-4s\e[0m ] Build \e[92m%s\e[0m\n" "O" "$@"
 	@$(AR) $(ARFLAGS) $@ $^
 
 $(BUILD_DIR)/%.d: %.c
 	@mkdir -p $(dir $@)
-	@printf ">> [ \x1b[93m%-4s\x1b[0m ] Create \x1b[92m%s\x1b[0m for \x1b[92m%s\x1b[0m\n" "C" "$@" "$<"
+	@printf ">> [ \e[93m%-4s\e[0m ] Create \e[92m%s\e[0m for \e[92m%s\e[0m\n" "C" "$@" "$<"
 	@$(CC) -M $(CPPFLAGS) $< -MQ $(<:%.c=$(BUILD_DIR)/%.o) -MQ $@ -MF $@
 
 $(BUILD_DIR)/%.o: %.c
 	@mkdir -p $(dir $@)
-	@printf ">> [ \x1b[93m%-4s\x1b[0m ] Compile \x1b[92m%s\x1b[0m to \x1b[92m%s\x1b[0m\n" "C" "$<" "$@"
+	@printf ">> [ \e[93m%-4s\e[0m ] Compile \e[92m%s\e[0m to \e[92m%s\e[0m\n" "C" "$<" "$@"
 	@$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
 $(BUILD_DIR)/%.bc: %.ll
 	@mkdir -p $(dir $@)
-	@printf ">> [ \x1b[93m%-4s\x1b[0m ] Compile \x1b[92m%s\x1b[0m to \x1b[92m%s\x1b[0m\n" "LL" "$<" "$@"
+	@printf ">> [ \e[93m%-4s\e[0m ] Compile \e[92m%s\e[0m to \e[92m%s\e[0m\n" "LL" "$<" "$@"
 	@$(OPT) $(OPTFLAGS) $< -o $@
 
 %.o: %.bc
-	@printf ">> [ \x1b[93m%-4s\x1b[0m ] Compile \x1b[92m%s\x1b[0m to \x1b[92m%s\x1b[0m\n" "BC" "$<" "$@"
+	@printf ">> [ \e[93m%-4s\e[0m ] Compile \e[92m%s\e[0m to \e[92m%s\e[0m\n" "BC" "$<" "$@"
 	@$(LLC) $(LLCFLAGS) $< -o $@
 
 # Following is a bad hack
@@ -106,11 +109,11 @@ unsupported:
 ifneq ($(findstring unsupported,$(MAKECMDGOALS)),unsupported)
 	@printf "This system is not yet supported.\n"
 	@printf "\n"
-	@printf "  - If you use \x1b[91mWindows\x1b[0m,\n"
-	@printf "    please use \x1b[92mCygwin\x1b[0m or \x1b[92mMsys\x1b[0m to install Make.\n"
+	@printf "  - If you use \e[91mWindows\e[0m,\n"
+	@printf "    please use \e[92mCygwin\e[0m or \e[92mMsys\e[0m to install Make.\n"
 	@printf "\n"
 	@printf "  - If not, please report your issue on our GitHub repository:\n"
-	@printf "    \x1b[1mhttps://github.com/CUTE-Lang/minicute/issues\x1b[0m\n"
+	@printf "    \e[1mhttps://github.com/CUTE-Lang/minicute/issues\e[0m\n"
 else
 	@printf "Do not call \"unsupported\" target directly.\n"
 endif
