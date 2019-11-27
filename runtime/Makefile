@@ -35,6 +35,8 @@ SCRATCH_OUT := $(BUILD_DIR)/scratch.$(EXEC_EXT)
 
 .PHONY: all \
         clean \
+        clean_build \
+        clean_doc \
         scratch \
         html
 
@@ -50,9 +52,12 @@ scratch: $(SCRATCH_OUT)
 html:
 	@$(DOXYGEN) $(DOXYGENFLAGS)
 
-clean:
+clean: clean_build clean_doc
+clean_build:
 	@printf "Remove \e[91m%s\e[0m\n" "$(BUILD_DIR)"
 	@rm -rf $(BUILD_DIR)
+clean_doc:
+	@printf "Remove \e[91m%s\e[0m\n" "$(DOC_DIR)"
 	@rm -rf $(DOC_DIR)
 
 $(SCRATCH_OUT): $(SCRATCH_OBJ) $(LIB_C_LIB)
