@@ -1,2 +1,19 @@
+# Directories
 /build/
 /doc/
+
+# Intermediate files from C
+*.d
+*.o
+
+# Intermediate fiels from LLVM
+*.bc
+
+# Static Library
+*.a
+
+# Windows executable
+*.exe
+
+# Other systems' executable
+*.out

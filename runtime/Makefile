@@ -1,8 +1,9 @@
-ifeq ($(OS), Windows_NT)
-EXEC_EXT := exe
-else
-EXEC_EXT := out
-endif
+.DEFAULT_GOAL := all
+
+MAKEFILES := clean.mk exe_ext.mk support_check.mk
+MAKEFILES_DIR := makefiles
+
+include $(MAKEFILES:%=$(MAKEFILES_DIR)/%)
 
 AR := llvm-ar
 ARFLAGS := -rcs
@@ -15,111 +16,102 @@ LLCFLAGS := -filetype obj
 OPT := opt
 OPTFLAGS :=
 
+# Variables of directories
 LIB_DIR := lib
 BUILD_DIR := build
 DOC_DIR := doc
 
 SCRATCH_DIR := scratch
 
-LIB_C_SRC := $(wildcard $(LIB_DIR)/*.c $(LIB_DIR)/**/*.c)
-LIB_C_OBJ := $(LIB_C_SRC:%.c=$(BUILD_DIR)/%.o)
-LIB_C_DEP := $(LIB_C_SRC:%.c=$(BUILD_DIR)/%.d)
+# Functions
+in_build_dir = $(addprefix $(BUILD_DIR)/,$(1))
+one_to_another = $(call in_build_dir,$(1:%$(2)=%$(3)))
+c_to_obj = $(call one_to_another,$(1),.c,.o)
+ll_to_bc = $(call one_to_another,$(1),.ll,.bc)
+ll_to_obj = $(call one_to_another,$(1),.ll,.o)
 
-LIB_C_LIB := $(BUILD_DIR)/$(LIB_DIR)/libminicute.a
+c_to_dep = $(1:%.c=%.d)
+bc_to_obj = $(1:%.bc=%.o)
 
-SCRATCH_SRC := $(wildcard $(SCRATCH_DIR)/*.ll $(SCRATCH_DIR)/**/*.ll)
-SCRATCH_OBJ := $(SCRATCH_SRC:%.ll=$(BUILD_DIR)/%.o)
-SCRATCH_DEP := $($(filter %.c,$(SCRATCH_SRC)):%.c=$(BUILD_DIR)/%.d)
+every = $(wildcard $(1)/*$(2) $(1)/**/*$(2))
 
-SCRATCH_OUT := $(BUILD_DIR)/scratch.$(EXEC_EXT)
+# Variables of Files
+LIB_C_SRC := $(call every,$(LIB_DIR),.c)
+LIB_C_OBJ := $(call c_to_obj,$(LIB_C_SRC))
+LIB_C_DEP := $(call c_to_dep,$(LIB_C_SRC))
 
+LIB_C_LIB := libminicute.a
+
+SCRATCH_SRC := $(call every,$(SCRATCH_DIR),.ll)
+SCRATCH_OBJ := $(call ll_to_obj,$(SCRATCH_SRC))
+SCRATCH_DEP := $(call c_to_dep,$(filter %.c,$(SCRATCH_SRC)))
+
+SCRATCH_OUT := $(call to_exe,scratch)
+
+# Standard .PHONY tags
 .PHONY: all \
         clean \
+        distclean \
+        mostlyclean \
+        maintainer-clean \
+        html \
+        check
+
+# Non-standard .PHONY tags
+.PHONY: clean_lib \
+        clean_dep \
         clean_build \
         clean_doc \
-        scratch \
-        html
+        clean_out
 
-ifneq ($(SHELL),)
-all: scratch
 
-scratch: $(SCRATCH_OUT)
-	@printf ">> \n"
-	@printf ">> Execute \e[92m%s\e[0m\n" "$(SCRATCH_OUT)"
-	@printf ">> The output of \e[92m%s\e[0m is following:\n" "$(SCRATCH_OUT)"
-	@./$(SCRATCH_OUT)
-
+all: $(SCRATCH_OUT)
+clean: clean_lib clean_build clean_doc clean_dep clean_out
+distclean: clean_build clean_dep
+mostlyclean: clean_lib clean_build clean_doc clean_out
+maintainer-clean: clean_lib clean_build clean_doc clean_dep clean_out
 html:
 	@$(DOXYGEN) $(DOXYGENFLAGS)
+check: $(SCRATCH_OUT)
+	./$<
 
-clean: clean_build clean_doc
-clean_build:
-	@printf ">> [ \e[93m%-4s\e[0m ] Remove \e[91m%s\e[0m\n" "_" "$(BUILD_DIR)"
-	@rm -rf $(BUILD_DIR)
-clean_doc:
-	@printf ">> [ \e[93m%-4s\e[0m ] Remove \e[91m%s\e[0m\n" "_" "$(DOC_DIR)"
-	@rm -rf $(DOC_DIR)
+
+clean_lib: $(call to_clean,$(LIB_C_LIB))
+clean_dep: $(call to_clean,$(LIB_C_DEP))
+clean_build: $(call to_clean,$(BUILD_DIR))
+clean_doc: $(call to_clean,$(DOC_DIR))
+clean_out: $(call to_clean,$(SCRATCH_OUT))
+
 
 $(SCRATCH_OUT): $(SCRATCH_OBJ) $(LIB_C_LIB)
-	@mkdir -p $(dir $@)
-	@printf ">> [ \e[93m%-4s\e[0m ] Build \e[92m%s\e[0m\n" "EXE" "$@"
-	@$(CC) $(LDFLAGS) $^ $(LDLIBS) -o $@
+	@mkdir -p $(@D)
+	@printf "[ \e[93m%-3s\e[0m ] Build \e[92m%s\e[0m\n" "EXE" "$@"
+	$(CC) $(LDFLAGS) $(filter %.o %.a,$^) $(LDLIBS) -o $@
 
 $(LIB_C_LIB): $(LIB_C_OBJ)
-	@mkdir -p $(dir $@)
-	@printf ">> [ \e[93m%-4s\e[0m ] Build \e[92m%s\e[0m\n" "A" "$@"
-	@$(AR) $(ARFLAGS) $@ $^
+	@mkdir -p $(@D)
+	@printf "[ \e[93m%-3s\e[0m ] Build \e[92m%s\e[0m\n" "A" "$@"
+	$(AR) $(ARFLAGS) $@ $(filter %.o,$^)
 
-$(BUILD_DIR)/%.d: %.c
-	@mkdir -p $(dir $@)
-	@printf ">> [ \e[93m%-4s\e[0m ] Create \e[92m%s\e[0m for \e[92m%s\e[0m\n" "D" "$@" "$<"
-	@$(CC) -M $(CPPFLAGS) $< -MQ $(<:%.c=$(BUILD_DIR)/%.o) -MQ $@ -MF $@
 
-$(BUILD_DIR)/%.o: %.c
-	@mkdir -p $(dir $@)
-	@printf ">> [ \e[93m%-4s\e[0m ] Compile \e[92m%s\e[0m to \e[92m%s\e[0m\n" "O" "$<" "$@"
-	@$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
-$(BUILD_DIR)/%.bc: %.ll
-	@mkdir -p $(dir $@)
-	@printf ">> [ \e[93m%-4s\e[0m ] Compile \e[92m%s\e[0m to \e[92m%s\e[0m\n" "BC" "$<" "$@"
-	@$(OPT) $(OPTFLAGS) $< -o $@
+$(call c_to_obj,%.c): %.c
+	@mkdir -p $(@D)
+	@printf "[ \e[93m%-3s\e[0m ] Compile \e[92m%s\e[0m to \e[92m%s\e[0m\n" "O" "$<" "$@"
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
 
-%.o: %.bc
-	@printf ">> [ \e[93m%-4s\e[0m ] Compile \e[92m%s\e[0m to \e[92m%s\e[0m\n" "O" "$<" "$@"
-	@$(LLC) $(LLCFLAGS) $< -o $@
+$(call ll_to_bc,%.ll): %.ll
+	@mkdir -p $(@D)
+	@printf "[ \e[93m%-3s\e[0m ] Compile \e[92m%s\e[0m to \e[92m%s\e[0m\n" "-BC" "$<" "$@"
+	$(OPT) $(OPTFLAGS) $< -o $@
 
-# Following is a bad hack
-# Please add clang to our doxygen image
-LOAD_DEPS :=
-ifeq ($(MAKECMDGOALS),clean)
-LOAD_DEPS += yes
-endif # ($(MAKECMDGOALS),clean)
-ifeq ($(MAKECMDGOALS),html)
-LOAD_DEPS += yes
-endif # ($(MAKECMDGOALS),html)
-ifndef LOAD_DEPS
-include $(LIB_C_DEP)
-include $(SCRATCH_DEP)
-endif # LOAD_DEPS
+$(call bc_to_obj,%.bc): %.bc
+	@printf "[ \e[93m%-3s\e[0m ] Compile \e[92m%s\e[0m to \e[92m%s\e[0m\n" "O" "$<" "$@"
+	$(LLC) $(LLCFLAGS) $< -o $@
 
-else # ($(SHELL),)
-.PHONY: unsupported
 
-all: unsupported
-scratch: unsupported
-clean: unsupported
-html: unsupported
+$(call c_to_dep,%.c): %.c
+	@printf "[ \e[93m%-3s\e[0m ] Create \e[92m%s\e[0m for \e[92m%s\e[0m\n" "D" "$@" "$<"
+	$(CC) -M $(CPPFLAGS) $< -MQ $(call c_to_obj,$<) -MQ $@ -MF $@
 
-unsupported:
-ifneq ($(findstring unsupported,$(MAKECMDGOALS)),unsupported)
-	@printf "This system is not yet supported.\n"
-	@printf "\n"
-	@printf "  - If you use \e[91mWindows\e[0m,\n"
-	@printf "    please use \e[92mCygwin\e[0m or \e[92mMsys\e[0m to install Make.\n"
-	@printf "\n"
-	@printf "  - If not, please report your issue on our GitHub repository:\n"
-	@printf "    \e[1mhttps://github.com/CUTE-Lang/minicute/issues\e[0m\n"
-else
-	@printf "Do not call \"unsupported\" target directly.\n"
-endif
-endif # ($(SHELL),)
+-include $(LIB_C_DEP)
+-include $(SCRATCH_DEP)
