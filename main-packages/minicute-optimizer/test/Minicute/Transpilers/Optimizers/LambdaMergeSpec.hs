@@ -4,10 +4,10 @@
 -- Copyright: (c) 2018-present Junyoung Clare Jang
 -- License: BSD 3-Clause
 module Minicute.Transpilers.Optimizers.LambdaMergeSpec
-  ( spec
+  ( spec_lambdaMergeMainMC
   ) where
 
-import Test.Hspec
+import Test.Tasty.Hspec
 
 import Control.Monad
 import Data.Tuple.Extra
@@ -15,10 +15,9 @@ import Minicute.Data.Minicute.Program
 import Minicute.Transpilers.Optimizers.LambdaMerge
 import Minicute.Utils.Minicute.TH
 
-spec :: Spec
-spec = do
-  describe "lambdaMergeMainMC" $ do
-    forM_ testCases (uncurry3 lambdaMergeMainMCTest)
+spec_lambdaMergeMainMC :: Spec
+spec_lambdaMergeMainMC
+  = forM_ testCases (uncurry3 lambdaMergeMainMCTest)
 
 lambdaMergeMainMCTest :: TestName -> TestBeforeContent -> TestAfterContent -> SpecWith (Arg Expectation)
 lambdaMergeMainMCTest name beforeContent afterContent = do

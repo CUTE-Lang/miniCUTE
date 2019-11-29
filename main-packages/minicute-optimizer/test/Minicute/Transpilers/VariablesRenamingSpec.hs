@@ -5,10 +5,10 @@
 -- Copyright: (c) 2018-present Junyoung Clare Jang
 -- License: BSD 3-Clause
 module Minicute.Transpilers.VariablesRenamingSpec
-  ( spec
+  ( spec_renameVariablesMainMC
   ) where
 
-import Test.Hspec
+import Test.Tasty.Hspec
 
 import Control.Lens
 import Control.Monad
@@ -20,10 +20,9 @@ import Minicute.Utils.Minicute.TH
 
 import qualified Data.Set as Set
 
-spec :: Spec
-spec = do
-  describe "renameVariablesMainMC" $ do
-    forM_ testCases (uncurry3 renameVariablesMainMCTest)
+spec_renameVariablesMainMC :: Spec
+spec_renameVariablesMainMC
+  = forM_ testCases (uncurry3 renameVariablesMainMCTest)
 
 renameVariablesMainMCTest :: TestName -> TestBeforeContent -> TestAfterContent -> SpecWith (Arg Expectation)
 renameVariablesMainMCTest name beforeContent afterContent = do

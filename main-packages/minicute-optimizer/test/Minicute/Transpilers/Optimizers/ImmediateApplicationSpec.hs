@@ -4,10 +4,10 @@
 -- Copyright: (c) 2018-present Junyoung Clare Jang
 -- License: BSD 3-Clause
 module Minicute.Transpilers.Optimizers.ImmediateApplicationSpec
-  ( spec
+  ( spec_immediateApplicationMainMC
   ) where
 
-import Test.Hspec
+import Test.Tasty.Hspec
 
 import Control.Monad
 import Data.Tuple.Extra
@@ -15,10 +15,9 @@ import Minicute.Data.Minicute.Program
 import Minicute.Transpilers.Optimizers.ImmediateApplication
 import Minicute.Utils.Minicute.TH
 
-spec :: Spec
-spec = do
-  describe "immediateApplicationMainMC" $ do
-    forM_ testCases (uncurry3 immediateApplicationMainMCTest)
+spec_immediateApplicationMainMC :: Spec
+spec_immediateApplicationMainMC
+  = forM_ testCases (uncurry3 immediateApplicationMainMCTest)
 
 immediateApplicationMainMCTest :: TestName -> TestBeforeContent -> TestAfterContent -> SpecWith (Arg Expectation)
 immediateApplicationMainMCTest name beforeContent afterContent = do

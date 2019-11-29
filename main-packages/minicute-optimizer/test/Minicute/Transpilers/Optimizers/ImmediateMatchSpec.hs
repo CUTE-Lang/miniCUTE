@@ -4,10 +4,10 @@
 -- Copyright: (c) 2018-present Junyoung Clare Jang
 -- License: BSD 3-Clause
 module Minicute.Transpilers.Optimizers.ImmediateMatchSpec
-  ( spec
+  ( spec_immediateMatchMainMC
   ) where
 
-import Test.Hspec
+import Test.Tasty.Hspec
 
 import Control.Monad
 import Data.Tuple.Extra
@@ -15,10 +15,9 @@ import Minicute.Data.Minicute.Program
 import Minicute.Transpilers.Optimizers.ImmediateMatch
 import Minicute.Utils.Minicute.TH
 
-spec :: Spec
-spec = do
-  describe "immediateMatchMainMC" $ do
-    forM_ testCases (uncurry3 immediateMatchMainMCTest)
+spec_immediateMatchMainMC :: Spec
+spec_immediateMatchMainMC
+  = forM_ testCases (uncurry3 immediateMatchMainMCTest)
 
 immediateMatchMainMCTest :: TestName -> TestBeforeContent -> TestAfterContent -> SpecWith (Arg Expectation)
 immediateMatchMainMCTest name beforeContent afterContent = do

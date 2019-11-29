@@ -4,10 +4,10 @@
 -- Copyright: (c) 2018-present Junyoung Clare Jang
 -- License: BSD 3-Clause
 module Minicute.Transpilers.Lifting.LambdaSpec
-  ( spec
+  ( spec_lambdaLifting
   ) where
 
-import Test.Hspec
+import Test.Tasty.Hspec
 
 import Control.Monad
 import Data.Tuple.Extra
@@ -15,10 +15,9 @@ import Minicute.Data.Minicute.Program
 import Minicute.Transpilers.Lifting.Lambda
 import Minicute.Utils.Minicute.TH
 
-spec :: Spec
-spec = do
-  describe "lambdaLifting" $ do
-    forM_ testCases (uncurry3 lambdaLiftingTest)
+spec_lambdaLifting :: Spec
+spec_lambdaLifting
+  = forM_ testCases (uncurry3 lambdaLiftingTest)
 
 lambdaLiftingTest :: TestName -> TestBeforeContent -> TestAfterContent -> SpecWith (Arg Expectation)
 lambdaLiftingTest name beforeContent afterContent = do
