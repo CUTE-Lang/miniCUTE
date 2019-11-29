@@ -3,7 +3,7 @@
 -- |
 -- Copyright: (c) 2018-present Junyoung Clare Jang
 -- License: BSD 3-Clause
-module Minicute.Transpilers.Optimizers.SimpleArithmeticSpec
+module Minicute.Transpilers.Optimizers.SimpleArithmeticTest
   ( spec_simpleArithmeticMainMC
   ) where
 

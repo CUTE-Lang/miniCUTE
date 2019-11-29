@@ -4,7 +4,7 @@
 -- |
 -- Copyright: (c) 2018-present Junyoung Clare Jang
 -- License: BSD 3-Clause
-module Minicute.Transpilers.GMachineSpec
+module Minicute.Transpilers.GMachineTest
   ( spec_transpileProgram
   ) where
 

@@ -5,7 +5,7 @@
 -- |
 -- Copyright: (c) 2018-present Junyoung Clare Jang
 -- License: BSD 3-Clause
-module Minicute.Parser.Minicute.ParserSpec
+module Minicute.Parser.Minicute.ParserTest
   ( spec_mainProgramMC_parser
   ) where
 

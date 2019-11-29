@@ -3,7 +3,7 @@
 -- |
 -- Copyright: (c) 2018-present Junyoung Clare Jang
 -- License: BSD 3-Clause
-module Minicute.PrettySpec
+module Minicute.PrettyTest
   ( spec_prettyPrint
   ) where
 

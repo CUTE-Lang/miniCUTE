@@ -3,7 +3,7 @@
 -- |
 -- Copyright: (c) 2018-present Junyoung Clare Jang
 -- License: BSD 3-Clause
-module Minicute.Transpilers.Lifting.LambdaSpec
+module Minicute.Transpilers.Lifting.LambdaTest
   ( spec_lambdaLifting
   ) where
 

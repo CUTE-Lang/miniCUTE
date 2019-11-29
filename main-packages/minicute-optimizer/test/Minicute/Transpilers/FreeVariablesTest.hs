@@ -4,7 +4,7 @@
 -- |
 -- Copyright: (c) 2018-present Junyoung Clare Jang
 -- License: BSD 3-Clause
-module Minicute.Transpilers.FreeVariablesSpec
+module Minicute.Transpilers.FreeVariablesTest
   ( spec_formFreeVariablesMainMC
   ) where
 

@@ -6,7 +6,7 @@
 -- |
 -- Copyright: (c) 2018-present Junyoung Clare Jang
 -- License: BSD 3-Clause
-module Minicute.Transpilers.LLVMSpec
+module Minicute.Transpilers.LLVMTest
   ( spec_generateMachineCode
   ) where
 
