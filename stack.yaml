@@ -77,3 +77,9 @@ require-stack-version: ">= 2.1"
 
 # Allow a newer minor version of GHC than the snapshot specifies
 # compiler-check: newer-minor
+
+build:
+  test-arguments:
+    additional-args:
+      - "--color"
+      - always
