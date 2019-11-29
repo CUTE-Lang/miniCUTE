@@ -91,7 +91,7 @@ executables:
 tests:
   test:
     ### Test fields ###
-    main:                           Spec.hs
+    main:                           Driver.hs
     # other-modules:
     # generated-other-modules:
 
@@ -103,7 +103,8 @@ tests:
       - -rtsopts
       - -with-rtsopts=-N
     dependencies:
-      - hspec
+      - tasty
+      - tasty-discover
 
       - minicute-common-syntax
       - minicute-g-machine-interpreter
