@@ -68,7 +68,7 @@ library:
 tests:
   test:
     ### Test fields ###
-    main:                           Spec.hs
+    main:                           Driver.hs
     # other-modules:
     # generated-other-modules:
 
@@ -83,8 +83,10 @@ tests:
       - base-minicute
       - megaparsec
 
-      - hspec
       - hspec-megaparsec
+      - tasty
+      - tasty-discover
+      - tasty-hspec
 
       - minicute-common-syntax
 
