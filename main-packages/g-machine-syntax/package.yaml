@@ -69,7 +69,7 @@ library:
 tests:
   test:
     ### Test fields ###
-    main:                           Spec.hs
+    main:                           Driver.hs
     # other-modules:
     # generated-other-modules:
 
@@ -81,10 +81,8 @@ tests:
       - -rtsopts
       - -with-rtsopts=-N
     dependencies:
-      - megaparsec
-
-      - hspec
-      - hspec-megaparsec
+      - tasty
+      - tasty-discover
 
       - minicute-common-syntax
       - minicute-g-machine-syntax
