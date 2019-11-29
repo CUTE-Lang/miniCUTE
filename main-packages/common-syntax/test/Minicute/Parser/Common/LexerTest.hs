@@ -1,4 +1,5 @@
 {- HLINT ignore "Redundant do" -}
+{- HLINT ignore "Use camelCase" -}
 {-# OPTIONS_GHC -fno-warn-type-defaults #-}
 {-# LANGUAGE BinaryLiterals #-}
 {-# LANGUAGE OverloadedStrings #-}
@@ -8,55 +9,32 @@
 -- License: BSD 3-Clause
 module Minicute.Parser.Common.LexerTest
   ( spec_integer_lexer
-  , spec_identifier_lexer
+  , hprop_integer_lexer_accepts_non_negative_integer_of_different_bases
+  , hprop_integer_lexer_rejects_negative_integer
+  , hprop_integer_lexer_rejects_strings_having_number_prefix_starting_with_zero
+  , hprop_integer_lexer_rejects_strings_without_integer_prefix
+
+  , hspec_identifier_lexer_accepts_alphabet_strings
+  , hspec_identifier_lexer_accepts_alphanumeric_and_underscore_strings_starting_with_alphabet
+  , hspec_identifier_lexer_accepts_alphanumeric_and_underscore_strings_starting_with_underscore
+  , hspec_identifier_lexer_rejects_alphanumeric_and_underscore_strings_starting_with_number
   ) where
 
+import Hedgehog
 import Test.Hspec.Megaparsec
 import Test.Tasty.Hspec
 
+import Data.Char
 import Minicute.Parser.Common ( Parser )
-import Text.Megaparsec
+import Numeric
+import Text.Megaparsec hiding ( failure )
 
+import qualified Hedgehog.Gen as Gen
+import qualified Hedgehog.Range as Range
 import qualified Minicute.Parser.Common.Lexer as L
 
--- |
--- __TODO: Update these tests to use QuickCheck__
 spec_integer_lexer :: Spec
 spec_integer_lexer = do
-  describe "when an input is not prefixed" $ do
-    it "parses a zero" $ do
-      (L.integer, "0") `shouldJustParseInto` 0
-    it "parses a decimal number with a non-zero start" $ do
-      (L.integer, "10") `shouldJustParseInto` 10
-    it "fails to parse a decimal number with the zero start and leaves from the problematic character" $ do
-      (L.integer, "010") `failsLeavingInput` "10"
-
-  describe "when an input is prefixed" $ do
-    it "parses a binary number with a non-zero start" $ do
-      (L.integer, "0B1101") `shouldJustParseInto` 0b1101
-      (L.integer, "0b1101") `shouldJustParseInto` 0b1101
-    it "parses a binary number with the zero start" $ do
-      (L.integer, "0B01011") `shouldJustParseInto` 0b1011
-      (L.integer, "0b01011") `shouldJustParseInto` 0b1011
-    it "parses a octal number with a non-zero start" $ do
-      (L.integer, "0O777") `shouldJustParseInto` 0o777
-      (L.integer, "0o1262") `shouldJustParseInto` 0o1262
-    it "parses a octal number with the zero start" $ do
-      (L.integer, "0O0777") `shouldJustParseInto` 0o777
-      (L.integer, "0o00111") `shouldJustParseInto` 0o111
-    it "parses a decimal number with a non-zero start" $ do
-      (L.integer, "0D102") `shouldJustParseInto` 102
-      (L.integer, "0d52") `shouldJustParseInto` 52
-    it "parses a decimal number with the zero start" $ do
-      (L.integer, "0D0304") `shouldJustParseInto` 304
-      (L.integer, "0d0992") `shouldJustParseInto` 992
-    it "parses a hexadecimal number with a non-zero start" $ do
-      (L.integer, "0Xaba") `shouldJustParseInto` 0xaba
-      (L.integer, "0xAbD") `shouldJustParseInto` 0xabd
-    it "parses a hexadecimal number with the zero start" $ do
-      (L.integer, "0X0Ff5") `shouldJustParseInto` 0xff5
-      (L.integer, "0x055E") `shouldJustParseInto` 0x55e
-
   describe "when an input has trailing spaces" $ do
     it "parses a integer" $ do
       (L.integer, "10  ") `shouldJustParseInto` 10
@@ -64,12 +42,6 @@ spec_integer_lexer = do
       (L.integer, "0o1252\t") `shouldJustParseInto` 0o1252
       (L.integer, "0d521 \t\n") `shouldJustParseInto` 521
       (L.integer, "0xfcab242\t\t  \t\t") `shouldJustParseInto` 0xfcab242
-
-  describe "when an input has preceding spaces" $ do
-    it "fails to parse and leaves the original input" $ do
-      (L.integer, "\t12") `failsLeavingInput` "\t12"
-      (L.integer, "\n0b101") `failsLeavingInput` "\n0b101"
-      (L.integer, " 0xfcab242") `failsLeavingInput` " 0xfcab242"
 
   describe "when an input has trailing alphabets" $ do
     it "fails to parse and leaves from the problematic character" $ do
@@ -79,37 +51,113 @@ spec_integer_lexer = do
       (L.integer, "0b1101pqw") `failsLeavingInput` "pqw"
       (L.integer, "0X202PG") `failsLeavingInput` "PG"
 
-spec_identifier_lexer :: Spec
-spec_identifier_lexer = do
-  describe "when an input has alphabets only" $ do
-    it "parses an identifier" $ do
-      (L.identifier, "abc") `shouldJustParseInto` "abc"
-      (L.identifier, "fwehlg") `shouldJustParseInto` "fwehlg"
-      (L.identifier, "Qpozmgdpxsc") `shouldJustParseInto` "Qpozmgdpxsc"
+hprop_integer_lexer_accepts_non_negative_integer_of_different_bases :: Property
+hprop_integer_lexer_accepts_non_negative_integer_of_different_bases = do
+  property $ do
+    let nonNegativeIntegerRange = Range.constant 0 1000000000000
+    i <- forAll $ Gen.integral nonNegativeIntegerRange
+    iStr <- forAll $ genPrefixedIntegerString i
+    i' <- evalEither $ parse (L.integer :: Parser Integer) "" iStr
+    i === i'
 
-  describe "when an input has alphanumeric characters starting with an alphabet" $ do
-    it "parses an identifier" $ do
-      (L.identifier, "abc40ias") `shouldJustParseInto` "abc40ias"
-      (L.identifier, "fwehlg120ad") `shouldJustParseInto` "fwehlg120ad"
-      (L.identifier, "Gew129g01f") `shouldJustParseInto` "Gew129g01f"
+hprop_integer_lexer_rejects_negative_integer :: Property
+hprop_integer_lexer_rejects_negative_integer = do
+  property $ do
+    let negativeIntegerRange = Range.constant (negate 1000000000000) (negate 1)
+    i <- forAll $ Gen.integral negativeIntegerRange
+    iStr <- forAll $ genPrefixedIntegerString i
+    case runParser' (L.integer :: Parser Integer) (initialState iStr) of
+      (state, Left _) -> iStr === stateInput state
+      (_, Right i') -> do
+        annotateShow i'
+        failure
 
-  describe "when an input has alphanumeric characters starting with a number" $ do
-    it "fails to parse and leaves the original input" $ do
-      (L.identifier, "5abc") `failsLeavingInput` "5abc"
-      (L.identifier, "23gew") `failsLeavingInput` "23gew"
-      (L.identifier, "0Pq") `failsLeavingInput` "0Pq"
+genPrefixedIntegerString :: (MonadGen m) => Integer -> m String
+genPrefixedIntegerString i = do
+  (base, prefixes) <- Gen.element bases_and_prefixes
+  prefix <- Gen.element prefixes
+  pure (showBaseWithPrefix prefix base i)
+  where
+    bases_and_prefixes
+      = [ (2, ["0b", "0B"])
+        , (8, ["0o", "0O"])
+        , (10, ["", "0d", "0D"])
+        , (16, ["0x", "0X"])
+        ]
+    showBaseWithPrefix p b n
+      = showSigned ((showString p .) . showIntAtBase b intToDigit) 0 n ""
 
-  describe "when an input has alphanumeric characters and an _ starting with an alphabet or an _" $ do
-    it "parses an identifier" $ do
-      (L.identifier, "abc_13_") `shouldJustParseInto` "abc_13_"
-      (L.identifier, "_Jo") `shouldJustParseInto` "_Jo"
-      (L.identifier, "_0Pq") `shouldJustParseInto` "_0Pq"
+hprop_integer_lexer_rejects_strings_having_number_prefix_starting_with_zero :: Property
+hprop_integer_lexer_rejects_strings_having_number_prefix_starting_with_zero = do
+  property $ do
+    str <-
+      forAll
+      $ (<>)
+      <$> Gen.string (Range.linear 1 100) Gen.digit
+      <*> Gen.string (Range.linear 0 100) Gen.unicode
+    case runParser' (L.integer :: Parser Integer) (initialState $ "0" <> str) of
+      (state, Left _) -> str === stateInput state
+      (_, Right n) -> do
+        annotateShow n
+        failure
 
-  describe "when an input has alphanumeric characters and _ starting with a number" $ do
-    it "fails to parse and leaves the original input" $ do
-      (L.identifier, "4abc_13_") `failsLeavingInput` "4abc_13_"
-      (L.identifier, "56_Jo") `failsLeavingInput` "56_Jo"
-      (L.identifier, "04_12") `failsLeavingInput` "04_12"
+hprop_integer_lexer_rejects_strings_without_integer_prefix :: Property
+hprop_integer_lexer_rejects_strings_without_integer_prefix = do
+  property $ do
+    str <-
+      forAll
+      $ Gen.filter (not . hasIntegerPrefix)
+      $ Gen.string (Range.linear 0 100) Gen.unicode
+    case runParser' (L.integer :: Parser Integer) (initialState str) of
+      (state, Left _) -> str === stateInput state
+      (_, Right n) -> do
+        annotateShow n
+        failure
+  where
+    hasIntegerPrefix str = any ((str /=) . snd) . (reads :: ReadS Integer) $ str
+
+hspec_identifier_lexer_accepts_alphabet_strings :: Property
+hspec_identifier_lexer_accepts_alphabet_strings = do
+  property $ do
+    str <- forAll $ Gen.string (Range.linear 1 100) Gen.alpha
+    ident <- evalEither $ parse (L.identifier :: Parser String) "" str
+    str === ident
+
+hspec_identifier_lexer_accepts_alphanumeric_and_underscore_strings_starting_with_alphabet :: Property
+hspec_identifier_lexer_accepts_alphanumeric_and_underscore_strings_starting_with_alphabet = do
+  property $ do
+    str <-
+      forAll
+      $ (:)
+      <$> Gen.alpha
+      <*> Gen.string (Range.linear 1 100) (Gen.choice [Gen.alphaNum, Gen.constant '_'])
+    ident <- evalEither $ parse (L.identifier :: Parser String) "" str
+    str === ident
+
+hspec_identifier_lexer_accepts_alphanumeric_and_underscore_strings_starting_with_underscore :: Property
+hspec_identifier_lexer_accepts_alphanumeric_and_underscore_strings_starting_with_underscore = do
+  property $ do
+    str <-
+      forAll
+      $ ('_' :)
+      <$> Gen.string (Range.linear 1 100) (Gen.choice [Gen.alphaNum, Gen.constant '_'])
+    ident <- evalEither $ parse (L.identifier :: Parser String) "" str
+    str === ident
+
+hspec_identifier_lexer_rejects_alphanumeric_and_underscore_strings_starting_with_number :: Property
+hspec_identifier_lexer_rejects_alphanumeric_and_underscore_strings_starting_with_number = do
+  property $ do
+    str <-
+      forAll
+      $ (:)
+      <$> Gen.digit
+      <*> Gen.string (Range.linear 1 100) Gen.alphaNum
+    case runParser' (L.identifier :: Parser String) (initialState str) of
+      (state, Left _) -> str === stateInput state
+      (_, Right ident) -> do
+        annotateShow ident
+        failure
+
 
 shouldParseInto :: (Show a, Eq a) => (Parser a, String) -> a -> String -> IO ()
 shouldParseInto (p, content) value leaving = do
