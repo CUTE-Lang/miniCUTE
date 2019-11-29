@@ -65,7 +65,7 @@ library:
 tests:
   test:
     ### Test fields ###
-    main:                           Spec.hs
+    main:                           Driver.hs
     # other-modules:
     # generated-other-modules:
 
@@ -80,7 +80,9 @@ tests:
       - extra
       - llvm-hs-pure
 
-      - hspec
+      - tasty
+      - tasty-discover
+      - tasty-hspec
 
       - minicute-g-machine-syntax
       - minicute-llvm-generator
