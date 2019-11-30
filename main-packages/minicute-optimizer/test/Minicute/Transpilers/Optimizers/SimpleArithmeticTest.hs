@@ -3,11 +3,11 @@
 -- |
 -- Copyright: (c) 2018-present Junyoung Clare Jang
 -- License: BSD 3-Clause
-module Minicute.Transpilers.Optimizers.SimpleArithmeticSpec
-  ( spec
+module Minicute.Transpilers.Optimizers.SimpleArithmeticTest
+  ( spec_simpleArithmeticMainMC
   ) where
 
-import Test.Hspec
+import Test.Tasty.Hspec
 
 import Control.Monad
 import Data.Tuple.Extra
@@ -15,10 +15,9 @@ import Minicute.Data.Minicute.Program
 import Minicute.Transpilers.Optimizers.SimpleArithmetic
 import Minicute.Utils.Minicute.TH
 
-spec :: Spec
-spec = do
-  describe "simpleArithmeticMainMC" $ do
-    forM_ testCases (uncurry3 simpleArithmeticMainMCTest)
+spec_simpleArithmeticMainMC :: Spec
+spec_simpleArithmeticMainMC
+  = forM_ testCases (uncurry3 simpleArithmeticMainMCTest)
 
 simpleArithmeticMainMCTest :: TestName -> TestBeforeContent -> TestAfterContent -> SpecWith (Arg Expectation)
 simpleArithmeticMainMCTest name beforeContent afterContent = do

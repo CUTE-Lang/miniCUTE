@@ -6,11 +6,11 @@
 -- |
 -- Copyright: (c) 2018-present Junyoung Clare Jang
 -- License: BSD 3-Clause
-module Minicute.Transpilers.LLVMSpec
-  ( spec
+module Minicute.Transpilers.LLVMTest
+  ( spec_generateMachineCode
   ) where
 
-import Test.Hspec
+import Test.Tasty.Hspec
 
 import Control.Monad
 import Data.Tuple.Extra
@@ -22,10 +22,8 @@ import Minicute.Utils.GMachine.TH
 import qualified LLVM.AST as AST
 import qualified LLVM.AST.Type as ASTT
 
-spec :: Spec
-spec = do
-  describe "generateMachineCode" $ do
-    forM_ testCases (uncurry3 generateMachineCodeTest)
+spec_generateMachineCode :: Spec
+spec_generateMachineCode = forM_ testCases (uncurry3 generateMachineCodeTest)
 
 generateMachineCodeTest :: TestName -> TestBeforeContent -> TestAfterContent -> SpecWith (Arg Expectation)
 generateMachineCodeTest n beforeContent afterContent = do

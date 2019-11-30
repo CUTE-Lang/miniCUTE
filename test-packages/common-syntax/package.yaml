@@ -1,6 +1,6 @@
 #### Top-level fields ####
 spec-version:                       0.31.0
-name:                               minicute-common-syntax
+name:                               minicute-common-syntax-test
 version:                            0.1.0.0
 synopsis:                           Experimental package for a language implemented by Haskell
 description: >
@@ -15,7 +15,7 @@ category:                           Language
 # bug-reports:
 author:                             Junyoung Clare Jang
 maintainer:                         jjc9310@gmail.com
-copyright:                          2018-present Junyoung Clare Jang
+copyright:                          2019-present Junyoung Clare Jang
 ## Inferred from license-file
 license:                            BSD-3-Clause
 license-file:                       LICENSE
@@ -50,14 +50,9 @@ library:
     - -Wall
     - -Wstar-is-type
   dependencies:
-    - base-minicute == 0.1.0.0
-    - extra >= 1.6 && < 2
-    - lens >= 4.17 && < 5
-    - megaparsec >= 7.0 && < 8
-    - parser-combinators
-    - prettyprinter >= 1.2 && < 2
-    - prettyprinter-minicute == 0.1.0.0
-    - template-haskell >= 2.14 && < 3
+    - hedgehog
+
+    - minicute-common-syntax == 0.1.0.0
 
 # internal-libraries:
 
@@ -80,17 +75,15 @@ tests:
       - -rtsopts
       - -with-rtsopts=-N
     dependencies:
-      - base-minicute
       - megaparsec
 
       - hedgehog
-      - hspec-megaparsec
       - tasty
       - tasty-discover
       - tasty-hedgehog
-      - tasty-hspec
 
       - minicute-common-syntax
+      - minicute-common-syntax-test
 
   hlint:
     ### Test fields ###

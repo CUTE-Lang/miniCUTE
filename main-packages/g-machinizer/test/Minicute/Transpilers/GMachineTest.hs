@@ -4,11 +4,11 @@
 -- |
 -- Copyright: (c) 2018-present Junyoung Clare Jang
 -- License: BSD 3-Clause
-module Minicute.Transpilers.GMachineSpec
-  ( spec
+module Minicute.Transpilers.GMachineTest
+  ( spec_transpileProgram
   ) where
 
-import Test.Hspec
+import Test.Tasty.Hspec
 
 import Control.Monad
 import Data.Tuple.Extra
@@ -16,10 +16,8 @@ import Minicute.Transpilers.GMachine
 import Minicute.Utils.GMachine.TH
 import Minicute.Utils.Minicute.TH
 
-spec :: Spec
-spec = do
-  describe "transpileProgram" $ do
-    forM_ testCases (uncurry3 transpileProgramTest)
+spec_transpileProgram :: Spec
+spec_transpileProgram = forM_ testCases (uncurry3 transpileProgramTest)
 
 transpileProgramTest :: TestName -> TestBeforeContent -> TestAfterContent -> SpecWith (Arg Expectation)
 transpileProgramTest name beforeContent afterContent = do

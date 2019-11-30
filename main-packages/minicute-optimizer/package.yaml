@@ -67,7 +67,7 @@ library:
 tests:
   test:
     ### Test fields ###
-    main:                           Spec.hs
+    main:                           Driver.hs
     # other-modules:
     # generated-other-modules:
 
@@ -83,7 +83,9 @@ tests:
       - extra
       - lens
 
-      - hspec
+      - tasty
+      - tasty-discover
+      - tasty-hspec
 
       - minicute-g-machine-syntax
       - minicute-minicute-optimizer

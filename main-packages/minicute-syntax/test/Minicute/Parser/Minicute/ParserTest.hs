@@ -5,12 +5,12 @@
 -- |
 -- Copyright: (c) 2018-present Junyoung Clare Jang
 -- License: BSD 3-Clause
-module Minicute.Parser.Minicute.ParserSpec
-  ( spec
+module Minicute.Parser.Minicute.ParserTest
+  ( spec_mainProgramMC_parser
   ) where
 
-import Test.Hspec
 import Test.Hspec.Megaparsec
+import Test.Tasty.Hspec
 
 import Control.Monad
 import Data.Tuple.Minicute ( tupleUnzip2 )
@@ -21,10 +21,9 @@ import Text.Megaparsec
 
 import qualified Minicute.Parser.Minicute.Parser as P
 
-spec :: Spec
-spec = do
-  describe "mainProgramMC parser" $ do
-    forM_ mainProgramMCTestCases mainProgramMCTest
+spec_mainProgramMC_parser :: Spec
+spec_mainProgramMC_parser
+  = forM_ mainProgramMCTestCases mainProgramMCTest
 
 mainProgramMCTest :: MainProgramMCTestCase -> SpecWith (Arg Expectation)
 mainProgramMCTest (name, content, Right result) = do

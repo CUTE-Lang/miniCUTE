@@ -4,11 +4,11 @@
 -- |
 -- Copyright: (c) 2018-present Junyoung Clare Jang
 -- License: BSD 3-Clause
-module Minicute.Transpilers.FreeVariablesSpec
-  ( spec
+module Minicute.Transpilers.FreeVariablesTest
+  ( spec_formFreeVariablesMainMC
   ) where
 
-import Test.Hspec
+import Test.Tasty.Hspec
 
 import Control.Monad
 import Data.Tuple.Extra
@@ -18,10 +18,9 @@ import Minicute.Utils.Minicute.TH
 
 import qualified Data.Set as Set
 
-spec :: Spec
-spec = do
-  describe "formFreeVariablesMainMC" $ do
-    forM_ testCases (uncurry3 formFreeVariablesMainMCTest)
+spec_formFreeVariablesMainMC :: Spec
+spec_formFreeVariablesMainMC
+  = forM_ testCases (uncurry3 formFreeVariablesMainMCTest)
 
 formFreeVariablesMainMCTest :: TestName -> TestBeforeContent -> TestAfterContent -> SpecWith (Arg Expectation)
 formFreeVariablesMainMCTest name beforeContent afterContent = do

@@ -41,6 +41,8 @@ packages:
 - ./main-packages/minicute-optimizer
 - ./main-packages/minicute-syntax
 
+- ./test-packages/common-syntax
+
 - ./utilities/hlint
 
 # Dependency packages to be pulled from upstream that are not in the resolver.
@@ -77,3 +79,9 @@ require-stack-version: ">= 2.1"
 
 # Allow a newer minor version of GHC than the snapshot specifies
 # compiler-check: newer-minor
+
+build:
+  test-arguments:
+    additional-args:
+      - "--color"
+      - always

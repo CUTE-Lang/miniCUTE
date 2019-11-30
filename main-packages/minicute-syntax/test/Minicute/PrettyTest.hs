@@ -3,12 +3,12 @@
 -- |
 -- Copyright: (c) 2018-present Junyoung Clare Jang
 -- License: BSD 3-Clause
-module Minicute.PrettySpec
-  ( spec
+module Minicute.PrettyTest
+  ( spec_prettyPrint
   ) where
 
-import Test.Hspec
 import Test.Hspec.Megaparsec
+import Test.Tasty.Hspec
 
 import Control.Monad
 import Data.Either
@@ -19,10 +19,9 @@ import Text.Megaparsec
 import qualified Data.Text.Prettyprint.Doc.Minicute as PP
 import qualified Minicute.Parser.Minicute.Parser as P
 
-spec :: Spec
-spec = do
-  describe "prettyPrint" $ do
-    forM_ testCases (uncurry programMCTest)
+spec_prettyPrint :: Spec
+spec_prettyPrint
+  = forM_ testCases (uncurry programMCTest)
 
 programMCTest :: TestName -> TestContent -> SpecWith (Arg Expectation)
 programMCTest name programString = do
