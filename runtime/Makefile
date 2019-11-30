@@ -8,7 +8,7 @@ LDFLAGS += -fuse-ld=lld
 DOXYGEN := doxygen
 DOXYGENFLAGS :=
 LLC := llc
-LLCFLAGS := -filetype obj
+LLCFLAGS :=
 OPT := opt
 OPTFLAGS :=
 
@@ -92,10 +92,14 @@ $(SCRATCH_OUT): $(SCRATCH_OBJ) $(LIB_C_LIB)
 	@printf "[ \e[93m%-3s\e[0m ] Build \e[92m%s\e[0m\n" "EXE" "$@"
 	$(CC) $(LDFLAGS) $^ $(LDLIBS) -o $@
 
-$(LIB_C_LIB): private ARFLAGS := -rcs
-$(LIB_C_LIB): $(LIB_C_OBJ)
+$(LIB_C_LIB): $(LIB_C_LIB)($(LIB_C_OBJ))
+	@printf "[ \e[93m%-3s\e[0m ] Generate an index for \e[92m%s\e[0m\n" "A" "$@"
+	ranlib $@
+
+$(LIB_C_LIB)(%.o): private ARFLAGS := -rcU
+$(LIB_C_LIB)(%.o): %.o
 	@mkdir -p $(@D)
-	@printf "[ \e[93m%-3s\e[0m ] Build \e[92m%s\e[0m\n" "A" "$@"
+	@printf "[ \e[93m%-3s\e[0m ] Insert \e[92m%s\e[0m into \e[92m%s\e[0m\n" "A" "$^" "$@"
 	$(AR) $(ARFLAGS) $@ $^
 
 
@@ -106,9 +110,10 @@ $(call c_to_obj,%.c): %.c
 
 $(call ll_to_bc,%.ll): %.ll
 	@mkdir -p $(@D)
-	@printf "[ \e[93m%-3s\e[0m ] Compile \e[92m%s\e[0m to \e[92m%s\e[0m\n" "-BC" "$<" "$@"
+	@printf "[ \e[93m%-3s\e[0m ] Compile \e[92m%s\e[0m to \e[92m%s\e[0m\n" "BC" "$<" "$@"
 	$(OPT) $(OPTFLAGS) $< -o $@
 
+$(call bc_to_obj,%.bc): private LLCFLAGS := -filetype obj
 $(call bc_to_obj,%.bc): %.bc
 	@printf "[ \e[93m%-3s\e[0m ] Compile \e[92m%s\e[0m to \e[92m%s\e[0m\n" "O" "$<" "$@"
 	$(LLC) $(LLCFLAGS) $< -o $@
