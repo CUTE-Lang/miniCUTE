@@ -1,10 +1,6 @@
 .DEFAULT_GOAL := all
 
-MAKEFILES := clean.mk exe_ext.mk support_check.mk
-CONFIG_DIR := config
-
-include $(MAKEFILES:%=$(CONFIG_DIR)/%)
-
+# Variables in Implicit Rules
 AR := llvm-ar
 ARFLAGS := -rcs
 CC := clang
@@ -16,12 +12,19 @@ LLCFLAGS := -filetype obj
 OPT := opt
 OPTFLAGS :=
 
-# Variables of directories
+# Variables of Directories
+CONFIG_DIR := config
+
 LIB_DIR := lib
 BUILD_DIR := build
 DOC_DIR := doc
 
 SCRATCH_DIR := scratch
+
+# Extra Makefiles
+MAKEFILES := clean.mk exe_ext.mk support_check.mk
+
+include $(addprefix $(CONFIG_DIR)/,$(MAKEFILES))
 
 # Functions
 in_build_dir = $(addprefix $(BUILD_DIR)/,$(1))
@@ -48,7 +51,7 @@ SCRATCH_DEP := $(call c_to_dep,$(filter %.c,$(SCRATCH_SRC)))
 
 SCRATCH_OUT := $(call to_exe,scratch)
 
-# Standard .PHONY tags
+# Standard .PHONY Tags
 .PHONY: all \
         clean \
         distclean \
@@ -57,7 +60,7 @@ SCRATCH_OUT := $(call to_exe,scratch)
         html \
         check
 
-# Non-standard .PHONY tags
+# Non-standard .PHONY Tags
 .PHONY: clean_lib \
         clean_dep \
         clean_build \
