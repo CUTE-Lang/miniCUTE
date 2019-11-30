@@ -1,9 +1,9 @@
 .DEFAULT_GOAL := all
 
 MAKEFILES := clean.mk exe_ext.mk support_check.mk
-MAKEFILES_DIR := makefiles
+CONFIG_DIR := config
 
-include $(MAKEFILES:%=$(MAKEFILES_DIR)/%)
+include $(MAKEFILES:%=$(CONFIG_DIR)/%)
 
 AR := llvm-ar
 ARFLAGS := -rcs
