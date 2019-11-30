@@ -92,7 +92,7 @@ $(SCRATCH_OUT): $(SCRATCH_OBJ) $(LIB_C_LIB)
 	@printf "[ \e[93m%-3s\e[0m ] Build \e[92m%s\e[0m\n" "EXE" "$@"
 	$(CC) $(LDFLAGS) $^ $(LDLIBS) -o $@
 
-$(LIB_C_LIB): ARFLAGS := -rcs
+$(LIB_C_LIB): private ARFLAGS := -rcs
 $(LIB_C_LIB): $(LIB_C_OBJ)
 	@mkdir -p $(@D)
 	@printf "[ \e[93m%-3s\e[0m ] Build \e[92m%s\e[0m\n" "A" "$@"
