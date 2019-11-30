@@ -2,7 +2,7 @@
 
 # Variables in Implicit Rules
 AR := llvm-ar
-ARFLAGS := -rcs
+ARFLAGS :=
 CC := clang
 LDFLAGS += -fuse-ld=lld
 DOXYGEN := doxygen
@@ -86,11 +86,13 @@ clean_doc: $(call to_clean,$(DOC_DIR))
 clean_out: $(call to_clean,$(SCRATCH_OUT))
 
 
+$(SCRATCH_OUT): CFLAGS += -g
 $(SCRATCH_OUT): $(SCRATCH_OBJ) $(LIB_C_LIB)
 	@mkdir -p $(@D)
 	@printf "[ \e[93m%-3s\e[0m ] Build \e[92m%s\e[0m\n" "EXE" "$@"
 	$(CC) $(LDFLAGS) $^ $(LDLIBS) -o $@
 
+$(LIB_C_LIB): ARFLAGS := -rcs
 $(LIB_C_LIB): $(LIB_C_OBJ)
 	@mkdir -p $(@D)
 	@printf "[ \e[93m%-3s\e[0m ] Build \e[92m%s\e[0m\n" "A" "$@"
