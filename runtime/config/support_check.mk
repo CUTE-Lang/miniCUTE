@@ -1,13 +1,13 @@
 .PHONY: support_check
 
-*: support_check
-
 ifneq ($(SHELL),)
 support_check:
 ifeq ($(findstring support_check,$(MAKECMDGOALS)),support_check)
 	$(error Do not call "support_check" target directly)
 endif
 else # ($(SHELL),)
+*: support_check
+
 support_check:
 ifneq ($(findstring support_check,$(MAKECMDGOALS)),support_check)
 	@printf "This system is not yet supported.\n"

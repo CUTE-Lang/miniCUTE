@@ -1,27 +1,30 @@
 .DEFAULT_GOAL := all
 
-MAKEFILES := clean.mk exe_ext.mk support_check.mk
-MAKEFILES_DIR := makefiles
-
-include $(MAKEFILES:%=$(MAKEFILES_DIR)/%)
-
+# Variables in Implicit Rules
 AR := llvm-ar
-ARFLAGS := -rcs
+ARFLAGS :=
 CC := clang
 LDFLAGS += -fuse-ld=lld
 DOXYGEN := doxygen
 DOXYGENFLAGS :=
 LLC := llc
-LLCFLAGS := -filetype obj
+LLCFLAGS :=
 OPT := opt
 OPTFLAGS :=
 
-# Variables of directories
+# Variables of Directories
+CONFIG_DIR := config
+
 LIB_DIR := lib
 BUILD_DIR := build
 DOC_DIR := doc
 
 SCRATCH_DIR := scratch
+
+# Extra Makefiles
+MAKEFILES := clean.mk exe_ext.mk support_check.mk
+
+include $(addprefix $(CONFIG_DIR)/,$(MAKEFILES))
 
 # Functions
 in_build_dir = $(addprefix $(BUILD_DIR)/,$(1))
@@ -48,7 +51,7 @@ SCRATCH_DEP := $(call c_to_dep,$(filter %.c,$(SCRATCH_SRC)))
 
 SCRATCH_OUT := $(call to_exe,scratch)
 
-# Standard .PHONY tags
+# Standard .PHONY Tags
 .PHONY: all \
         clean \
         distclean \
@@ -57,7 +60,7 @@ SCRATCH_OUT := $(call to_exe,scratch)
         html \
         check
 
-# Non-standard .PHONY tags
+# Non-standard .PHONY Tags
 .PHONY: clean_lib \
         clean_dep \
         clean_build \
@@ -83,15 +86,21 @@ clean_doc: $(call to_clean,$(DOC_DIR))
 clean_out: $(call to_clean,$(SCRATCH_OUT))
 
 
+$(SCRATCH_OUT): CFLAGS += -g
 $(SCRATCH_OUT): $(SCRATCH_OBJ) $(LIB_C_LIB)
 	@mkdir -p $(@D)
 	@printf "[ \e[93m%-3s\e[0m ] Build \e[92m%s\e[0m\n" "EXE" "$@"
-	$(CC) $(LDFLAGS) $(filter %.o %.a,$^) $(LDLIBS) -o $@
+	$(CC) $(LDFLAGS) $^ $(LDLIBS) -o $@
 
-$(LIB_C_LIB): $(LIB_C_OBJ)
+$(LIB_C_LIB): $(LIB_C_LIB)($(LIB_C_OBJ))
+	@printf "[ \e[93m%-3s\e[0m ] Generate an index for \e[92m%s\e[0m\n" "A" "$@"
+	ranlib $@
+
+$(LIB_C_LIB)(%.o): private ARFLAGS := -rcU
+$(LIB_C_LIB)(%.o): %.o
 	@mkdir -p $(@D)
-	@printf "[ \e[93m%-3s\e[0m ] Build \e[92m%s\e[0m\n" "A" "$@"
-	$(AR) $(ARFLAGS) $@ $(filter %.o,$^)
+	@printf "[ \e[93m%-3s\e[0m ] Insert \e[92m%s\e[0m into \e[92m%s\e[0m\n" "A" "$^" "$@"
+	$(AR) $(ARFLAGS) $@ $^
 
 
 $(call c_to_obj,%.c): %.c
@@ -101,9 +110,10 @@ $(call c_to_obj,%.c): %.c
 
 $(call ll_to_bc,%.ll): %.ll
 	@mkdir -p $(@D)
-	@printf "[ \e[93m%-3s\e[0m ] Compile \e[92m%s\e[0m to \e[92m%s\e[0m\n" "-BC" "$<" "$@"
+	@printf "[ \e[93m%-3s\e[0m ] Compile \e[92m%s\e[0m to \e[92m%s\e[0m\n" "BC" "$<" "$@"
 	$(OPT) $(OPTFLAGS) $< -o $@
 
+$(call bc_to_obj,%.bc): private LLCFLAGS := -filetype obj
 $(call bc_to_obj,%.bc): %.bc
 	@printf "[ \e[93m%-3s\e[0m ] Compile \e[92m%s\e[0m to \e[92m%s\e[0m\n" "O" "$<" "$@"
 	$(LLC) $(LLCFLAGS) $< -o $@
