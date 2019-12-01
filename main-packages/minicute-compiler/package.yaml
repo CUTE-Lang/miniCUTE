@@ -53,7 +53,9 @@ executables:
       - -with-rtsopts=-N
     dependencies:
       ## Remove following dependence if possible
+      - lens >= 4.17 && < 5
       - megaparsec >= 7.0 && < 8
+      - mtl >= 2.2 && < 3
       - prettyprinter-minicute == 0.1.0.0
 
       - minicute-g-machinizer == 0.1.0.0
