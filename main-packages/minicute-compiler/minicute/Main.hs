@@ -7,6 +7,9 @@ module Main
   ( main
   ) where
 
+import Options
+
+import Control.Lens.Operators
 import Data.Text.Prettyprint.Doc.Minicute ( prettyMC0 )
 import Minicute.Parser.Minicute.Parser ( mainProgramMC )
 import Minicute.Transpilers.Lifting.Lambda ( lambdaLifting )
@@ -16,11 +19,8 @@ import Text.Megaparsec ( errorBundlePretty, parse )
 
 main :: IO ()
 main = do
-  args <- getArgs
-  case args of
-    _ : _ : _ -> usage
-    filePath : _ -> openFile filePath ReadMode >>= compile
-    [] -> compile stdin
+  opts <- getArgs >>= parseArguments >>= elaborate
+  compile . inputHandle $ opts
 
 compile :: Handle -> IO ()
 compile handle = do
@@ -41,6 +41,3 @@ compile handle = do
     Left err -> do
       putStrLn "error:"
       putStrLn (errorBundlePretty err)
-
-usage :: IO ()
-usage = putStrLn "Usage: minicute [file]"
