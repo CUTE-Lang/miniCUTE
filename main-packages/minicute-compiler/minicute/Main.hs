@@ -19,10 +19,8 @@ import Text.Megaparsec ( errorBundlePretty, parse )
 
 main :: IO ()
 main = do
-  args <- getArgs
-  exOpts <- parseArguments args
-  inOpts <- internalize exOpts
-  compile $ inOpts ^. _inputHandle
+  opts <- getArgs >>= parseArguments >>= elaborate
+  compile . inputHandle $ opts
 
 compile :: Handle -> IO ()
 compile handle = do
