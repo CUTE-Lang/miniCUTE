@@ -41,6 +41,9 @@ module Minicute.Data.Minicute.Expression
   , _matchCaseBody
 
 
+  , ExpressionLevel( .. )
+
+
   , Expression( .. )
   , ExpressionMC
   , ExpressionLLMC
@@ -132,6 +135,19 @@ instance (PrettyMC a, PrettyMC (expr a)) => PrettyMC (MatchCase expr a) where
         , " -> "
         , prettyMC0 expr
         ]
+
+
+data ExpressionLevel
+  = MC -- ^ miniCUTE
+  | LLMC -- ^ Lambda lifted miniCUTE
+  deriving ( Generic
+           , Typeable
+           , Data
+           , Lift
+           , Eq
+           , Ord
+           , Show
+           )
 
 
 -- |
