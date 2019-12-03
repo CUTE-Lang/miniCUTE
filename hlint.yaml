@@ -5,6 +5,9 @@
 
 - arguments: [-XNoMagicHash]
 
+# disabled rules
+- ignore: {name: "Use record patterns"}
+
 # enabled rules
 - warn: {name: "Use module export list"}
 - warn: {name: "Use explicit module export list"}
