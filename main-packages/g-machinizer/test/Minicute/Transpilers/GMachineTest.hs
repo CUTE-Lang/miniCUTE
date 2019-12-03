@@ -1,4 +1,5 @@
 {- HLINT ignore "Redundant do" -}
+{-# LANGUAGE DataKinds #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE QuasiQuotes #-}
 -- |
@@ -25,7 +26,7 @@ transpileProgramTest name beforeContent afterContent = do
     transpileProgram beforeContent `shouldBe` afterContent
 
 type TestName = String
-type TestBeforeContent = MainProgramLLMC
+type TestBeforeContent = MainProgram 'Simple 'LLMC
 type TestAfterContent = GMachineProgram
 type TestCase = (TestName, TestBeforeContent, TestAfterContent)
 

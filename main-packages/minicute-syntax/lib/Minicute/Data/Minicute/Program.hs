@@ -3,11 +3,14 @@
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE DeriveLift #-}
+{-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE StandaloneDeriving #-}
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE UndecidableInstances #-}
 -- |
 -- Copyright: (c) 2018-present Junyoung Clare Jang
 -- License: BSD 3-Clause
@@ -17,10 +20,7 @@ module Minicute.Data.Minicute.Program
   ( module Minicute.Data.Minicute.Expression
 
   , Supercombinator( .. )
-  , SupercombinatorMC
-  , SupercombinatorLLMC
-  , MainSupercombinatorMC
-  , MainSupercombinatorLLMC
+  , MainSupercombinator
 
   , _supercombinatorBinder
   , _supercombinatorArguments
@@ -28,10 +28,7 @@ module Minicute.Data.Minicute.Program
 
 
   , Program( .. )
-  , ProgramMC
-  , ProgramLLMC
-  , MainProgramMC
-  , MainProgramLLMC
+  , MainProgram
   ) where
 
 import Control.Lens.TH
@@ -54,30 +51,19 @@ import qualified Data.Text.Prettyprint.Doc as PP
 -- [@[a\]@] the arguments of the definition.
 --
 -- [@expr a@] the body expression of the definition.
-newtype Supercombinator expr a
-  = Supercombinator (Identifier, [a], expr a)
+newtype Supercombinator t l a
+  = Supercombinator (Identifier, [a], Expression t l a)
   deriving ( Generic
            , Typeable
-           , Data
-           , Lift
-           , Eq
-           , Ord
-           , Show
            )
--- |
--- A supercombinator of 'ExpressionMC'
-type SupercombinatorMC = Supercombinator ExpressionMC
--- |
--- A supercombinator of 'ExpressionLLMC'
-type SupercombinatorLLMC = Supercombinator ExpressionLLMC
--- |
--- A supercombinator of 'MainExpressionMC'
-type MainSupercombinatorMC = SupercombinatorMC Identifier
--- |
--- A supercombinator of 'MainExpressionLLMC'
-type MainSupercombinatorLLMC = SupercombinatorLLMC Identifier
 
-instance (PrettyMC a, PrettyMC (expr a)) => PrettyMC (Supercombinator expr a) where
+deriving instance (Data a, Typeable t, Typeable l, Data (Expression t l a)) => Data (Supercombinator t l a)
+deriving instance (Lift a, Lift (Expression t l a)) => Lift (Supercombinator t l a)
+deriving instance (Eq a, Eq (Expression t l a)) => Eq (Supercombinator t l a)
+deriving instance (Ord a, Ord (Expression t l a)) => Ord (Supercombinator t l a)
+deriving instance (Show a, Show (Expression t l a)) => Show (Supercombinator t l a)
+
+instance (PrettyMC a, PrettyMC (Expression t l a)) => PrettyMC (Supercombinator t l a) where
   prettyMC _ (Supercombinator (scId, argBinders, expr))
     = PP.hcat
       [ prettyMC0 scId
@@ -91,53 +77,50 @@ instance (PrettyMC a, PrettyMC (expr a)) => PrettyMC (Supercombinator expr a) wh
       , prettyMC0 expr
       ]
 
+-- |
+-- A supercombinator of 'MainExpression'
+type MainSupercombinator t l = Supercombinator t l Identifier
+
 
 -- |
 -- A type for a miniCUTE program
-newtype Program expr a
-  = Program [Supercombinator expr a]
+newtype Program t l a
+  = Program [Supercombinator t l a]
   deriving ( Generic
            , Typeable
-           , Data
-           , Lift
-           , Eq
-           , Ord
-           , Show
            )
--- |
--- A program of 'ExpressionMC'
-type ProgramMC = Program ExpressionMC
--- |
--- A program of 'ExpressionLLMC'
-type ProgramLLMC = Program ExpressionLLMC
--- |
--- A program of 'MainExpressionMC'
-type MainProgramMC = ProgramMC Identifier
--- |
--- A program of 'MainExpressionLLMC'
-type MainProgramLLMC = ProgramLLMC Identifier
 
-instance (PrettyMC a, PrettyMC (expr a)) => PrettyMC (Program expr a) where
+deriving instance (Data a, Typeable t, Typeable l, Data (Expression t l a)) => Data (Program t l a)
+deriving instance (Lift a, Lift (Expression t l a)) => Lift (Program t l a)
+deriving instance (Eq a, Eq (Expression t l a)) => Eq (Program t l a)
+deriving instance (Ord a, Ord (Expression t l a)) => Ord (Program t l a)
+deriving instance (Show a, Show (Expression t l a)) => Show (Program t l a)
+
+instance (PrettyMC a, PrettyMC (Expression t l a)) => PrettyMC (Program t l a) where
   prettyMC _ (Program scs) = PP.vcat . PP.punctuate PP.semi . fmap prettyMC0 $ scs
+
+-- |
+-- A program of 'MainExpression'
+type MainProgram t l = Program t l Identifier
 
 
 makeWrapped ''Supercombinator
 
 -- |
 -- 'Lens' to extract the binder of 'Supercombinator'
-_supercombinatorBinder :: Lens' (Supercombinator expr a) Identifier
+_supercombinatorBinder :: Lens' (Supercombinator t l a) Identifier
 _supercombinatorBinder = _Wrapped . _1
 {-# INLINEABLE _supercombinatorBinder #-}
 
 -- |
 -- 'Lens' to extract the list of arguments of 'Supercombinator'
-_supercombinatorArguments :: Lens' (Supercombinator expr a) [a]
+_supercombinatorArguments :: Lens' (Supercombinator t l a) [a]
 _supercombinatorArguments = _Wrapped . _2
 {-# INLINEABLE _supercombinatorArguments #-}
 
 -- |
 -- 'Lens' to extract the body expression of 'Supercombinator'
-_supercombinatorBody :: Lens (Supercombinator expr1 a) (Supercombinator expr2 a) (expr1 a) (expr2 a)
+_supercombinatorBody :: Lens (Supercombinator t1 l1 a) (Supercombinator t2 l2 a) (Expression t1 l1 a) (Expression t2 l2 a)
 _supercombinatorBody = _Wrapped . _3
 {-# INLINEABLE _supercombinatorBody #-}
 

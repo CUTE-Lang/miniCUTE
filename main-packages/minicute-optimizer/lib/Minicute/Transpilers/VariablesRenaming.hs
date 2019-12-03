@@ -1,3 +1,4 @@
+{-# LANGUAGE DataKinds #-}
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE OverloadedStrings #-}
 -- |
@@ -22,11 +23,11 @@ import qualified Data.Map as Map
 
 -- |
 -- A transpiler to rename variables in 'MainProgramMC'
-renameVariablesMainMC :: MainProgramMC -> MainProgramMC
+renameVariablesMainMC :: MainProgram 'Simple 'MC -> MainProgram 'Simple 'MC
 renameVariablesMainMC = renameVariablesMC id
 {-# INLINABLE renameVariablesMainMC #-}
 
-renameVariablesMC :: ALens' a Identifier -> ProgramMC a -> ProgramMC a
+renameVariablesMC :: ALens' a Identifier -> Program 'Simple 'MC a -> Program 'Simple 'MC a
 renameVariablesMC _a
   = flip evalState initialIdGeneratorState
     . flip runReaderT initialRenamedRecord
@@ -72,15 +73,15 @@ renameVariablesMC _a
     {-# INLINABLE renameScBinder #-}
 {-# INLINABLE renameVariablesMC #-}
 
-renameVariablesEMC :: ALens' a Identifier -> Renamer (ExpressionMC a)
-renameVariablesEMC _ e@(EInteger _) = pure e
-renameVariablesEMC _ e@(EConstructor _ _) = pure e
-renameVariablesEMC _ (EVariable v)
-  = asks (EVariable . Map.findWithDefault v v)
-renameVariablesEMC _ e@(EPrimitive _) = pure e
-renameVariablesEMC _a (EApplication e1 e2)
-  = EApplication <$> renameVariablesEMC _a e1 <*> renameVariablesEMC _a e2
-renameVariablesEMC _a (ELet flag lDefs expr) = do
+renameVariablesEMC :: ALens' a Identifier -> Renamer (Expression 'Simple 'MC a)
+renameVariablesEMC _ e@(EInteger _ _) = pure e
+renameVariablesEMC _ e@(EConstructor _ _ _) = pure e
+renameVariablesEMC _ (EVariable _ v)
+  = asks (EVariable () . Map.findWithDefault v v)
+renameVariablesEMC _ e@(EPrimitive _ _) = pure e
+renameVariablesEMC _a (EApplication _ e1 e2)
+  = EApplication () <$> renameVariablesEMC _a e1 <*> renameVariablesEMC _a e2
+renameVariablesEMC _a (ELet _ flag lDefs expr) = do
   record <- ask
   lDefsBinders' <- renameAs _a lDefsBinders
   let
@@ -101,15 +102,15 @@ renameVariablesEMC _a (ELet flag lDefs expr) = do
     {-# INLINABLE lDefsRecord #-}
     {-# INLINABLE renameLDefs #-}
     {-# INLINABLE renameExpr #-}
-  ELet flag <$> renameLDefs lDefs <*> renameExpr expr
+  ELet () flag <$> renameLDefs lDefs <*> renameExpr expr
   where
     lDefsBinders = lDefs ^.. each . _letDefinitionBinder
 
     renameLDefsBodies = each . _letDefinitionBody %%~ renameVariablesEMC _a
 
     {-# INLINABLE renameLDefsBodies #-}
-renameVariablesEMC _a (EMatch expr mCases)
-  = EMatch <$> renameVariablesEMC _a expr <*> renameMCases mCases
+renameVariablesEMC _a (EMatch _ expr mCases)
+  = EMatch () <$> renameVariablesEMC _a expr <*> renameMCases mCases
   where
     renameMCases = traverse renameMCase
     renameMCase mCase = do
@@ -129,7 +130,7 @@ renameVariablesEMC _a (EMatch expr mCases)
         {-# INLINABLE renameMCaseBody #-}
 
     {-# INLINABLE renameMCases #-}
-renameVariablesEMC _a (ELambda args expr) = do
+renameVariablesEMC _a (ELambda _ args expr) = do
   args' <- renameAs _a args
   let
     argRecord = renamedRecordFromALists _a args args'
@@ -137,7 +138,7 @@ renameVariablesEMC _a (ELambda args expr) = do
 
     {-# INLINABLE argRecord #-}
     {-# INLINABLE renameExpr #-}
-  ELambda args' <$> renameExpr expr
+  ELambda () args' <$> renameExpr expr
 
 type Renamer a = a -> ReaderT RenamedRecord (State IdGeneratorState) a
 

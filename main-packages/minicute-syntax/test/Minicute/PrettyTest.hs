@@ -12,7 +12,6 @@ import Test.Tasty.Hspec
 
 import Control.Monad
 import Data.Either
-import Minicute.Data.Minicute.Program
 import Minicute.Utils.Common.TH
 import Text.Megaparsec
 
@@ -33,7 +32,6 @@ programMCTest name programString = do
       program <- parseProgramMC programString
       show (PP.prettyMC0 program) `shouldBe` programString
   where
-    parseProgramMC :: String -> IO MainProgramMC
     parseProgramMC ps = do
       parse P.mainProgramMC "" ps `shouldSatisfy` isRight
       case parse P.mainProgramMC "" ps of

@@ -1,4 +1,5 @@
 {- HLINT ignore "Redundant do" -}
+{-# LANGUAGE DataKinds #-}
 {-# LANGUAGE QuasiQuotes #-}
 -- |
 -- Copyright: (c) 2018-present Junyoung Clare Jang
@@ -25,8 +26,8 @@ simpleArithmeticMainMCTest name beforeContent afterContent = do
     simpleArithmeticMainMC beforeContent `shouldBe` afterContent
 
 type TestName = String
-type TestBeforeContent = MainProgramMC
-type TestAfterContent = MainProgramMC
+type TestBeforeContent = MainProgram 'Simple 'MC
+type TestAfterContent = MainProgram 'Simple 'MC
 type TestCase = (TestName, TestBeforeContent, TestAfterContent)
 
 testCases :: [TestCase]

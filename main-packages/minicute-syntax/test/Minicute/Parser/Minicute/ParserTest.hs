@@ -1,5 +1,6 @@
 {- HLINT ignore "Redundant do" -}
 {-# OPTIONS_GHC -fno-warn-type-defaults #-}
+{-# LANGUAGE DataKinds #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE QuasiQuotes #-}
 -- |
@@ -35,7 +36,7 @@ mainProgramMCTest (name, content, Left parseError) = do
 
 type TestName = String
 type TestContent = String
-type MainProgramMCTestResult = Either (ParseError String Void) MainProgramMC
+type MainProgramMCTestResult = Either (ParseError String Void) (MainProgram 'Simple 'MC)
 type MainProgramMCTestCase = (TestName, TestContent, MainProgramMCTestResult)
 
 mainProgramMCTestCases :: [MainProgramMCTestCase]
@@ -71,7 +72,7 @@ simpleMainProgramMCTestTemplates
           [ Supercombinator
             ( "f"
             , []
-            , EInteger 1
+            , EInteger () 1
             )
           ]
         )
@@ -84,7 +85,7 @@ simpleMainProgramMCTestTemplates
           [ Supercombinator
             ( "f"
             , []
-            , EInteger 1
+            , EInteger () 1
             )
           ]
         )
@@ -97,7 +98,7 @@ simpleMainProgramMCTestTemplates
           [ Supercombinator
             ( "f"
             , []
-            , EInteger 1
+            , EInteger () 1
             )
           ]
         )
@@ -110,7 +111,7 @@ simpleMainProgramMCTestTemplates
           [ Supercombinator
             ( "f"
             , []
-            , EInteger 1
+            , EInteger () 1
             )
           ]
         )
@@ -123,7 +124,7 @@ simpleMainProgramMCTestTemplates
           [ Supercombinator
             ( "f"
             , []
-            , EInteger 1
+            , EInteger () 1
             )
           ]
         )
@@ -137,12 +138,12 @@ simpleMainProgramMCTestTemplates
           [ Supercombinator
             ( "f"
             , []
-            , EInteger 1
+            , EInteger () 1
             )
           , Supercombinator
             ( "g"
             , []
-            , EInteger 2
+            , EInteger () 2
             )
           ]
         )
@@ -156,12 +157,12 @@ simpleMainProgramMCTestTemplates
           [ Supercombinator
             ( "f"
             , []
-            , EInteger 1
+            , EInteger () 1
             )
           , Supercombinator
             ( "g"
             , []
-            , EInteger 2
+            , EInteger () 2
             )
           ]
         )
@@ -175,12 +176,12 @@ simpleMainProgramMCTestTemplates
           [ Supercombinator
             ( "f"
             , []
-            , EVariable "g"
+            , EVariable () "g"
             )
           , Supercombinator
             ( "g"
             , []
-            , EInteger 2
+            , EInteger () 2
             )
           ]
         )
@@ -193,7 +194,7 @@ simpleMainProgramMCTestTemplates
           [ Supercombinator
             ( "matchx"
             , []
-            , EVariable "matchx"
+            , EVariable () "matchx"
             )
           ]
         )
@@ -241,7 +242,7 @@ arithmeticOperatorMainProgramMCTestCases
           [ Supercombinator
             ( "f"
             , []
-            , EApplication2 (EPrimitive PrimAdd) (EInteger 1) (EInteger 1)
+            , EApplication2 () () (EPrimitive () PrimAdd) (EInteger () 1) (EInteger () 1)
             )
           ]
         )
@@ -256,12 +257,12 @@ arithmeticOperatorMainProgramMCTestCases
           [ Supercombinator
             ( "f"
             , []
-            , EApplication2 (EPrimitive PrimMul) (EInteger 1) (EVariable "g")
+            , EApplication2 () () (EPrimitive () PrimMul) (EInteger () 1) (EVariable () "g")
             )
           , Supercombinator
             ( "g"
             , []
-            , EInteger 3
+            , EInteger () 3
             )
           ]
         )
@@ -275,10 +276,10 @@ arithmeticOperatorMainProgramMCTestCases
           [ Supercombinator
             ( "f"
             , []
-            , EApplication2
-              (EPrimitive PrimAdd)
-              (EInteger 1)
-              (EApplication2 (EPrimitive PrimAdd) (EInteger 3) (EInteger 4))
+            , EApplication2 () ()
+              (EPrimitive () PrimAdd)
+              (EInteger () 1)
+              (EApplication2 () () (EPrimitive () PrimAdd) (EInteger () 3) (EInteger () 4))
             )
           ]
         )
@@ -292,13 +293,13 @@ arithmeticOperatorMainProgramMCTestCases
           [ Supercombinator
             ( "f"
             , []
-            , EApplication2
-              (EPrimitive PrimSub)
-              (EApplication2
-               (EPrimitive PrimSub)
-               (EInteger 3)
-               (EInteger 2))
-              (EInteger 1)
+            , EApplication2 () ()
+              (EPrimitive () PrimSub)
+              (EApplication2 () ()
+               (EPrimitive () PrimSub)
+               (EInteger () 3)
+               (EInteger () 2))
+              (EInteger () 1)
             )
           ]
         )
@@ -312,13 +313,13 @@ arithmeticOperatorMainProgramMCTestCases
           [ Supercombinator
             ( "f"
             , []
-            , EApplication2
-              (EPrimitive PrimAdd)
-              (EApplication2
-               (EPrimitive PrimMul)
-               (EInteger 1)
-               (EInteger 2))
-              (EInteger 3)
+            , EApplication2 () ()
+              (EPrimitive () PrimAdd)
+              (EApplication2 () ()
+               (EPrimitive () PrimMul)
+               (EInteger () 1)
+               (EInteger () 2))
+              (EInteger () 3)
             )
           ]
         )
@@ -351,12 +352,12 @@ constructorMainProgramMCTestCases
           [ Supercombinator
             ( "f"
             , []
-            , EConstructor 1 0
+            , EConstructor () 1 0
             )
           , Supercombinator
             ( "g"
             , []
-            , EConstructor 2 2
+            , EConstructor () 2 2
             )
           ]
         )
@@ -371,12 +372,12 @@ constructorMainProgramMCTestCases
           [ Supercombinator
             ( "f"
             , []
-            , EApplication (EConstructor 1 1) (EInteger 5)
+            , EApplication () (EConstructor () 1 1) (EInteger () 5)
             )
           , Supercombinator
             ( "g"
             , []
-            , EApplication (EConstructor 2 3) (EVariable "f")
+            , EApplication () (EConstructor () 2 3) (EVariable () "f")
             )
           ]
         )
@@ -422,7 +423,7 @@ applicationMainProgramMCTestCases
           [ Supercombinator
             ( "f"
             , []
-            , EApplication (EVariable "g") (EInteger 5)
+            , EApplication () (EVariable () "g") (EInteger () 5)
             )
           ]
         )
@@ -436,7 +437,7 @@ applicationMainProgramMCTestCases
           [ Supercombinator
             ( "f"
             , []
-            , EApplication (EVariable "g") (EVariable "f")
+            , EApplication () (EVariable () "g") (EVariable () "f")
             )
           ]
         )
@@ -461,7 +462,7 @@ supercombinatorMainProgramMCTestCases
           [ Supercombinator
             ( "f"
             , ["x"]
-            , EVariable "x"
+            , EVariable () "x"
             )
           ]
         )
@@ -475,7 +476,7 @@ supercombinatorMainProgramMCTestCases
           [ Supercombinator
             ( "f"
             , ["x", "y"]
-            , EApplication (EVariable "x") (EVariable "y")
+            , EApplication () (EVariable () "x") (EVariable () "y")
             )
           ]
         )
@@ -507,11 +508,11 @@ letAndLetrecMainProgramMCTestCases
           [ Supercombinator
             ( "f"
             , []
-            , ELet
+            , ELet ()
               NonRecursive
-              [ LetDefinition ("x", EInteger 5)
+              [ LetDefinition ("x", EInteger () 5)
               ]
-              (EVariable "x")
+              (EVariable () "x")
             )
           ]
         )
@@ -527,11 +528,11 @@ letAndLetrecMainProgramMCTestCases
           [ Supercombinator
             ( "f"
             , []
-            , ELet
+            , ELet ()
               Recursive
-              [ LetDefinition ("x", EInteger 5)
+              [ LetDefinition ("x", EInteger () 5)
               ]
-              (EVariable "x")
+              (EVariable () "x")
             )
           ]
         )
@@ -548,12 +549,12 @@ letAndLetrecMainProgramMCTestCases
           [ Supercombinator
             ( "f"
             , []
-            , ELet
+            , ELet ()
               NonRecursive
-              [ LetDefinition ("x", EInteger 5)
-              , LetDefinition ("y", EInteger 4)
+              [ LetDefinition ("x", EInteger () 5)
+              , LetDefinition ("y", EInteger () 4)
               ]
-              (EApplication2 (EPrimitive PrimAdd) (EVariable "x") (EVariable "y"))
+              (EApplication2 () () (EPrimitive () PrimAdd) (EVariable () "x") (EVariable () "y"))
             )
           ]
         )
@@ -571,13 +572,13 @@ letAndLetrecMainProgramMCTestCases
           [ Supercombinator
             ( "f"
             , []
-            , ELet
+            , ELet ()
               Recursive
-              [ LetDefinition ("x", EInteger 5)
-              , LetDefinition ("y", EApplication2 (EPrimitive PrimAdd) (EVariable "x") (EVariable "x"))
-              , LetDefinition ("z", EApplication2 (EPrimitive PrimMul) (EVariable "x") (EVariable "y"))
+              [ LetDefinition ("x", EInteger () 5)
+              , LetDefinition ("y", EApplication2 () () (EPrimitive () PrimAdd) (EVariable () "x") (EVariable () "x"))
+              , LetDefinition ("z", EApplication2 () () (EPrimitive () PrimMul) (EVariable () "x") (EVariable () "y"))
               ]
-              (EVariable "z")
+              (EVariable () "z")
             )
           ]
         )
@@ -595,11 +596,11 @@ letAndLetrecMainProgramMCTestCases
           [ Supercombinator
             ( "f"
             , []
-            , ELet
+            , ELet ()
               NonRecursive
-              [ LetDefinition ("x", ELet NonRecursive [ LetDefinition ("k", EInteger 5) ] (EVariable "k"))
+              [ LetDefinition ("x", ELet () NonRecursive [ LetDefinition ("k", EInteger () 5) ] (EVariable () "k"))
               ]
-              (EVariable "x")
+              (EVariable () "x")
             )
           ]
         )
@@ -613,11 +614,11 @@ letAndLetrecMainProgramMCTestCases
           [ Supercombinator
             ( "f"
             , []
-            , ELet
+            , ELet ()
               NonRecursive
-              [ LetDefinition ("x", ELet Recursive [ LetDefinition ("k", EInteger 5) ] (EVariable "k"))
+              [ LetDefinition ("x", ELet () Recursive [ LetDefinition ("k", EInteger () 5) ] (EVariable () "k"))
               ]
-              (EVariable "x")
+              (EVariable () "x")
             )
           ]
         )
@@ -631,11 +632,11 @@ letAndLetrecMainProgramMCTestCases
           [ Supercombinator
             ( "f"
             , []
-            , ELet
+            , ELet ()
               Recursive
-              [ LetDefinition ("x", ELet NonRecursive [ LetDefinition ("k", EInteger 5) ] (EVariable "k"))
+              [ LetDefinition ("x", ELet () NonRecursive [ LetDefinition ("k", EInteger () 5) ] (EVariable () "k"))
               ]
-              (EVariable "x")
+              (EVariable () "x")
             )
           ]
         )
@@ -653,11 +654,11 @@ letAndLetrecMainProgramMCTestCases
           [ Supercombinator
             ( "f"
             , []
-            , ELet
+            , ELet ()
               Recursive
-              [ LetDefinition ("x", ELet Recursive [ LetDefinition ("k", EInteger 5) ] (EVariable "k"))
+              [ LetDefinition ("x", ELet () Recursive [ LetDefinition ("k", EInteger () 5) ] (EVariable () "k"))
               ]
-              (EVariable "x")
+              (EVariable () "x")
             )
           ]
         )
@@ -689,9 +690,9 @@ matchMainProgramMCTestCases
           [ Supercombinator
             ( "f"
             , []
-            , EMatch
-              (EConstructor 1 0)
-              [ MatchCase (1, [], EInteger 5)
+            , EMatch ()
+              (EConstructor () 1 0)
+              [ MatchCase (1, [], EInteger () 5)
               ]
             )
           ]
@@ -709,11 +710,11 @@ matchMainProgramMCTestCases
           [ Supercombinator
             ( "f"
             , []
-            , EMatch
-              (EConstructor 2 0)
-              [ MatchCase (1, [], EInteger 5)
-              , MatchCase (2, [], EInteger 3)
-              , MatchCase (4, [], EVariable "g")
+            , EMatch ()
+              (EConstructor () 2 0)
+              [ MatchCase (1, [], EInteger () 5)
+              , MatchCase (2, [], EInteger () 3)
+              , MatchCase (4, [], EVariable () "g")
               ]
             )
           ]
@@ -730,10 +731,10 @@ matchMainProgramMCTestCases
           [ Supercombinator
             ( "f"
             , []
-            , EMatch
-              (EApplication2 (EConstructor 2 2) (EInteger 5) (EInteger 4))
-              [ MatchCase (1, ["x", "y"], EVariable "x")
-              , MatchCase (2, ["a", "b"], EVariable "b")
+            , EMatch ()
+              (EApplication2 () () (EConstructor () 2 2) (EInteger () 5) (EInteger () 4))
+              [ MatchCase (1, ["x", "y"], EVariable () "x")
+              , MatchCase (2, ["a", "b"], EVariable () "b")
               ]
             )
           ]
@@ -751,16 +752,16 @@ matchMainProgramMCTestCases
           [ Supercombinator
             ( "f"
             , []
-            , EMatch
-              (EApplication2 (EConstructor 2 2) (EInteger 5) (EInteger 4))
-              [ MatchCase (1, ["x", "y"], EVariable "x")
-              , MatchCase (2, ["a", "b"], EVariable "b")
+            , EMatch ()
+              (EApplication2 () () (EConstructor () 2 2) (EInteger () 5) (EInteger () 4))
+              [ MatchCase (1, ["x", "y"], EVariable () "x")
+              , MatchCase (2, ["a", "b"], EVariable () "b")
               ]
             )
           , Supercombinator
             ( "g"
             , []
-            , EInteger 1
+            , EInteger () 1
             )
           ]
         )
@@ -785,9 +786,9 @@ lambdaMainProgramMCTestCases
           [ Supercombinator
             ( "f"
             , []
-            , ELambda
+            , ELambda ()
               ["x"]
-              (EVariable "x")
+              (EVariable () "x")
             )
           ]
         )
@@ -801,9 +802,9 @@ lambdaMainProgramMCTestCases
           [ Supercombinator
             ( "f"
             , []
-            , ELambda
+            , ELambda ()
               ["x", "y"]
-              (EApplication2 (EPrimitive PrimAdd) (EVariable "x") (EVariable "y"))
+              (EApplication2 () () (EPrimitive () PrimAdd) (EVariable () "x") (EVariable () "y"))
             )
           ]
         )
@@ -817,11 +818,11 @@ lambdaMainProgramMCTestCases
           [ Supercombinator
             ( "f"
             , []
-            , ELambda
+            , ELambda ()
               ["x"]
-              ( ELambda
+              ( ELambda ()
                 ["y"]
-                (EApplication2 (EPrimitive PrimAdd) (EVariable "x") (EVariable "y"))
+                (EApplication2 () () (EPrimitive () PrimAdd) (EVariable () "x") (EVariable () "y"))
               )
             )
           ]
@@ -836,12 +837,12 @@ lambdaMainProgramMCTestCases
           [ Supercombinator
             ( "f"
             , []
-            , EApplication
-              ( ELambda
+            , EApplication ()
+              ( ELambda ()
                 ["x"]
-                (EVariable "x")
+                (EVariable () "x")
               )
-              (EInteger 5)
+              (EInteger () 5)
             )
           ]
         )
@@ -873,10 +874,10 @@ complexMainProgramMCTestCases
           [ Supercombinator
             ( "f"
             , []
-            , EApplication2
-              (EPrimitive PrimAdd)
-              (EInteger 5)
-              (ELet NonRecursive [LetDefinition ("k", EInteger 5)] (EVariable "k"))
+            , EApplication2 () ()
+              (EPrimitive () PrimAdd)
+              (EInteger () 5)
+              (ELet () NonRecursive [LetDefinition ("k", EInteger () 5)] (EVariable () "k"))
             )
           ]
         )
@@ -890,10 +891,10 @@ complexMainProgramMCTestCases
           [ Supercombinator
             ( "f"
             , []
-            , EApplication2
-              (EPrimitive PrimAdd)
-              (EInteger 5)
-              (EMatch (EConstructor 1 0) [MatchCase (1, [], EInteger 5)])
+            , EApplication2 () ()
+              (EPrimitive () PrimAdd)
+              (EInteger () 5)
+              (EMatch () (EConstructor () 1 0) [MatchCase (1, [], EInteger () 5)])
             )
           ]
         )

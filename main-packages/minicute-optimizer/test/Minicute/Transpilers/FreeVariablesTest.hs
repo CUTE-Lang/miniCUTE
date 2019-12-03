@@ -1,4 +1,5 @@
 {- HLINT ignore "Redundant do" -}
+{-# LANGUAGE DataKinds #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE QuasiQuotes #-}
 -- |
@@ -12,7 +13,7 @@ import Test.Tasty.Hspec
 
 import Control.Monad
 import Data.Tuple.Extra
-import Minicute.Data.Minicute.Annotated
+import Minicute.Data.Minicute.Program
 import Minicute.Transpilers.FreeVariables
 import Minicute.Utils.Minicute.TH
 
@@ -28,12 +29,12 @@ formFreeVariablesMainMCTest name beforeContent afterContent = do
     formFreeVariablesMainMC beforeContent `shouldBe` afterContent
 
 type TestName = String
-type TestBeforeContent = MainProgramMC
-type TestAfterContent = ProgramMCWithFreeVariables Identifier
+type TestBeforeContent = MainProgram 'Simple 'MC
+type TestAfterContent = MainProgram ('AnnotatedWith FreeVariables) 'MC
 type TestCase = (TestName, TestBeforeContent, TestAfterContent)
 
 -- |
--- __TODO: Introduce quosiquoter for 'AnnotatedProgramMC' and update__
+-- __TODO: Introduce quosiquoter for an annotated program and update__
 -- __these test cases__
 testCases :: [TestCase]
 testCases =
@@ -51,12 +52,12 @@ testCases =
       [ Supercombinator
         ( "f"
         , ["x"]
-        , AEApplication2
+        , EApplication2
           (Set.singleton "x")
           (Set.singleton "x")
-          (AEPrimitive Set.empty PrimAdd)
-          (AEVariable (Set.singleton "x") "x")
-          (AEVariable (Set.singleton "x") "x")
+          (EPrimitive Set.empty PrimAdd)
+          (EVariable (Set.singleton "x") "x")
+          (EVariable (Set.singleton "x") "x")
         )
       ]
     )
@@ -72,15 +73,15 @@ testCases =
       [ Supercombinator
         ( "f"
         , []
-        , AELet
+        , ELet
           Set.empty
           NonRecursive
           [ LetDefinition
             ( "g"
-            , AEApplication Set.empty (AEVariable Set.empty "h") (AEInteger Set.empty 4)
+            , EApplication Set.empty (EVariable Set.empty "h") (EInteger Set.empty 4)
             )
           ]
-          (AEVariable (Set.singleton "g") "g")
+          (EVariable (Set.singleton "g") "g")
         )
       ]
     )
@@ -98,34 +99,34 @@ testCases =
       [ Supercombinator
         ( "f"
         , []
-        , AELet
+        , ELet
           Set.empty
           NonRecursive
           [ LetDefinition
             ( "g1"
-            , AEApplication Set.empty (AEVariable Set.empty "h") (AEInteger Set.empty 4)
+            , EApplication Set.empty (EVariable Set.empty "h") (EInteger Set.empty 4)
             )
           , LetDefinition
             ( "g2"
-            , AEApplication Set.empty (AEVariable Set.empty "h") (AEInteger Set.empty 8)
+            , EApplication Set.empty (EVariable Set.empty "h") (EInteger Set.empty 8)
             )
           , LetDefinition
             ( "g3"
-            , AEApplication2 Set.empty Set.empty (AEPrimitive Set.empty PrimSub) (AEInteger Set.empty 8) (AEInteger Set.empty 4)
+            , EApplication2 Set.empty Set.empty (EPrimitive Set.empty PrimSub) (EInteger Set.empty 8) (EInteger Set.empty 4)
             )
           ]
-          ( AEApplication2
+          ( EApplication2
             (Set.fromList ["g1", "g2", "g3"])
             (Set.fromList ["g1", "g2"])
-            (AEPrimitive Set.empty PrimDiv)
-            ( AEApplication2
+            (EPrimitive Set.empty PrimDiv)
+            ( EApplication2
               (Set.fromList ["g1", "g2"])
               (Set.singleton "g1")
-              (AEPrimitive Set.empty PrimMul)
-              (AEVariable (Set.singleton "g1") "g1")
-              (AEVariable (Set.singleton "g2") "g2")
+              (EPrimitive Set.empty PrimMul)
+              (EVariable (Set.singleton "g1") "g1")
+              (EVariable (Set.singleton "g2") "g2")
             )
-            (AEVariable (Set.singleton "g3") "g3")
+            (EVariable (Set.singleton "g3") "g3")
           )
         )
       ]
@@ -141,23 +142,23 @@ testCases =
       [ Supercombinator
         ( "f"
         , ["x"]
-        , AEMatch
+        , EMatch
           (Set.singleton "x")
-          (AEVariable (Set.singleton "x") "x")
+          (EVariable (Set.singleton "x") "x")
           [ MatchCase
             ( 1
             , []
-            , AEInteger Set.empty 4
+            , EInteger Set.empty 4
             )
           , MatchCase
             ( 2
             , ["h", "t"]
-            , AEApplication2
+            , EApplication2
               (Set.fromList ["h", "t"])
               (Set.singleton "h")
-              (AEPrimitive Set.empty PrimAdd)
-              (AEVariable (Set.singleton "h") "h")
-              (AEApplication (Set.singleton "t") (AEVariable Set.empty "f") (AEVariable (Set.singleton "t") "t"))
+              (EPrimitive Set.empty PrimAdd)
+              (EVariable (Set.singleton "h") "h")
+              (EApplication (Set.singleton "t") (EVariable Set.empty "f") (EVariable (Set.singleton "t") "t"))
             )
           ]
         )
@@ -172,15 +173,15 @@ testCases =
       [ Supercombinator
         ( "f"
         , []
-        , AELambda
+        , ELambda
           Set.empty
           ["x"]
-          ( AEApplication2
+          ( EApplication2
             (Set.singleton "x")
             Set.empty
-            (AEPrimitive Set.empty PrimAdd)
-            (AEInteger Set.empty 4)
-            (AEVariable (Set.singleton "x") "x")
+            (EPrimitive Set.empty PrimAdd)
+            (EInteger Set.empty 4)
+            (EVariable (Set.singleton "x") "x")
           )
         )
       ]

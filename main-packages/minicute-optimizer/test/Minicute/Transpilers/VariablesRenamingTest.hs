@@ -1,4 +1,5 @@
 {- HLINT ignore "Redundant do" -}
+{-# LANGUAGE DataKinds #-}
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE QuasiQuotes #-}
 -- |
@@ -32,8 +33,8 @@ renameVariablesMainMCTest name beforeContent afterContent = do
     renameVariablesMainMC beforeContent `shouldBe` afterContent
 
 type TestName = String
-type TestBeforeContent = MainProgramMC
-type TestAfterContent = MainProgramMC
+type TestBeforeContent = MainProgram 'Simple 'MC
+type TestAfterContent = MainProgram 'Simple 'MC
 type TestCase = (TestName, TestBeforeContent, TestAfterContent)
 
 testCases :: [TestCase]
@@ -96,7 +97,7 @@ testCases
 
 -- |
 -- This should check any conflicts of identifiers from anywhere.
-haveNoIdentifierConflictMainMC :: MainProgramMC -> Bool
+haveNoIdentifierConflictMainMC :: MainProgram 'Simple 'MC -> Bool
 haveNoIdentifierConflictMainMC (Program scs)
   = scIdsNoConflict
   && (and . snd . mapAccumL haveNoIdentifierConflictMainEMC scIdSet $ view _supercombinatorBody <$> scs)
@@ -104,17 +105,17 @@ haveNoIdentifierConflictMainMC (Program scs)
     scIdsNoConflict = Set.size scIdSet == length scs
     scIdSet = Set.fromList (view _supercombinatorBinder <$> scs)
 
-haveNoIdentifierConflictMainEMC :: Set.Set Identifier -> MainExpressionMC -> (Set.Set Identifier, Bool)
-haveNoIdentifierConflictMainEMC env (EInteger _) = (env, True)
-haveNoIdentifierConflictMainEMC env (EConstructor _ _) = (env, True)
-haveNoIdentifierConflictMainEMC env (EVariable _) = (env, True)
-haveNoIdentifierConflictMainEMC env (EPrimitive _) = (env, True)
-haveNoIdentifierConflictMainEMC env (EApplication e1 e2)
+haveNoIdentifierConflictMainEMC :: Set.Set Identifier -> MainExpression 'Simple 'MC -> (Set.Set Identifier, Bool)
+haveNoIdentifierConflictMainEMC env (EInteger _ _) = (env, True)
+haveNoIdentifierConflictMainEMC env (EConstructor _ _ _) = (env, True)
+haveNoIdentifierConflictMainEMC env (EVariable _ _) = (env, True)
+haveNoIdentifierConflictMainEMC env (EPrimitive _ _) = (env, True)
+haveNoIdentifierConflictMainEMC env (EApplication _ e1 e2)
   = (env2, noConflict1 && noConflict2)
   where
     (env1, noConflict1) = haveNoIdentifierConflictMainEMC env e1
     (env2, noConflict2) = haveNoIdentifierConflictMainEMC env1 e2
-haveNoIdentifierConflictMainEMC env (ELet _ lDefs expr)
+haveNoIdentifierConflictMainEMC env (ELet _ _ lDefs expr)
   = (exprEnv, lDefIdsNoConflict && lDefBodiesNoConflict && exprNoConflict)
   where
     lDefIdsNoConflict
@@ -128,7 +129,7 @@ haveNoIdentifierConflictMainEMC env (ELet _ lDefs expr)
     lDefBodies = view _letDefinitionBody <$> lDefs
     lDefIdSet = Set.fromList lDefIds
     lDefIds = view _letDefinitionBinder <$> lDefs
-haveNoIdentifierConflictMainEMC env (EMatch expr mCases)
+haveNoIdentifierConflictMainEMC env (EMatch _ expr mCases)
   = (mCaseEnv, exprNoConflict && mCaseArgsNoConflict && mCaseBodiesNoConflict)
   where
     (exprEnv, exprNoConflict)
@@ -142,7 +143,7 @@ haveNoIdentifierConflictMainEMC env (EMatch expr mCases)
     mCaseArgIdSet = Set.fromList mCaseArgs
     mCaseArgs = concat (view _matchCaseArguments <$> mCases)
     mCaseBodies = view _matchCaseBody <$> mCases
-haveNoIdentifierConflictMainEMC env (ELambda args expr)
+haveNoIdentifierConflictMainEMC env (ELambda _ args expr)
   = (exprEnv, argsNoConflict && exprNoConflict)
   where
     argsNoConflict
