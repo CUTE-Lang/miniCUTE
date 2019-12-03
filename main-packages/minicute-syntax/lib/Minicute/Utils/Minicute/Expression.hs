@@ -1,4 +1,3 @@
-{-# LANGUAGE DataKinds #-}
 -- |
 -- Copyright: (c) 2018-present Junyoung Clare Jang
 -- License: BSD 3-Clause
@@ -16,7 +15,7 @@ import Control.Lens.Operators
 import Data.List
 import Minicute.Data.Minicute.Expression
 
-destructStructureExpression :: Expression 'Simple 'MC a -> Maybe (Integer, [Expression 'Simple 'MC a])
+destructStructureExpression :: Expression t l a -> Maybe (Integer, [Expression t l a])
 destructStructureExpression e = go e []
   where
     go (EConstructor _ tag arity) args
@@ -24,8 +23,8 @@ destructStructureExpression e = go e []
     go (EApplication _ e1 e2) args = go e1 (e2 : args)
     go _ _ = Nothing
 
-lookupMCasesL :: Integer -> [MatchCase 'Simple 'MC a] -> Maybe (MatchCase 'Simple 'MC a)
+lookupMCasesL :: Integer -> [MatchCase t l a] -> Maybe (MatchCase t l a)
 lookupMCasesL tag = find (^. _matchCaseTag . to (== tag))
 
-lookupLDefsL :: (Eq a) => a -> [LetDefinition 'Simple 'MC a] -> Maybe (LetDefinition 'Simple 'MC a)
+lookupLDefsL :: (Eq a) => a -> [LetDefinition t l a] -> Maybe (LetDefinition t l a)
 lookupLDefsL binder = find (^. _letDefinitionBinder . to (== binder))

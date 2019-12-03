@@ -332,7 +332,7 @@ _matchCaseBody = _Wrapped . _3
 
 -- |
 -- 'Lens' to extract the annotation of 'AnnotatedExpressionMC'.
-_annotation :: Lens' (Expression ('AnnotatedWith ann) l a) ann
+_annotation :: Lens' (Expression t l a) (Annotation t)
 _annotation = lens getter setter
   where
     getter (EInteger ann _) = ann

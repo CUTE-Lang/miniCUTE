@@ -6,7 +6,7 @@
 -- Copyright: (c) 2018-present Junyoung Clare Jang
 -- License: BSD 3-Clause
 module Minicute.Transpilers.VariablesRenamingTest
-  ( spec_renameVariablesMainMC
+  ( spec_renameVariablesMain
   ) where
 
 import Test.Tasty.Hspec
@@ -21,16 +21,16 @@ import Minicute.Utils.Minicute.TH
 
 import qualified Data.Set as Set
 
-spec_renameVariablesMainMC :: Spec
-spec_renameVariablesMainMC
-  = forM_ testCases (uncurry3 renameVariablesMainMCTest)
+spec_renameVariablesMain :: Spec
+spec_renameVariablesMain
+  = forM_ testCases (uncurry3 renameVariablesMainTest)
 
-renameVariablesMainMCTest :: TestName -> TestBeforeContent -> TestAfterContent -> SpecWith (Arg Expectation)
-renameVariablesMainMCTest name beforeContent afterContent = do
+renameVariablesMainTest :: TestName -> TestBeforeContent -> TestAfterContent -> SpecWith (Arg Expectation)
+renameVariablesMainTest name beforeContent afterContent = do
   it ("rename variables to avoid identifier conflicts in " <> name) $ do
-    renameVariablesMainMC beforeContent `shouldSatisfy` haveNoIdentifierConflictMainMC
+    renameVariablesMain beforeContent `shouldSatisfy` haveNoIdentifierConflictMain
   it ("rename variables to expected result from " <> name) $ do
-    renameVariablesMainMC beforeContent `shouldBe` afterContent
+    renameVariablesMain beforeContent `shouldBe` afterContent
 
 type TestName = String
 type TestBeforeContent = MainProgram 'Simple 'MC
@@ -97,58 +97,58 @@ testCases
 
 -- |
 -- This should check any conflicts of identifiers from anywhere.
-haveNoIdentifierConflictMainMC :: MainProgram 'Simple 'MC -> Bool
-haveNoIdentifierConflictMainMC (Program scs)
+haveNoIdentifierConflictMain :: MainProgram t l -> Bool
+haveNoIdentifierConflictMain (Program scs)
   = scIdsNoConflict
-  && (and . snd . mapAccumL haveNoIdentifierConflictMainEMC scIdSet $ view _supercombinatorBody <$> scs)
+  && (and . snd . mapAccumL haveNoIdentifierConflictMainE scIdSet $ view _supercombinatorBody <$> scs)
   where
     scIdsNoConflict = Set.size scIdSet == length scs
     scIdSet = Set.fromList (view _supercombinatorBinder <$> scs)
 
-haveNoIdentifierConflictMainEMC :: Set.Set Identifier -> MainExpression 'Simple 'MC -> (Set.Set Identifier, Bool)
-haveNoIdentifierConflictMainEMC env (EInteger _ _) = (env, True)
-haveNoIdentifierConflictMainEMC env (EConstructor _ _ _) = (env, True)
-haveNoIdentifierConflictMainEMC env (EVariable _ _) = (env, True)
-haveNoIdentifierConflictMainEMC env (EPrimitive _ _) = (env, True)
-haveNoIdentifierConflictMainEMC env (EApplication _ e1 e2)
+haveNoIdentifierConflictMainE :: Set.Set Identifier -> MainExpression t l -> (Set.Set Identifier, Bool)
+haveNoIdentifierConflictMainE env (EInteger _ _) = (env, True)
+haveNoIdentifierConflictMainE env (EConstructor _ _ _) = (env, True)
+haveNoIdentifierConflictMainE env (EVariable _ _) = (env, True)
+haveNoIdentifierConflictMainE env (EPrimitive _ _) = (env, True)
+haveNoIdentifierConflictMainE env (EApplication _ e1 e2)
   = (env2, noConflict1 && noConflict2)
   where
-    (env1, noConflict1) = haveNoIdentifierConflictMainEMC env e1
-    (env2, noConflict2) = haveNoIdentifierConflictMainEMC env1 e2
-haveNoIdentifierConflictMainEMC env (ELet _ _ lDefs expr)
+    (env1, noConflict1) = haveNoIdentifierConflictMainE env e1
+    (env2, noConflict2) = haveNoIdentifierConflictMainE env1 e2
+haveNoIdentifierConflictMainE env (ELet _ _ lDefs expr)
   = (exprEnv, lDefIdsNoConflict && lDefBodiesNoConflict && exprNoConflict)
   where
     lDefIdsNoConflict
       = Set.disjoint env lDefIdSet
         && length lDefIds == Set.size lDefIdSet
     (lDefEnv, lDefBodiesNoConflict)
-      = and <$> mapAccumL haveNoIdentifierConflictMainEMC (lDefIdSet <> env) lDefBodies
+      = and <$> mapAccumL haveNoIdentifierConflictMainE (lDefIdSet <> env) lDefBodies
     (exprEnv, exprNoConflict)
-      = haveNoIdentifierConflictMainEMC lDefEnv expr
+      = haveNoIdentifierConflictMainE lDefEnv expr
 
     lDefBodies = view _letDefinitionBody <$> lDefs
     lDefIdSet = Set.fromList lDefIds
     lDefIds = view _letDefinitionBinder <$> lDefs
-haveNoIdentifierConflictMainEMC env (EMatch _ expr mCases)
+haveNoIdentifierConflictMainE env (EMatch _ expr mCases)
   = (mCaseEnv, exprNoConflict && mCaseArgsNoConflict && mCaseBodiesNoConflict)
   where
     (exprEnv, exprNoConflict)
-      = haveNoIdentifierConflictMainEMC (mCaseArgIdSet <> env) expr
+      = haveNoIdentifierConflictMainE (mCaseArgIdSet <> env) expr
     mCaseArgsNoConflict
       = Set.disjoint env mCaseArgIdSet
         && Set.size mCaseArgIdSet == length mCaseArgs
     (mCaseEnv, mCaseBodiesNoConflict)
-      = and <$> mapAccumL haveNoIdentifierConflictMainEMC exprEnv mCaseBodies
+      = and <$> mapAccumL haveNoIdentifierConflictMainE exprEnv mCaseBodies
 
     mCaseArgIdSet = Set.fromList mCaseArgs
     mCaseArgs = concat (view _matchCaseArguments <$> mCases)
     mCaseBodies = view _matchCaseBody <$> mCases
-haveNoIdentifierConflictMainEMC env (ELambda _ args expr)
+haveNoIdentifierConflictMainE env (ELambda _ args expr)
   = (exprEnv, argsNoConflict && exprNoConflict)
   where
     argsNoConflict
       = Set.disjoint env argSet
         && Set.size argSet == length args
-    (exprEnv, exprNoConflict) = haveNoIdentifierConflictMainEMC (argSet <> env) expr
+    (exprEnv, exprNoConflict) = haveNoIdentifierConflictMainE (argSet <> env) expr
 
     argSet = Set.fromList args

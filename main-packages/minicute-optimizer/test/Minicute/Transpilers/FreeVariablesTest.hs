@@ -6,7 +6,7 @@
 -- Copyright: (c) 2018-present Junyoung Clare Jang
 -- License: BSD 3-Clause
 module Minicute.Transpilers.FreeVariablesTest
-  ( spec_formFreeVariablesMainMC
+  ( spec_formFreeVariablesMain
   ) where
 
 import Test.Tasty.Hspec
@@ -19,14 +19,14 @@ import Minicute.Utils.Minicute.TH
 
 import qualified Data.Set as Set
 
-spec_formFreeVariablesMainMC :: Spec
-spec_formFreeVariablesMainMC
-  = forM_ testCases (uncurry3 formFreeVariablesMainMCTest)
+spec_formFreeVariablesMain :: Spec
+spec_formFreeVariablesMain
+  = forM_ testCases (uncurry3 formFreeVariablesMainTest)
 
-formFreeVariablesMainMCTest :: TestName -> TestBeforeContent -> TestAfterContent -> SpecWith (Arg Expectation)
-formFreeVariablesMainMCTest name beforeContent afterContent = do
+formFreeVariablesMainTest :: TestName -> TestBeforeContent -> TestAfterContent -> SpecWith (Arg Expectation)
+formFreeVariablesMainTest name beforeContent afterContent = do
   it ("finds free variables for expressions in " <> name) $ do
-    formFreeVariablesMainMC beforeContent `shouldBe` afterContent
+    formFreeVariablesMain beforeContent `shouldBe` afterContent
 
 type TestName = String
 type TestBeforeContent = MainProgram 'Simple 'MC
