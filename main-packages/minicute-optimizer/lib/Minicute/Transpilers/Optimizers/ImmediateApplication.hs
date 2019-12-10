@@ -1,3 +1,4 @@
+{-# LANGUAGE DataKinds #-}
 {-# LANGUAGE GADTs #-}
 -- |
 -- Copyright: (c) 2018-present Junyoung Clare Jang
@@ -5,7 +6,9 @@
 --
 -- Optimizers to remove immediate applications.
 module Minicute.Transpilers.Optimizers.ImmediateApplication
-  ( immediateApplicationMainMC
+  ( module Minicute.Data.Minicute.Program
+
+  , immediateApplicationMainMC
   ) where
 
 import Control.Lens.Each
@@ -17,17 +20,18 @@ import Minicute.Data.Minicute.Program
 
 -- |
 -- An optimizer to remove immediate applications in a whole program.
-immediateApplicationMainMC :: MainProgramMC -> MainProgramMC
+immediateApplicationMainMC :: MainProgram 'Simple 'MC -> MainProgram 'Simple 'MC
 immediateApplicationMainMC = _Wrapped . each . _supercombinatorBody %~ immediateApplicationMainEMC
 
 -- |
 -- An optimizer to remove immediate applications in an expression.
-immediateApplicationMainEMC :: MainExpressionMC -> MainExpressionMC
+immediateApplicationMainEMC :: MainExpression 'Simple 'MC -> MainExpression 'Simple 'MC
 immediateApplicationMainEMC = transformOf uniplate go
   where
-    go (EApplication (ELambda (v : args') expr) e2)
-      | not (null args') = ELambda args' expr'
+    go :: MainExpression 'Simple 'MC -> MainExpression 'Simple 'MC
+    go (EApplication _ (ELambda _ (v : args') expr) e2)
+      | not (null args') = ELambda () args' expr'
       | otherwise = expr'
       where
-        expr' = ELet NonRecursive [LetDefinition (v, e2)] expr
+        expr' = ELet () NonRecursive [LetDefinition (v, e2)] expr
     go e = e

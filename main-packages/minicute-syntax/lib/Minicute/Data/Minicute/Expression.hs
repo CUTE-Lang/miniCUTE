@@ -3,6 +3,7 @@
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE DeriveLift #-}
+{-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
@@ -11,6 +12,7 @@
 {-# LANGUAGE StandaloneDeriving #-}
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE UndecidableInstances #-}
 -- |
 -- Copyright: (c) 2018-present Junyoung Clare Jang
 -- License: BSD 3-Clause
@@ -21,73 +23,65 @@ module Minicute.Data.Minicute.Expression
 
 
   , LetDefinition( .. )
-  , LetDefinitionMC
-  , LetDefinitionLLMC
-  , MainLetDefinitionMC
-  , MainLetDefinitionLLMC
+  , MainLetDefinition
 
   , _letDefinitionBinder
   , _letDefinitionBody
 
 
   , MatchCase( .. )
-  , MatchCaseMC
-  , MatchCaseLLMC
-  , MainMatchCaseMC
-  , MainMatchCaseLLMC
+  , MainMatchCase
 
   , _matchCaseTag
   , _matchCaseArguments
   , _matchCaseBody
 
 
+  , ExpressionType( .. )
+
+  , ExpressionLevel( .. )
+
+
   , Expression( .. )
-  , ExpressionMC
-  , ExpressionLLMC
-  , MainExpressionMC
-  , MainExpressionLLMC
+  , MainExpression
   , pattern EApplication2
   , pattern EApplication3
+
+  , _annotation
   ) where
 
+import Control.Lens.Lens ( lens )
 import Control.Lens.TH
 import Control.Lens.Tuple
 import Control.Lens.Type
 import Control.Lens.Wrapped ( _Wrapped )
 import Data.Data
+import Data.Kind ( Type )
 import Data.Text.Prettyprint.Doc.Minicute
 import GHC.Generics
-import Language.Haskell.TH.Syntax
+import Language.Haskell.TH.Syntax ( Lift )
 import Minicute.Data.Common
 
 import qualified Data.Text.Prettyprint.Doc as PP
 
 -- |
 -- A type used to represent a let definition of @expr a@.
-newtype LetDefinition expr a
-  = LetDefinition (a, expr a)
+newtype LetDefinition t l a
+  = LetDefinition (a, Expression t l a)
   deriving ( Generic
            , Typeable
-           , Data
-           , Lift
-           , Eq
-           , Ord
-           , Show
            )
--- |
--- A 'LetDefinition' for 'ExpressionMC'.
-type LetDefinitionMC = LetDefinition ExpressionMC
--- |
--- A 'LetDefinition' for 'ExpressionLLMC'.
-type LetDefinitionLLMC = LetDefinition ExpressionLLMC
--- |
--- A 'LetDefinition' for 'ExpressionMC' with 'Identifier'.
-type MainLetDefinitionMC = LetDefinition ExpressionMC Identifier
--- |
--- A 'LetDefinition' for 'ExpressionLLMC' with 'Identifier'.
-type MainLetDefinitionLLMC = LetDefinition ExpressionLLMC Identifier
+deriving instance (Data a, Typeable t, Typeable l, Data (Expression t l a)) => Data (LetDefinition t l a)
+deriving instance (Lift a, Lift (Expression t l a)) => Lift (LetDefinition t l a)
+deriving instance (Eq a, Eq (Expression t l a)) => Eq (LetDefinition t l a)
+deriving instance (Ord a, Ord (Expression t l a)) => Ord (LetDefinition t l a)
+deriving instance (Show a, Show (Expression t l a)) => Show (LetDefinition t l a)
 
-instance (PrettyMC a, PrettyMC (expr a)) => PrettyMC (LetDefinition expr a) where
+-- |
+-- A 'MainLetDefinition' for 'ExpressionMC' with 'Identifier'.
+type MainLetDefinition t l = LetDefinition t l Identifier
+
+instance (PrettyMC a, PrettyMC (Expression t l a)) => PrettyMC (LetDefinition t l a) where
   prettyMC _ (LetDefinition (binder, expr))
     = PP.hsep
       [ prettyMC0 binder
@@ -98,30 +92,22 @@ instance (PrettyMC a, PrettyMC (expr a)) => PrettyMC (LetDefinition expr a) wher
 
 -- |
 -- A type used to represent a match case of @expr a@.
-newtype MatchCase expr a
-  = MatchCase (Integer, [a], expr a)
+newtype MatchCase t l a
+  = MatchCase (Integer, [a], Expression t l a)
   deriving ( Generic
            , Typeable
-           , Data
-           , Lift
-           , Eq
-           , Ord
-           , Show
            )
--- |
--- A 'MatchCase' for 'ExpressionMC'.
-type MatchCaseMC = MatchCase ExpressionMC
--- |
--- A 'MatchCase' for 'ExpressionLLMC'.
-type MatchCaseLLMC = MatchCase ExpressionLLMC
+deriving instance (Data a, Typeable t, Typeable l, Data (Expression t l a)) => Data (MatchCase t l a)
+deriving instance (Lift a, Lift (Expression t l a)) => Lift (MatchCase t l a)
+deriving instance (Eq a, Eq (Expression t l a)) => Eq (MatchCase t l a)
+deriving instance (Ord a, Ord (Expression t l a)) => Ord (MatchCase t l a)
+deriving instance (Show a, Show (Expression t l a)) => Show (MatchCase t l a)
+
 -- |
 -- A 'MatchCase' for 'ExpressionMC' with 'Identifier'.
-type MainMatchCaseMC = MatchCase ExpressionMC Identifier
--- |
--- A 'MatchCase' for 'ExpressionLLMC' with 'Identifier'.
-type MainMatchCaseLLMC = MatchCase ExpressionLLMC Identifier
+type MainMatchCase t l = MatchCase t l Identifier
 
-instance (PrettyMC a, PrettyMC (expr a)) => PrettyMC (MatchCase expr a) where
+instance (PrettyMC a, PrettyMC (Expression t l a)) => PrettyMC (MatchCase t l a) where
   prettyMC _ (MatchCase (tag, argBinders, expr))
     = PP.fuse PP.Shallow . PP.hcat
       $ [ PP.angles (prettyMC0 tag)
@@ -134,56 +120,62 @@ instance (PrettyMC a, PrettyMC (expr a)) => PrettyMC (MatchCase expr a) where
         ]
 
 
+data ExpressionLevel
+  = MC -- ^ miniCUTE
+  | LLMC -- ^ Lambda lifted miniCUTE
+  deriving ( Generic
+           , Typeable
+           )
+
+
+data ExpressionType
+  = Simple
+  | AnnotatedWith Type
+  deriving ( Generic
+           , Typeable
+           )
+
+type family Annotation (e :: ExpressionType) :: Type where
+  Annotation 'Simple = ()
+  Annotation ('AnnotatedWith ann) = ann
+
 -- |
 -- A basic miniCUTE expression of @a@.
-data Expression (t :: ExpressionLevel) a where
+data Expression (t :: ExpressionType) (l :: ExpressionLevel) a where
   -- | @5@
-  EInteger :: Integer -> Expression t a
+  EInteger :: Annotation t -> Integer -> Expression t l a
   -- | @$C{t;a}@
-  EConstructor :: Integer -> Integer -> Expression t a
+  EConstructor :: Annotation t -> Integer -> Integer -> Expression t l a
   -- | @+@
-  EPrimitive :: Primitive -> Expression t a
+  EPrimitive :: Annotation t -> Primitive -> Expression t l a
   -- | @v@
-  EVariable :: Identifier -> Expression t a
+  EVariable :: Annotation t -> Identifier -> Expression t l a
   -- | @f 4@
-  EApplication :: Expression t a -> Expression t a -> Expression t a
+  EApplication :: Annotation t -> Expression t l a -> Expression t l a -> Expression t l a
   -- | @let x = 4 in x@
-  ELet :: IsRecursive -> [LetDefinition (Expression t) a] -> Expression t a -> Expression t a
+  ELet :: Annotation t -> IsRecursive -> [LetDefinition t l a] -> Expression t l a -> Expression t l a
   -- | @match $C{1;0} with \<1\> -> 4@
-  EMatch :: Expression t a -> [MatchCase (Expression t) a] -> Expression t a
+  EMatch :: Annotation t -> Expression t l a -> [MatchCase t l a] -> Expression t l a
   -- | @\\x.x@
-  ELambda :: [a] -> ExpressionMC a -> ExpressionMC a
+  ELambda :: (l ~ 'MC) => Annotation t -> [a] -> Expression t l a -> Expression t l a
   deriving ( Typeable
            )
 -- |
--- A 'Expression' of 'MC'
-type ExpressionMC = Expression 'MC
--- |
--- A 'Expression' of 'MC'
-type ExpressionLLMC = Expression 'LLMC
--- |
--- A 'Expression' of 'MC' with 'Identifier'.
-type MainExpressionMC = ExpressionMC Identifier
--- |
--- A 'Expression' of 'LLMC' with 'Identifier'.
-type MainExpressionLLMC = ExpressionLLMC Identifier
-
--- |
 -- A utility pattern for 'Expression' of double application.
-pattern EApplication2 e1 e2 e3 = EApplication (EApplication e1 e2) e3
+pattern EApplication2 ann2 ann1 e1 e2 e3 = EApplication ann2 (EApplication ann1 e1 e2) e3
 -- |
 -- A utility pattern for 'Expression' of triple application.
-pattern EApplication3 e1 e2 e3 e4 = EApplication (EApplication2 e1 e2 e3) e4
+pattern EApplication3 ann3 ann2 ann1 e1 e2 e3 e4 = EApplication ann3 (EApplication2 ann2 ann1 e1 e2 e3) e4
 
-deriving instance (Data a) => Data (ExpressionMC a)
-deriving instance (Lift a) => Lift (Expression t a)
-deriving instance (Eq a) => Eq (Expression t a)
-deriving instance (Ord a) => Ord (Expression t a)
-deriving instance (Show a) => Show (Expression t a)
+deriving instance (Data a, Typeable t, Data (Annotation t)) => Data (Expression t 'MC a)
+deriving instance (Lift a, Lift (Annotation t)) => Lift (Expression t l a)
+deriving instance (Eq a, Eq (Annotation t)) => Eq (Expression t l a)
+deriving instance (Ord a, Ord (Annotation t)) => Ord (Expression t l a)
+deriving instance (Show a, Show (Annotation t)) => Show (Expression t l a)
 
-instance (PrettyMC a) => PrettyMC (Expression t a) where
-  prettyMC _ (EInteger n) = prettyMC0 n
-  prettyMC _ (EConstructor tag arity)
+instance (PrettyMC a) => PrettyMC (Expression 'Simple l a) where
+  prettyMC _ (EInteger _ n) = prettyMC0 n
+  prettyMC _ (EConstructor _ tag arity)
     = PP.fuse PP.Shallow . PP.hcat
       $ [ "$C"
         , PP.braces . PP.hcat
@@ -192,18 +184,18 @@ instance (PrettyMC a) => PrettyMC (Expression t a) where
             , prettyMC0 arity
             ]
         ]
-  prettyMC _ (EVariable vId) = prettyMC0 vId
-  prettyMC _ (EPrimitive prim) = prettyMC0 prim
-  prettyMC p (EApplication2 (EPrimitive prim) e1 e2)
+  prettyMC _ (EVariable _ vId) = prettyMC0 vId
+  prettyMC _ (EPrimitive _ prim) = prettyMC0 prim
+  prettyMC p (EApplication2 _ _ (EPrimitive _ prim) e1 e2)
     | Just primP <- lookup prim binaryPrimitivePrecedenceTable
     = prettyBinaryExpressionPrec p primP (prettyMC0 prim) (`prettyMC` e1) (`prettyMC` e2)
-  prettyMC p (EApplication e1 e2)
+  prettyMC p (EApplication _ e1 e2)
     = (if p > miniApplicationPrecedence then PP.parens else id) . PP.align . PP.hcat
       $ [ prettyMC miniApplicationPrecedence e1
         , PP.space
         , prettyMC miniApplicationPrecedence1 e2
         ]
-  prettyMC p (ELet flag letDefs e)
+  prettyMC p (ELet _ flag letDefs e)
     = (if p > 0 then PP.parens else id) . PP.align . PP.hcat
       $ [ keyword
         , PP.line
@@ -217,7 +209,7 @@ instance (PrettyMC a) => PrettyMC (Expression t a) where
       keyword
         | isRecursive flag = "letrec"
         | otherwise = "let"
-  prettyMC p (EMatch e matchCases)
+  prettyMC p (EMatch _ e matchCases)
     = (if p > 0 then PP.parens else id) . PP.align . PP.hcat
       $ [ "match "
         , prettyMC0 e
@@ -225,7 +217,7 @@ instance (PrettyMC a) => PrettyMC (Expression t a) where
         , PP.line
         , prettyIndent . PP.vcat . PP.punctuate PP.semi . fmap prettyMC0 $ matchCases
         ]
-  prettyMC p (ELambda argBinders bodyExpr)
+  prettyMC p (ELambda _ argBinders bodyExpr)
     = (if p > 0 then PP.parens else id) . PP.align . PP.hcat
       $ [ "\\"
         , PP.hcat . PP.punctuate PP.space . fmap prettyMC0 $ argBinders
@@ -234,18 +226,86 @@ instance (PrettyMC a) => PrettyMC (Expression t a) where
         , prettyIndent . prettyMC0 $ bodyExpr
         ]
 
+instance (PrettyMC ann, PrettyMC a) => PrettyMC (Expression ('AnnotatedWith ann) l a) where
+  prettyMC _ (EInteger ann n) = PP.pretty n PP.<> PP.braces (prettyMC0 ann)
+  prettyMC _ (EConstructor ann tag arity)
+    = ( PP.fuse PP.Shallow . PP.hcat
+        $ [ "$C"
+          , PP.braces . PP.hcat
+            $ [ PP.pretty tag
+              , PP.comma
+              , PP.pretty arity
+              ]
+          ]
+      ) PP.<> PP.braces (prettyMC0 ann)
+  prettyMC _ (EVariable ann vId) = prettyMC0 vId PP.<> PP.braces (prettyMC0 ann)
+  prettyMC _ (EPrimitive ann prim) = prettyMC0 prim PP.<> PP.braces (prettyMC0 ann)
+  prettyMC _ (EApplication2 ann2 ann1 (EPrimitive annPrim prim) e1 e2)
+    | Just primP <- lookup prim binaryPrimitivePrecedenceTable
+    = prettyBinaryExpressionPrec miniApplicationPrecedence1 primP primDoc (`prettyMC` e1) (`prettyMC` e2)
+      PP.<> PP.braces (prettyMC0 ann1 PP.<> PP.comma PP.<+> prettyMC0 ann2)
+    where
+      primDoc = prettyMC0 prim PP.<> PP.braces (prettyMC0 annPrim)
+  prettyMC p (EApplication ann e1 e2)
+    = (if p > miniApplicationPrecedence then PP.parens else id)
+      $ ( PP.align . PP.hcat
+          $ [ prettyMC miniApplicationPrecedence e1
+            , PP.space
+            , prettyMC miniApplicationPrecedence1 e2
+            ]
+        ) PP.<> PP.braces (prettyMC0 ann)
+  prettyMC p (ELet ann flag letDefs e)
+    = (if p > 0 then PP.parens else id)
+      $ ( PP.align . PP.hcat
+          $ [ keyword
+            , PP.line
+            , prettyIndent . PP.vcat . PP.punctuate PP.semi . fmap prettyMC0 $ letDefs
+            , PP.line
+            , "in"
+            , PP.line
+            , prettyIndent . prettyMC0 $ e
+            ]
+        ) PP.<> PP.braces (prettyMC0 ann)
+    where
+      keyword
+        | isRecursive flag = "letrec"
+        | otherwise = "let"
+  prettyMC p (EMatch ann e matchCases)
+    = (if p > 0 then PP.parens else id)
+      $ ( PP.align . PP.hcat
+          $ [ "match "
+            , prettyMC0 e
+            , " with"
+            , PP.line
+            , prettyIndent . PP.vcat . PP.punctuate PP.semi . fmap prettyMC0 $ matchCases
+            ]
+        ) PP.<> PP.braces (prettyMC0 ann)
+  prettyMC p (ELambda ann argBinders bodyExpr)
+    = (if p > 0 then PP.parens else id)
+      $ ( PP.align . PP.hcat
+          $ [ "\\"
+            , PP.hcat . PP.punctuate PP.space . fmap prettyMC0 $ argBinders
+            , " ->"
+            , PP.line
+            , prettyIndent . prettyMC0 $ bodyExpr
+            ]
+        ) PP.<> PP.braces (prettyMC0 ann)
+
+-- |
+-- A 'Expression' with 'Identifier'.
+type MainExpression t l = Expression t l Identifier
 
 makeWrapped ''LetDefinition
 
 -- |
 -- 'Lens' to extract the binder of 'LetDefinition'
-_letDefinitionBinder :: Lens' (LetDefinition expr a) a
+_letDefinitionBinder :: Lens' (LetDefinition t l a) a
 _letDefinitionBinder = _Wrapped . _1
 {-# INLINEABLE _letDefinitionBinder #-}
 
 -- |
 -- 'Lens' to extract the body expression of 'LetDefinition'
-_letDefinitionBody :: Lens (LetDefinition expr a) (LetDefinition expr' a) (expr a) (expr' a)
+_letDefinitionBody :: Lens (LetDefinition t l a) (LetDefinition t' l' a) (Expression t l a) (Expression t' l' a)
 _letDefinitionBody = _Wrapped . _2
 {-# INLINEABLE _letDefinitionBody #-}
 
@@ -254,18 +314,42 @@ makeWrapped ''MatchCase
 
 -- |
 -- 'Lens' to extract the tag of 'MatchCase'
-_matchCaseTag :: Lens' (MatchCase expr a) Integer
+_matchCaseTag :: Lens' (MatchCase t l a) Integer
 _matchCaseTag = _Wrapped . _1
 {-# INLINEABLE _matchCaseTag #-}
 
 -- |
 -- 'Lens' to extract the arguments of 'MatchCase'
-_matchCaseArguments :: Lens' (MatchCase expr a) [a]
+_matchCaseArguments :: Lens' (MatchCase t l a) [a]
 _matchCaseArguments = _Wrapped . _2
 {-# INLINEABLE _matchCaseArguments #-}
 
 -- |
 -- 'Lens' to extract the body expression of 'MatchCase'
-_matchCaseBody :: Lens (MatchCase expr a) (MatchCase expr' a) (expr a) (expr' a)
+_matchCaseBody :: Lens (MatchCase t l a) (MatchCase t' l' a) (Expression t l a) (Expression t' l' a)
 _matchCaseBody = _Wrapped . _3
 {-# INLINEABLE _matchCaseBody #-}
+
+-- |
+-- 'Lens' to extract the annotation of 'AnnotatedExpressionMC'.
+_annotation :: Lens' (Expression t l a) (Annotation t)
+_annotation = lens getter setter
+  where
+    getter (EInteger ann _) = ann
+    getter (EConstructor ann _ _) = ann
+    getter (EVariable ann _) = ann
+    getter (EPrimitive ann _) = ann
+    getter (EApplication ann _ _) = ann
+    getter (ELet ann _ _ _) = ann
+    getter (EMatch ann _ _) = ann
+    getter (ELambda ann _ _) = ann
+
+    setter (EInteger _ n) ann = EInteger ann n
+    setter (EConstructor _ t a) ann = EConstructor ann t a
+    setter (EVariable _ v) ann = EVariable ann v
+    setter (EPrimitive _ p) ann = EPrimitive ann p
+    setter (EApplication _ e1 e2) ann = EApplication ann e1 e2
+    setter (ELet _ flag lDefs expr) ann = ELet ann flag lDefs expr
+    setter (EMatch _ mCases expr) ann = EMatch ann mCases expr
+    setter (ELambda _ argBinders expr) ann = ELambda ann argBinders expr
+{-# INLINEABLE _annotation #-}

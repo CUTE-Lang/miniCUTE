@@ -1,4 +1,5 @@
 {- HLINT ignore "Redundant do" -}
+{-# LANGUAGE DataKinds #-}
 {-# LANGUAGE QuasiQuotes #-}
 -- |
 -- Copyright: (c) 2018-present Junyoung Clare Jang
@@ -11,7 +12,6 @@ import Test.Tasty.Hspec
 
 import Control.Monad
 import Data.Tuple.Extra
-import Minicute.Data.Minicute.Program
 import Minicute.Transpilers.Lifting.Lambda
 import Minicute.Utils.Minicute.TH
 
@@ -25,8 +25,8 @@ lambdaLiftingTest name beforeContent afterContent = do
     lambdaLifting beforeContent `shouldBe` afterContent
 
 type TestName = String
-type TestBeforeContent = MainProgramMC
-type TestAfterContent = MainProgramLLMC
+type TestBeforeContent = MainProgram 'Simple 'MC
+type TestAfterContent = MainProgram 'Simple 'LLMC
 type TestCase = (TestName, TestBeforeContent, TestAfterContent)
 
 testCases :: [TestCase]

@@ -1,4 +1,5 @@
 {- HLINT ignore "Redundant do" -}
+{-# LANGUAGE DataKinds #-}
 {-# LANGUAGE QuasiQuotes #-}
 -- |
 -- Copyright: (c) 2018-present Junyoung Clare Jang
@@ -11,7 +12,6 @@ import Test.Tasty.Hspec
 
 import Control.Monad
 import Data.Tuple.Extra
-import Minicute.Data.Minicute.Program
 import Minicute.Transpilers.Optimizers.LambdaMerge
 import Minicute.Utils.Minicute.TH
 
@@ -25,8 +25,8 @@ lambdaMergeMainMCTest name beforeContent afterContent = do
     lambdaMergeMainMC beforeContent `shouldBe` afterContent
 
 type TestName = String
-type TestBeforeContent = MainProgramMC
-type TestAfterContent = MainProgramMC
+type TestBeforeContent = MainProgram 'Simple 'MC
+type TestAfterContent = MainProgram 'Simple 'MC
 type TestCase = (TestName, TestBeforeContent, TestAfterContent)
 
 testCases :: [TestCase]

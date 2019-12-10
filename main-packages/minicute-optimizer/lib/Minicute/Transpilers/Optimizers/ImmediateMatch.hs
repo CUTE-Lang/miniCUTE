@@ -1,10 +1,13 @@
+{-# LANGUAGE DataKinds #-}
 -- |
 -- Copyright: (c) 2018-present Junyoung Clare Jang
 -- License: BSD 3-Clause
 --
 -- Optimizers to remove immediate matches.
 module Minicute.Transpilers.Optimizers.ImmediateMatch
-  ( immediateMatchMainMC
+  ( module Minicute.Data.Minicute.Program
+
+  , immediateMatchMainMC
   ) where
 
 import Control.Lens.Each
@@ -17,15 +20,15 @@ import Minicute.Utils.Minicute.Expression
 
 -- |
 -- An optimizer to remove immediate matches in a whole program.
-immediateMatchMainMC :: MainProgramMC -> MainProgramMC
+immediateMatchMainMC :: MainProgram 'Simple 'MC -> MainProgram 'Simple 'MC
 immediateMatchMainMC = _Wrapped . each . _supercombinatorBody %~ immediateMatchMainEMC
 
 -- |
 -- An optimizer to remove immediate matches in an expression.
-immediateMatchMainEMC :: MainExpressionMC -> MainExpressionMC
+immediateMatchMainEMC :: MainExpression 'Simple 'MC -> MainExpression 'Simple 'MC
 immediateMatchMainEMC = transformOf uniplate go
   where
-    go (ELet flag lDefs (EMatch (EVariable v) mCases))
+    go (ELet _ flag lDefs (EMatch _ (EVariable _ v) mCases))
       | Just vLDef <- lookupLDefsL v lDefs
       , Just (tag, argExprs) <- destructStructureExpression (vLDef ^. _letDefinitionBody)
       , Just vMCase <- lookupMCasesL tag mCases
@@ -36,8 +39,8 @@ immediateMatchMainEMC = transformOf uniplate go
           innerExpr = vMCase ^. _matchCaseBody
           expr
             = if not (null matchLDefs)
-              then immediateMatchMainEMC (ELet NonRecursive matchLDefs innerExpr)
+              then immediateMatchMainEMC (ELet () NonRecursive matchLDefs innerExpr)
               else innerExpr
         in
-          ELet flag lDefs expr
+          ELet () flag lDefs expr
     go e = e
