@@ -8,7 +8,9 @@
 -- Transpilers to lift all lambda expressions as
 -- supercombinators (top-level function definitions)
 module Minicute.Transpilers.Lifting.Lambda
-  ( lambdaLifting
+  ( module Minicute.Data.Minicute.Program
+
+  , lambdaLifting
   ) where
 
 import Control.Lens.Each

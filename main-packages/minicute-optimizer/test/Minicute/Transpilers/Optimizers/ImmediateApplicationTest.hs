@@ -12,7 +12,6 @@ import Test.Tasty.Hspec
 
 import Control.Monad
 import Data.Tuple.Extra
-import Minicute.Data.Minicute.Program
 import Minicute.Transpilers.Optimizers.ImmediateApplication
 import Minicute.Utils.Minicute.TH
 

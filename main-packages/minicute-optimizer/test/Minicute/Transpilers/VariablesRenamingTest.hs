@@ -15,7 +15,6 @@ import Control.Lens
 import Control.Monad
 import Data.List
 import Data.Tuple.Extra
-import Minicute.Data.Minicute.Program
 import Minicute.Transpilers.VariablesRenaming
 import Minicute.Utils.Minicute.TH
 

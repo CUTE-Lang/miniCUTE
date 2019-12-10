@@ -13,7 +13,6 @@ import Test.Tasty.Hspec
 
 import Control.Monad
 import Data.Tuple.Extra
-import Minicute.Data.Minicute.Program
 import Minicute.Transpilers.FreeVariables
 import Minicute.Utils.Minicute.TH
 

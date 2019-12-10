@@ -6,7 +6,9 @@
 --
 -- Transpilers to rename variables to avoid name collision.
 module Minicute.Transpilers.VariablesRenaming
-  ( renameVariablesMain
+  ( module Minicute.Data.Minicute.Program
+
+  , renameVariablesMain
   ) where
 
 import Control.Lens.Each

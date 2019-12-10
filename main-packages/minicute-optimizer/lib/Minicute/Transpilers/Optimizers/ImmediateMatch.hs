@@ -5,7 +5,9 @@
 --
 -- Optimizers to remove immediate matches.
 module Minicute.Transpilers.Optimizers.ImmediateMatch
-  ( immediateMatchMainMC
+  ( module Minicute.Data.Minicute.Program
+
+  , immediateMatchMainMC
   ) where
 
 import Control.Lens.Each

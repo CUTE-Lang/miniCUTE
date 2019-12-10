@@ -6,7 +6,9 @@
 --
 -- Optimizers to remove immediate applications.
 module Minicute.Transpilers.Optimizers.ImmediateApplication
-  ( immediateApplicationMainMC
+  ( module Minicute.Data.Minicute.Program
+
+  , immediateApplicationMainMC
   ) where
 
 import Control.Lens.Each

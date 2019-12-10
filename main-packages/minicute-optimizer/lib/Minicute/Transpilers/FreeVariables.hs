@@ -7,7 +7,9 @@
 --
 -- Transpilers to extract free variable information of expressions
 module Minicute.Transpilers.FreeVariables
-  ( FreeVariables
+  ( module Minicute.Data.Minicute.Program
+
+  , FreeVariables
 
   , formFreeVariablesMain
   , formFreeVariables

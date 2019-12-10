@@ -6,7 +6,9 @@
 --
 -- Optimizers to merge consecutive lambda expressions.
 module Minicute.Transpilers.Optimizers.LambdaMerge
-  ( lambdaMergeMainMC
+  ( module Minicute.Data.Minicute.Program
+
+  , lambdaMergeMainMC
   ) where
 
 import Control.Lens.Each

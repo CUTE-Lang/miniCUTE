@@ -5,7 +5,9 @@
 --
 -- Optimizers to reduce simple arithmetic expressions.
 module Minicute.Transpilers.Optimizers.SimpleArithmetic
-  ( simpleArithmeticMainMC
+  ( module Minicute.Data.Minicute.Program
+
+  , simpleArithmeticMainMC
   ) where
 
 import Control.Lens.Each
