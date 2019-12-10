@@ -4,7 +4,9 @@
 --
 -- Utilities for a miniCUTE expression
 module Minicute.Utils.Minicute.Expression
-  ( destructStructureExpression
+  ( module Minicute.Data.Minicute.Expression
+
+  , destructStructureExpression
 
   , lookupMCasesL
   , lookupLDefsL
