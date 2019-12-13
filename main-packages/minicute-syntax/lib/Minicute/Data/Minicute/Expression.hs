@@ -37,6 +37,11 @@ module Minicute.Data.Minicute.Expression
   , _matchCaseBody
 
 
+  , IsRecursive( isRecursive )
+  , pattern Recursive
+  , pattern NonRecursive
+
+
   , ExpressionType( .. )
 
   , ExpressionLevel( .. )
@@ -118,6 +123,32 @@ instance (PrettyMC a, PrettyMC (Expression t l a)) => PrettyMC (MatchCase t l a)
         , " -> "
         , prettyMC0 expr
         ]
+
+
+-- |
+-- @IsRecursive@ represents recursiveness of let/letrec expressions.
+newtype IsRecursive = IsRecursive { isRecursive :: Bool }
+  deriving ( Generic
+           , Typeable
+           , Data
+           , Lift
+           , Eq
+           , Ord
+           )
+-- |
+-- Utility pattern for the recursive case of 'IsRecursive'
+pattern Recursive :: IsRecursive
+pattern Recursive = IsRecursive True
+-- |
+-- Utility pattern for the non-recursive case of 'IsRecursive'
+pattern NonRecursive :: IsRecursive
+pattern NonRecursive = IsRecursive False
+{-# COMPLETE Recursive, NonRecursive #-}
+
+instance Show IsRecursive where
+  showsPrec _ Recursive = showString "Recursive"
+  showsPrec _ NonRecursive = showString "NonRecursive"
+  {-# INLINABLE showsPrec #-}
 
 
 data ExpressionLevel
@@ -295,6 +326,7 @@ instance (PrettyMC ann, PrettyMC a) => PrettyMC (Expression ('AnnotatedWith ann)
 -- A 'Expression' with 'Identifier'.
 type MainExpression t l = Expression t l Identifier
 
+
 makeWrapped ''LetDefinition
 
 -- |
@@ -329,6 +361,10 @@ _matchCaseArguments = _Wrapped . _2
 _matchCaseBody :: Lens (MatchCase t l a) (MatchCase t' l' a) (Expression t l a) (Expression t' l' a)
 _matchCaseBody = _Wrapped . _3
 {-# INLINEABLE _matchCaseBody #-}
+
+
+makeWrapped ''IsRecursive
+
 
 -- |
 -- 'Lens' to extract the annotation of 'AnnotatedExpressionMC'.
