@@ -10,6 +10,7 @@ module Minicute.Parser.Common.Parser
 
 import Data.Functor
 import Data.List.Extra
+import Data.Ord
 import Minicute.Data.Common
 import Minicute.Parser.Common
 import Text.Megaparsec
@@ -20,39 +21,43 @@ import qualified Minicute.Parser.Common.Lexer as L
 primitive :: Parser Primitive
 primitive
   = choice
-    (makePrimParser . fst <$> primitivePrecedenceTable)
+    $ makePrimParser . fst <$> primitivePrecedenceTable
   where
-    makePrimParser :: (MonadParser e s m) => Primitive -> m Primitive
+    makePrimParser :: Primitive -> Parser Primitive
     makePrimParser prim = L.symbol (toString prim) $> prim
 {-# INLINEABLE primitive #-}
 
 
 createPrimitiveOperatorTable :: (MonadParser e s m) => (Primitive -> expr) -> (expr -> expr -> expr) -> (expr -> expr -> expr -> expr) -> PrecedenceTable Primitive -> [[CombExpr.Operator m expr]]
-createPrimitiveOperatorTable cPrim cUn cBar = (fmap . fmap) (createPrimitiveOperator cPrim cUn cBar) . groupSortOn (negate . precedence . snd)
+createPrimitiveOperatorTable cPrim cUn cBar
+  = fmap (createPrimitiveOperator cPrim cUn cBar <$>)
+    . groupSortOn (Down . precedence . snd)
 {-# INLINEABLE createPrimitiveOperatorTable #-}
 
 createPrimitiveOperator :: (MonadParser e s m) => (Primitive -> expr) -> (expr -> expr -> expr) -> (expr -> expr -> expr -> expr) -> PrecedenceTableEntry Primitive -> CombExpr.Operator m expr
 createPrimitiveOperator cPrim cUn cBin (prim, prec)
   = case prec of
-      PInfixN _ ->
-        CombExpr.InfixN (createBinaryPrimitiveFunctionParser cPrim cBin prim)
-      PInfixL _ ->
-        CombExpr.InfixL (createBinaryPrimitiveFunctionParser cPrim cBin prim)
-      PInfixR _ ->
-        CombExpr.InfixR (createBinaryPrimitiveFunctionParser cPrim cBin prim)
-      PPrefix _ ->
-        CombExpr.Prefix (createUnaryPrimitiveFunctionParser cPrim cUn prim)
-      PPostfix _ ->
-        CombExpr.Postfix (createUnaryPrimitiveFunctionParser cPrim cUn prim)
+      PInfixN _ -> CombExpr.InfixN bin
+      PInfixL _ -> CombExpr.InfixL bin
+      PInfixR _ -> CombExpr.InfixR bin
+      PPrefix _ -> CombExpr.Prefix un
+      PPostfix _ -> CombExpr.Postfix un
+  where
+    bin = createBinaryPrimitiveFunctionParser cPrim cBin prim
+    un = createUnaryPrimitiveFunctionParser cPrim cUn prim
 
 createBinaryPrimitiveFunctionParser :: (MonadParser e s m) => (Primitive -> expr) -> (expr -> expr -> expr -> expr) -> Primitive -> m (expr -> expr -> expr)
-createBinaryPrimitiveFunctionParser cPrim cBin prim = (L.symbol primName <?> "binary primitive") $> cBin (cPrim prim)
+createBinaryPrimitiveFunctionParser cPrim cBin prim
+  = L.symbol primName $> cBin (cPrim prim)
+    <?> "binary primitive"
   where
     primName = toString prim
 {-# INLINEABLE createBinaryPrimitiveFunctionParser #-}
 
 createUnaryPrimitiveFunctionParser :: (MonadParser e s m) => (Primitive -> expr) -> (expr -> expr -> expr) -> Primitive -> m (expr -> expr)
-createUnaryPrimitiveFunctionParser cPrim cUn prim = (L.symbol primName <?> "unary primitive") $> cUn (cPrim prim)
+createUnaryPrimitiveFunctionParser cPrim cUn prim
+  = L.symbol primName $> cUn (cPrim prim)
+    <?> "unary primitive"
   where
     primName = toString prim
 {-# INLINEABLE createUnaryPrimitiveFunctionParser #-}

@@ -14,7 +14,6 @@ import Prelude hiding ( fail )
 import Control.Monad.Fail
 import Data.Char
 import Data.List
-import Data.List.Extra
 import Data.String.Minicute
 import Language.Haskell.TH
 import Language.Haskell.TH.Quote
@@ -26,9 +25,9 @@ qqRawCode :: QuasiQuoter
 qqRawCode
   = QuasiQuoter
     { quoteExp = qqRawCodeExp
-    , quotePat = const . fail $ "qqRawCode cannot be used as a pattern"
-    , quoteType = const . fail $ "qqRawCode cannot be used as a type"
-    , quoteDec = const . fail $ "qqRawCode cannot be used as a declaration"
+    , quotePat = const $ fail "qqRawCode cannot be used as a pattern"
+    , quoteType = const $ fail "qqRawCode cannot be used as a type"
+    , quoteDec = const $ fail "qqRawCode cannot be used as a declaration"
     }
 
 
@@ -38,7 +37,11 @@ qqRawCodeExp = lift . normalizeCode
 normalizeCode :: String -> String
 normalizeCode = updateString . toUnix
   where
-    updateString = dropEnd 1 . unlines . adjustIndent . trimEndEmptyLines . trimStartEmptyLines . lines
+    updateString
+      = intercalate "\n"
+        . adjustIndent
+        . trimEndEmptyLines . trimStartEmptyLines
+        . lines
 
     trimStartEmptyLines = dropWhile isEmpty
     trimEndEmptyLines = dropWhileEnd isEmpty
@@ -47,5 +50,5 @@ normalizeCode = updateString . toUnix
 
     adjustIndent ls = indentedLs
       where
-        indentedLs = fmap (drop indent) ls
-        indent = minimum . fmap (length . takeWhile isSpace) $ ls
+        indentedLs = drop indent <$> ls
+        indent = minimum $ length . takeWhile isSpace <$> ls
