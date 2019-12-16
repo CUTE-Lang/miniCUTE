@@ -77,12 +77,15 @@ expressionLLMC pA = go
 program :: (MonadParser e s m) => WithPrecedence m a -> WithPrecedence m (Expression t l a) -> m (Program t l a)
 program pA pExpr = do
   void L.spacesConsumer
-  ps <- getParserState
-  setParserState ps
-  result <- Program <$> runReaderT (sepEndBy (supercombinator pA pExpr) (L.symbol ";")) primitivePrecedenceTable
-  void eof
-  pure result
+  result <-
+    Program
+    <$> runReaderT (supercombinators pA pExpr) primitivePrecedenceTable
+  eof $> result
 
+
+supercombinators :: (MonadParser e s m) => WithPrecedence m a -> WithPrecedence m (Expression t l a) -> WithPrecedence m [Supercombinator t l a]
+supercombinators pA pExpr = sepEndBy (supercombinator pA pExpr) separator
+{-# INLINEABLE supercombinators #-}
 
 supercombinator :: (MonadParser e s m) => WithPrecedence m a -> WithPrecedence m (Expression t l a) -> WithPrecedence m (Supercombinator t l a)
 supercombinator pA pExpr
@@ -152,7 +155,7 @@ matchExpression pA pExpr
     matchCases
       = (notFollowedBy (separator <|> eof) <|> zeroMatchCaseError)
         *>
-        ( cons
+        ( (:)
           <$> matchCase pA pExpr
           <*> many (try (separator *> matchCase pA pExpr))
         )
@@ -185,8 +188,10 @@ otherExpressionsByPrec
   -> WithPrecedence m (Expression 'Simple l a)
 otherExpressionsByPrec pExpr
   = ask
-    >>= CombExpr.makeExprParser (applicationExpression pExpr)
-    . createPrimitiveOperatorTable (EPrimitive ()) (EApplication ()) (EApplication2 () ())
+    >>=
+    ( CombExpr.makeExprParser (applicationExpression pExpr)
+      . createPrimitiveOperatorTable (EPrimitive ()) (EApplication ()) (EApplication2 () ())
+    )
 {-# INLINEABLE otherExpressionsByPrec #-}
 
 applicationExpression
