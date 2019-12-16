@@ -114,15 +114,10 @@ type MainMatchCase t l = MatchCase t l Identifier
 
 instance (PrettyMC a, PrettyMC (Expression t l a)) => PrettyMC (MatchCase t l a) where
   prettyMC _ (MatchCase (tag, argBinders, expr))
-    = PP.fuse PP.Shallow . PP.hcat
-      $ [ PP.angles (prettyMC0 tag)
-        , if null argBinders
-          then PP.emptyDoc
-          else PP.space
-        , PP.hcat . PP.punctuate PP.space . fmap prettyMC0 $ argBinders
-        , " -> "
-        , prettyMC0 expr
-        ]
+    = PP.fuse PP.Shallow . PP.hsep
+      $ [PP.angles (prettyMC0 tag)]
+      <> (prettyMC0 <$> argBinders)
+      <> ["->", prettyMC0 expr]
 
 
 -- |
@@ -207,33 +202,30 @@ deriving instance (Show a, Show (Annotation t)) => Show (Expression t l a)
 instance (PrettyMC a) => PrettyMC (Expression 'Simple l a) where
   prettyMC _ (EInteger _ n) = prettyMC0 n
   prettyMC _ (EConstructor _ tag arity)
-    = PP.fuse PP.Shallow . PP.hcat
-      $ [ "$C"
-        , PP.braces . PP.hcat
-          $ [ prettyMC0 tag
-            , PP.comma
-            , prettyMC0 arity
-            ]
-        ]
+    = PP.hcat
+      [ "$C"
+      , PP.braces . PP.hcat
+        $ [ prettyMC0 tag
+          , PP.comma
+          , prettyMC0 arity
+          ]
+      ]
   prettyMC _ (EVariable _ vId) = prettyMC0 vId
   prettyMC _ (EPrimitive _ prim) = prettyMC0 prim
   prettyMC p (EApplication2 _ _ (EPrimitive _ prim) e1 e2)
     | Just primP <- lookup prim binaryPrimitivePrecedenceTable
     = prettyBinaryExpressionPrec p primP (prettyMC0 prim) (`prettyMC` e1) (`prettyMC` e2)
   prettyMC p (EApplication _ e1 e2)
-    = (if p > miniApplicationPrecedence then PP.parens else id) . PP.align . PP.hcat
+    = prettyWrappedIf (p > miniApplicationPrecedence) PP.parens . PP.align . PP.hcat
       $ [ prettyMC miniApplicationPrecedence e1
         , PP.space
         , prettyMC miniApplicationPrecedence1 e2
         ]
   prettyMC p (ELet _ flag letDefs e)
-    = (if p > 0 then PP.parens else id) . PP.align . PP.hcat
+    = prettyWrappedIf (p > 0) PP.parens . PP.align . PP.vcat
       $ [ keyword
-        , PP.line
-        , prettyIndent . PP.vcat . PP.punctuate PP.semi . fmap prettyMC0 $ letDefs
-        , PP.line
+        , prettyIndent . PP.vcat . PP.punctuate PP.semi $ prettyMC0 <$> letDefs
         , "in"
-        , PP.line
         , prettyIndent . prettyMC0 $ e
         ]
     where
@@ -241,86 +233,90 @@ instance (PrettyMC a) => PrettyMC (Expression 'Simple l a) where
         | isRecursive flag = "letrec"
         | otherwise = "let"
   prettyMC p (EMatch _ e matchCases)
-    = (if p > 0 then PP.parens else id) . PP.align . PP.hcat
-      $ [ "match "
+    = prettyWrappedIf (p > 0) PP.parens . PP.align . PP.hcat
+      $ [ "match"
+        , PP.space
         , prettyMC0 e
-        , " with"
+        , PP.space
+        , "with"
         , PP.line
-        , prettyIndent . PP.vcat . PP.punctuate PP.semi . fmap prettyMC0 $ matchCases
+        , prettyIndent . PP.vcat . PP.punctuate PP.semi $ prettyMC0 <$> matchCases
         ]
   prettyMC p (ELambda _ argBinders bodyExpr)
-    = (if p > 0 then PP.parens else id) . PP.align . PP.hcat
+    = prettyWrappedIf (p > 0) PP.parens . PP.align . PP.hcat
       $ [ "\\"
-        , PP.hcat . PP.punctuate PP.space . fmap prettyMC0 $ argBinders
-        , " ->"
+        , PP.hsep $ prettyMC0 <$> argBinders
+        , PP.space
+        , "->"
         , PP.line
         , prettyIndent . prettyMC0 $ bodyExpr
         ]
 
 instance (PrettyMC ann, PrettyMC a) => PrettyMC (Expression ('AnnotatedWith ann) l a) where
-  prettyMC _ (EInteger ann n) = PP.pretty n PP.<> PP.braces (prettyMC0 ann)
+  prettyMC _ (EInteger ann n) = PP.pretty n <> PP.braces (prettyMC0 ann)
   prettyMC _ (EConstructor ann tag arity)
-    = ( PP.fuse PP.Shallow . PP.hcat
-        $ [ "$C"
-          , PP.braces . PP.hcat
-            $ [ PP.pretty tag
-              , PP.comma
-              , PP.pretty arity
-              ]
+    = PP.hcat
+      [ "$C"
+      , PP.braces . PP.hcat
+        $ [ PP.pretty tag
+          , PP.comma
+          , PP.pretty arity
           ]
-      ) PP.<> PP.braces (prettyMC0 ann)
-  prettyMC _ (EVariable ann vId) = prettyMC0 vId PP.<> PP.braces (prettyMC0 ann)
-  prettyMC _ (EPrimitive ann prim) = prettyMC0 prim PP.<> PP.braces (prettyMC0 ann)
+      , PP.braces $ prettyMC0 ann
+      ]
+  prettyMC _ (EVariable ann vId) = prettyMC0 vId <> PP.braces (prettyMC0 ann)
+  prettyMC _ (EPrimitive ann prim) = prettyMC0 prim <> PP.braces (prettyMC0 ann)
   prettyMC _ (EApplication2 ann2 ann1 (EPrimitive annPrim prim) e1 e2)
     | Just primP <- lookup prim binaryPrimitivePrecedenceTable
     = prettyBinaryExpressionPrec miniApplicationPrecedence1 primP primDoc (`prettyMC` e1) (`prettyMC` e2)
-      PP.<> PP.braces (prettyMC0 ann1 PP.<> PP.comma PP.<+> prettyMC0 ann2)
+      <> PP.braces (prettyMC0 ann1 <> PP.comma PP.<+> prettyMC0 ann2)
     where
-      primDoc = prettyMC0 prim PP.<> PP.braces (prettyMC0 annPrim)
+      primDoc = prettyMC0 prim <> PP.braces (prettyMC0 annPrim)
   prettyMC p (EApplication ann e1 e2)
-    = (if p > miniApplicationPrecedence then PP.parens else id)
+    = prettyWrappedIf (p > miniApplicationPrecedence) PP.parens
       $ ( PP.align . PP.hcat
           $ [ prettyMC miniApplicationPrecedence e1
             , PP.space
             , prettyMC miniApplicationPrecedence1 e2
             ]
-        ) PP.<> PP.braces (prettyMC0 ann)
+        )
+        <> PP.braces (prettyMC0 ann)
   prettyMC p (ELet ann flag letDefs e)
-    = (if p > 0 then PP.parens else id)
-      $ ( PP.align . PP.hcat
+    = prettyWrappedIf (p > 0) PP.parens
+      $ ( PP.align . PP.vcat
           $ [ keyword
-            , PP.line
-            , prettyIndent . PP.vcat . PP.punctuate PP.semi . fmap prettyMC0 $ letDefs
-            , PP.line
+            , prettyIndent . PP.vcat . PP.punctuate PP.semi $ prettyMC0 <$> letDefs
             , "in"
-            , PP.line
-            , prettyIndent . prettyMC0 $ e
+            , prettyIndent $ prettyMC0 e
             ]
-        ) PP.<> PP.braces (prettyMC0 ann)
+        ) <> PP.braces (prettyMC0 ann)
     where
       keyword
         | isRecursive flag = "letrec"
         | otherwise = "let"
   prettyMC p (EMatch ann e matchCases)
-    = (if p > 0 then PP.parens else id)
+    = prettyWrappedIf (p > 0) PP.parens
       $ ( PP.align . PP.hcat
-          $ [ "match "
+          $ [ "match"
+            , PP.space
             , prettyMC0 e
-            , " with"
+            , PP.space
+            , "with"
             , PP.line
-            , prettyIndent . PP.vcat . PP.punctuate PP.semi . fmap prettyMC0 $ matchCases
+            , prettyIndent . PP.vcat . PP.punctuate PP.semi $ prettyMC0 <$> matchCases
             ]
-        ) PP.<> PP.braces (prettyMC0 ann)
+        ) <> PP.braces (prettyMC0 ann)
   prettyMC p (ELambda ann argBinders bodyExpr)
-    = (if p > 0 then PP.parens else id)
+    = prettyWrappedIf (p > 0) PP.parens
       $ ( PP.align . PP.hcat
           $ [ "\\"
-            , PP.hcat . PP.punctuate PP.space . fmap prettyMC0 $ argBinders
-            , " ->"
+            , PP.hsep $ prettyMC0 <$> argBinders
+            , "->"
+            , PP.space
             , PP.line
             , prettyIndent . prettyMC0 $ bodyExpr
             ]
-        ) PP.<> PP.braces (prettyMC0 ann)
+        ) <> PP.braces (prettyMC0 ann)
 
 -- |
 -- A 'Expression' with 'Identifier'.
