@@ -23,8 +23,9 @@ import Prelude hiding ( fail )
 
 import Control.Monad ( void )
 import Control.Monad.Fail
-import Data.List
+import Data.Foldable
 import Data.List.Extra
+import Data.Monoid ( Any(..) )
 import Data.Proxy
 import Minicute.Parser.Common
 import Text.Megaparsec hiding ( State )
@@ -44,9 +45,9 @@ betweenRoundBrackets = between (symbol "(") (symbol ")")
 -- @gMachineIdentifier@ parses any character sequences not containing @';'@ or
 -- space characters as an identifier.
 gMachineIdentifier :: (MonadParser e s m) => m (Tokens s)
-gMachineIdentifier = lexeme (many (satisfy (anyCond (/= ';') Char.isSpace)))
-  where
-    anyCond p1 p2 x = p1 x || p2 x
+gMachineIdentifier
+  = lexeme . many
+    $ satisfy (getAny . foldMap (Any .) [(/= ';'), Char.isSpace])
 
 
 -- I need to check whether identifier is a keyword or not
@@ -103,7 +104,7 @@ keywordList
 
 -- |
 -- @symbol str@ parses @str@ and ignore the result.
-symbol :: forall e s m. (MonadParser e s m) => Tokens s -> m ()
+symbol :: (MonadParser e s m) => Tokens s -> m ()
 symbol = void . MPTL.symbol spacesConsumer
 {-# INLINEABLE symbol #-}
 
@@ -186,8 +187,8 @@ hexadecimal
     <?> "hexadecimal integer"
 {-# INLINEABLE hexadecimal #-}
 
-mkNumWithRadix :: (Stream s, Token s ~ Char, Integral a) => a -> Proxy s -> Tokens s -> a
-mkNumWithRadix radix = (foldl' step 0 .) . chunkToTokens
+mkNumWithRadix :: forall proxy s a. (Stream s, Token s ~ Char, Integral a) => a -> proxy s -> Tokens s -> a
+mkNumWithRadix radix _ = foldl' step 0 . chunkToTokens (Proxy :: Proxy s)
   where
     step a = (a * radix +) . fromIntegral . Char.digitToInt
 {-# INLINEABLE mkNumWithRadix #-}
