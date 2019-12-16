@@ -38,7 +38,8 @@ library:
   # exposed:
   # exposed-modules:
   # generated-exposed-modules:
-  # other-modules:
+  other-modules:
+    - Data.Text.Prettyprint.Doc.Minicute.Internal.TH
   # generated-other-modules:
   # reexported-modules:
   # signatures:

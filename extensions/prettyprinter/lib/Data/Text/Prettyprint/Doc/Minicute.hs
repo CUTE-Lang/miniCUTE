@@ -1,4 +1,5 @@
 {-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE UndecidableInstances #-}
 -- |
 -- Copyright: (c) 2018-present Junyoung Clare Jang
@@ -11,13 +12,18 @@ module Data.Text.Prettyprint.Doc.Minicute
   , prettyListMC0
 
   , prettyIndent
+  , prettyWrappedIf
+
+  , makePrettyMCFromPretty
   ) where
 
+import Data.Foldable
 import Data.Functor.Const
 import Data.Functor.Identity
 import Data.List.NonEmpty ( NonEmpty(..) )
 import Data.Maybe
 import Data.Text.Prettyprint.Doc
+import Data.Text.Prettyprint.Doc.Minicute.Internal.TH
 import Data.Void
 import GHC.Int
 import GHC.Natural
@@ -46,130 +52,28 @@ prettyListMC0 :: (PrettyMC a) => [a] -> Doc ann
 prettyListMC0 = prettyListMC 0
 {-# INLINABLE prettyListMC0 #-}
 
--- Replace the following instances by
--- TH derived instances
---  or
--- Introduce default method implementation
-
-instance PrettyMC Bool where
-  prettyMC _ = pretty
-  {-# INLINABLE prettyMC #-}
-  prettyListMC _ = prettyList
-  {-# INLINABLE prettyListMC #-}
-
-instance PrettyMC Char where
-  prettyMC _ = pretty
-  {-# INLINABLE prettyMC #-}
-  prettyListMC _ = prettyList
-  {-# INLINABLE prettyListMC #-}
-
-instance PrettyMC Double where
-  prettyMC _ = pretty
-  {-# INLINABLE prettyMC #-}
-  prettyListMC _ = prettyList
-  {-# INLINABLE prettyListMC #-}
-
-instance PrettyMC Float where
-  prettyMC _ = pretty
-  {-# INLINABLE prettyMC #-}
-  prettyListMC _ = prettyList
-  {-# INLINABLE prettyListMC #-}
-
-instance PrettyMC Int where
-  prettyMC _ = pretty
-  {-# INLINABLE prettyMC #-}
-  prettyListMC _ = prettyList
-  {-# INLINABLE prettyListMC #-}
-
-instance PrettyMC Int8 where
-  prettyMC _ = pretty
-  {-# INLINABLE prettyMC #-}
-  prettyListMC _ = prettyList
-  {-# INLINABLE prettyListMC #-}
-
-instance PrettyMC Int16 where
-  prettyMC _ = pretty
-  {-# INLINABLE prettyMC #-}
-  prettyListMC _ = prettyList
-  {-# INLINABLE prettyListMC #-}
-
-instance PrettyMC Int32 where
-  prettyMC _ = pretty
-  {-# INLINABLE prettyMC #-}
-  prettyListMC _ = prettyList
-  {-# INLINABLE prettyListMC #-}
-
-instance PrettyMC Int64 where
-  prettyMC _ = pretty
-  {-# INLINABLE prettyMC #-}
-  prettyListMC _ = prettyList
-  {-# INLINABLE prettyListMC #-}
-
-instance PrettyMC Integer where
-  prettyMC _ = pretty
-  {-# INLINABLE prettyMC #-}
-  prettyListMC _ = prettyList
-  {-# INLINABLE prettyListMC #-}
-
-instance PrettyMC Natural where
-  prettyMC _ = pretty
-  {-# INLINABLE prettyMC #-}
-  prettyListMC _ = prettyList
-  {-# INLINABLE prettyListMC #-}
-
-instance PrettyMC Word where
-  prettyMC _ = pretty
-  {-# INLINABLE prettyMC #-}
-  prettyListMC _ = prettyList
-  {-# INLINABLE prettyListMC #-}
-
-instance PrettyMC Word8 where
-  prettyMC _ = pretty
-  {-# INLINABLE prettyMC #-}
-  prettyListMC _ = prettyList
-  {-# INLINABLE prettyListMC #-}
-
-instance PrettyMC Word16 where
-  prettyMC _ = pretty
-  {-# INLINABLE prettyMC #-}
-  prettyListMC _ = prettyList
-  {-# INLINABLE prettyListMC #-}
-
-instance PrettyMC Word32 where
-  prettyMC _ = pretty
-  {-# INLINABLE prettyMC #-}
-  prettyListMC _ = prettyList
-  {-# INLINABLE prettyListMC #-}
-
-instance PrettyMC Word64 where
-  prettyMC _ = pretty
-  {-# INLINABLE prettyMC #-}
-  prettyListMC _ = prettyList
-  {-# INLINABLE prettyListMC #-}
-
-instance PrettyMC () where
-  prettyMC _ = pretty
-  {-# INLINABLE prettyMC #-}
-  prettyListMC _ = prettyList
-  {-# INLINABLE prettyListMC #-}
-
-instance PrettyMC Void where
-  prettyMC _ = pretty
-  {-# INLINABLE prettyMC #-}
-  prettyListMC _ = prettyList
-  {-# INLINABLE prettyListMC #-}
-
-instance PrettyMC Text.Text where
-  prettyMC _ = pretty
-  {-# INLINABLE prettyMC #-}
-  prettyListMC _ = prettyList
-  {-# INLINABLE prettyListMC #-}
-
-instance PrettyMC LazyText.Text where
-  prettyMC _ = pretty
-  {-# INLINABLE prettyMC #-}
-  prettyListMC _ = prettyList
-  {-# INLINABLE prettyListMC #-}
+fmap fold . traverse makePrettyMCFromPretty
+  $ [ ''Bool
+    , ''Char
+    , ''Double
+    , ''Float
+    , ''Int
+    , ''Int8
+    , ''Int16
+    , ''Int32
+    , ''Int64
+    , ''Integer
+    , ''Natural
+    , ''Word
+    , ''Word8
+    , ''Word16
+    , ''Word32
+    , ''Word64
+    , ''()
+    , ''Void
+    , ''Text.Text
+    , ''LazyText.Text
+    ]
 
 instance (PrettyMC a) => PrettyMC [a] where
   prettyMC = prettyListMC
@@ -207,3 +111,8 @@ instance (PrettyMC a) => PrettyMC (Const a b) where
 prettyIndent :: Doc ann -> Doc ann
 prettyIndent = indent 2
 {-# INLINEABLE prettyIndent #-}
+
+prettyWrappedIf :: Bool -> (Doc ann -> Doc ann) -> Doc ann -> Doc ann
+prettyWrappedIf True f = f
+prettyWrappedIf False _ = id
+{-# INLINEABLE prettyWrappedIf #-}
