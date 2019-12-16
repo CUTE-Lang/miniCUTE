@@ -39,7 +39,7 @@ library:
   # exposed-modules:
   # generated-exposed-modules:
   other-modules:
-    - Data.Tuple.Internal.Minicute.TH
+    - Data.Tuple.Minicute.Internal.TH
   # generated-other-modules:
   # reexported-modules:
   # signatures:

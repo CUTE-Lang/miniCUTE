@@ -22,7 +22,7 @@ module Data.Tuple.Minicute
   ) where
 
 import Data.Tuple
-import Data.Tuple.Internal.Minicute.TH
+import Data.Tuple.Minicute.Internal.TH
 
 -- * TupleConverters
 
