@@ -20,7 +20,8 @@ import Minicute.Data.Minicute.Program
 -- |
 -- An optimizer to reduce simple arithmetic expressions in a whole program.
 simpleArithmeticMainMC :: MainProgram 'Simple 'MC -> MainProgram 'Simple 'MC
-simpleArithmeticMainMC = _Wrapped . each . _supercombinatorBody %~ simpleArithmeticMainEMC
+simpleArithmeticMainMC
+  = _Wrapped . each . _supercombinatorBody %~ simpleArithmeticMainEMC
 
 -- |
 -- An optimizer to reduce simple arithmetic expressions in an expression.

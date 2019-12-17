@@ -21,7 +21,8 @@ import Minicute.Data.Minicute.Program
 -- |
 -- An optimizer to merge consecutive lambda expressions in a whole program.
 lambdaMergeMainMC :: MainProgram 'Simple 'MC -> MainProgram 'Simple 'MC
-lambdaMergeMainMC = _Wrapped . each . _supercombinatorBody %~ lambdaMergeMainEMC
+lambdaMergeMainMC
+  = _Wrapped . each . _supercombinatorBody %~ lambdaMergeMainEMC
 
 -- |
 -- An optimizer to merge consecutive lambda expressions in an expression.
@@ -29,5 +30,6 @@ lambdaMergeMainEMC :: MainExpression 'Simple 'MC -> MainExpression 'Simple 'MC
 lambdaMergeMainEMC = transformOf uniplate go
   where
     go :: MainExpression 'Simple 'MC -> MainExpression 'Simple 'MC
-    go (ELambda _ args0 (ELambda _ args1 expr)) = ELambda () (args0 <> args1) expr
+    go (ELambda _ args0 (ELambda _ args1 expr))
+      = ELambda () (args0 <> args1) expr
     go e = e
