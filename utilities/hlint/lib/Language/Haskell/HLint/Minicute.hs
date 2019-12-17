@@ -9,48 +9,41 @@ module Language.Haskell.HLint.Minicute
 
 import Prelude hiding ( fail )
 
+import Control.Monad ( unless )
 import Control.Monad.Fail
+import Data.Maybe ( fromMaybe )
 import System.Directory ( canonicalizePath, findFile, getCurrentDirectory )
-import System.Exit ( exitFailure, exitSuccess )
+import System.Exit ( exitFailure )
 import System.FilePath ( isDrive, (</>) )
 
-import qualified Language.Haskell.HLint3 as HLINT
+import qualified Language.Haskell.HLint4 as HLINT
 
 hlint :: [FilePath] -> IO ()
 hlint dirs = do
   -- This 'putStrLn' is to format stack test output
   putStrLn ""
-  maybeHlintPath <- findHlintPath
-  case maybeHlintPath of
-    Just hlintPath ->
-      let
-        hlintArgs = dirs <> ["--hint=" <> hlintPath]
-      in do
-        hints <- HLINT.hlint hlintArgs
-        if null hints
-        then exitSuccess
-        else exitFailure
-    Nothing ->
-      fail "The setting file hlint.yaml does not exist in any ancestor directories"
+  hlintPath <- fromMaybe hlintFailure <$> findHlintPath
+  hints <- HLINT.hlint (dirs <> ["--hint=" <> hlintPath])
+  unless (null hints)
+    exitFailure
+  where
+    hlintFailure
+      = fail "The setting file hlint.yaml does not exist in any ancestor directories"
 
 findHlintPath :: IO (Maybe FilePath)
 findHlintPath = do
   dirs <- ancestorDirectories
-  findFile dirs "hlint.yaml"
+  findFile dirs ".hlint.yaml"
   where
-    ancestorDirectories :: IO [FilePath]
     ancestorDirectories = getCurrentDirectory >>= ancestorDirectoriesFrom
 
-    ancestorDirectoriesFrom :: FilePath -> IO [FilePath]
     ancestorDirectoriesFrom cDir
       = (cDir :)
         <$>
         ( getParentDirectory cDir
-          >>= maybe (pure []) ancestorDirectoriesFrom
+          >>= maybe (pure [] :: IO [FilePath]) ancestorDirectoriesFrom
         )
 
-    getParentDirectory :: FilePath -> IO (Maybe FilePath)
     getParentDirectory dir
-      = if isDrive dir
-        then pure Nothing
-        else Just <$> canonicalizePath (dir </> "..")
+      | isDrive dir = pure Nothing
+      | otherwise = Just <$> canonicalizePath (dir </> "..")
