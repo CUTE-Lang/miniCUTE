@@ -21,7 +21,8 @@ import Minicute.Utils.Minicute.Expression
 -- |
 -- An optimizer to remove immediate matches in a whole program.
 immediateMatchMainMC :: MainProgram 'Simple 'MC -> MainProgram 'Simple 'MC
-immediateMatchMainMC = _Wrapped . each . _supercombinatorBody %~ immediateMatchMainEMC
+immediateMatchMainMC
+  = _Wrapped . each . _supercombinatorBody %~ immediateMatchMainEMC
 
 -- |
 -- An optimizer to remove immediate matches in an expression.
@@ -37,10 +38,12 @@ immediateMatchMainEMC = transformOf uniplate go
           matchLDefs = zipWith (curry LetDefinition) argBinders argExprs
 
           innerExpr = vMCase ^. _matchCaseBody
+          boundExpr = ELet () NonRecursive matchLDefs innerExpr
           expr
-            = if not (null matchLDefs)
-              then immediateMatchMainEMC (ELet () NonRecursive matchLDefs innerExpr)
-              else innerExpr
+            = case matchLDefs of
+                _ : _ ->
+                  immediateMatchMainEMC boundExpr
+                _ -> innerExpr
         in
           ELet () flag lDefs expr
     go e = e

@@ -60,89 +60,82 @@ formFVsE :: Getter a Identifier -> FVFormer (Expression t l a) (Expression ('Ann
 formFVsE _ (EInteger _ n) = pure (EInteger Set.empty n)
 formFVsE _ (EConstructor _ tag arity) = pure (EConstructor Set.empty tag arity)
 formFVsE _ (EVariable _ v) = do
-  env <- ask
-
-  let
-    fvs
+  fvs <- asks getFvs
+  pure (EVariable fvs v)
+  where
+    getFvs env
       | Set.member v env = Set.singleton v
       | otherwise = Set.empty
 
-    {-# INLINEABLE fvs #-}
-  pure (EVariable fvs v)
+    {-# INLINEABLE getFvs #-}
 formFVsE _ (EPrimitive _ prim) = pure (EPrimitive Set.empty prim)
 formFVsE _a (EApplication _ expr1 expr2) = do
   expr1' <- formFVsE _a expr1
   expr2' <- formFVsE _a expr2
-
-  let
-    fvs = expr1' ^. _annotation <> expr2' ^. _annotation
-
-    {-# INLINEABLE fvs #-}
-  pure (EApplication fvs expr1' expr2')
+  pure (EApplication (foldMap (^. _annotation) [expr1', expr2']) expr1' expr2')
 formFVsE _a (ELet _ flag lDefs expr) = do
-  env <- ask
-
-  let
-    exprEnv = lDefsBinderIdSet <> env
-    lDefsEnv
-      | isRecursive flag = exprEnv
-      | otherwise = env
+  (exprEnv, lDefsEnv) <- asks getEnvs
+  expr' <- local (const exprEnv) $ formFVsE _a expr
+  lDefs' <- local (const lDefsEnv) $ formLDefsBodies lDefs
+  pure (ELet (getFvs lDefs' expr') flag lDefs' expr')
+  where
+    getEnvs env
+      = let
+          exprEnv = lDefsBinderIdSet <> env
+          lDefsEnv
+            | isRecursive flag = exprEnv
+            | otherwise = env
+        in
+          (exprEnv, lDefsEnv)
+    lDefsBinderIdSet = lDefs ^. setFrom (each . _letDefinitionBinder . _a)
 
     formLDefsBodies = each . _letDefinitionBody %%~ formFVsE _a
 
-    {-# INLINEABLE lDefsEnv #-}
+    getFvs lDefs' expr' = fvsLDefs' <> fvsExpr'
+      where
+        fvsLDefs'
+          | isRecursive flag = fvsLDefsBodies' Set.\\ lDefsBinderIdSet
+          | otherwise = fvsLDefsBodies'
+        fvsLDefsBodies' = lDefs' ^. each . _letDefinitionBody . _annotation
+        fvsExpr'
+          = (expr' ^. _annotation) Set.\\ lDefsBinderIdSet
+
+        {-# INLINEABLE fvsLDefs' #-}
+        {-# INLINEABLE fvsLDefsBodies' #-}
+        {-# INLINEABLE fvsExpr' #-}
+
+    {-# INLINEABLE getEnvs #-}
     {-# INLINEABLE formLDefsBodies #-}
-  expr' <- local (const exprEnv) . formFVsE _a $ expr
-  lDefs' <- local (const lDefsEnv) . formLDefsBodies $ lDefs
-
-  let
-    fvsLDefsBodies' = lDefs' ^. each . _letDefinitionBody . _annotation
-    fvsLDefs'
-      | isRecursive flag = fvsLDefsBodies' Set.\\ lDefsBinderIdSet
-      | otherwise = fvsLDefsBodies'
-    fvsExpr' = (expr' ^. _annotation) Set.\\ lDefsBinderIdSet
-    fvs = fvsLDefs' <> fvsExpr'
-
-    {-# INLINEABLE fvsLDefsBodies' #-}
-    {-# INLINEABLE fvsLDefs' #-}
-    {-# INLINEABLE fvsExpr' #-}
-    {-# INLINEABLE fvs #-}
-  pure (ELet fvs flag lDefs' expr')
-  where
-    lDefsBinderIdSet = lDefs ^. setFrom (each . _letDefinitionBinder . _a)
+    {-# INLINEABLE getFvs #-}
 formFVsE _a (EMatch _ expr mCases) = do
-  let
-    formMCaseBodies mCaseArgSet = local (mCaseArgSet <>) . formFVsE _a
-    formMCase mCaseArgSet = _matchCaseBody %%~ formMCaseBodies mCaseArgSet
-
-    {-# INLINEABLE formMCaseBodies #-}
-    {-# INLINEABLE formMCase #-}
   expr' <- formFVsE _a expr
   mCases' <- zipWithM formMCase mCasesArgumentSets mCases
-
-  let
-    fvssMCasesBodies' = mCases' ^.. each . _matchCaseBody . _annotation
-    fvsMCases' = mconcat (zipWith (Set.\\) fvssMCasesBodies' mCasesArgumentSets)
-    fvs = fvsMCases' <> expr' ^. _annotation
-
-    {-# INLINEABLE fvssMCasesBodies' #-}
-    {-# INLINEABLE fvsMCases' #-}
-    {-# INLINEABLE fvs #-}
-  pure (EMatch fvs expr' mCases')
+  pure (EMatch (getFvs expr' mCases') expr' mCases')
   where
     mCasesArgumentSets = mCases ^.. each . _matchCaseArguments . setFrom (each . _a)
+
+    formMCase mCaseArgSet
+      = _matchCaseBody %%~ local (mCaseArgSet <>) . formFVsE _a
+
+    getFvs expr' mCases' = fvsMCases' <> expr' ^. _annotation
+      where
+        fvssMCasesBodies' = mCases' ^.. each . _matchCaseBody . _annotation
+        fvsMCases' = mconcat (zipWith (Set.\\) fvssMCasesBodies' mCasesArgumentSets)
+
+        {-# INLINEABLE fvssMCasesBodies' #-}
+        {-# INLINEABLE fvsMCases' #-}
+
+    {-# INLINEABLE formMCase #-}
+    {-# INLINEABLE getFvs #-}
 formFVsE _a (ELambda _ args expr) = do
-  expr' <- local (argIdSet <>) . formFVsE _a $ expr
-
-  let
-    fvsExpr' = expr' ^. _annotation
-    fvs = fvsExpr' Set.\\ argIdSet
-
-    {-# INLINEABLE fvsExpr' #-}
-    {-# INLINEABLE fvs #-}
-  pure (ELambda fvs args expr')
+  expr' <- local (argIdSet <>) $ formFVsE _a expr
+  pure (ELambda (getFvs expr') args expr')
   where
     argIdSet = args ^. setFrom (each . _a)
+
+    getFvs expr' = (expr' ^. _annotation) Set.\\ argIdSet
+
+    {-# INLINEABLE getFvs #-}
 
 -- |
 -- __TODO: move this definition into a separate utility module.__
