@@ -92,7 +92,7 @@ tests:
     dependencies:
       - hlint-minicute-utilities
     build-tools:
-      - hlint-run
+      - hlint-minicute-utilities:hlint-run
 
 # benchmarks:
 

@@ -25,6 +25,16 @@
     modules:
     - import Data.Set as Set
 
+- package:
+    name: parser-combinators
+    modules:
+    - import Control.Monad.Combinators
+
+- package:
+    name: megaparsec
+    modules:
+    - import Text.Megaparsec
+
 - group:
     name: default
     enabled: true

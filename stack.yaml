@@ -83,5 +83,4 @@ require-stack-version: ">= 2.1"
 build:
   test-arguments:
     additional-args:
-      - "--color"
-      - always
+      - "--color=always"
