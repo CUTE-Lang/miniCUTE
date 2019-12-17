@@ -25,11 +25,14 @@ qqGMachine :: QuasiQuoter
 qqGMachine
   = QuasiQuoter
     { quoteExp = qqGMachineExp
-    , quotePat = const . fail $ "qqMiniMainExp cannot be used as a pattern"
-    , quoteType = const . fail $ "qqMiniMainExp cannot be used as a type"
-    , quoteDec = const . fail $ "qqMiniMainExp cannot be used as a declaration"
+    , quotePat = const $ fail "qqMiniMainExp cannot be used as a pattern"
+    , quoteType = const $ fail "qqMiniMainExp cannot be used as a type"
+    , quoteDec = const $ fail "qqMiniMainExp cannot be used as a declaration"
     }
 
 
 qqGMachineExp :: String -> Q Exp
-qqGMachineExp = lift . either (error . errorBundlePretty) id . parse gMachineProgram "" . normalizeCode
+qqGMachineExp
+  = either (fail . errorBundlePretty) lift
+    . parse gMachineProgram ""
+    . normalizeCode

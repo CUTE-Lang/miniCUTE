@@ -77,11 +77,10 @@ matchTable
 
 matchEntry :: Parser MatchEntry
 matchEntry
-  = MatchEntry
-    <$> ( (,)
-          <$> L.integer <* L.symbol "->"
-          <*> gMachineExpression
-        )
+  = (MatchEntry .)
+    . (,)
+    <$> L.integer <* L.symbol "->"
+    <*> gMachineExpression
 
 
 separator :: (MonadParser e s m) => m ()
