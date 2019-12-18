@@ -8,7 +8,11 @@ module Minicute.Transpilers.LLVM
   , generateMachineCode
   ) where
 
-import Control.Monad
+import Prelude hiding ( fail )
+
+import Control.Monad ( forM_ )
+import Control.Monad.Fail
+import Data.Maybe
 import Data.String
 import LLVM.IRBuilder
 import Minicute.Data.Common
@@ -19,26 +23,35 @@ import qualified LLVM.AST as AST
 import qualified LLVM.AST.Type as ASTT
 
 generateMachineCode :: GMachineProgram -> [AST.Definition]
-generateMachineCode program = execModuleBuilder emptyModuleBuilder (generateMachineCodeProgram program)
+generateMachineCode program
+  = fromMaybe [] $ execModuleBuilderT emptyModuleBuilder $ generateMachineCodeProgram program
+{-# INLINABLE generateMachineCode #-}
 
-generateMachineCodeProgram :: GMachineProgram -> ModuleBuilder ()
-generateMachineCodeProgram program = forM_ program generateMachineCodeSc
+generateMachineCodeProgram :: GMachineProgram -> ModuleBuilderT Maybe ()
+generateMachineCodeProgram program
+  = forM_ program generateMachineCodeSc
+{-# INLINE generateMachineCodeProgram #-}
 
-generateMachineCodeSc :: GMachineSupercombinator -> ModuleBuilder ()
+generateMachineCodeSc :: GMachineSupercombinator -> ModuleBuilderT Maybe ()
 generateMachineCodeSc (Identifier binder, _, expr) = do
   _ <- global nodeName typeNodeNGlobal nodeBodyBuilder
-  _ <- function codeName [] ASTT.void codeBodyBuilder
+  _ <- function codeName [] ASTT.void (const codeBodyBuilder)
   pure ()
   where
-    codeName = fromString ("minicute__user_defined__" <> binder <> "__code")
-    codeBodyBuilder _ = do
+    codeName = fromString $ "minicute__user_defined__" <> binder <> "__code"
+    codeBodyBuilder = do
       emitBlockStart "entry"
       generateMachineCodeE expr
 
-    nodeName = fromString ("minicute__user_defined__" <> binder <> "__node")
+    nodeName = fromString $ "minicute__user_defined__" <> binder <> "__node"
     nodeBodyBuilder = constantNodeNGlobal codeName
 
-generateMachineCodeE :: GMachineExpression -> IRBuilderT ModuleBuilder ()
+    {-# INLINABLE codeName #-}
+    {-# INLINE codeBodyBuilder #-}
+    {-# INLINABLE nodeName #-}
+    {-# INLINE nodeBodyBuilder #-}
+
+generateMachineCodeE :: GMachineExpression -> IRBuilderT (ModuleBuilderT Maybe) ()
 generateMachineCodeE = go []
   where
     go vStack (IMakeInteger v : insts@(_ : _)) = do
@@ -138,7 +151,7 @@ generateMachineCodeE = go []
 
       retVoid
 
-    go _ insts = error $ "generateMachineCodeE: Not yet implemented for " <> show insts
+    go _ insts = fail $ "generateMachineCodeE: Not yet implemented for " <> show insts
 
     evalBody = do
       bName <- load operandAddrBasePointer 0
@@ -147,3 +160,4 @@ generateMachineCodeE = go []
       store sName' 0 operandAddrBasePointer
       _ <- call operandUtilUnwind []
       store bName 0 operandAddrBasePointer
+    {-# INLINEABLE evalBody #-}
