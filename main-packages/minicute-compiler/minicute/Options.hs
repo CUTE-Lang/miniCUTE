@@ -31,8 +31,8 @@ parseArguments = foldM parseArgument initialOptions
 parseArgument :: NaiveOptions -> String -> IO NaiveOptions
 parseArgument _ "-h" = usage >> exitSuccess
 parseArgument _ "--help" = usage >> exitSuccess
-parseArgument NaiveOptions{ inputFilePath = Just _ } _ = usage >> exitFailure
-parseArgument opts filePath = pure opts{ inputFilePath = Just filePath }
+parseArgument opts@NaiveOptions{ inputFilePath = Nothing } filePath = pure opts{ inputFilePath = Just filePath }
+parseArgument _ _ = usage >> exitFailure
 
 newtype ElaboratedOptions
   = ElaboratedOptions
