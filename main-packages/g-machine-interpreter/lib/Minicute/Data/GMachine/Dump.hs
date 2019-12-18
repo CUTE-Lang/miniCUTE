@@ -28,7 +28,7 @@ import Control.Lens.TH
 import Control.Lens.Traversal ( partsOf )
 import Control.Lens.Tuple
 import Control.Lens.Wrapped ( _Wrapped )
-import Control.Monad ( join )
+import Control.Monad.Extra ( concatMapM )
 import Control.Monad.Fail
 import Control.Monad.State ( MonadState, evalStateT )
 import Data.Data
@@ -56,20 +56,25 @@ makeWrapped ''Dump
 
 empty :: Dump
 empty = Dump []
+{-# INLINE empty #-}
 
 saveState :: (MonadState s m, s ~ Dump) => DumpItem -> m ()
 saveState di = _Wrapped %= (di :)
+{-# INLINABLE saveState #-}
 
 loadState :: (MonadState s m, s ~ Dump, MonadFail m) => m DumpItem
 loadState = _Wrapped %%~= loadState'
   where
     loadState' (di : dis) = pure (di, dis)
     loadState' _ = fail "loadState: There is no dumped state to load"
+    {-# INLINABLE loadState' #-}
+{-# INLINABLE loadState #-}
 
 extractAllAddresses :: (MonadState s m, s ~ Dump, MonadFail m) => m [Address]
 extractAllAddresses = do
-  addrStks <- use (_Wrapped . partsOf (traverse . _2))
-  fmap join . traverse (evalStateT AddressStack.peekAllAddrs) $ addrStks
+  addrStks <- use $ partsOf $ _Wrapped . traverse . _2
+  concatMapM (evalStateT AddressStack.peekAllAddrs) addrStks
+{-# INLINABLE extractAllAddresses #-}
 
 
 emptyDumpItem :: DumpItem
@@ -78,3 +83,4 @@ emptyDumpItem
     , AddressStack.empty
     , ValueStack.empty
     )
+{-# INLINE emptyDumpItem #-}

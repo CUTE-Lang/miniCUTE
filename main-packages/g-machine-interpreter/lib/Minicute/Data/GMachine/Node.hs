@@ -36,3 +36,4 @@ isValueNode :: Node -> Bool
 isValueNode (NInteger _) = True
 isValueNode (NStructure _ _) = True
 isValueNode _ = False
+{-# INLINABLE isValueNode #-}

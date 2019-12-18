@@ -20,7 +20,6 @@ module Minicute.Control.GMachine
 
 import Prelude hiding ( fail )
 
-import Control.Monad ( (<=<) )
 import Control.Monad.Fail
 import Control.Monad.State ( MonadState(..), StateT, execStateT, gets, modify )
 import Control.Monad.Trans ( MonadTrans(..) )
@@ -66,10 +65,10 @@ instance (Monad m) => MonadState (NonEmpty GMachineState) (GMachineMonadT m) whe
 instance MonadTrans GMachineMonadT where
   lift = GMachineMonadT . pure . lift
 
-execGMachineT :: (Monad m) => GMachineMonadT m a -> m (NonEmpty GMachineState)
+execGMachineT :: (MonadFail m) => GMachineMonadT m a -> m (NonEmpty GMachineState)
 execGMachineT (GMachineMonadT a)
   | Just st <- maySt = NonEmpty.reverse <$> execStateT b (st :| [])
-  | otherwise = error "execGMachineT: input G-Machine is not initialized"
+  | otherwise = fail "execGMachineT: input G-Machine is not initialized"
   where
     (b, First maySt) = runWriter a
 
@@ -77,15 +76,19 @@ execGMachineT (GMachineMonadT a)
 initializeGMachineWith :: (Monad m) => GMachineProgram -> GMachineMonadT m ()
 initializeGMachineWith
   = GMachineMonadT
-    . ( pure . pure
-        <=< tell . First . Just . buildInitialState
-      )
+    . fmap pure
+    . tell
+    . pure
+    . buildInitialState
 
 executeGMachineStep :: (Monad m) => GMachineStepMonadT m () -> GMachineMonadT m ()
 executeGMachineStep step = do
-  st <- gets NonEmpty.head
-  st' <- lift . execGMachineStepT step $ st
-  modify (st' <|)
+  nextSt <- getCurrentState >>= makeNextState
+  modify (nextSt <|)
+  where
+    getCurrentState = gets NonEmpty.head
+    makeNextState = lift . execGMachineStepT step
 
 checkGMachineFinished :: (Monad m) => GMachineMonadT m Bool
-checkGMachineFinished = gets (checkTerminalState . NonEmpty.head)
+checkGMachineFinished
+  = gets (checkTerminalState . NonEmpty.head)
