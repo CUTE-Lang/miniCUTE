@@ -5,6 +5,8 @@ module Usage
 import Data.Foldable
 import System.Environment
 
+-- |
+-- __TODO: generate this using options__
 usage :: IO ()
 usage = do
   progName <- getProgName
