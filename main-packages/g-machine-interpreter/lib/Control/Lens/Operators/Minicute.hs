@@ -5,16 +5,14 @@ module Control.Lens.Operators.Minicute
   ( (%%~=)
   ) where
 
-import Control.Lens.Internal.Getter ( AlongsideLeft(..), getAlongsideLeft )
+import Control.Lens.Internal.Getter ( AlongsideRight(..) )
 import Control.Lens.Type
-import Control.Monad.State ( MonadState, gets, put )
-import Data.Tuple ( swap )
+import Control.Monad.State ( MonadState(..) )
 
 infixr 4 %%~=
 
-(%%~=) :: (MonadState s m) => LensLike (AlongsideLeft m r) s s a b -> (a -> m (r, b)) -> m r
+(%%~=) :: (MonadState s m) => LensLike (AlongsideRight m r) s s a b -> (a -> m (r, b)) -> m r
 _l %%~= f = do
-  along <- gets $ _l (AlongsideLeft . fmap swap . f)
-  (st, res) <- getAlongsideLeft along
-  put st
-  pure res
+  st <- get
+  pair <- getAlongsideRight . _l (AlongsideRight . f) $ st
+  state (const pair)

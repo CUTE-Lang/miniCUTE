@@ -13,11 +13,14 @@ import Minicute.Data.GMachine.Instruction
 import Minicute.Interpreter.GMachine.Instruction
 
 interpretProgram :: GMachineProgram -> GMachineMonad ()
-interpretProgram program
-  = initializeGMachineWith program >> buildSteps
+interpretProgram program = do
+  initializeGMachineWith program
+  buildSteps
   where
     buildSteps
       = ifM checkGMachineFinished
         (pure ())
         (executeGMachineStep step >> buildSteps)
     step = fetchNextInstruction >>= interpretInstruction
+    {-# INLINE step #-}
+{-# INLINABLE interpretProgram #-}

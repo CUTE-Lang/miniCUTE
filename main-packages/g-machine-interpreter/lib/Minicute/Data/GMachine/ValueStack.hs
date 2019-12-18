@@ -40,12 +40,16 @@ makeWrapped ''ValueStack
 
 empty :: ValueStack
 empty = ValueStack []
+{-# INLINE empty #-}
 
 pushValue :: (MonadState s m, s ~ ValueStack) => Integer -> m ()
 pushValue n = _Wrapped %= (n :)
+{-# INLINABLE pushValue #-}
 
 popValue :: (MonadState s m, s ~ ValueStack, MonadFail m) => m Integer
 popValue = _Wrapped %%~= popValue'
   where
     popValue' (value : values) = pure (value, values)
     popValue' _ = fail "popValue: There is no value to pop"
+    {-# INLINABLE popValue' #-}
+{-# INLINABLE popValue #-}

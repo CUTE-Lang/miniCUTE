@@ -52,21 +52,28 @@ makeWrapped ''Global
 
 empty :: Global
 empty = Global Map.empty
+{-# INLINE empty #-}
 
 allocAddress :: (MonadState s m, s ~ Global) => Identifier -> Address -> m ()
 allocAddress ident addr = _Wrapped . at ident .= Just addr
+{-# INLINABLE allocAddress #-}
 
 updateAddress :: (MonadState s m, s ~ Global, MonadFail m) => Identifier -> Address -> m ()
 updateAddress ident addr = _Wrapped . at ident %%~= updateAddress'
   where
     updateAddress' (Just _) = pure ((), Just addr)
     updateAddress' Nothing = fail $ "updateAddress: No registered address for the identifier " <> show ident
+    {-# INLINABLE updateAddress' #-}
+{-# INLINABLE updateAddress #-}
 
 findAddress :: (MonadState s m, s ~ Global, MonadFail m) => Identifier -> m Address
 findAddress ident = use (_Wrapped . at ident) >>= findAddress'
   where
     findAddress' (Just addr) = pure addr
     findAddress' Nothing = fail $ "findAddress: No registered address for the identifier " <> show ident
+    {-# INLINABLE findAddress' #-}
+{-# INLINABLE findAddress #-}
 
 findAllAddresses :: (MonadState s m, s ~ Global, MonadFail m) => m [Address]
 findAllAddresses = use (_Wrapped . partsOf traverse)
+{-# INLINABLE findAllAddresses #-}
