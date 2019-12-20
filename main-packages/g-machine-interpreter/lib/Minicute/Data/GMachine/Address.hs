@@ -11,9 +11,9 @@ module Minicute.Data.GMachine.Address
   , increaseAddress
   ) where
 
-import Data.Data
+import Data.Data ( Data, Typeable )
 import Data.Text.Prettyprint.Doc ( Pretty(..) )
-import GHC.Generics
+import GHC.Generics ( Generic )
 
 import qualified Data.Text.Prettyprint.Doc as PP
 

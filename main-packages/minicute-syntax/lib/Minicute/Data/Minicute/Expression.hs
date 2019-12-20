@@ -60,10 +60,10 @@ import Control.Lens.TH
 import Control.Lens.Tuple
 import Control.Lens.Type
 import Control.Lens.Wrapped ( _Wrapped )
-import Data.Data
+import Data.Data ( Data, Typeable )
 import Data.Kind ( Type )
 import Data.Text.Prettyprint.Doc.Minicute
-import GHC.Generics
+import GHC.Generics ( Generic )
 import Language.Haskell.TH.Syntax ( Lift )
 import Minicute.Data.Common
 

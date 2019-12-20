@@ -20,8 +20,8 @@ import Prelude hiding ( fail )
 import Control.Monad.Fail
 import Control.Monad.State ( MonadState(..), StateT, runStateT )
 import Control.Monad.Trans ( MonadTrans(..) )
-import Data.Data
-import GHC.Generics
+import Data.Data ( Typeable )
+import GHC.Generics ( Generic )
 import Minicute.Data.GMachine.State
 
 type GMachineStepMonad = GMachineStepMonadT IO

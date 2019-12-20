@@ -20,8 +20,8 @@ module Minicute.Data.Common.Precedence
   , PrecedenceTableEntry
   ) where
 
-import Data.Data
-import GHC.Generics
+import Data.Data ( Data, Typeable )
+import GHC.Generics ( Generic )
 import Language.Haskell.TH.Syntax
 
 import qualified Data.Text.Prettyprint.Doc as PP

@@ -35,9 +35,9 @@ import Control.Lens.TH
 import Control.Lens.Tuple
 import Control.Lens.Type
 import Control.Lens.Wrapped
-import Data.Data
+import Data.Data ( Data, Typeable )
 import Data.Text.Prettyprint.Doc.Minicute
-import GHC.Generics
+import GHC.Generics ( Generic )
 import Language.Haskell.TH.Syntax
 import Minicute.Data.Minicute.Expression
 

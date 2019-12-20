@@ -31,8 +31,8 @@ import Control.Lens.Traversal ( partsOf )
 import Control.Lens.Wrapped ( _Wrapped )
 import Control.Monad.Fail
 import Control.Monad.State ( MonadState )
-import Data.Data
-import GHC.Generics
+import Data.Data ( Data, Typeable )
+import GHC.Generics ( Generic )
 import Minicute.Data.Common ( Identifier(..) )
 import Minicute.Data.GMachine.Address
 
