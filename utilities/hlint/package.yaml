@@ -48,7 +48,6 @@ library:
     - lib
   ghc-options:
     - -Wall
-    - -Wstar-is-type
   dependencies:
     - directory >= 1.3 && < 2
     - filepath >= 1.4 && < 2

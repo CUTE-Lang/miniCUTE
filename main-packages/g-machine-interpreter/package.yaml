@@ -48,7 +48,6 @@ library:
     - lib
   ghc-options:
     - -Wall
-    - -Wstar-is-type
   dependencies:
     - base-minicute == 0.1.0.0
     - containers >= 0.6 && < 0.7
