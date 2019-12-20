@@ -24,10 +24,10 @@ import Control.Monad.Fail
 import Control.Monad.State ( MonadState(..), StateT, execStateT, gets, modify )
 import Control.Monad.Trans ( MonadTrans(..) )
 import Control.Monad.Writer ( MonadWriter(..), Writer, runWriter )
-import Data.Data
+import Data.Data ( Typeable )
 import Data.List.NonEmpty ( NonEmpty(..), (<|) )
 import Data.Monoid ( First(..) )
-import GHC.Generics
+import GHC.Generics ( Generic )
 import Minicute.Control.GMachine.Step
 import Minicute.Data.GMachine.Instruction
 

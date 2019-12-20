@@ -26,8 +26,8 @@ module Minicute.Data.GMachine.Instruction
   , MatchEntry( .. )
   ) where
 
-import Data.Data
-import GHC.Generics
+import Data.Data ( Data, Typeable )
+import GHC.Generics ( Generic )
 import Language.Haskell.TH.Syntax
 import Minicute.Data.Common
 
