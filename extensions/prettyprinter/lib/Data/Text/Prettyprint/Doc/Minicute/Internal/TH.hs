@@ -6,11 +6,12 @@ import Language.Haskell.TH.Lib
 import Language.Haskell.TH.Syntax
 
 makePrettyMCFromPretty :: Name -> DecsQ
-makePrettyMCFromPretty tName = do
-  let
+makePrettyMCFromPretty tName = pure <$> prettyMCInstance
+  where
     prettyMCFunctionName = mkName "prettyMC"
     prettyListMCFunctionName = mkName "prettyListMC"
     prettyMCClassName = mkName "Data.Text.Prettyprint.Doc.Minicute.PrettyMC"
+
     prettyMCInstance
       = instanceD (cxt []) (conT prettyMCClassName `appT` conT tName)
         [ funD prettyMCFunctionName
@@ -20,5 +21,3 @@ makePrettyMCFromPretty tName = do
         , pragInlD prettyMCFunctionName Inlinable FunLike AllPhases
         , pragInlD prettyListMCFunctionName Inlinable FunLike AllPhases
         ]
-  pure <$>  prettyMCInstance
-
