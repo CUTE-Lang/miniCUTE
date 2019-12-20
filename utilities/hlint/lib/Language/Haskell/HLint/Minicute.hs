@@ -29,6 +29,7 @@ hlint dirs = do
   where
     hlintFailure
       = fail "The setting file hlint.yaml does not exist in any ancestor directories"
+    {-# INLINABLE hlintFailure #-}
 
 findHlintPath :: IO (Maybe FilePath)
 findHlintPath = do
@@ -47,3 +48,8 @@ findHlintPath = do
     getParentDirectory dir
       | isDrive dir = pure Nothing
       | otherwise = Just <$> canonicalizePath (dir </> "..")
+
+    {-# INLINABLE ancestorDirectories #-}
+    {-# INLINABLE ancestorDirectoriesFrom #-}
+    {-# INLINABLE getParentDirectory #-}
+{-# INLINABLE findHlintPath #-}
