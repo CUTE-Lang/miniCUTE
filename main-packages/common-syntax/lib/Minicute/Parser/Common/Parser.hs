@@ -25,14 +25,14 @@ primitive
   where
     makePrimParser :: Primitive -> Parser Primitive
     makePrimParser prim = L.symbol (toString prim) $> prim
-{-# INLINEABLE primitive #-}
+{-# INLINABLE primitive #-}
 
 
 createPrimitiveOperatorTable :: (MonadParser e s m) => (Primitive -> expr) -> (expr -> expr -> expr) -> (expr -> expr -> expr -> expr) -> PrecedenceTable Primitive -> [[CombExpr.Operator m expr]]
 createPrimitiveOperatorTable cPrim cUn cBar
   = fmap (createPrimitiveOperator cPrim cUn cBar <$>)
     . groupSortOn (Down . precedence . snd)
-{-# INLINEABLE createPrimitiveOperatorTable #-}
+{-# INLINABLE createPrimitiveOperatorTable #-}
 
 createPrimitiveOperator :: (MonadParser e s m) => (Primitive -> expr) -> (expr -> expr -> expr) -> (expr -> expr -> expr -> expr) -> PrecedenceTableEntry Primitive -> CombExpr.Operator m expr
 createPrimitiveOperator cPrim cUn cBin (prim, prec)
@@ -46,13 +46,19 @@ createPrimitiveOperator cPrim cUn cBin (prim, prec)
     bin = createBinaryPrimitiveFunctionParser cPrim cBin prim
     un = createUnaryPrimitiveFunctionParser cPrim cUn prim
 
+    {-# INLINE bin #-}
+    {-# INLINE un #-}
+{-# INLINABLE createPrimitiveOperator #-}
+
 createBinaryPrimitiveFunctionParser :: (MonadParser e s m) => (Primitive -> expr) -> (expr -> expr -> expr -> expr) -> Primitive -> m (expr -> expr -> expr)
 createBinaryPrimitiveFunctionParser cPrim cBin prim
   = L.symbol primName $> cBin (cPrim prim)
     <?> "binary primitive"
   where
     primName = toString prim
-{-# INLINEABLE createBinaryPrimitiveFunctionParser #-}
+
+    {-# INLINE primName #-}
+{-# INLINABLE createBinaryPrimitiveFunctionParser #-}
 
 createUnaryPrimitiveFunctionParser :: (MonadParser e s m) => (Primitive -> expr) -> (expr -> expr -> expr) -> Primitive -> m (expr -> expr)
 createUnaryPrimitiveFunctionParser cPrim cUn prim
@@ -60,4 +66,6 @@ createUnaryPrimitiveFunctionParser cPrim cUn prim
     <?> "unary primitive"
   where
     primName = toString prim
-{-# INLINEABLE createUnaryPrimitiveFunctionParser #-}
+
+    {-# INLINE primName #-}
+{-# INLINABLE createUnaryPrimitiveFunctionParser #-}

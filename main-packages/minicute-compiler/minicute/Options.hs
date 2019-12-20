@@ -24,9 +24,11 @@ initialOptions
   = NaiveOptions
     { inputFilePath = Nothing
     }
+{-# INLINE initialOptions #-}
 
 parseArguments :: [String] -> IO NaiveOptions
 parseArguments = foldM parseArgument initialOptions
+{-# INLINE parseArguments #-}
 
 parseArgument :: NaiveOptions -> String -> IO NaiveOptions
 parseArgument _ "-h" = usage >> exitSuccess
@@ -45,3 +47,5 @@ elaborate opts = do
   pure ElaboratedOptions{ inputHandle }
   where
     getInputHandle = maybe (pure stdin) (`openFile` ReadMode) . inputFilePath
+
+    {-# INLINABLE getInputHandle #-}

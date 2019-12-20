@@ -23,6 +23,7 @@ import Minicute.Utils.Minicute.Expression
 immediateMatchMainMC :: MainProgram 'Simple 'MC -> MainProgram 'Simple 'MC
 immediateMatchMainMC
   = _Wrapped . each . _supercombinatorBody %~ immediateMatchMainEMC
+{-# INLINABLE immediateMatchMainMC #-}
 
 -- |
 -- An optimizer to remove immediate matches in an expression.
@@ -47,3 +48,4 @@ immediateMatchMainEMC = transformOf uniplate go
         in
           ELet () flag lDefs expr
     go e = e
+{-# INLINABLE immediateMatchMainEMC #-}

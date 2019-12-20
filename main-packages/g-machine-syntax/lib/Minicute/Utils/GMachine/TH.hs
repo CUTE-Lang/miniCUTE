@@ -29,6 +29,7 @@ qqGMachine
     , quoteType = const $ fail "qqMiniMainExp cannot be used as a type"
     , quoteDec = const $ fail "qqMiniMainExp cannot be used as a declaration"
     }
+{-# INLINABLE qqGMachine #-}
 
 
 qqGMachineExp :: String -> Q Exp
@@ -36,3 +37,4 @@ qqGMachineExp
   = either (fail . errorBundlePretty) lift
     . parse gMachineProgram ""
     . normalizeCode
+{-# INLINABLE qqGMachineExp #-}

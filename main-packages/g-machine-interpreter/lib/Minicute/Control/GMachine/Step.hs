@@ -43,6 +43,8 @@ deriving instance (Monad m) => MonadState GMachineState (GMachineStepMonadT m)
 
 runGMachineStepT :: GMachineStepMonadT m a -> GMachineState -> m (a, GMachineState)
 runGMachineStepT = runStateT . runGMachineStepMonadT
+{-# INLINE runGMachineStepT #-}
 
 execGMachineStepT :: (Monad m) => GMachineStepMonadT m a -> GMachineState -> m GMachineState
 execGMachineStepT = (fmap snd .) . runGMachineStepT
+{-# INLINE execGMachineStepT #-}

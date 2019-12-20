@@ -21,6 +21,7 @@ module Minicute.Data.Common.Precedence
   ) where
 
 import Data.Data ( Data, Typeable )
+import Data.Text.Prettyprint.Doc.Minicute
 import GHC.Generics ( Generic )
 import Language.Haskell.TH.Syntax
 
@@ -48,13 +49,13 @@ data Precedence
 -- The maximum precedence value in miniCUTE.
 miniApplicationPrecedence :: Int
 miniApplicationPrecedence = 100
-{-# INLINEABLE miniApplicationPrecedence #-}
+{-# INLINE miniApplicationPrecedence #-}
 
 -- |
 -- The supremum precedence value in miniCUTE.
 miniApplicationPrecedence1 :: Int
 miniApplicationPrecedence1 = 101
-{-# INLINEABLE miniApplicationPrecedence1 #-}
+{-# INLINE miniApplicationPrecedence1 #-}
 
 -- |
 -- Check whether the input operator is infix (i.e. binary).
@@ -63,7 +64,7 @@ isInfix (PInfixN _) = True
 isInfix (PInfixL _) = True
 isInfix (PInfixR _) = True
 isInfix _ = False
-{-# INLINEABLE isInfix #-}
+{-# INLINABLE isInfix #-}
 
 
 -- |
@@ -72,7 +73,7 @@ isInfix _ = False
 -- @prettyPrec p1 e1@ and @prettyPrec p2 e2@ to give proper parenthesis.
 prettyBinaryExpressionPrec :: Int -> Precedence -> PP.Doc ann -> (Int -> PP.Doc ann) -> (Int -> PP.Doc ann) -> PP.Doc ann
 prettyBinaryExpressionPrec p opPrec opDoc e1DocF e2DocF
-  = (if p > opP then PP.parens else id) . PP.hsep
+  = prettyWrappedIf (p > opP) PP.parens . PP.hsep
     $ [ e1DocF leftP
       , opDoc
       , e2DocF rightP
@@ -84,7 +85,7 @@ prettyBinaryExpressionPrec p opPrec opDoc e1DocF e2DocF
           PInfixL opP' -> (opP', opP', opP' + 1)
           PInfixR opP' -> (opP' + 1, opP', opP')
           _ -> (miniApplicationPrecedence1, miniApplicationPrecedence, miniApplicationPrecedence1)
-{-# INLINEABLE prettyBinaryExpressionPrec #-}
+{-# INLINABLE prettyBinaryExpressionPrec #-}
 
 
 -- |

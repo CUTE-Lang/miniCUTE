@@ -49,21 +49,33 @@ instance (Monad m) => Applicative (GMachineMonadT m) where
   (GMachineMonadT f) <*> (GMachineMonadT a)
     = GMachineMonadT $ fmap (<*>) f <*> a
 
+  {-# INLINE pure #-}
+  {-# INLINABLE (<*>) #-}
+
 instance (Monad m) => Monad (GMachineMonadT m) where
   (GMachineMonadT a) >>= f
     = GMachineMonadT
       $ (>>= fst . runWriter . runGMachineMonadT . f) <$> a
+  {-# INLINABLE (>>=) #-}
 
 instance (MonadFail m) => MonadFail (GMachineMonadT m) where
   fail = GMachineMonadT . pure . fail
+
+  {-# INLINE fail #-}
 
 instance (Monad m) => MonadState (NonEmpty GMachineState) (GMachineMonadT m) where
   get = GMachineMonadT . pure $ get
   put = GMachineMonadT . pure . put
   state = GMachineMonadT . pure . state
 
+  {-# INLINE get #-}
+  {-# INLINE put #-}
+  {-# INLINE state #-}
+
 instance MonadTrans GMachineMonadT where
   lift = GMachineMonadT . pure . lift
+
+  {-# INLINE lift #-}
 
 execGMachineT :: (MonadFail m) => GMachineMonadT m a -> m (NonEmpty GMachineState)
 execGMachineT (GMachineMonadT a)
@@ -71,6 +83,7 @@ execGMachineT (GMachineMonadT a)
   | otherwise = fail "execGMachineT: input G-Machine is not initialized"
   where
     (b, First maySt) = runWriter a
+{-# INLINABLE execGMachineT #-}
 
 
 initializeGMachineWith :: (Monad m) => GMachineProgram -> GMachineMonadT m ()
@@ -80,6 +93,7 @@ initializeGMachineWith
     . tell
     . pure
     . buildInitialState
+{-# INLINABLE initializeGMachineWith #-}
 
 executeGMachineStep :: (Monad m) => GMachineStepMonadT m () -> GMachineMonadT m ()
 executeGMachineStep step = do
@@ -89,6 +103,11 @@ executeGMachineStep step = do
     getCurrentState = gets NonEmpty.head
     makeNextState = lift . execGMachineStepT step
 
+    {-# INLINE getCurrentState #-}
+    {-# INLINE makeNextState #-}
+{-# INLINABLE executeGMachineStep #-}
+
 checkGMachineFinished :: (Monad m) => GMachineMonadT m Bool
 checkGMachineFinished
   = gets (checkTerminalState . NonEmpty.head)
+{-# INLINE checkGMachineFinished #-}

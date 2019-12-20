@@ -29,10 +29,12 @@ qqRawCode
     , quoteType = const $ fail "qqRawCode cannot be used as a type"
     , quoteDec = const $ fail "qqRawCode cannot be used as a declaration"
     }
+{-# INLINABLE qqRawCode #-}
 
 
 qqRawCodeExp :: String -> Q Exp
 qqRawCodeExp = lift . normalizeCode
+{-# INLINE qqRawCodeExp #-}
 
 normalizeCode :: String -> String
 normalizeCode = updateString . toUnix
@@ -48,7 +50,13 @@ normalizeCode = updateString . toUnix
 
     isEmpty = all isSpace
 
-    adjustIndent ls = indentedLs
+    adjustIndent ls = drop indent <$> ls
       where
-        indentedLs = drop indent <$> ls
         indent = minimum $ length . takeWhile isSpace <$> ls
+
+    {-# INLINABLE updateString #-}
+    {-# INLINE trimStartEmptyLines #-}
+    {-# INLINE trimEndEmptyLines #-}
+    {-# INLINE isEmpty #-}
+    {-# INLINABLE adjustIndent #-}
+{-# INLINABLE normalizeCode #-}

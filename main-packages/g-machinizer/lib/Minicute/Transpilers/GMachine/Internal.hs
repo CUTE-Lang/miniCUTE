@@ -47,6 +47,7 @@ import qualified Data.Map as Map
 -- Transpiler for a __Program__.
 transpileProgram :: MainProgram t 'LLMC -> GMachineProgram
 transpileProgram program = transpileSc <$> program ^. _Wrapped
+{-# INLINABLE transpileProgram #-}
 
 -- |
 -- Transpiler for a __S__uper__c__ombinator (top-level function definition).
@@ -60,6 +61,12 @@ transpileSc sc = (scBinder, scArgsLength, scInsts)
     scArgsEnv = Map.fromList $ zip scArgs [0..]
     scArgsLength = length scArgs
     scArgs = sc ^. _supercombinatorArguments
+
+    {-# INLINABLE scBinder #-}
+    {-# INLINABLE scInsts #-}
+    {-# INLINABLE scArgsEnv #-}
+    {-# INLINABLE scArgsLength #-}
+{-# INLINABLE transpileSc #-}
 
 -- *** Transpilers for an Expression
 -- |
@@ -203,12 +210,19 @@ transpileLet transpileBody env (flag, lDefs, body)
     bodyInst = transpileBody env' body
     env' = updateLetEnv lDefs env
 
+    {-# INLINE bodyInst #-}
+    {-# INLINABLE env' #-}
+
 transpileLetDefs :: TranspilerE [MainLetDefinition t 'LLMC]
 transpileLetDefs env lDefs
   = concat (zipWith transpileNE envs lDefsBodies)
   where
     envs = iterate addEnvOffset1 env
     lDefsBodies = lDefs ^.. each . _letDefinitionBody
+
+    {-# INLINABLE envs #-}
+    {-# INLINABLE lDefsBodies #-}
+{-# INLINABLE transpileLetDefs #-}
 
 transpileLetRecDefs :: TranspilerE [MainLetDefinition t 'LLMC]
 transpileLetRecDefs env lDefs
@@ -219,6 +233,10 @@ transpileLetRecDefs env lDefs
     lDefsBodies = lDefs ^.. each . _letDefinitionBody
     len = length lDefs
 
+    {-# INLINABLE lDefsBodies #-}
+    {-# INLINE len #-}
+{-# INLINABLE transpileLetRecDefs #-}
+
 updateLetEnv :: [MainLetDefinition t 'LLMC] -> TranspilerEEnv -> TranspilerEEnv
 updateLetEnv lDefs env
   = envOfLDefs
@@ -227,6 +245,11 @@ updateLetEnv lDefs env
     envOfLDefs = Map.fromList (zip lDefsBinders [len - 1, len - 2 .. 0])
     lDefsBinders = lDefs ^.. each . _letDefinitionBinder
     len = length lDefs
+
+    {-# INLINABLE envOfLDefs #-}
+    {-# INLINABLE lDefsBinders #-}
+    {-# INLINE len #-}
+{-# INLINABLE updateLetEnv #-}
 
 -- |
 -- Transpiler for a __Match__ expression.
@@ -239,9 +262,13 @@ transpileMatch transpileBody transpileCase env (body, mCases)
   where
     bodyInst = transpileBody env body
 
+    {-# INLINE bodyInst #-}
+{-# INLINABLE transpileMatch #-}
+
 makeMatchTable :: (Integer -> TranspilerE (MainExpression t l)) -> TranspilerEEnv -> [MainMatchCase t l] -> MatchTable
 makeMatchTable transpileCase env
   = MatchTable . fmap (makeMatchEntry transpileCase env)
+{-# INLINABLE makeMatchTable #-}
 
 makeMatchEntry :: (Integer -> TranspilerE (MainExpression t l)) -> TranspilerEEnv -> MainMatchCase t l -> MatchEntry
 makeMatchEntry transpileCase env mCase
@@ -261,6 +288,14 @@ makeMatchEntry transpileCase env mCase
     caseArgsLen = genericLength caseArgs
     caseArgs = mCase ^. _matchCaseArguments
 
+    {-# INLINE caseInst #-}
+    {-# INLINE caseBody #-}
+    {-# INLINE caseTag #-}
+    {-# INLINABLE env' #-}
+    {-# INLINABLE caseArgsLen #-}
+    {-# INLINABLE caseArgs #-}
+{-# INLINABLE makeMatchEntry #-}
+
 -- ** Types
 -- |
 -- A transpiler that uses 'TranspilerEEnv' and @a@ to build 'GMachineExpression'
@@ -272,12 +307,15 @@ type TranspilerEEnv = Map.Map Identifier Int
 
 getEnvSize :: TranspilerEEnv -> Int
 getEnvSize = Map.size
+{-# INLINE getEnvSize #-}
 
 addEnvOffset1 :: TranspilerEEnv -> TranspilerEEnv
 addEnvOffset1 = fmap (+ 1)
+{-# INLINE addEnvOffset1 #-}
 
 addEnvOffset :: Int -> TranspilerEEnv -> TranspilerEEnv
 addEnvOffset n = fmap (+ n)
+{-# INLINE addEnvOffset #-}
 
 
 -- * Initial Instructions
@@ -285,3 +323,4 @@ addEnvOffset n = fmap (+ n)
 -- Initial instructions used to start any program.
 initialCode ::[Instruction]
 initialCode = [IMakeGlobal "main", IEval]
+{-# INLINE initialCode #-}

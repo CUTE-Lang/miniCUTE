@@ -232,6 +232,8 @@ instance (PrettyMC a) => PrettyMC (Expression 'Simple l a) where
       keyword
         | isRecursive flag = "letrec"
         | otherwise = "let"
+
+      {-# INLINABLE keyword #-}
   prettyMC p (EMatch _ e matchCases)
     = prettyWrappedIf (p > 0) PP.parens . PP.align . PP.hcat
       $ [ "match"
@@ -272,6 +274,8 @@ instance (PrettyMC ann, PrettyMC a) => PrettyMC (Expression ('AnnotatedWith ann)
       <> PP.braces (prettyMC0 ann1 <> PP.comma PP.<+> prettyMC0 ann2)
     where
       primDoc = prettyMC0 prim <> PP.braces (prettyMC0 annPrim)
+
+      {-# INLINABLE primDoc #-}
   prettyMC p (EApplication ann e1 e2)
     = prettyWrappedIf (p > miniApplicationPrecedence) PP.parens
       $ ( PP.align . PP.hcat
@@ -294,6 +298,8 @@ instance (PrettyMC ann, PrettyMC a) => PrettyMC (Expression ('AnnotatedWith ann)
       keyword
         | isRecursive flag = "letrec"
         | otherwise = "let"
+
+      {-# INLINABLE keyword #-}
   prettyMC p (EMatch ann e matchCases)
     = prettyWrappedIf (p > 0) PP.parens
       $ ( PP.align . PP.hcat
@@ -329,13 +335,13 @@ makeWrapped ''LetDefinition
 -- 'Lens' to extract the binder of 'LetDefinition'
 _letDefinitionBinder :: Lens' (LetDefinition t l a) a
 _letDefinitionBinder = _Wrapped . _1
-{-# INLINEABLE _letDefinitionBinder #-}
+{-# INLINABLE _letDefinitionBinder #-}
 
 -- |
 -- 'Lens' to extract the body expression of 'LetDefinition'
 _letDefinitionBody :: Lens (LetDefinition t l a) (LetDefinition t' l' a) (Expression t l a) (Expression t' l' a)
 _letDefinitionBody = _Wrapped . _2
-{-# INLINEABLE _letDefinitionBody #-}
+{-# INLINABLE _letDefinitionBody #-}
 
 
 makeWrapped ''MatchCase
@@ -344,19 +350,19 @@ makeWrapped ''MatchCase
 -- 'Lens' to extract the tag of 'MatchCase'
 _matchCaseTag :: Lens' (MatchCase t l a) Integer
 _matchCaseTag = _Wrapped . _1
-{-# INLINEABLE _matchCaseTag #-}
+{-# INLINABLE _matchCaseTag #-}
 
 -- |
 -- 'Lens' to extract the arguments of 'MatchCase'
 _matchCaseArguments :: Lens' (MatchCase t l a) [a]
 _matchCaseArguments = _Wrapped . _2
-{-# INLINEABLE _matchCaseArguments #-}
+{-# INLINABLE _matchCaseArguments #-}
 
 -- |
 -- 'Lens' to extract the body expression of 'MatchCase'
 _matchCaseBody :: Lens (MatchCase t l a) (MatchCase t' l' a) (Expression t l a) (Expression t' l' a)
 _matchCaseBody = _Wrapped . _3
-{-# INLINEABLE _matchCaseBody #-}
+{-# INLINABLE _matchCaseBody #-}
 
 
 makeWrapped ''IsRecursive
@@ -384,4 +390,4 @@ _annotation = lens getter setter
     setter (ELet _ flag lDefs expr) ann = ELet ann flag lDefs expr
     setter (EMatch _ mCases expr) ann = EMatch ann mCases expr
     setter (ELambda _ argBinders expr) ann = ELambda ann argBinders expr
-{-# INLINEABLE _annotation #-}
+{-# INLINABLE _annotation #-}

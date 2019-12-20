@@ -30,6 +30,7 @@ qqMiniMainMC
     , quoteType = const $ fail "qqMiniMainExpMC cannot be used as a type"
     , quoteDec = const $ fail "qqMiniMainExpMC cannot be used as a declaration"
     }
+{-# INLINABLE qqMiniMainMC #-}
 
 -- |
 -- parse quoted string as a 'MainProgramLLMC'.
@@ -41,6 +42,7 @@ qqMiniMainLLMC
     , quoteType = const $ fail "qqMiniMainExpLLMC cannot be used as a type"
     , quoteDec = const $ fail "qqMiniMainExpLLMC cannot be used as a declaration"
     }
+{-# INLINABLE qqMiniMainLLMC #-}
 
 
 qqMiniMainExpMC :: String -> Q Exp
@@ -48,9 +50,11 @@ qqMiniMainExpMC
   = either (fail . errorBundlePretty) lift
     . parse mainProgramMC ""
     . normalizeCode
+{-# INLINABLE qqMiniMainExpMC #-}
 
 qqMiniMainExpLLMC :: String -> Q Exp
 qqMiniMainExpLLMC
   = either (fail . errorBundlePretty) lift
     . parse mainProgramLLMC ""
     . normalizeCode
+{-# INLINABLE qqMiniMainExpLLMC #-}

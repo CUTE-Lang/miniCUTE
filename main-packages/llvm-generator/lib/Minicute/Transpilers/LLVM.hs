@@ -160,4 +160,4 @@ generateMachineCodeE = go []
       store sName' 0 operandAddrBasePointer
       _ <- call operandUtilUnwind []
       store bName 0 operandAddrBasePointer
-    {-# INLINEABLE evalBody #-}
+    {-# INLINABLE evalBody #-}
