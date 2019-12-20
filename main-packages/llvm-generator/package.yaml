@@ -48,7 +48,6 @@ library:
     - lib
   ghc-options:
     - -Wall
-    - -Wstar-is-type
   dependencies:
     - llvm-hs-pure >= 8.0.0 && < 9
     - mtl >= 2.2 && < 3

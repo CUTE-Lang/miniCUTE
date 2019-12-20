@@ -48,7 +48,6 @@ library:
     - lib
   ghc-options:
     - -Wall
-    - -Wstar-is-type
   dependencies:
     - containers >= 0.6 && < 0.7
     - lens >= 4.17 && < 5

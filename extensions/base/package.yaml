@@ -49,7 +49,6 @@ library:
     - lib
   ghc-options:
     - -Wall
-    - -Wstar-is-type
   dependencies:
     - template-haskell >= 2.14 && < 3
 
