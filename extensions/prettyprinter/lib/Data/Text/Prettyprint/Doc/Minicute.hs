@@ -46,11 +46,11 @@ class PrettyMC a where
 
 prettyMC0 :: (PrettyMC a) => a -> Doc ann
 prettyMC0 = prettyMC 0
-{-# INLINABLE prettyMC0 #-}
+{-# INLINE prettyMC0 #-}
 
 prettyListMC0 :: (PrettyMC a) => [a] -> Doc ann
 prettyListMC0 = prettyListMC 0
-{-# INLINABLE prettyListMC0 #-}
+{-# INLINE prettyListMC0 #-}
 
 fmap fold . traverse makePrettyMCFromPretty
   $ [ ''Bool
@@ -110,9 +110,9 @@ instance (PrettyMC a) => PrettyMC (Const a b) where
 -- @prettyIndent doc@ make a document indented with an appropriate size.
 prettyIndent :: Doc ann -> Doc ann
 prettyIndent = indent 2
-{-# INLINEABLE prettyIndent #-}
+{-# INLINE prettyIndent #-}
 
 prettyWrappedIf :: Bool -> (Doc ann -> Doc ann) -> Doc ann -> Doc ann
 prettyWrappedIf True f = f
 prettyWrappedIf False _ = id
-{-# INLINEABLE prettyWrappedIf #-}
+{-# INLINABLE prettyWrappedIf #-}

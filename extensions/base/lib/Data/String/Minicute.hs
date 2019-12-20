@@ -21,3 +21,4 @@ toUnix ('\r' : '\n' : cs) = '\n' : toUnix cs
 toUnix ('\r' : cs) = '\n' : toUnix cs
 toUnix (c : cs) = c : toUnix cs
 toUnix [] = []
+{-# INLINABLE toUnix #-}

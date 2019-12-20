@@ -62,6 +62,8 @@ makeTupleZippers n
 
 tupT :: [TypeQ] -> TypeQ
 tupT ts = tupleT (length ts) `appsT` ts
+{-# INLINE tupT #-}
 
 appsT :: TypeQ -> [TypeQ] -> TypeQ
 appsT = foldl appT
+{-# INLINE appsT #-}
