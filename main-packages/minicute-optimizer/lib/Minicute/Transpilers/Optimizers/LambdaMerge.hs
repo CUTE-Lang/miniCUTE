@@ -23,6 +23,7 @@ import Minicute.Data.Minicute.Program
 lambdaMergeMainMC :: MainProgram 'Simple 'MC -> MainProgram 'Simple 'MC
 lambdaMergeMainMC
   = _Wrapped . each . _supercombinatorBody %~ lambdaMergeMainEMC
+{-# INLINABLE lambdaMergeMainMC #-}
 
 -- |
 -- An optimizer to merge consecutive lambda expressions in an expression.
@@ -33,3 +34,4 @@ lambdaMergeMainEMC = transformOf uniplate go
     go (ELambda _ args0 (ELambda _ args1 expr))
       = ELambda () (args0 <> args1) expr
     go e = e
+{-# INLINABLE lambdaMergeMainEMC #-}

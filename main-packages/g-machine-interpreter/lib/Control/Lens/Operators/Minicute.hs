@@ -16,3 +16,4 @@ _l %%~= f = do
   st <- get
   pair <- getAlongsideRight . _l (AlongsideRight . f) $ st
   state (const pair)
+{-# INLINABLE (%%~=) #-}

@@ -38,10 +38,12 @@ lambdaLifting
     . renameVariablesMain
     . replaceLambda
     . formFreeVariablesMain
+{-# INLINABLE lambdaLifting #-}
 
 replaceLambda :: MainProgram ('AnnotatedWith FreeVariables) l -> MainProgram 'Simple l
 replaceLambda
   = _Wrapped . each . _supercombinatorBody %~ replaceLambdaE
+{-# INLINABLE replaceLambda #-}
 
 replaceLambdaE :: MainExpression ('AnnotatedWith FreeVariables) l -> MainExpression 'Simple l
 replaceLambdaE (EInteger _ n) = EInteger () n
@@ -65,18 +67,25 @@ replaceLambdaE (ELambda fvs args expr)
     annon
       = ELet ()
         NonRecursive
-        [LetDefinition ("annon", annonBody)]
+        [ LetDefinition
+          ( "annon"
+          , ELambda ()
+            (fvsList <> args)
+            (replaceLambdaE expr)
+          )
+        ]
         (EVariable () "annon")
-    annonBody
-      = ELambda ()
-        (fvsList <> args)
-        (replaceLambdaE expr)
     fvsList = Set.toList fvs
+
+    {-# INLINE annon #-}
+    {-# INLINABLE fvsList #-}
 
 liftAnnons :: MainProgram t l -> MainProgram 'Simple 'LLMC
 liftAnnons = _Wrapped %~ concatMap liftAnnonsSc
   where
     liftAnnonsSc = uncurry (:) . swap . (_supercombinatorBody %%~ liftAnnonsE)
+    {-# INLINE liftAnnonsSc #-}
+{-# INLINE liftAnnons #-}
 
 liftAnnonsE :: MainExpression t l -> ([MainSupercombinator 'Simple 'LLMC], MainExpression 'Simple 'LLMC)
 liftAnnonsE (EInteger _ n) = (mempty, EInteger () n)

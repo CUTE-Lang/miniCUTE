@@ -38,7 +38,7 @@ import qualified Text.Megaparsec.Char.Lexer as MPTL
 -- @betweenRoundBrackets p@ parses @"("@, and then @p@, and finally @")"@.
 betweenRoundBrackets :: (MonadParser e s m) => m a -> m a
 betweenRoundBrackets = between (symbol "(") (symbol ")")
-{-# INLINEABLE betweenRoundBrackets #-}
+{-# INLINABLE betweenRoundBrackets #-}
 
 
 -- |
@@ -48,6 +48,7 @@ gMachineIdentifier :: (MonadParser e s m) => m (Tokens s)
 gMachineIdentifier
   = lexeme . many
     $ satisfy (getAny . foldMap (Any .) [(/= ';'), Char.isSpace])
+{-# INLINABLE gMachineIdentifier #-}
 
 
 -- I need to check whether identifier is a keyword or not
@@ -71,16 +72,17 @@ identifier = try identifier' <?> "identifier"
           fail $ "keyword " <> show i <> " cannot be an identifier"
       | otherwise = pure i
 
-    {-# INLINEABLE identifier' #-}
-    {-# INLINEABLE checkKeywords #-}
+    {-# INLINABLE identifier' #-}
+    {-# INLINABLE checkKeywords #-}
+{-# INLINABLE identifier #-}
 
 identifierFirstChar :: (MonadParser e s m) => m (Token s)
 identifierFirstChar = MPT.letterChar <|> single '_'
-{-# INLINEABLE identifierFirstChar #-}
+{-# INLINABLE identifierFirstChar #-}
 
 identifierRestChar :: (MonadParser e s m) => m (Token s)
 identifierRestChar = MPT.alphaNumChar <|> single '_'
-{-# INLINEABLE identifierRestChar #-}
+{-# INLINABLE identifierRestChar #-}
 
 -- |
 -- @keyword@ parses any keywords.
@@ -90,7 +92,7 @@ keyword :: (MonadParser e s m) => Tokens s -> m (Tokens s)
 keyword k
   | k `elem` keywordList = lexeme (chunk k <* notFollowedBy identifierRestChar)
   | otherwise = error (k <> " is not a keyword")
-{-# INLINEABLE keyword #-}
+{-# INLINABLE keyword #-}
 
 keywordList :: [String]
 keywordList
@@ -106,7 +108,7 @@ keywordList
 -- @symbol str@ parses @str@ and ignore the result.
 symbol :: (MonadParser e s m) => Tokens s -> m ()
 symbol = void . MPTL.symbol spacesConsumer
-{-# INLINEABLE symbol #-}
+{-# INLINABLE symbol #-}
 
 -- |
 -- @integer@ parses a decimal integer with no prefix,
@@ -143,19 +145,19 @@ integer
       = notFollowedBy MPT.alphaNumChar
         <?> "non-alphanumeric"
 
-    {-# INLINEABLE integerStartWithZero #-}
-    {-# INLINEABLE zero #-}
-    {-# INLINEABLE endOfInteger #-}
+    {-# INLINABLE integerStartWithZero #-}
+    {-# INLINABLE zero #-}
+    {-# INLINABLE endOfInteger #-}
 
 lexeme :: (MonadParser e s m) => m a -> m a
 lexeme = MPTL.lexeme spacesConsumer
-{-# INLINEABLE lexeme #-}
+{-# INLINABLE lexeme #-}
 
 -- |
 -- @spacesConsumer@ consumes all consecutive spaces and ignore the result.
 spacesConsumer :: (MonadParser e s m) => m ()
 spacesConsumer = hidden MPT.space
-{-# INLINEABLE spacesConsumer #-}
+{-# INLINABLE spacesConsumer #-}
 
 decimal :: forall e s m a. (MonadParser e s m, Integral a) => m a
 decimal
@@ -171,24 +173,28 @@ binary
     <?> "binary integer"
   where
     isBinDigit x = x == '0' || x == '1'
-{-# INLINEABLE binary #-}
+
+    {-# INLINE isBinDigit #-}
+{-# INLINABLE binary #-}
 
 octal :: forall e s m a. (MonadParser e s m, Integral a) => m a
 octal
   = mkNumWithRadix 8 (Proxy :: Proxy s)
     <$> takeWhile1P (Just "octal digit") Char.isOctDigit
     <?> "octal integer"
-{-# INLINEABLE octal #-}
+{-# INLINABLE octal #-}
 
 hexadecimal :: forall e s m a. (MonadParser e s m, Integral a) => m a
 hexadecimal
   = mkNumWithRadix 16 (Proxy :: Proxy s)
     <$> takeWhile1P (Just "hexadecimal digit") Char.isHexDigit
     <?> "hexadecimal integer"
-{-# INLINEABLE hexadecimal #-}
+{-# INLINABLE hexadecimal #-}
 
 mkNumWithRadix :: forall proxy s a. (Stream s, Token s ~ Char, Integral a) => a -> proxy s -> Tokens s -> a
 mkNumWithRadix radix _ = foldl' step 0 . chunkToTokens (Proxy :: Proxy s)
   where
     step a = (a * radix +) . fromIntegral . Char.digitToInt
-{-# INLINEABLE mkNumWithRadix #-}
+
+    {-# INLINABLE step #-}
+{-# INLINABLE mkNumWithRadix #-}

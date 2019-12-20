@@ -24,6 +24,7 @@ import qualified Minicute.Parser.Common.Lexer as L
 -- A parser for a G-Machine program.
 gMachineProgram :: Parser GMachineProgram
 gMachineProgram = many gMachineSupercombinator
+{-# INLINE gMachineProgram #-}
 
 gMachineSupercombinator :: Parser GMachineSupercombinator
 gMachineSupercombinator
@@ -31,9 +32,11 @@ gMachineSupercombinator
     <$> (Identifier <$> L.identifier)
     <*> between (L.symbol "<") (L.symbol ">") L.integer
     <*> between (L.symbol "{") (L.symbol "}") gMachineExpression
+{-# INLINABLE gMachineSupercombinator #-}
 
 gMachineExpression :: Parser GMachineExpression
 gMachineExpression = endBy instruction separator
+{-# INLINE gMachineExpression #-}
 
 -- |
 -- __TODO: Add a more appropriate lexer instead of 'L.symbol'.__
@@ -74,6 +77,7 @@ instruction
 matchTable :: Parser MatchTable
 matchTable
   = MatchTable <$> between (L.symbol "{") (L.symbol "}") (many matchEntry)
+{-# INLINABLE matchTable #-}
 
 matchEntry :: Parser MatchEntry
 matchEntry
@@ -81,8 +85,9 @@ matchEntry
     . (,)
     <$> L.integer <* L.symbol "->"
     <*> gMachineExpression
+{-# INLINABLE matchEntry #-}
 
 
 separator :: (MonadParser e s m) => m ()
 separator = L.symbol ";"
-{-# INLINEABLE separator #-}
+{-# INLINABLE separator #-}

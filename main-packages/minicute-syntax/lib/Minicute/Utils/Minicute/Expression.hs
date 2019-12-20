@@ -24,9 +24,12 @@ destructStructureExpression e = go e []
       | arity == genericLength args = Just (tag, args)
     go (EApplication _ e1 e2) args = go e1 (e2 : args)
     go _ _ = Nothing
+{-# INLINABLE destructStructureExpression #-}
 
 lookupMCasesL :: Integer -> [MatchCase t l a] -> Maybe (MatchCase t l a)
 lookupMCasesL tag = find (^. _matchCaseTag . to (== tag))
+{-# INLINABLE lookupMCasesL #-}
 
 lookupLDefsL :: (Eq a) => a -> [LetDefinition t l a] -> Maybe (LetDefinition t l a)
 lookupLDefsL binder = find (^. _letDefinitionBinder . to (== binder))
+{-# INLINABLE lookupLDefsL #-}

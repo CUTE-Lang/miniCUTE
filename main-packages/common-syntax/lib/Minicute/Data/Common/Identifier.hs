@@ -40,6 +40,7 @@ newtype Identifier
 
 instance Show Identifier where
   showsPrec _ (Identifier v) = showString v
+  {-# INLINE showsPrec #-}
 
 makePrettyMCFromPretty ''Identifier
 makeWrapped ''Identifier

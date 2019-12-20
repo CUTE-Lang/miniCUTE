@@ -48,3 +48,4 @@ interpret handle = do
 
 usage :: IO ()
 usage = putStrLn "Usage: minicute-g [file]"
+{-# INLINE usage #-}

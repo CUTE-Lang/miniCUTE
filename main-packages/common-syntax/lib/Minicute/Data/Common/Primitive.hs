@@ -55,9 +55,11 @@ toString PrimLt = "<"
 toString PrimLe = "<="
 toString PrimGt = ">"
 toString PrimGe = ">="
+{-# INLINABLE toString #-}
 
 instance PrettyMC Primitive where
   prettyMC _ = fromString . toString
+  {-# INLINE prettyMC #-}
 
 -- |
 -- All predefined precedences.
@@ -67,6 +69,7 @@ instance PrettyMC Primitive where
 primitivePrecedenceTable :: PrecedenceTable Primitive
 primitivePrecedenceTable
   = binaryPrimitivePrecedenceTable
+{-# INLINE primitivePrecedenceTable #-}
 
 -- |
 -- All precedences of binary primitives.

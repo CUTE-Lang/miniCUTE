@@ -104,19 +104,19 @@ makeWrapped ''Supercombinator
 -- 'Lens' to extract the binder of 'Supercombinator'
 _supercombinatorBinder :: Lens' (Supercombinator t l a) Identifier
 _supercombinatorBinder = _Wrapped . _1
-{-# INLINEABLE _supercombinatorBinder #-}
+{-# INLINABLE _supercombinatorBinder #-}
 
 -- |
 -- 'Lens' to extract the list of arguments of 'Supercombinator'
 _supercombinatorArguments :: Lens' (Supercombinator t l a) [a]
 _supercombinatorArguments = _Wrapped . _2
-{-# INLINEABLE _supercombinatorArguments #-}
+{-# INLINABLE _supercombinatorArguments #-}
 
 -- |
 -- 'Lens' to extract the body expression of 'Supercombinator'
 _supercombinatorBody :: Lens (Supercombinator t1 l1 a) (Supercombinator t2 l2 a) (Expression t1 l1 a) (Expression t2 l2 a)
 _supercombinatorBody = _Wrapped . _3
-{-# INLINEABLE _supercombinatorBody #-}
+{-# INLINABLE _supercombinatorBody #-}
 
 
 makeWrapped ''Program

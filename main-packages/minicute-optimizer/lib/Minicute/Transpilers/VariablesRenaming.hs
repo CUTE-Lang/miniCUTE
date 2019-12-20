@@ -54,13 +54,13 @@ renameVariables _a
             renameScBody = _supercombinatorBody %%~ renameVariablesE _a
 
             {-# INLINABLE renameScBody #-}
-
         {-# INLINABLE renameScsArgsAndBody #-}
 
     renameScBinder sc
       | sc ^. _supercombinatorBinder == "main" = pure ([], sc)
       | otherwise = first pure <$> renameAIn _supercombinatorBinder id sc
 
+    {-# INLINE renameProgram #-}
     {-# INLINABLE renameScBinder #-}
 {-# INLINABLE renameVariables #-}
 
@@ -90,6 +90,7 @@ renameVariablesE _a (ELet ann flag lDefs expr) = do
         exprRecord = lDefsBinderRecord <> record
 
         {-# INLINABLE lDefsRecord #-}
+        {-# INLINABLE exprRecord #-}
 
     renameLDefs lDefsRecord
       = local (const lDefsRecord)
@@ -114,7 +115,6 @@ renameVariablesE _a (EMatch ann expr mCases)
         renameMCaseBody = _matchCaseBody %%~ renameVariablesE _a
 
         {-# INLINABLE renameMCaseBody #-}
-
     {-# INLINABLE renameMCases #-}
 renameVariablesE _a (ELambda ann args expr) = do
   (argRecord, args') <-
@@ -137,6 +137,8 @@ renameIdentifierIn _s s = do
   pure ((ident, ident'), s & _s #~ ident')
   where
     ident = s ^# _s
+
+    {-# INLINABLE ident #-}
 {-# INLINABLE renameIdentifierIn #-}
 
 renameIdentifiers :: Renamer' [Identifier]
@@ -149,6 +151,8 @@ renameIdentifiersIn _s s = do
   pure (zip idents idents', s & _s #~ idents')
   where
     idents = s ^# _s
+
+    {-# INLINABLE idents #-}
 {-# INLINABLE renameIdentifiersIn #-}
 
 renameAIn :: ALens' s a -> ALens' a Identifier -> Renamer s ((Identifier, Identifier), s)

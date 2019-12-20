@@ -44,3 +44,4 @@ increaseAddress = Address . (+ 1) . getAddress
 
 instance Pretty Address where
   pretty (Address addr) = PP.fuse PP.Shallow $ "&" <> pretty addr
+  {-# INLINABLE pretty #-}
