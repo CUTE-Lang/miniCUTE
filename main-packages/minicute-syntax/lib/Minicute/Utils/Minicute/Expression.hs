@@ -26,10 +26,10 @@ destructStructureExpression e = go e []
     go _ _ = Nothing
 {-# INLINABLE destructStructureExpression #-}
 
-lookupMCasesL :: Integer -> [MatchCase t l a] -> Maybe (MatchCase t l a)
+lookupMCasesL :: (Foldable m) => Integer -> m (MatchCase t l a) -> Maybe (MatchCase t l a)
 lookupMCasesL tag = find (^. _matchCaseTag . to (== tag))
 {-# INLINABLE lookupMCasesL #-}
 
-lookupLDefsL :: (Eq a) => a -> [LetDefinition t l a] -> Maybe (LetDefinition t l a)
+lookupLDefsL :: (Foldable m, Eq a) => a -> m (LetDefinition t l a) -> Maybe (LetDefinition t l a)
 lookupLDefsL binder = find (^. _letDefinitionBinder . to (== binder))
 {-# INLINABLE lookupLDefsL #-}
