@@ -49,7 +49,10 @@ library:
   ghc-options:
     - -Wall
   dependencies:
+    - containers >= 0.6 && < 0.7
     - hedgehog
+    - lens >= 4.17 && < 5
+    - mtl >= 2.2 && < 3
 
     - minicute-common-syntax-test == 0.1.0.0
     - minicute-minicute-syntax == 0.1.0.0

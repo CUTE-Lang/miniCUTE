@@ -43,6 +43,7 @@ module Minicute.Data.Minicute.Expression
 
 
   , ExpressionType( .. )
+  , Annotation
 
   , ExpressionLevel( .. )
 

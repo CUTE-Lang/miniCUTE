@@ -93,6 +93,7 @@ tests:
 
       - minicute-common-syntax
       - minicute-minicute-syntax
+      - minicute-minicute-syntax-test
 
   hlint:
     ### Test fields ###
