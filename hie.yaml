@@ -1,0 +1,81 @@
+cradle:
+  stack:
+    # Extensions
+    - path: "./extensions/base/lib"
+      component: "base-minicute:lib"
+    - path: "./extensions/base/test"
+      component: "base-minicute:test:test"
+    - path: "./extensions/base/hlint"
+      component: "base-minicute:test:hlint"
+
+    - path: "./extensions/prettyprinter/lib"
+      component: "prettyprinter-minicute:lib"
+    - path: "./extensions/prettyprinter/test"
+      component: "prettyprinter-minicute:test:test"
+    - path: "./extensions/prettyprinter/hlint"
+      component: "prettyprinter-minicute:test:hlint"
+
+    # Main Packages
+    - path: "./main-packages/common-syntax/lib"
+      component: "minicute-common-syntax:lib"
+    - path: "./main-packages/common-syntax/test"
+      component: "minicute-common-syntax:test:test"
+    - path: "./main-packages/common-syntax/hlint"
+      component: "minicute-common-syntax:test:hlint"
+
+    - path: "./main-packages/g-machine-interpreter/lib"
+      component: "minicute-g-machine-interpreter:lib"
+    - path: "./main-packages/g-machine-interpreter/test"
+      component: "minicute-g-machine-interpreter:test:test"
+    - path: "./main-packages/g-machine-interpreter/hlint"
+      component: "minicute-g-machine-interpreter:test:hlint"
+
+    - path: "./main-packages/g-machine-syntax/lib"
+      component: "minicute-g-machine-syntax:lib"
+    - path: "./main-packages/g-machine-syntax/test"
+      component: "minicute-g-machine-syntax:test:test"
+    - path: "./main-packages/g-machine-syntax/hlint"
+      component: "minicute-g-machine-syntax:test:hlint"
+
+    - path: "./main-packages/g-machinizer/lib"
+      component: "minicute-g-machinizer:lib"
+    - path: "./main-packages/g-machinizer/test"
+      component: "minicute-g-machinizer:test:test"
+    - path: "./main-packages/g-machinizer/hlint"
+      component: "minicute-g-machinizer:test:hlint"
+
+    - path: "./main-packages/llvm-generator/lib"
+      component: "minicute-llvm-generator:lib"
+    - path: "./main-packages/llvm-generator/test"
+      component: "minicute-llvm-generator:test:test"
+    - path: "./main-packages/llvm-generator/hlint"
+      component: "minicute-llvm-generator:test:hlint"
+
+    - path: "./main-packages/minicute-compiler/lib"
+      component: "minicute-minicute-compiler:lib"
+    - path: "./main-packages/minicute-compiler/test"
+      component: "minicute-minicute-compiler:test:test"
+    - path: "./main-packages/minicute-compiler/hlint"
+      component: "minicute-minicute-compiler:test:hlint"
+
+    - path: "./main-packages/minicute-optimizer/lib"
+      component: "minicute-minicute-optimizer:lib"
+    - path: "./main-packages/minicute-optimizer/test"
+      component: "minicute-minicute-optimizer:test:test"
+    - path: "./main-packages/minicute-optimizer/hlint"
+      component: "minicute-minicute-optimizer:test:hlint"
+
+    - path: "./main-packages/minicute-syntax/lib"
+      component: "minicute-minicute-syntax:lib"
+    - path: "./main-packages/minicute-syntax/test"
+      component: "minicute-minicute-syntax:test:test"
+    - path: "./main-packages/minicute-syntax/hlint"
+      component: "minicute-minicute-syntax:test:hlint"
+
+    # Test Packages
+    - path: "./test-packages/common-syntax/lib"
+      component: "minicute-common-syntax-test:lib"
+    - path: "./test-packages/common-syntax/test"
+      component: "minicute-common-syntax-test:test:test"
+    - path: "./test-packages/common-syntax/hlint"
+      component: "minicute-common-syntax-test:test:hlint"
