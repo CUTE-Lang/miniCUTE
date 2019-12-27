@@ -1,6 +1,6 @@
 # How to Contribute
 
-Thank you for having interest in this repository. You may come to this page to know how you can fix your inconvenience. To contribute/improve codes of Haskell parts of this project, you should follow step A. To contribute/improve codes of C/LLVM parts of this project, you should follow step B.
+Thank you for having interest in this repository. You may come to this page to know how you can fix your inconvenience. To contribute/improve codes of Haskell parts of this project, please follow step A. To contribute/improve codes of C/LLVM parts of this project, please follow step B.
 
 ## Step A: For Haskell
 
@@ -8,16 +8,16 @@ Thank you for having interest in this repository. You may come to this page to k
 
 To download and build the haskell codes in this project completely, you need the following commands/tools.
 
-- [`git`][git]
-- [`stack`][stack]
-- [`LLVM`][LLVM] (with `llc` and `opt`)
+- [`git`][git homepage]
+- [`stack`][stack homepage]
+- [`LLVM`][LLVM homepage] (with `llc` and `opt`)
 
-However, if you want to change only a part of this project, you may not need all of these. For more detail,
+However, if you want to change only a part of this project, you may not need all of these. More specifically,
 
-- `base-minicute`, `prettyprinter-minicute`, `minicute-common-syntax`, `minicute-g-machine-interpreter`, `minicute-g-machine-syntax`, `minicute-g-machinizer`, `minicute-minicute-optimizer`, and `minicute-minicute-syntax`
-  You don't need `llvm`.
+- All packages other than `minicute-llvm-generator` and `minicute-minicute-compiler`
+  These packages do not require `llvm` (including `llc` and `opt`).
 - `minicute-llvm-generator` and `minicute-minicute-compiler`
-  You need all of those tools.
+  These packages require all of those tools.
 
 ### 1. Download this Project
 
@@ -30,23 +30,23 @@ cd miniCUTE
 
 ### 2. Compile and Test this Project
 
-To compile and to test this project, we recommend using [`stack`](https://docs.haskellstack.org/en/stable/README/).
+To compile and to test this project, we recommend using [`stack`][stack homepage].
 
-If you already have `stack`, use following command to compile this project,
+After installing `stack`, use the following commands to compile this project,
 
 ``` shell
 stack build                        # To bulid all packages (require LLVM)
 stack build minicute-common-syntax # To build minicute-common-syntax only
 ```
 
-and use following command to test this.
+and use the next commands to test this.
 
 ``` shell
 stack test                        # To test all packages (require LLVM)
 stack test minicute-common-syntax # To test minicute-common-syntax only
 ```
 
-When you make changes, please check whether your changes are buildable and pass the tests.
+When you change codes, please check whether your patches are compiled and pass the tests.
 
 ### 3. Fork this Repository and Make a PR
 
@@ -55,7 +55,7 @@ After making changes, you may want to share your modifications. To share it on t
 To make a PR,
 
 1. Fork this repository with "Fork" button.
-1. Push your changes to your forked repository via git.
+1. Push your changes to your forked repository via `git`.
 1. Go to "Pull requests" tab of this repository.
 1. Click "New pull request" button.
 1. Click "compare across forks" text.
@@ -75,8 +75,8 @@ Again, thank you for paying attention to this project!
 
 To download and build the C codes in this project completely, you need the following commands/tools.
 
-- [`git`][git]
-- [`LLVM`][LLVM] (with `clang`, `llc`, `opt`)
+- [`git`][git homepage]
+- [`LLVM`][LLVM homepage] (with `clang`, `llc`, `opt`)
 
 ### 1. Download this Project
 
@@ -102,7 +102,7 @@ After making changes, you may want to share your modifications. To share it on t
 To make a PR,
 
 1. Fork this repository with "Fork" button.
-1. Push your changes to your forked repository via git.
+1. Push your changes to your forked repository via `git`.
 1. Go to "Pull requests" tab of this repository.
 1. Click "New pull request" button.
 1. Click "compare across forks" text.
@@ -116,6 +116,6 @@ After making a PR, we will review your PR.
 
 Again, thank you for paying attention to this project!
 
-[git]: https://git-scm.com/
-[stack]: https://docs.haskellstack.org/
-[LLVM]: https://llvm.org/
+[git homepage]: https://git-scm.com/
+[stack homepage]: https://docs.haskellstack.org/
+[LLVM homepage]: https://llvm.org/
