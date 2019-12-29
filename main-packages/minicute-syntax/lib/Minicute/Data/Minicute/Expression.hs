@@ -61,13 +61,14 @@ import Control.Lens.TH
 import Control.Lens.Tuple
 import Control.Lens.Type
 import Control.Lens.Wrapped ( _Wrapped )
-import Data.Data ( Data, Typeable )
+import Data.Data ( Data(..), Typeable )
 import Data.Kind ( Type )
 import Data.Text.Prettyprint.Doc.Minicute
 import GHC.Generics ( Generic )
 import Language.Haskell.TH.Syntax ( Lift )
 import Minicute.Data.Common
 
+import qualified Data.Data as Data
 import qualified Data.Text.Prettyprint.Doc as PP
 
 -- |
@@ -199,6 +200,66 @@ deriving instance (Lift a, Lift (Annotation t)) => Lift (Expression t l a)
 deriving instance (Eq a, Eq (Annotation t)) => Eq (Expression t l a)
 deriving instance (Ord a, Ord (Annotation t)) => Ord (Expression t l a)
 deriving instance (Show a, Show (Annotation t)) => Show (Expression t l a)
+
+instance (Data a, Typeable t, Data (Annotation t)) => Data (Expression t 'LLMC a) where
+  -- gfoldl k z (EInteger ann n) = z EInteger `k` ann `k` n
+  -- gfoldl k z (ECo ann n) = z EInteger `k` ann `k` n
+  gunfold k z c
+    = case Data.constrIndex c of
+        1 -> k . k . z $ EInteger
+        2 -> k . k . k . z $ EConstructor
+        3 -> k . k . z $ EPrimitive
+        4 -> k . k . z $ EVariable
+        5 -> k . k . k . z $ EApplication
+        6 -> k . k . k . k . z $ ELet
+        7 -> k . k . k . z $ EMatch
+        _ -> error "[custom gunfold] invalid constructor index"
+
+  toConstr (EInteger _ _) = con_EInteger
+  toConstr (EConstructor _ _ _) = con_EConstructor
+  toConstr (EPrimitive _ _) = con_EPrimitive
+  toConstr (EVariable _ _) = con_EVariable
+  toConstr (EApplication _ _ _) = con_EApplication
+  toConstr (ELet _ _ _ _) = con_ELet
+  toConstr (EMatch _ _ _) = con_EMatch
+
+  dataTypeOf _ = ty_ExpressionLLMC
+
+{-# HLINT ignore con_EInteger "Use camelCase" #-}
+{-# HLINT ignore con_EConstructor "Use camelCase" #-}
+{-# HLINT ignore con_EPrimitive "Use camelCase" #-}
+{-# HLINT ignore con_EVariable "Use camelCase" #-}
+{-# HLINT ignore con_EApplication "Use camelCase" #-}
+{-# HLINT ignore con_ELet "Use camelCase" #-}
+{-# HLINT ignore con_EMatch "Use camelCase" #-}
+con_EInteger :: Data.Constr
+con_EConstructor :: Data.Constr
+con_EPrimitive :: Data.Constr
+con_EVariable :: Data.Constr
+con_EApplication :: Data.Constr
+con_ELet :: Data.Constr
+con_EMatch :: Data.Constr
+
+con_EInteger = Data.mkConstr ty_ExpressionLLMC "EInteger" [] Data.Prefix
+con_EConstructor = Data.mkConstr ty_ExpressionLLMC "EConstructor" [] Data.Prefix
+con_EPrimitive = Data.mkConstr ty_ExpressionLLMC "EPrimitive" [] Data.Prefix
+con_EVariable = Data.mkConstr ty_ExpressionLLMC "EVariable" [] Data.Prefix
+con_EApplication = Data.mkConstr ty_ExpressionLLMC "EApplication" [] Data.Prefix
+con_ELet = Data.mkConstr ty_ExpressionLLMC "ELet" [] Data.Prefix
+con_EMatch = Data.mkConstr ty_ExpressionLLMC "EMatch" [] Data.Prefix
+
+{-# HLINT ignore ty_ExpressionLLMC "Use camelCase" #-}
+ty_ExpressionLLMC :: Data.DataType
+ty_ExpressionLLMC =
+  Data.mkDataType "Expression"
+  [ con_EInteger
+  , con_EConstructor
+  , con_EPrimitive
+  , con_EVariable
+  , con_EApplication
+  , con_ELet
+  , con_EMatch
+  ]
 
 instance (PrettyMC a) => PrettyMC (Expression 'Simple l a) where
   prettyMC _ (EInteger _ n) = prettyMC0 n
