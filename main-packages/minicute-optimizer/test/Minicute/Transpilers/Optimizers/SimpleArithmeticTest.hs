@@ -5,7 +5,7 @@
 -- Copyright: (c) 2018-present Junyoung Clare Jang
 -- License: BSD 3-Clause
 module Minicute.Transpilers.Optimizers.SimpleArithmeticTest
-  ( spec_simpleArithmeticMainMC
+  ( spec_simpleArithmetic
   ) where
 
 import Test.Tasty.Hspec
@@ -15,14 +15,14 @@ import Data.Tuple.Extra
 import Minicute.Transpilers.Optimizers.SimpleArithmetic
 import Minicute.Utils.Minicute.TH
 
-spec_simpleArithmeticMainMC :: Spec
-spec_simpleArithmeticMainMC
-  = forM_ testCases (uncurry3 simpleArithmeticMainMCTest)
+spec_simpleArithmetic :: Spec
+spec_simpleArithmetic
+  = forM_ testCases (uncurry3 simpleArithmeticTest)
 
-simpleArithmeticMainMCTest :: TestName -> TestBeforeContent -> TestAfterContent -> SpecWith (Arg Expectation)
-simpleArithmeticMainMCTest name beforeContent afterContent = do
+simpleArithmeticTest :: TestName -> TestBeforeContent -> TestAfterContent -> SpecWith (Arg Expectation)
+simpleArithmeticTest name beforeContent afterContent = do
   it ("immediate applications are optimized in " <> name) $ do
-    simpleArithmeticMainMC beforeContent `shouldBe` afterContent
+    simpleArithmetic beforeContent `shouldBe` afterContent
 
 type TestName = String
 type TestBeforeContent = MainProgram 'Simple 'MC

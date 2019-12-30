@@ -18,6 +18,8 @@ import Minicute.Data.Common
 import Minicute.Data.GMachine.Instruction
 import Minicute.Data.GMachine.Node
 
+-- |
+-- convert an 'Instruction' into a 'GMachineStepMonad' action.
 interpretInstruction :: Instruction -> GMachineStepMonad ()
 
 interpretInstruction (IMakeInteger n) = interpretMakeInteger n
@@ -56,13 +58,13 @@ interpretMakeInteger :: Integer -> GMachineStepMonad ()
 interpretMakeInteger n = do
   addr <- allocNodeOnNodeHeap (NInteger n)
   pushAddrToAddressStack addr
-{-# INLINABLE interpretMakeInteger #-}
+{-# INLINE interpretMakeInteger #-}
 
 interpretMakeGlobal :: Identifier -> GMachineStepMonad ()
 interpretMakeGlobal i = do
   addr <- findAddressOnGlobal i
   pushAddrToAddressStack addr
-{-# INLINABLE interpretMakeGlobal #-}
+{-# INLINE interpretMakeGlobal #-}
 
 interpretMakeApplication :: GMachineStepMonad ()
 interpretMakeApplication = do
@@ -70,7 +72,7 @@ interpretMakeApplication = do
   applyeeAddr <- popAddrFromAddressStack
   addr <- allocNodeOnNodeHeap (NApplication applyeeAddr applyerAddr)
   pushAddrToAddressStack addr
-{-# INLINABLE interpretMakeApplication #-}
+{-# INLINE interpretMakeApplication #-}
 
 -- Please check the direction of addrs.
 -- (Thankfully, it only affects performance, not correctness)
@@ -82,7 +84,7 @@ interpretMakePlaceholders n = do
   where
     allocPlaceholders = replicateM n $ allocNodeOnNodeHeap NEmpty
     {-# INLINE allocPlaceholders #-}
-{-# INLINABLE interpretMakePlaceholders #-}
+{-# INLINE interpretMakePlaceholders #-}
 
 
 interpretPop :: Int -> GMachineStepMonad ()
@@ -94,20 +96,20 @@ interpretDig n = do
   addr <- popAddrFromAddressStack
   _ <- popAddrsFromAddressStack n
   pushAddrToAddressStack addr
-{-# INLINABLE interpretDig #-}
+{-# INLINE interpretDig #-}
 
 interpretUpdate :: Int -> GMachineStepMonad ()
 interpretUpdate n = do
   valueAddr <- peekAddrOnAddressStack
   targetAddr <- peekNthAddrOnAddressStack (n + 1)
   updateNodeOnNodeHeap targetAddr (NIndirect valueAddr)
-{-# INLINABLE interpretUpdate #-}
+{-# INLINE interpretUpdate #-}
 
 interpretCopy :: Int -> GMachineStepMonad ()
 interpretCopy n = do
   addr <- peekNthAddrOnAddressStack (n + 1)
   pushAddrToAddressStack addr
-{-# INLINABLE interpretCopy #-}
+{-# INLINE interpretCopy #-}
 
 
 interpretPushBasicValue :: Integer -> GMachineStepMonad ()
@@ -134,13 +136,14 @@ interpretPushExtractedValue = do
           <> " node cannot be used as a primitive value"
         )
     {-# INLINE invalidNodeFail #-}
+{-# INLINE interpretPushExtractedValue #-}
 
 interpretWrapAsInteger :: GMachineStepMonad ()
 interpretWrapAsInteger = do
   v <- popValueFromValueStack
   addr <- allocNodeOnNodeHeap (NInteger v)
   pushAddrToAddressStack addr
-{-# INLINABLE interpretWrapAsInteger #-}
+{-# INLINE interpretWrapAsInteger #-}
 
 interpretWrapAsStructure :: GMachineStepMonad ()
 interpretWrapAsStructure = do
@@ -148,14 +151,14 @@ interpretWrapAsStructure = do
   fieldsAddr <- allocNodeOnNodeHeap (NStructureFields 0 [])
   addr <- allocNodeOnNodeHeap (NStructure v fieldsAddr)
   pushAddrToAddressStack addr
-{-# INLINABLE interpretWrapAsStructure #-}
+{-# INLINE interpretWrapAsStructure #-}
 
 interpretUpdateAsInteger :: Int -> GMachineStepMonad ()
 interpretUpdateAsInteger n = do
   targetAddr <- peekNthAddrOnAddressStack (n + 1)
   v <- popValueFromValueStack
   updateNodeOnNodeHeap targetAddr (NInteger v)
-{-# INLINABLE interpretUpdateAsInteger #-}
+{-# INLINE interpretUpdateAsInteger #-}
 
 interpretUpdateAsStructure :: Int -> GMachineStepMonad ()
 interpretUpdateAsStructure n = do
@@ -163,7 +166,7 @@ interpretUpdateAsStructure n = do
   v <- popValueFromValueStack
   fieldsAddr <- allocNodeOnNodeHeap (NStructureFields 0 [])
   updateNodeOnNodeHeap targetAddr (NStructure v fieldsAddr)
-{-# INLINABLE interpretUpdateAsStructure #-}
+{-# INLINE interpretUpdateAsStructure #-}
 
 interpretPrimitive :: Primitive -> GMachineStepMonad ()
 interpretPrimitive op
@@ -181,6 +184,7 @@ interpretPrimitive op
     ( "interpretInstruction: "
       <> show op <> " case is not yet implemented"
     )
+{-# INLINE interpretPrimitive #-}
 
 interpretUnwind :: GMachineStepMonad ()
 interpretUnwind = do
@@ -229,7 +233,8 @@ interpretUnwind = do
               <> "Top most " <> show n <> " nodes have to be NApplication nodes"
             )
       pushAddrsToAddressStack applyeeAddrs
-    {-# INLINABLE rearrangeStack #-}
+    {-# INLINE rearrangeStack #-}
+{-# INLINE interpretUnwind #-}
 
 interpretEval :: GMachineStepMonad ()
 interpretEval = do
@@ -237,7 +242,7 @@ interpretEval = do
   saveStateToDump
   pushAddrToAddressStack addr
   putInstruction IUnwind
-{-# INLINABLE interpretEval #-}
+{-# INLINE interpretEval #-}
 
 -- Please check the direction of addrs.
 -- __WARNING: the direction actually affects correctness.__
@@ -251,7 +256,7 @@ interpretReturn = do
     else pure (last addrs)
   loadStateFromDump
   pushAddrToAddressStack addr
-{-# INLINABLE interpretReturn #-}
+{-# INLINE interpretReturn #-}
 
 primitiveToBinaryFun :: Primitive -> Maybe (Integer -> Integer -> Integer)
 primitiveToBinaryFun PrimAdd = Just (+)
@@ -264,7 +269,7 @@ primitiveToBinaryFun PrimLt = Just ((boolToInteger .) . (<))
 primitiveToBinaryFun PrimLe = Just ((boolToInteger .) . (<=))
 primitiveToBinaryFun PrimGt = Just ((boolToInteger .) . (>))
 primitiveToBinaryFun PrimGe = Just ((boolToInteger .) . (>=))
-{-# INLINABLE primitiveToBinaryFun #-}
+{-# INLINE primitiveToBinaryFun #-}
 
 primitiveToUnaryFun :: Primitive -> Maybe (Integer -> Integer)
 primitiveToUnaryFun PrimAdd = Nothing
@@ -277,9 +282,9 @@ primitiveToUnaryFun PrimLt = Nothing
 primitiveToUnaryFun PrimLe = Nothing
 primitiveToUnaryFun PrimGt = Nothing
 primitiveToUnaryFun PrimGe = Nothing
-{-# INLINABLE primitiveToUnaryFun #-}
+{-# INLINE primitiveToUnaryFun #-}
 
 boolToInteger :: Bool -> Integer
 boolToInteger True = 1
 boolToInteger False = 0
-{-# INLINABLE boolToInteger #-}
+{-# INLINE boolToInteger #-}

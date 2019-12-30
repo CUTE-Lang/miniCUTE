@@ -25,14 +25,16 @@ primitive
   where
     makePrimParser :: Primitive -> Parser Primitive
     makePrimParser prim = L.symbol (toString prim) $> prim
-{-# INLINABLE primitive #-}
+
+    {-# INLINE makePrimParser #-}
+{-# INLINE primitive #-}
 
 
 createPrimitiveOperatorTable :: (MonadParser e s m) => (Primitive -> expr) -> (expr -> expr -> expr) -> (expr -> expr -> expr -> expr) -> PrecedenceTable Primitive -> [[CombExpr.Operator m expr]]
 createPrimitiveOperatorTable cPrim cUn cBar
   = fmap (createPrimitiveOperator cPrim cUn cBar <$>)
     . groupSortOn (Down . precedence . snd)
-{-# INLINABLE createPrimitiveOperatorTable #-}
+{-# INLINE createPrimitiveOperatorTable #-}
 
 createPrimitiveOperator :: (MonadParser e s m) => (Primitive -> expr) -> (expr -> expr -> expr) -> (expr -> expr -> expr -> expr) -> PrecedenceTableEntry Primitive -> CombExpr.Operator m expr
 createPrimitiveOperator cPrim cUn cBin (prim, prec)
@@ -48,7 +50,7 @@ createPrimitiveOperator cPrim cUn cBin (prim, prec)
 
     {-# INLINE bin #-}
     {-# INLINE un #-}
-{-# INLINABLE createPrimitiveOperator #-}
+{-# INLINE createPrimitiveOperator #-}
 
 createBinaryPrimitiveFunctionParser :: (MonadParser e s m) => (Primitive -> expr) -> (expr -> expr -> expr -> expr) -> Primitive -> m (expr -> expr -> expr)
 createBinaryPrimitiveFunctionParser cPrim cBin prim
@@ -58,7 +60,7 @@ createBinaryPrimitiveFunctionParser cPrim cBin prim
     primName = toString prim
 
     {-# INLINE primName #-}
-{-# INLINABLE createBinaryPrimitiveFunctionParser #-}
+{-# INLINE createBinaryPrimitiveFunctionParser #-}
 
 createUnaryPrimitiveFunctionParser :: (MonadParser e s m) => (Primitive -> expr) -> (expr -> expr -> expr) -> Primitive -> m (expr -> expr)
 createUnaryPrimitiveFunctionParser cPrim cUn prim
@@ -68,4 +70,4 @@ createUnaryPrimitiveFunctionParser cPrim cUn prim
     primName = toString prim
 
     {-# INLINE primName #-}
-{-# INLINABLE createUnaryPrimitiveFunctionParser #-}
+{-# INLINE createUnaryPrimitiveFunctionParser #-}

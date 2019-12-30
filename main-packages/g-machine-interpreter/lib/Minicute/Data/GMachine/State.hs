@@ -58,12 +58,12 @@ import Control.Lens.TH
 import Control.Lens.Tuple
 import Control.Lens.Type
 import Control.Lens.Unsound ( lensProduct )
-import Control.Lens.Wrapped ( _Wrapped )
 import Control.Monad ( forM )
 import Control.Monad.Fail
 import Control.Monad.State
   ( MonadState
   , StateT
+  , evalState
   , evalStateT
   , execState
   , runState
@@ -132,7 +132,7 @@ instance Pretty GMachineState where
         , prettyGMS s Normal (nodeHeap s)
         , prettyGMS s Normal (global s)
         ]
-
+  {-# INLINE pretty #-}
 
 buildInitialState :: Code.GMachineProgram -> GMachineState
 buildInitialState program
@@ -159,32 +159,33 @@ buildInitialState program
         $ uncurry Global.allocAddress
 
     {-# INLINE initialGlobal #-}
-    {-# INLINABLE buildGlobalEntriesAndHeap #-}
-    {-# INLINABLE buildGlobal #-}
+    {-# INLINE buildGlobalEntriesAndHeap #-}
+    {-# INLINE buildGlobal #-}
+{-# INLINE buildInitialState #-}
 
 checkTerminalState :: GMachineState -> Bool
 checkTerminalState state
   = state ^. _code == Code.empty
     && evalStateT (AddressStack.checkSize 1) (state ^. _addressStack) == Just True
     && state ^. _valueStack == ValueStack.empty
-{-# INLINABLE checkTerminalState #-}
+{-# INLINE checkTerminalState #-}
 
 
 fetchNextInstruction :: (MonadState s m, s ~ GMachineState, MonadFail m) => m Code.Instruction
 fetchNextInstruction = applySubstructuralAction _code Code.fetchNextInstruction
-{-# INLINABLE fetchNextInstruction #-}
+{-# INLINE fetchNextInstruction #-}
 
 putInstruction :: (MonadState s m, s ~ GMachineState) => Code.Instruction -> m ()
 putInstruction = applySubstructuralAction _code . Code.putInstruction
-{-# INLINABLE putInstruction #-}
+{-# INLINE putInstruction #-}
 
 putInstructions :: (MonadState s m, s ~ GMachineState) => [Code.Instruction] -> m ()
 putInstructions = applySubstructuralAction _code . Code.putInstructions
-{-# INLINABLE putInstructions #-}
+{-# INLINE putInstructions #-}
 
 assertLastCode :: (MonadState s m, s ~ GMachineState, MonadFail m) => m ()
 assertLastCode = applySubstructuralAction _code Code.assertLastCode
-{-# INLINABLE assertLastCode #-}
+{-# INLINE assertLastCode #-}
 
 
 garbageCollection :: (MonadState s m, s ~ GMachineState, MonadFail m) => m ()
@@ -200,85 +201,85 @@ garbageCollection = do
       dumpAddrs <- applySubstructuralAction _dump Dump.extractAllAddresses
       globalAddrs <- applySubstructuralAction _global Global.findAllAddresses
       pure $ addrStkAddrs <> dumpAddrs <> globalAddrs
-    {-# INLINABLE findGarbageCollectionRoots #-}
-{-# INLINABLE garbageCollection #-}
+    {-# INLINE findGarbageCollectionRoots #-}
+{-# INLINE garbageCollection #-}
 
 
 allocNodeOnNodeHeap :: (MonadState s m, s ~ GMachineState) => Node -> m Address
 allocNodeOnNodeHeap = applySubstructuralAction _nodeHeap . NodeHeap.allocNode
-{-# INLINABLE allocNodeOnNodeHeap #-}
+{-# INLINE allocNodeOnNodeHeap #-}
 
 updateNodeOnNodeHeap :: (MonadState s m, s ~ GMachineState, MonadFail m) => Address -> Node -> m ()
 updateNodeOnNodeHeap = (applySubstructuralAction _nodeHeap .) . NodeHeap.updateNode
-{-# INLINABLE updateNodeOnNodeHeap #-}
+{-# INLINE updateNodeOnNodeHeap #-}
 
 findNodeOnNodeHeap :: (MonadState s m, s ~ GMachineState, MonadFail m) => Address -> m Node
 findNodeOnNodeHeap = applySubstructuralAction _nodeHeap . NodeHeap.findNode
-{-# INLINABLE findNodeOnNodeHeap #-}
+{-# INLINE findNodeOnNodeHeap #-}
 
 
 allocAddressOnGlobal :: (MonadState s m, s ~ GMachineState) => Identifier -> Address -> m ()
 allocAddressOnGlobal = (applySubstructuralAction _global .) . Global.allocAddress
-{-# INLINABLE allocAddressOnGlobal #-}
+{-# INLINE allocAddressOnGlobal #-}
 
 updateAddressOnGlobal :: (MonadState s m, s ~ GMachineState, MonadFail m) => Identifier -> Address -> m ()
 updateAddressOnGlobal = (applySubstructuralAction _global .) . Global.updateAddress
-{-# INLINABLE updateAddressOnGlobal #-}
+{-# INLINE updateAddressOnGlobal #-}
 
 findAddressOnGlobal :: (MonadState s m, s ~ GMachineState, MonadFail m) => Identifier -> m Address
 findAddressOnGlobal = applySubstructuralAction _global . Global.findAddress
-{-# INLINABLE findAddressOnGlobal #-}
+{-# INLINE findAddressOnGlobal #-}
 
 
 pushAddrToAddressStack :: (MonadState s m, s ~ GMachineState) => Address -> m ()
 pushAddrToAddressStack = applySubstructuralAction _addressStack . AddressStack.pushAddr
-{-# INLINABLE pushAddrToAddressStack #-}
+{-# INLINE pushAddrToAddressStack #-}
 
 pushAddrsToAddressStack :: (MonadState s m, s ~ GMachineState) => [Address] -> m ()
 pushAddrsToAddressStack = applySubstructuralAction _addressStack . AddressStack.pushAddrs
-{-# INLINABLE pushAddrsToAddressStack #-}
+{-# INLINE pushAddrsToAddressStack #-}
 
 popAddrFromAddressStack :: (MonadState s m, s ~ GMachineState, MonadFail m) => m Address
 popAddrFromAddressStack = applySubstructuralAction _addressStack AddressStack.popAddr
-{-# INLINABLE popAddrFromAddressStack #-}
+{-# INLINE popAddrFromAddressStack #-}
 
 popAddrsFromAddressStack :: (MonadState s m, s ~ GMachineState, MonadFail m) => Int -> m [Address]
 popAddrsFromAddressStack = applySubstructuralAction _addressStack . AddressStack.popAddrs
-{-# INLINABLE popAddrsFromAddressStack #-}
+{-# INLINE popAddrsFromAddressStack #-}
 
 popAllAddrsFromAddressStack :: (MonadState s m, s ~ GMachineState) => m [Address]
 popAllAddrsFromAddressStack = applySubstructuralAction _addressStack AddressStack.popAllAddrs
-{-# INLINABLE popAllAddrsFromAddressStack #-}
+{-# INLINE popAllAddrsFromAddressStack #-}
 
 peekAddrOnAddressStack :: (MonadState s m, s ~ GMachineState, MonadFail m) => m Address
 peekAddrOnAddressStack = applySubstructuralAction _addressStack AddressStack.peekAddr
-{-# INLINABLE peekAddrOnAddressStack #-}
+{-# INLINE peekAddrOnAddressStack #-}
 
 peekNthAddrOnAddressStack :: (MonadState s m, s ~ GMachineState, MonadFail m) => Int -> m Address
 peekNthAddrOnAddressStack = applySubstructuralAction _addressStack . AddressStack.peekNthAddr
-{-# INLINABLE peekNthAddrOnAddressStack #-}
+{-# INLINE peekNthAddrOnAddressStack #-}
 
 checkSizeOfAddressStack :: (MonadState s m, s ~ GMachineState, MonadFail m) => Int -> m Bool
 checkSizeOfAddressStack = applySubstructuralAction _addressStack . AddressStack.checkSize
-{-# INLINABLE checkSizeOfAddressStack #-}
+{-# INLINE checkSizeOfAddressStack #-}
 
 
 pushValueToValueStack :: (MonadState s m, s ~ GMachineState) => Integer -> m ()
 pushValueToValueStack = applySubstructuralAction _valueStack . ValueStack.pushValue
-{-# INLINABLE pushValueToValueStack #-}
+{-# INLINE pushValueToValueStack #-}
 
 popValueFromValueStack :: (MonadState s m, s ~ GMachineState, MonadFail m) => m Integer
 popValueFromValueStack = applySubstructuralAction _valueStack ValueStack.popValue
-{-# INLINABLE popValueFromValueStack #-}
+{-# INLINE popValueFromValueStack #-}
 
 
 saveStateToDump :: (MonadState s m, s ~ GMachineState) => m ()
 saveStateToDump = _di <<.= Dump.emptyDumpItem >>= applySubstructuralAction _dump . Dump.saveState
-{-# INLINABLE saveStateToDump #-}
+{-# INLINE saveStateToDump #-}
 
 loadStateFromDump :: (MonadState s m, s ~ GMachineState, MonadFail m) => m ()
 loadStateFromDump = _di <~ applySubstructuralAction _dump Dump.loadState
-{-# INLINABLE loadStateFromDump #-}
+{-# INLINE loadStateFromDump #-}
 
 
 applySubstructuralAction :: (MonadState s m, s ~ GMachineState) => Lens' s a -> StateT a m r -> m r
@@ -304,7 +305,7 @@ instance PrettyGMS AddressStack.AddressStack where
       PP.<+>
       prettyBracedItems prettyAddresses addrs
     where
-      addrs = addrStk ^. _Wrapped
+      addrs = evalState AddressStack.peekAllAddrs addrStk
 
       prettyAddresses = PP.vsep . fmap prettyAddress
       prettyAddress addr
@@ -316,14 +317,15 @@ instance PrettyGMS AddressStack.AddressStack where
 
       {-# INLINE addrs #-}
       {-# INLINE prettyAddresses #-}
-      {-# INLINABLE prettyAddress #-}
+      {-# INLINE prettyAddress #-}
+  {-# INLINE prettyGMS #-}
 
 instance PrettyGMS Code.Code where
   prettyGMS _ v c
     = "code"
       PP.<+>
       case v of
-        Normal -> PP.unsafeViaShow (c ^. _Wrapped)
+        Normal -> PP.unsafeViaShow (evalState Code.getAllInstructions c)
         Simple -> PP.brackets "..."
 
 instance PrettyGMS Dump.Dump where
@@ -333,7 +335,7 @@ instance PrettyGMS Dump.Dump where
       prettyBracedItems prettyIndexedDumpItems indexedDis
     where
       indexedDis = reverse . zip [1..] . reverse $ dis :: [(Integer, Dump.DumpItem)]
-      dis = d ^. _Wrapped
+      dis = evalState Dump.getAllDumpItems d
 
       prettyIndexedDumpItems = PP.vsep . fmap prettyIndexedDumpItem
       prettyIndexedDumpItem (ind, di)
@@ -350,8 +352,9 @@ instance PrettyGMS Dump.Dump where
       {-# INLINE indexedDis #-}
       {-# INLINE dis #-}
       {-# INLINE prettyIndexedDumpItems #-}
-      {-# INLINABLE prettyIndexedDumpItem #-}
-      {-# INLINABLE prettyDumpItem #-}
+      {-# INLINE prettyIndexedDumpItem #-}
+      {-# INLINE prettyDumpItem #-}
+  {-# INLINE prettyGMS #-}
 
 instance PrettyGMS Global.Global where
   prettyGMS st v gl
@@ -359,12 +362,12 @@ instance PrettyGMS Global.Global where
       PP.<+>
       prettyBracedItems prettyGlobalItems globalItems
     where
-      glMap = gl ^. _Wrapped
       globalMaxIdLen
         = globalItems
-          ^.. each . _1 . _Wrapped . to length
+          ^.. each . _1 . to identifierLength
           & maximum
       globalItems = Map.toAscList glMap
+      glMap = evalState Global.getGlobalMap gl
 
       prettyGlobalItems = PP.vsep . fmap prettyGlobalItem
       prettyGlobalItem (ident, addr)
@@ -378,7 +381,8 @@ instance PrettyGMS Global.Global where
       {-# INLINE glMap #-}
       {-# INLINE globalMaxIdLen #-}
       {-# INLINE prettyGlobalItems #-}
-      {-# INLINABLE prettyGlobalItem #-}
+      {-# INLINE prettyGlobalItem #-}
+  {-# INLINE prettyGMS #-}
 
 instance PrettyGMS NodeHeap.NodeHeap where
   prettyGMS st v nh
@@ -387,7 +391,8 @@ instance PrettyGMS NodeHeap.NodeHeap where
       prettyBracedItems prettyNodeHeapItems nhItems
     where
       nhItems = Map.toAscList nhMap
-      (lastAddr, nhMap) = nh ^. _Wrapped
+      lastAddr = evalState NodeHeap.getLastAddress nh
+      nhMap = evalState NodeHeap.getNodeHeapMap nh
 
       prettyNodeHeapItems = PP.vsep . fmap prettyNodeHeapItem
       prettyNodeHeapItem (addr, (_, node))
@@ -398,10 +403,12 @@ instance PrettyGMS NodeHeap.NodeHeap where
       {-# INLINE nhMap #-}
       {-# INLINE prettyNodeHeapItems #-}
       {-# INLINE prettyNodeHeapItem #-}
+  {-# INLINE prettyGMS #-}
 
 instance PrettyGMS ValueStack.ValueStack where
   prettyGMS _ _ valStk
-    = "value" PP.<+> "stack" PP.<+> PP.unsafeViaShow (valStk ^. _Wrapped)
+    = "value" PP.<+> "stack" PP.<+> PP.unsafeViaShow (evalState ValueStack.peekAllValues valStk)
+  {-# INLINE prettyGMS #-}
 
 instance PrettyGMS Node where
   prettyGMS _ _ NEmpty = "empty"
@@ -424,6 +431,7 @@ instance PrettyGMS Node where
       case v of
         Normal -> PP.unsafeViaShow insts
         Simple -> PP.brackets "..."
+  {-# INLINE prettyGMS #-}
 
 prettyBracedItems :: ([a] -> PP.Doc ann) -> [a] -> PP.Doc ann
 prettyBracedItems _ []
@@ -433,7 +441,7 @@ prettyBracedItems f xs
     . PP.enclose PP.hardline PP.hardline
     . PP.indent 2
     $ f xs
-{-# INLINABLE prettyBracedItems #-}
+{-# INLINE prettyBracedItems #-}
 
 prettyNodeOfAddr :: GMachineState -> Address -> PP.Doc ann
 prettyNodeOfAddr st addr
@@ -442,4 +450,4 @@ prettyNodeOfAddr st addr
         prettyGMS st Simple node
       Nothing ->
         "--invalid address--"
-{-# INLINABLE prettyNodeOfAddr #-}
+{-# INLINE prettyNodeOfAddr #-}

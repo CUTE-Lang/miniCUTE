@@ -25,7 +25,6 @@ import Control.Monad ( void )
 import Control.Monad.Fail
 import Data.Foldable
 import Data.List.Extra
-import Data.Monoid ( Any(..) )
 import Data.Proxy
 import Minicute.Parser.Common
 import Text.Megaparsec hiding ( State )
@@ -38,7 +37,7 @@ import qualified Text.Megaparsec.Char.Lexer as MPTL
 -- @betweenRoundBrackets p@ parses @"("@, and then @p@, and finally @")"@.
 betweenRoundBrackets :: (MonadParser e s m) => m a -> m a
 betweenRoundBrackets = between (symbol "(") (symbol ")")
-{-# INLINABLE betweenRoundBrackets #-}
+{-# INLINE betweenRoundBrackets #-}
 
 
 -- |
@@ -47,8 +46,12 @@ betweenRoundBrackets = between (symbol "(") (symbol ")")
 gMachineIdentifier :: (MonadParser e s m) => m (Tokens s)
 gMachineIdentifier
   = lexeme . many
-    $ satisfy (getAny . foldMap (Any .) [(/= ';'), Char.isSpace])
-{-# INLINABLE gMachineIdentifier #-}
+    $ satisfy isGMachineIdentifier
+  where
+    isGMachineIdentifier c = c /= ';' || Char.isSpace c
+
+    {-# INLINE isGMachineIdentifier #-}
+{-# INLINE gMachineIdentifier #-}
 
 
 -- I need to check whether identifier is a keyword or not
@@ -72,17 +75,17 @@ identifier = try identifier' <?> "identifier"
           fail $ "keyword " <> show i <> " cannot be an identifier"
       | otherwise = pure i
 
-    {-# INLINABLE identifier' #-}
-    {-# INLINABLE checkKeywords #-}
-{-# INLINABLE identifier #-}
+    {-# INLINE identifier' #-}
+    {-# INLINE checkKeywords #-}
+{-# INLINE identifier #-}
 
 identifierFirstChar :: (MonadParser e s m) => m (Token s)
 identifierFirstChar = MPT.letterChar <|> single '_'
-{-# INLINABLE identifierFirstChar #-}
+{-# INLINE identifierFirstChar #-}
 
 identifierRestChar :: (MonadParser e s m) => m (Token s)
 identifierRestChar = MPT.alphaNumChar <|> single '_'
-{-# INLINABLE identifierRestChar #-}
+{-# INLINE identifierRestChar #-}
 
 -- |
 -- @keyword@ parses any keywords.
@@ -92,7 +95,7 @@ keyword :: (MonadParser e s m) => Tokens s -> m (Tokens s)
 keyword k
   | k `elem` keywordList = lexeme (chunk k <* notFollowedBy identifierRestChar)
   | otherwise = error (k <> " is not a keyword")
-{-# INLINABLE keyword #-}
+{-# INLINE keyword #-}
 
 keywordList :: [String]
 keywordList
@@ -108,7 +111,7 @@ keywordList
 -- @symbol str@ parses @str@ and ignore the result.
 symbol :: (MonadParser e s m) => Tokens s -> m ()
 symbol = void . MPTL.symbol spacesConsumer
-{-# INLINABLE symbol #-}
+{-# INLINE symbol #-}
 
 -- |
 -- @integer@ parses a decimal integer with no prefix,
@@ -145,19 +148,21 @@ integer
       = notFollowedBy MPT.alphaNumChar
         <?> "non-alphanumeric"
 
-    {-# INLINABLE integerStartWithZero #-}
-    {-# INLINABLE zero #-}
-    {-# INLINABLE endOfInteger #-}
+    {-# INLINE integerStartWithZero #-}
+    {-# INLINE prefixedInteger #-}
+    {-# INLINE zero #-}
+    {-# INLINE endOfInteger #-}
+{-# INLINE integer #-}
 
 lexeme :: (MonadParser e s m) => m a -> m a
 lexeme = MPTL.lexeme spacesConsumer
-{-# INLINABLE lexeme #-}
+{-# INLINE lexeme #-}
 
 -- |
 -- @spacesConsumer@ consumes all consecutive spaces and ignore the result.
 spacesConsumer :: (MonadParser e s m) => m ()
 spacesConsumer = hidden MPT.space
-{-# INLINABLE spacesConsumer #-}
+{-# INLINE spacesConsumer #-}
 
 decimal :: forall e s m a. (MonadParser e s m, Integral a) => m a
 decimal
@@ -175,26 +180,26 @@ binary
     isBinDigit x = x == '0' || x == '1'
 
     {-# INLINE isBinDigit #-}
-{-# INLINABLE binary #-}
+{-# INLINE binary #-}
 
 octal :: forall e s m a. (MonadParser e s m, Integral a) => m a
 octal
   = mkNumWithRadix 8 (Proxy :: Proxy s)
     <$> takeWhile1P (Just "octal digit") Char.isOctDigit
     <?> "octal integer"
-{-# INLINABLE octal #-}
+{-# INLINE octal #-}
 
 hexadecimal :: forall e s m a. (MonadParser e s m, Integral a) => m a
 hexadecimal
   = mkNumWithRadix 16 (Proxy :: Proxy s)
     <$> takeWhile1P (Just "hexadecimal digit") Char.isHexDigit
     <?> "hexadecimal integer"
-{-# INLINABLE hexadecimal #-}
+{-# INLINE hexadecimal #-}
 
 mkNumWithRadix :: forall proxy s a. (Stream s, Token s ~ Char, Integral a) => a -> proxy s -> Tokens s -> a
 mkNumWithRadix radix _ = foldl' step 0 . chunkToTokens (Proxy :: Proxy s)
   where
     step a = (a * radix +) . fromIntegral . Char.digitToInt
 
-    {-# INLINABLE step #-}
-{-# INLINABLE mkNumWithRadix #-}
+    {-# INLINE step #-}
+{-# INLINE mkNumWithRadix #-}

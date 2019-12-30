@@ -38,12 +38,12 @@ lambdaLifting
     . renameVariablesMain
     . replaceLambda
     . formFreeVariablesMain
-{-# INLINABLE lambdaLifting #-}
+{-# INLINE lambdaLifting #-}
 
 replaceLambda :: MainProgram ('AnnotatedWith FreeVariables) l -> MainProgram 'Simple l
 replaceLambda
   = _Wrapped . each . _supercombinatorBody %~ replaceLambdaE
-{-# INLINABLE replaceLambda #-}
+{-# INLINE replaceLambda #-}
 
 replaceLambdaE :: MainExpression ('AnnotatedWith FreeVariables) l -> MainExpression 'Simple l
 replaceLambdaE (EInteger _ n) = EInteger () n
@@ -78,7 +78,6 @@ replaceLambdaE (ELambda fvs args expr)
     fvsList = Set.toList fvs
 
     {-# INLINE annon #-}
-    {-# INLINABLE fvsList #-}
 
 liftAnnons :: MainProgram t l -> MainProgram 'Simple 'LLMC
 liftAnnons = _Wrapped %~ concatMap liftAnnonsSc

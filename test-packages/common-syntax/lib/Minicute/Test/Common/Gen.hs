@@ -32,5 +32,5 @@ identifier = Identifier <$> identifierString
 {-# INLINABLE identifier #-}
 
 primitive :: (MonadGen m) => m Primitive
-primitive = Gen.element (fmap fst primitivePrecedenceTable)
+primitive = Gen.element $ fst <$> primitivePrecedenceTable
 {-# INLINABLE primitive #-}

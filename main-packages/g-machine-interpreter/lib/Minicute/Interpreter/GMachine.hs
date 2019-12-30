@@ -22,5 +22,6 @@ interpretProgram program = do
         (pure ())
         (executeGMachineStep step >> buildSteps)
     step = fetchNextInstruction >>= interpretInstruction
+
     {-# INLINE step #-}
-{-# INLINABLE interpretProgram #-}
+{-# INLINE interpretProgram #-}

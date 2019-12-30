@@ -1,11 +1,8 @@
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE DeriveLift #-}
-{-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
-{-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE TemplateHaskell #-}
-{-# LANGUAGE TypeFamilies #-}
 -- |
 -- Copyright: (c) 2018-present Junyoung Clare Jang
 -- License: BSD 3-Clause
@@ -13,9 +10,9 @@
 -- Common basic types used to define many other types
 module Minicute.Data.Common.Identifier
   ( Identifier( .. )
+  , identifierLength
   ) where
 
-import Control.Lens.TH
 import Data.Data ( Data, Typeable )
 import Data.String ( IsString(..) )
 import Data.Text.Prettyprint.Doc ( Pretty(..) )
@@ -39,8 +36,13 @@ newtype Identifier
            )
 
 instance Show Identifier where
-  showsPrec _ (Identifier v) = showString v
+  showsPrec p (Identifier v) = showsPrec p v
   {-# INLINE showsPrec #-}
 
 makePrettyMCFromPretty ''Identifier
-makeWrapped ''Identifier
+
+-- |
+-- get the length of 'Identifier'
+identifierLength :: Identifier -> Int
+identifierLength (Identifier v) = length v
+{-# INLINE identifierLength #-}

@@ -34,7 +34,7 @@ type FreeVariables = Set.Set Identifier
 -- A transpiler to create free variable information for 'MainProgram'
 formFreeVariablesMain :: MainProgram t l -> MainProgram ('AnnotatedWith FreeVariables) l
 formFreeVariablesMain = formFreeVariables id
-{-# INLINABLE formFreeVariablesMain #-}
+{-# INLINE formFreeVariablesMain #-}
 
 -- |
 -- A transpiler to create free variable information for 'Program'
@@ -47,8 +47,8 @@ formFreeVariables _a
         where
           scArgsSet = sc ^. _supercombinatorArguments . setFrom (each . _a)
 
-      {-# INLINABLE formFreeVariablesSc #-}
-{-# INLINABLE formFreeVariables #-}
+      {-# INLINE formFreeVariablesSc #-}
+{-# INLINE formFreeVariables #-}
 
 -- |
 -- Set of identifiers those are candidates of free variables
@@ -67,7 +67,7 @@ formFVsE _ (EVariable _ v) = do
       | Set.member v env = Set.singleton v
       | otherwise = Set.empty
 
-    {-# INLINABLE getFvs #-}
+    {-# INLINE getFvs #-}
 formFVsE _ (EPrimitive _ prim) = pure (EPrimitive Set.empty prim)
 formFVsE _a (EApplication _ expr1 expr2) = do
   expr1' <- formFVsE _a expr1
@@ -100,13 +100,13 @@ formFVsE _a (ELet _ flag lDefs expr) = do
         fvsExpr'
           = (expr' ^. _annotation) Set.\\ lDefsBinderIdSet
 
-        {-# INLINABLE fvsLDefs' #-}
-        {-# INLINABLE fvsLDefsBodies' #-}
-        {-# INLINABLE fvsExpr' #-}
+        {-# INLINE fvsLDefs' #-}
+        {-# INLINE fvsLDefsBodies' #-}
+        {-# INLINE fvsExpr' #-}
 
-    {-# INLINABLE getEnvs #-}
-    {-# INLINABLE formLDefsBodies #-}
-    {-# INLINABLE getFvs #-}
+    {-# INLINE getEnvs #-}
+    {-# INLINE formLDefsBodies #-}
+    {-# INLINE getFvs #-}
 formFVsE _a (EMatch _ expr mCases) = do
   expr' <- formFVsE _a expr
   mCases' <- zipWithM formMCase mCasesArgumentSets mCases
@@ -119,14 +119,14 @@ formFVsE _a (EMatch _ expr mCases) = do
 
     getFvs expr' mCases' = fvsMCases' <> expr' ^. _annotation
       where
-        fvssMCasesBodies' = mCases' ^.. each . _matchCaseBody . _annotation
         fvsMCases' = mconcat (zipWith (Set.\\) fvssMCasesBodies' mCasesArgumentSets)
+        fvssMCasesBodies' = mCases' ^.. each . _matchCaseBody . _annotation
 
-        {-# INLINABLE fvssMCasesBodies' #-}
-        {-# INLINABLE fvsMCases' #-}
+        {-# INLINE fvsMCases' #-}
+        {-# INLINE fvssMCasesBodies' #-}
 
-    {-# INLINABLE formMCase #-}
-    {-# INLINABLE getFvs #-}
+    {-# INLINE formMCase #-}
+    {-# INLINE getFvs #-}
 formFVsE _a (ELambda _ args expr) = do
   expr' <- local (argIdSet <>) $ formFVsE _a expr
   pure (ELambda (getFvs expr') args expr')
@@ -135,10 +135,10 @@ formFVsE _a (ELambda _ args expr) = do
 
     getFvs expr' = (expr' ^. _annotation) Set.\\ argIdSet
 
-    {-# INLINABLE getFvs #-}
+    {-# INLINE getFvs #-}
 
 -- |
 -- __TODO: move this definition into a separate utility module.__
 setFrom :: Getting (Set.Set a) s a -> Getter s (Set.Set a)
 setFrom = to . Set.setOf
-{-# INLINABLE setFrom #-}
+{-# INLINE setFrom #-}

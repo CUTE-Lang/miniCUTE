@@ -38,15 +38,15 @@ destructStructureExpression e = go e []
       | arity == genericLength args = Just (tag, args)
     go (EApplication _ e1 e2) args = go e1 (e2 : args)
     go _ _ = Nothing
-{-# INLINABLE destructStructureExpression #-}
+{-# INLINE destructStructureExpression #-}
 
 lookupMCasesL :: (Foldable m) => Integer -> m (MatchCase t l a) -> Maybe (MatchCase t l a)
 lookupMCasesL tag = find (view $ _matchCaseTag . to (== tag))
-{-# INLINABLE lookupMCasesL #-}
+{-# INLINE lookupMCasesL #-}
 
 lookupLDefsL :: (Foldable m, Eq a) => a -> m (LetDefinition t l a) -> Maybe (LetDefinition t l a)
 lookupLDefsL binder = find (view $ _letDefinitionBinder . to (== binder))
-{-# INLINABLE lookupLDefsL #-}
+{-# INLINE lookupLDefsL #-}
 
 shallowDeclaredBinders :: ALens' a Identifier -> Expression t l a -> Set.Set Identifier
 shallowDeclaredBinders _ (EInteger _ _) = Set.empty

@@ -54,9 +54,9 @@ normalizeCode = updateString . toUnix
       where
         indent = minimum $ length . takeWhile isSpace <$> ls
 
-    {-# INLINABLE updateString #-}
+    {-# INLINE updateString #-}
     {-# INLINE trimStartEmptyLines #-}
     {-# INLINE trimEndEmptyLines #-}
     {-# INLINE isEmpty #-}
-    {-# INLINABLE adjustIndent #-}
-{-# INLINABLE normalizeCode #-}
+    {-# INLINE adjustIndent #-}
+{-# INLINE normalizeCode #-}

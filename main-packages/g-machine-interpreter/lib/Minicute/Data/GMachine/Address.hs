@@ -11,6 +11,9 @@ module Minicute.Data.GMachine.Address
   , increaseAddress
   ) where
 
+import Control.Lens.Iso ( coerced )
+import Control.Lens.Setter ( over )
+import Control.Lens.Type
 import Data.Data ( Data, Typeable )
 import Data.Text.Prettyprint.Doc ( Pretty(..) )
 import GHC.Generics ( Generic )
@@ -18,8 +21,7 @@ import GHC.Generics ( Generic )
 import qualified Data.Text.Prettyprint.Doc as PP
 
 newtype Address
-  = Address
-    { getAddress :: Integer }
+  = Address Integer
   deriving ( Generic
            , Typeable
            , Data
@@ -39,9 +41,9 @@ minimumAddress = address 0
 {-# INLINE minimumAddress #-}
 
 increaseAddress :: Address -> Address
-increaseAddress = Address . (+ 1) . getAddress
+increaseAddress = over (coerced :: Iso' Address Integer) (+ 1)
 {-# INLINE increaseAddress #-}
 
 instance Pretty Address where
   pretty (Address addr) = PP.fuse PP.Shallow $ "&" <> pretty addr
-  {-# INLINABLE pretty #-}
+  {-# INLINE pretty #-}

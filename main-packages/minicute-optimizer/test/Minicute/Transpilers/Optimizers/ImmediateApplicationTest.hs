@@ -5,7 +5,7 @@
 -- Copyright: (c) 2018-present Junyoung Clare Jang
 -- License: BSD 3-Clause
 module Minicute.Transpilers.Optimizers.ImmediateApplicationTest
-  ( spec_immediateApplicationMainMC
+  ( spec_immediateApplicationMC
   ) where
 
 import Test.Tasty.Hspec
@@ -15,14 +15,14 @@ import Data.Tuple.Extra
 import Minicute.Transpilers.Optimizers.ImmediateApplication
 import Minicute.Utils.Minicute.TH
 
-spec_immediateApplicationMainMC :: Spec
-spec_immediateApplicationMainMC
-  = forM_ testCases (uncurry3 immediateApplicationMainMCTest)
+spec_immediateApplicationMC :: Spec
+spec_immediateApplicationMC
+  = forM_ testCases (uncurry3 immediateApplicationMCTest)
 
-immediateApplicationMainMCTest :: TestName -> TestBeforeContent -> TestAfterContent -> SpecWith (Arg Expectation)
-immediateApplicationMainMCTest name beforeContent afterContent = do
+immediateApplicationMCTest :: TestName -> TestBeforeContent -> TestAfterContent -> SpecWith (Arg Expectation)
+immediateApplicationMCTest name beforeContent afterContent = do
   it ("immediate applications are optimized in " <> name) $ do
-    immediateApplicationMainMC beforeContent `shouldBe` afterContent
+    immediateApplicationMC beforeContent `shouldBe` afterContent
 
 type TestName = String
 type TestBeforeContent = MainProgram 'Simple 'MC

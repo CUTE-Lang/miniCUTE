@@ -37,4 +37,4 @@ qqGMachineExp
   = either (fail . errorBundlePretty) lift
     . parse gMachineProgram ""
     . normalizeCode
-{-# INLINABLE qqGMachineExp #-}
+{-# INLINE qqGMachineExp #-}
