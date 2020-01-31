@@ -14,10 +14,10 @@ module Minicute.Parser.Common.LexerTest
   , hprop_integer_lexer_rejects_strings_having_number_prefix_starting_with_zero
   , hprop_integer_lexer_rejects_strings_without_integer_prefix
 
-  , hspec_identifier_lexer_accepts_alphabet_strings
-  , hspec_identifier_lexer_accepts_alphanumeric_and_underscore_strings_starting_with_alphabet
-  , hspec_identifier_lexer_accepts_alphanumeric_and_underscore_strings_starting_with_underscore
-  , hspec_identifier_lexer_rejects_alphanumeric_and_underscore_strings_starting_with_number
+  , hprop_identifier_lexer_accepts_alphabet_strings
+  , hprop_identifier_lexer_accepts_alphanumeric_and_underscore_strings_starting_with_alphabet
+  , hprop_identifier_lexer_accepts_alphanumeric_and_underscore_strings_starting_with_underscore
+  , hprop_identifier_lexer_rejects_alphanumeric_and_underscore_strings_starting_with_number
   ) where
 
 import Hedgehog
@@ -116,15 +116,15 @@ hprop_integer_lexer_rejects_strings_without_integer_prefix = do
   where
     hasIntegerPrefix str = any ((str /=) . snd) . (reads :: ReadS Integer) $ str
 
-hspec_identifier_lexer_accepts_alphabet_strings :: Property
-hspec_identifier_lexer_accepts_alphabet_strings = do
+hprop_identifier_lexer_accepts_alphabet_strings :: Property
+hprop_identifier_lexer_accepts_alphabet_strings = do
   property $ do
     str <- forAll $ Gen.string (Range.linear 1 100) Gen.alpha
     ident <- evalEither $ parse (L.identifier :: Parser String) "" str
     str === ident
 
-hspec_identifier_lexer_accepts_alphanumeric_and_underscore_strings_starting_with_alphabet :: Property
-hspec_identifier_lexer_accepts_alphanumeric_and_underscore_strings_starting_with_alphabet = do
+hprop_identifier_lexer_accepts_alphanumeric_and_underscore_strings_starting_with_alphabet :: Property
+hprop_identifier_lexer_accepts_alphanumeric_and_underscore_strings_starting_with_alphabet = do
   property $ do
     str <-
       forAll
@@ -134,8 +134,8 @@ hspec_identifier_lexer_accepts_alphanumeric_and_underscore_strings_starting_with
     ident <- evalEither $ parse (L.identifier :: Parser String) "" str
     str === ident
 
-hspec_identifier_lexer_accepts_alphanumeric_and_underscore_strings_starting_with_underscore :: Property
-hspec_identifier_lexer_accepts_alphanumeric_and_underscore_strings_starting_with_underscore = do
+hprop_identifier_lexer_accepts_alphanumeric_and_underscore_strings_starting_with_underscore :: Property
+hprop_identifier_lexer_accepts_alphanumeric_and_underscore_strings_starting_with_underscore = do
   property $ do
     str <-
       forAll
@@ -144,8 +144,8 @@ hspec_identifier_lexer_accepts_alphanumeric_and_underscore_strings_starting_with
     ident <- evalEither $ parse (L.identifier :: Parser String) "" str
     str === ident
 
-hspec_identifier_lexer_rejects_alphanumeric_and_underscore_strings_starting_with_number :: Property
-hspec_identifier_lexer_rejects_alphanumeric_and_underscore_strings_starting_with_number = do
+hprop_identifier_lexer_rejects_alphanumeric_and_underscore_strings_starting_with_number :: Property
+hprop_identifier_lexer_rejects_alphanumeric_and_underscore_strings_starting_with_number = do
   property $ do
     str <-
       forAll
