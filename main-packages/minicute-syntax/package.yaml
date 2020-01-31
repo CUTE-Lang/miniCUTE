@@ -53,6 +53,7 @@ library:
     - containers ^>= 0.6
     - extra ^>= 1.6
     - lens ^>= 4.17
+    - hedgehog ^>= 1.0
     - megaparsec ^>= 7.0
     - mtl ^>= 2.2
     - parser-combinators
@@ -94,7 +95,6 @@ tests:
 
       - minicute-common-syntax
       - minicute-minicute-syntax
-      - minicute-minicute-syntax-test
 
   hlint:
     ### Test fields ###

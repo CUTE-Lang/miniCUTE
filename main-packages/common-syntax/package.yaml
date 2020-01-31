@@ -51,6 +51,7 @@ library:
   dependencies:
     - base-minicute == 0.1.0.0
     - extra >= 1.6 && < 2
+    - hedgehog >= 1.0 && < 2
     - lens >= 4.17 && < 5
     - megaparsec >= 7.0 && < 8
     - parser-combinators
