@@ -1,9 +1,5 @@
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE DeriveGeneric #-}
-{-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE GeneralizedNewtypeDeriving #-}
-{-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TypeFamilies #-}
 -- |
 -- Copyright: (c) 2018-present Junyoung Clare Jang
@@ -15,6 +11,8 @@ module Minicute.Data.GMachine.Dump
   , loadState
   , extractAllAddresses
 
+  , getAllDumpItems
+
   , DumpItem
   , emptyDumpItem
   ) where
@@ -22,12 +20,11 @@ module Minicute.Data.GMachine.Dump
 import Prelude hiding ( fail )
 
 import Control.Lens.Getter ( use )
+import Control.Lens.Iso ( Iso', coerced )
 import Control.Lens.Operators
 import Control.Lens.Operators.Minicute
-import Control.Lens.TH
 import Control.Lens.Traversal ( partsOf )
 import Control.Lens.Tuple
-import Control.Lens.Wrapped ( _Wrapped )
 import Control.Monad.Extra ( concatMapM )
 import Control.Monad.Fail
 import Control.Monad.State ( MonadState, evalStateT )
@@ -51,30 +48,37 @@ newtype Dump
 
 type DumpItem = (Code.Code, AddressStack.AddressStack, ValueStack.ValueStack)
 
+_dump :: Iso' Dump [DumpItem]
+_dump = coerced
+{-# INLINE _dump #-}
 
-makeWrapped ''Dump
 
 empty :: Dump
 empty = Dump []
 {-# INLINE empty #-}
 
 saveState :: (MonadState s m, s ~ Dump) => DumpItem -> m ()
-saveState di = _Wrapped %= (di :)
-{-# INLINABLE saveState #-}
+saveState di = _dump %= (di :)
+{-# INLINE saveState #-}
 
 loadState :: (MonadState s m, s ~ Dump, MonadFail m) => m DumpItem
-loadState = _Wrapped %%~= loadState'
+loadState = _dump %%~= loadState'
   where
     loadState' (di : dis) = pure (di, dis)
     loadState' _ = fail "loadState: There is no dumped state to load"
-    {-# INLINABLE loadState' #-}
-{-# INLINABLE loadState #-}
+    {-# INLINE loadState' #-}
+{-# INLINE loadState #-}
 
 extractAllAddresses :: (MonadState s m, s ~ Dump, MonadFail m) => m [Address]
 extractAllAddresses = do
-  addrStks <- use $ partsOf $ _Wrapped . traverse . _2
+  addrStks <- use $ partsOf $ _dump . traverse . _2
   concatMapM (evalStateT AddressStack.peekAllAddrs) addrStks
-{-# INLINABLE extractAllAddresses #-}
+{-# INLINE extractAllAddresses #-}
+
+
+getAllDumpItems :: (MonadState s m, s ~ Dump) => m [DumpItem]
+getAllDumpItems = use _dump
+{-# INLINE getAllDumpItems #-}
 
 
 emptyDumpItem :: DumpItem

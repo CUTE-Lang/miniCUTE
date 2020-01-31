@@ -1,9 +1,5 @@
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE DeriveGeneric #-}
-{-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE GeneralizedNewtypeDeriving #-}
-{-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TypeFamilies #-}
 -- |
 -- Copyright: (c) 2018-present Junyoung Clare Jang
@@ -15,6 +11,7 @@ module Minicute.Data.GMachine.Code
   , empty
   , initialCode
   , fetchNextInstruction
+  , getAllInstructions
   , putInstruction
   , putInstructions
   , assertLastCode
@@ -23,10 +20,9 @@ module Minicute.Data.GMachine.Code
 import Prelude hiding ( fail )
 
 import Control.Lens.Getter ( to, use )
+import Control.Lens.Iso ( Iso', coerced )
 import Control.Lens.Operators
 import Control.Lens.Operators.Minicute
-import Control.Lens.TH
-import Control.Lens.Wrapped ( _Wrapped )
 import Control.Monad.Extra ( unlessM )
 import Control.Monad.Fail
 import Control.Monad.State ( MonadState )
@@ -46,7 +42,10 @@ newtype Code
            , Show
            )
 
-makeWrapped ''Code
+_code :: Iso' Code [Instruction]
+_code = coerced
+{-# INLINE _code #-}
+
 
 empty :: Code
 empty = Code []
@@ -57,23 +56,27 @@ initialCode = Code GMachine.initialCode
 {-# INLINE initialCode #-}
 
 fetchNextInstruction :: (MonadState s m, s ~ Code, MonadFail m) => m Instruction
-fetchNextInstruction = _Wrapped %%~= fetchNextInstruction'
+fetchNextInstruction = _code %%~= fetchNextInstruction'
   where
     fetchNextInstruction' (inst : insts) = pure (inst, insts)
     fetchNextInstruction' _ = fail "popInstructionFromCode: No more instructions exist"
-    {-# INLINABLE fetchNextInstruction' #-}
-{-# INLINABLE fetchNextInstruction #-}
+    {-# INLINE fetchNextInstruction' #-}
+{-# INLINE fetchNextInstruction #-}
+
+getAllInstructions :: (MonadState s m, s ~ Code) => m [Instruction]
+getAllInstructions = use _code
+{-# INLINE getAllInstructions #-}
 
 putInstruction :: (MonadState s m, s ~ Code) => Instruction -> m ()
-putInstruction inst = _Wrapped .= [inst]
-{-# INLINABLE putInstruction #-}
+putInstruction inst = _code .= [inst]
+{-# INLINE putInstruction #-}
 
 putInstructions :: (MonadState s m, s ~ Code) => [Instruction] -> m ()
-putInstructions insts = _Wrapped .= insts
-{-# INLINABLE putInstructions #-}
+putInstructions insts = _code .= insts
+{-# INLINE putInstructions #-}
 
 assertLastCode :: (MonadState s m, s ~ Code, MonadFail m) => m ()
 assertLastCode
-  = unlessM (use $ _Wrapped . to null)
+  = unlessM (use $ _code . to null)
     $ fail "assertLastCode: Not a last code"
-{-# INLINABLE assertLastCode #-}
+{-# INLINE assertLastCode #-}

@@ -50,11 +50,11 @@ qqMiniMainExpMC
   = either (fail . errorBundlePretty) lift
     . parse mainProgramMC ""
     . normalizeCode
-{-# INLINABLE qqMiniMainExpMC #-}
+{-# INLINE qqMiniMainExpMC #-}
 
 qqMiniMainExpLLMC :: String -> Q Exp
 qqMiniMainExpLLMC
   = either (fail . errorBundlePretty) lift
     . parse mainProgramLLMC ""
     . normalizeCode
-{-# INLINABLE qqMiniMainExpLLMC #-}
+{-# INLINE qqMiniMainExpLLMC #-}

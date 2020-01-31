@@ -43,6 +43,7 @@ module Minicute.Data.Minicute.Expression
 
 
   , ExpressionType( .. )
+  , Annotation
 
   , ExpressionLevel( .. )
 
@@ -60,13 +61,14 @@ import Control.Lens.TH
 import Control.Lens.Tuple
 import Control.Lens.Type
 import Control.Lens.Wrapped ( _Wrapped )
-import Data.Data ( Data, Typeable )
+import Data.Data ( Data(..), Typeable )
 import Data.Kind ( Type )
 import Data.Text.Prettyprint.Doc.Minicute
 import GHC.Generics ( Generic )
 import Language.Haskell.TH.Syntax ( Lift )
 import Minicute.Data.Common
 
+import qualified Data.Data as Data
 import qualified Data.Text.Prettyprint.Doc as PP
 
 -- |
@@ -93,6 +95,7 @@ instance (PrettyMC a, PrettyMC (Expression t l a)) => PrettyMC (LetDefinition t 
       , PP.equals
       , prettyMC0 expr
       ]
+  {-# INLINE prettyMC #-}
 
 
 -- |
@@ -118,6 +121,7 @@ instance (PrettyMC a, PrettyMC (Expression t l a)) => PrettyMC (MatchCase t l a)
       $ [PP.angles (prettyMC0 tag)]
       <> (prettyMC0 <$> argBinders)
       <> ["->", prettyMC0 expr]
+  {-# INLINE prettyMC #-}
 
 
 -- |
@@ -143,7 +147,7 @@ pattern NonRecursive = IsRecursive False
 instance Show IsRecursive where
   showsPrec _ Recursive = showString "Recursive"
   showsPrec _ NonRecursive = showString "NonRecursive"
-  {-# INLINABLE showsPrec #-}
+  {-# INLINE showsPrec #-}
 
 
 data ExpressionLevel
@@ -193,11 +197,81 @@ pattern EApplication2 ann2 ann1 e1 e2 e3 = EApplication ann2 (EApplication ann1 
 -- A utility pattern for 'Expression' of triple application.
 pattern EApplication3 ann3 ann2 ann1 e1 e2 e3 e4 = EApplication ann3 (EApplication2 ann2 ann1 e1 e2 e3) e4
 
-deriving instance (Data a, Typeable t, Data (Annotation t)) => Data (Expression t 'MC a)
+deriving instance (Typeable t, Data a, Data (Annotation t)) => Data (Expression t 'MC a)
 deriving instance (Lift a, Lift (Annotation t)) => Lift (Expression t l a)
 deriving instance (Eq a, Eq (Annotation t)) => Eq (Expression t l a)
 deriving instance (Ord a, Ord (Annotation t)) => Ord (Expression t l a)
 deriving instance (Show a, Show (Annotation t)) => Show (Expression t l a)
+
+instance (Typeable t, Data a, Data (Annotation t)) => Data (Expression t 'LLMC a) where
+  gfoldl k z (EInteger ann n) = z EInteger `k` ann `k` n
+  gfoldl k z (EConstructor ann tag arity) = z EConstructor `k` ann `k` tag `k` arity
+  gfoldl k z (EPrimitive ann prim) = z EPrimitive `k` ann `k` prim
+  gfoldl k z (EVariable ann ident) = z EVariable `k` ann `k` ident
+  gfoldl k z (EApplication ann e1 e2) = z EApplication `k` ann `k` e1 `k` e2
+  gfoldl k z (ELet ann flag lDefs e) = z ELet `k` ann `k` flag `k` lDefs `k` e
+  gfoldl k z (EMatch ann e mCases) = z EMatch `k` ann `k` e `k` mCases
+  {-# INLINE gfoldl #-}
+
+  gunfold k z c
+    = case Data.constrIndex c of
+        1 -> k . k . z $ EInteger
+        2 -> k . k . k . z $ EConstructor
+        3 -> k . k . z $ EPrimitive
+        4 -> k . k . z $ EVariable
+        5 -> k . k . k . z $ EApplication
+        6 -> k . k . k . k . z $ ELet
+        7 -> k . k . k . z $ EMatch
+        _ -> error "[custom gunfold] invalid constructor index"
+  {-# INLINE gunfold #-}
+
+  toConstr (EInteger _ _) = con_EInteger
+  toConstr (EConstructor _ _ _) = con_EConstructor
+  toConstr (EPrimitive _ _) = con_EPrimitive
+  toConstr (EVariable _ _) = con_EVariable
+  toConstr (EApplication _ _ _) = con_EApplication
+  toConstr (ELet _ _ _ _) = con_ELet
+  toConstr (EMatch _ _ _) = con_EMatch
+  {-# INLINE toConstr #-}
+
+  dataTypeOf _ = ty_ExpressionLLMC
+  {-# INLINE dataTypeOf #-}
+
+{- HLINT ignore con_EInteger "Use camelCase" -}
+{- HLINT ignore con_EConstructor "Use camelCase" -}
+{- HLINT ignore con_EPrimitive "Use camelCase" -}
+{- HLINT ignore con_EVariable "Use camelCase" -}
+{- HLINT ignore con_EApplication "Use camelCase" -}
+{- HLINT ignore con_ELet "Use camelCase" -}
+{- HLINT ignore con_EMatch "Use camelCase" -}
+con_EInteger :: Data.Constr
+con_EConstructor :: Data.Constr
+con_EPrimitive :: Data.Constr
+con_EVariable :: Data.Constr
+con_EApplication :: Data.Constr
+con_ELet :: Data.Constr
+con_EMatch :: Data.Constr
+
+con_EInteger = Data.mkConstr ty_ExpressionLLMC "EInteger" [] Data.Prefix
+con_EConstructor = Data.mkConstr ty_ExpressionLLMC "EConstructor" [] Data.Prefix
+con_EPrimitive = Data.mkConstr ty_ExpressionLLMC "EPrimitive" [] Data.Prefix
+con_EVariable = Data.mkConstr ty_ExpressionLLMC "EVariable" [] Data.Prefix
+con_EApplication = Data.mkConstr ty_ExpressionLLMC "EApplication" [] Data.Prefix
+con_ELet = Data.mkConstr ty_ExpressionLLMC "ELet" [] Data.Prefix
+con_EMatch = Data.mkConstr ty_ExpressionLLMC "EMatch" [] Data.Prefix
+
+{- HLINT ignore ty_ExpressionLLMC "Use camelCase" -}
+ty_ExpressionLLMC :: Data.DataType
+ty_ExpressionLLMC =
+  Data.mkDataType "Expression"
+  [ con_EInteger
+  , con_EConstructor
+  , con_EPrimitive
+  , con_EVariable
+  , con_EApplication
+  , con_ELet
+  , con_EMatch
+  ]
 
 instance (PrettyMC a) => PrettyMC (Expression 'Simple l a) where
   prettyMC _ (EInteger _ n) = prettyMC0 n
@@ -233,7 +307,7 @@ instance (PrettyMC a) => PrettyMC (Expression 'Simple l a) where
         | isRecursive flag = "letrec"
         | otherwise = "let"
 
-      {-# INLINABLE keyword #-}
+      {-# INLINE keyword #-}
   prettyMC p (EMatch _ e matchCases)
     = prettyWrappedIf (p > 0) PP.parens . PP.align . PP.hcat
       $ [ "match"
@@ -275,7 +349,7 @@ instance (PrettyMC ann, PrettyMC a) => PrettyMC (Expression ('AnnotatedWith ann)
     where
       primDoc = prettyMC0 prim <> PP.braces (prettyMC0 annPrim)
 
-      {-# INLINABLE primDoc #-}
+      {-# INLINE primDoc #-}
   prettyMC p (EApplication ann e1 e2)
     = prettyWrappedIf (p > miniApplicationPrecedence) PP.parens
       $ ( PP.align . PP.hcat
@@ -299,7 +373,7 @@ instance (PrettyMC ann, PrettyMC a) => PrettyMC (Expression ('AnnotatedWith ann)
         | isRecursive flag = "letrec"
         | otherwise = "let"
 
-      {-# INLINABLE keyword #-}
+      {-# INLINE keyword #-}
   prettyMC p (EMatch ann e matchCases)
     = prettyWrappedIf (p > 0) PP.parens
       $ ( PP.align . PP.hcat
@@ -335,13 +409,13 @@ makeWrapped ''LetDefinition
 -- 'Lens' to extract the binder of 'LetDefinition'
 _letDefinitionBinder :: Lens' (LetDefinition t l a) a
 _letDefinitionBinder = _Wrapped . _1
-{-# INLINABLE _letDefinitionBinder #-}
+{-# INLINE _letDefinitionBinder #-}
 
 -- |
 -- 'Lens' to extract the body expression of 'LetDefinition'
 _letDefinitionBody :: Lens (LetDefinition t l a) (LetDefinition t' l' a) (Expression t l a) (Expression t' l' a)
 _letDefinitionBody = _Wrapped . _2
-{-# INLINABLE _letDefinitionBody #-}
+{-# INLINE _letDefinitionBody #-}
 
 
 makeWrapped ''MatchCase
@@ -350,19 +424,19 @@ makeWrapped ''MatchCase
 -- 'Lens' to extract the tag of 'MatchCase'
 _matchCaseTag :: Lens' (MatchCase t l a) Integer
 _matchCaseTag = _Wrapped . _1
-{-# INLINABLE _matchCaseTag #-}
+{-# INLINE _matchCaseTag #-}
 
 -- |
 -- 'Lens' to extract the arguments of 'MatchCase'
 _matchCaseArguments :: Lens' (MatchCase t l a) [a]
 _matchCaseArguments = _Wrapped . _2
-{-# INLINABLE _matchCaseArguments #-}
+{-# INLINE _matchCaseArguments #-}
 
 -- |
 -- 'Lens' to extract the body expression of 'MatchCase'
 _matchCaseBody :: Lens (MatchCase t l a) (MatchCase t' l' a) (Expression t l a) (Expression t' l' a)
 _matchCaseBody = _Wrapped . _3
-{-# INLINABLE _matchCaseBody #-}
+{-# INLINE _matchCaseBody #-}
 
 
 makeWrapped ''IsRecursive
@@ -390,4 +464,7 @@ _annotation = lens getter setter
     setter (ELet _ flag lDefs expr) ann = ELet ann flag lDefs expr
     setter (EMatch _ mCases expr) ann = EMatch ann mCases expr
     setter (ELambda _ argBinders expr) ann = ELambda ann argBinders expr
-{-# INLINABLE _annotation #-}
+
+    {-# INLINE getter #-}
+    {-# INLINE setter #-}
+{-# INLINE _annotation #-}

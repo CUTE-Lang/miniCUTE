@@ -5,7 +5,7 @@
 -- Copyright: (c) 2018-present Junyoung Clare Jang
 -- License: BSD 3-Clause
 module Minicute.Transpilers.Optimizers.LambdaMergeTest
-  ( spec_lambdaMergeMainMC
+  ( spec_lambdaMergeMC
   ) where
 
 import Test.Tasty.Hspec
@@ -15,14 +15,14 @@ import Data.Tuple.Extra
 import Minicute.Transpilers.Optimizers.LambdaMerge
 import Minicute.Utils.Minicute.TH
 
-spec_lambdaMergeMainMC :: Spec
-spec_lambdaMergeMainMC
-  = forM_ testCases (uncurry3 lambdaMergeMainMCTest)
+spec_lambdaMergeMC :: Spec
+spec_lambdaMergeMC
+  = forM_ testCases (uncurry3 lambdaMergeMCTest)
 
-lambdaMergeMainMCTest :: TestName -> TestBeforeContent -> TestAfterContent -> SpecWith (Arg Expectation)
-lambdaMergeMainMCTest name beforeContent afterContent = do
+lambdaMergeMCTest :: TestName -> TestBeforeContent -> TestAfterContent -> SpecWith (Arg Expectation)
+lambdaMergeMCTest name beforeContent afterContent = do
   it ("immediate applications are optimized in " <> name) $ do
-    lambdaMergeMainMC beforeContent `shouldBe` afterContent
+    lambdaMergeMC beforeContent `shouldBe` afterContent
 
 type TestName = String
 type TestBeforeContent = MainProgram 'Simple 'MC

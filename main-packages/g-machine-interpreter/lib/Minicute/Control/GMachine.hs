@@ -26,7 +26,7 @@ import Control.Monad.Trans ( MonadTrans(..) )
 import Control.Monad.Writer ( MonadWriter(..), Writer, runWriter )
 import Data.Data ( Typeable )
 import Data.List.NonEmpty ( NonEmpty(..), (<|) )
-import Data.Monoid ( First(..) )
+import Data.Monoid ( Alt(..) )
 import GHC.Generics ( Generic )
 import Minicute.Control.GMachine.Step
 import Minicute.Data.GMachine.Instruction
@@ -37,7 +37,7 @@ type GMachineMonad = GMachineMonadT IO
 
 newtype GMachineMonadT m a
   = GMachineMonadT
-    { runGMachineMonadT :: Writer (First GMachineState) (StateT (NonEmpty GMachineState) m a)
+    { runGMachineMonadT :: Writer (Alt Maybe GMachineState) (StateT (NonEmpty GMachineState) m a)
     }
   deriving ( Generic
            , Typeable
@@ -47,16 +47,16 @@ newtype GMachineMonadT m a
 instance (Monad m) => Applicative (GMachineMonadT m) where
   pure = GMachineMonadT . pure . pure
   (GMachineMonadT f) <*> (GMachineMonadT a)
-    = GMachineMonadT $ fmap (<*>) f <*> a
+    = GMachineMonadT $ (<*>) <$> f <*> a
 
   {-# INLINE pure #-}
-  {-# INLINABLE (<*>) #-}
+  {-# INLINE (<*>) #-}
 
 instance (Monad m) => Monad (GMachineMonadT m) where
   (GMachineMonadT a) >>= f
     = GMachineMonadT
       $ (>>= fst . runWriter . runGMachineMonadT . f) <$> a
-  {-# INLINABLE (>>=) #-}
+  {-# INLINE (>>=) #-}
 
 instance (MonadFail m) => MonadFail (GMachineMonadT m) where
   fail = GMachineMonadT . pure . fail
@@ -78,12 +78,12 @@ instance MonadTrans GMachineMonadT where
   {-# INLINE lift #-}
 
 execGMachineT :: (MonadFail m) => GMachineMonadT m a -> m (NonEmpty GMachineState)
-execGMachineT (GMachineMonadT a)
+execGMachineT m
   | Just st <- maySt = NonEmpty.reverse <$> execStateT b (st :| [])
   | otherwise = fail "execGMachineT: input G-Machine is not initialized"
   where
-    (b, First maySt) = runWriter a
-{-# INLINABLE execGMachineT #-}
+    (b, Alt maySt) = runWriter . runGMachineMonadT $ m
+{-# INLINE execGMachineT #-}
 
 
 initializeGMachineWith :: (Monad m) => GMachineProgram -> GMachineMonadT m ()
@@ -93,21 +93,20 @@ initializeGMachineWith
     . tell
     . pure
     . buildInitialState
-{-# INLINABLE initializeGMachineWith #-}
+{-# INLINE initializeGMachineWith #-}
 
 executeGMachineStep :: (Monad m) => GMachineStepMonadT m () -> GMachineMonadT m ()
-executeGMachineStep step = do
-  nextSt <- getCurrentState >>= makeNextState
-  modify (nextSt <|)
+executeGMachineStep step
+  = getCurrentState >>= makeNextState >>= modify . (<|)
   where
     getCurrentState = gets NonEmpty.head
     makeNextState = lift . execGMachineStepT step
 
     {-# INLINE getCurrentState #-}
     {-# INLINE makeNextState #-}
-{-# INLINABLE executeGMachineStep #-}
+{-# INLINE executeGMachineStep #-}
 
 checkGMachineFinished :: (Monad m) => GMachineMonadT m Bool
 checkGMachineFinished
-  = gets (checkTerminalState . NonEmpty.head)
+  = gets $ checkTerminalState . NonEmpty.head
 {-# INLINE checkGMachineFinished #-}

@@ -79,3 +79,18 @@ cradle:
       component: "minicute-common-syntax-test:test:test"
     - path: "./test-packages/common-syntax/hlint"
       component: "minicute-common-syntax-test:test:hlint"
+
+    - path: "./test-packages/minicute-syntax/lib"
+      component: "minicute-minicute-syntax-test:lib"
+    - path: "./test-packages/minicute-syntax/test"
+      component: "minicute-minicute-syntax-test:test:test"
+    - path: "./test-packages/minicute-syntax/hlint"
+      component: "minicute-minicute-syntax-test:test:hlint"
+
+    # Utilities
+    - path: "./utilities/hlint/hlint-run"
+      component: "hlint-minicute-utilities:exe:hlint-run"
+    - path: "./utilities/hlint/lib"
+      component: "hlint-minicute-utilities:lib"
+    - path: "./utilities/hlint/hlint"
+      component: "hlint-minicute-utilities:test:hlint"

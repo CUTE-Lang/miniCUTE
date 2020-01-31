@@ -32,7 +32,7 @@ gMachineSupercombinator
     <$> (Identifier <$> L.identifier)
     <*> between (L.symbol "<") (L.symbol ">") L.integer
     <*> between (L.symbol "{") (L.symbol "}") gMachineExpression
-{-# INLINABLE gMachineSupercombinator #-}
+{-# INLINE gMachineSupercombinator #-}
 
 gMachineExpression :: Parser GMachineExpression
 gMachineExpression = endBy instruction separator
@@ -77,7 +77,7 @@ instruction
 matchTable :: Parser MatchTable
 matchTable
   = MatchTable <$> between (L.symbol "{") (L.symbol "}") (many matchEntry)
-{-# INLINABLE matchTable #-}
+{-# INLINE matchTable #-}
 
 matchEntry :: Parser MatchEntry
 matchEntry
@@ -85,9 +85,9 @@ matchEntry
     . (,)
     <$> L.integer <* L.symbol "->"
     <*> gMachineExpression
-{-# INLINABLE matchEntry #-}
+{-# INLINE matchEntry #-}
 
 
 separator :: (MonadParser e s m) => m ()
 separator = L.symbol ";"
-{-# INLINABLE separator #-}
+{-# INLINE separator #-}

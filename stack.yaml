@@ -42,6 +42,7 @@ packages:
 - ./main-packages/minicute-syntax
 
 - ./test-packages/common-syntax
+- ./test-packages/minicute-syntax
 
 - ./utilities/hlint
 

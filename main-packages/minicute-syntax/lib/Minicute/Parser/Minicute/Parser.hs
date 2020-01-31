@@ -37,7 +37,7 @@ type WithPrecedence m = ReaderT (PrecedenceTable Primitive) m
 -- A parser for 'MainProgramMC'
 mainProgramMC :: Parser (MainProgram 'Simple 'MC)
 mainProgramMC = program identifier (expressionMC identifier)
-{-# INLINABLE mainProgramMC #-}
+{-# INLINE mainProgramMC #-}
 
 expressionMC :: (MonadParser e s m) => WithPrecedence m a -> WithPrecedence m (Expression 'Simple 'MC a)
 expressionMC pA = go
@@ -51,14 +51,14 @@ expressionMC pA = go
         , otherExpressionsByPrec go
         ]
         <?> "expression"
-{-# INLINABLE expressionMC #-}
+{-# INLINE expressionMC #-}
 
 
 -- |
 -- A parser for 'MainProgramLLMC'
 mainProgramLLMC :: Parser (MainProgram 'Simple 'LLMC)
 mainProgramLLMC = program identifier (expressionLLMC identifier)
-{-# INLINABLE mainProgramLLMC #-}
+{-# INLINE mainProgramLLMC #-}
 
 expressionLLMC :: (MonadParser e s m) => WithPrecedence m a -> WithPrecedence m (Expression 'Simple 'LLMC a)
 expressionLLMC pA = go
@@ -71,7 +71,7 @@ expressionLLMC pA = go
         , otherExpressionsByPrec go
         ]
         <?> "expression"
-{-# INLINABLE expressionLLMC #-}
+{-# INLINE expressionLLMC #-}
 
 
 program :: (MonadParser e s m) => WithPrecedence m a -> WithPrecedence m (Expression t l a) -> m (Program t l a)
@@ -81,12 +81,12 @@ program pA pExpr = do
     Program
     <$> runReaderT (supercombinators pA pExpr) primitivePrecedenceTable
   eof $> result
-{-# INLINABLE program #-}
+{-# INLINE program #-}
 
 
 supercombinators :: (MonadParser e s m) => WithPrecedence m a -> WithPrecedence m (Expression t l a) -> WithPrecedence m [Supercombinator t l a]
 supercombinators pA pExpr = sepEndBy (supercombinator pA pExpr) separator
-{-# INLINABLE supercombinators #-}
+{-# INLINE supercombinators #-}
 
 supercombinator :: (MonadParser e s m) => WithPrecedence m a -> WithPrecedence m (Expression t l a) -> WithPrecedence m (Supercombinator t l a)
 supercombinator pA pExpr
@@ -96,7 +96,7 @@ supercombinator pA pExpr
           <*> many pA <* L.symbol "="
           <*> pExpr
         )
-{-# INLINABLE supercombinator #-}
+{-# INLINE supercombinator #-}
 
 
 lambdaExpression :: (MonadParser e s m) => WithPrecedence m a -> WithPrecedence m (Expression 'Simple 'MC a) -> WithPrecedence m (Expression 'Simple 'MC a)
@@ -105,7 +105,6 @@ lambdaExpression pA pExpr
     <$> Comb.between (L.symbol "\\") (L.symbol "->") (some pA)
     <*> pExpr
     <?> "lambda expression"
-{-# INLINABLE lambdaExpression #-}
 
 
 letExpression :: (MonadParser e s m) => WithPrecedence m a -> WithPrecedence m (Expression 'Simple l a) -> IsRecursive -> WithPrecedence m (Expression 'Simple l a)
@@ -130,12 +129,9 @@ letExpression pA pExpr flag
       | isRecursive flag = "letrec expression"
       | otherwise = "let expression"
 
-    {-# INLINABLE letDefinitions #-}
-    {-# INLINABLE startingKeyword #-}
-    {-# INLINABLE endingKeyword #-}
-    {-# INLINABLE zeroLetDefinitionError #-}
-    {-# INLINABLE nameOfExpression #-}
-{-# INLINABLE letExpression #-}
+    {-# INLINE letDefinitions #-}
+    {-# INLINE startingKeyword #-}
+    {-# INLINE zeroLetDefinitionError #-}
 
 letDefinition :: (MonadParser e s m) => WithPrecedence m a -> WithPrecedence m (Expression t l a) -> WithPrecedence m (LetDefinition t l a)
 letDefinition pA pExpr
@@ -145,7 +141,7 @@ letDefinition pA pExpr
           <*> pExpr
         )
     <?> "let definition"
-{-# INLINABLE letDefinition #-}
+{-# INLINE letDefinition #-}
 
 matchExpression :: (MonadParser e s m) => WithPrecedence m a -> WithPrecedence m (Expression 'Simple l a) -> WithPrecedence m (Expression 'Simple l a)
 matchExpression pA pExpr
@@ -167,11 +163,10 @@ matchExpression pA pExpr
 
     zeroMatchCaseError = fail "match expression should include at least one case"
 
-    {-# INLINABLE matchCases #-}
-    {-# INLINABLE startingKeyword #-}
-    {-# INLINABLE endingKeyword #-}
-    {-# INLINABLE zeroMatchCaseError #-}
-{-# INLINABLE matchExpression #-}
+    {-# INLINE matchCases #-}
+    {-# INLINE startingKeyword #-}
+    {-# INLINE endingKeyword #-}
+    {-# INLINE zeroMatchCaseError #-}
 
 matchCase :: (MonadParser e s m) => WithPrecedence m a -> WithPrecedence m (Expression t l a) -> WithPrecedence m (MatchCase t l a)
 matchCase pA pExpr
@@ -182,7 +177,7 @@ matchCase pA pExpr
           <*> pExpr
         )
     <?> "match case"
-{-# INLINABLE matchCase #-}
+{-# INLINE matchCase #-}
 
 
 otherExpressionsByPrec
@@ -195,7 +190,6 @@ otherExpressionsByPrec pExpr
     ( CombExpr.makeExprParser (applicationExpression pExpr)
       . createPrimitiveOperatorTable (EPrimitive ()) (EApplication ()) (EApplication2 () ())
     )
-{-# INLINABLE otherExpressionsByPrec #-}
 
 applicationExpression
   :: (MonadParser e s m)
@@ -205,9 +199,7 @@ applicationExpression pExpr
   = foldl' (EApplication ()) <$> atomic <*> many atomic
   where
     atomic = atomicExpression pExpr
-
-    {-# INLINABLE atomic #-}
-{-# INLINABLE applicationExpression #-}
+{-# INLINE applicationExpression #-}
 
 atomicExpression
   :: (MonadParser e s m)
@@ -220,7 +212,7 @@ atomicExpression pExpr
     , constructorExpression
     , mapReaderT L.betweenRoundBrackets pExpr <?> "expression with parentheses"
     ]
-{-# INLINABLE atomicExpression #-}
+{-# INLINE atomicExpression #-}
 
 -- |
 -- The @startingSymbols@ do not use 'try' because
@@ -237,14 +229,14 @@ constructorExpression
     startingSymbols = L.keyword "$C" *> L.symbol "{"
     endingSymbols = L.symbol "}"
 
-    {-# INLINABLE startingSymbols #-}
-    {-# INLINABLE endingSymbols #-}
-{-# INLINABLE constructorExpression #-}
+    {-# INLINE startingSymbols #-}
+    {-# INLINE endingSymbols #-}
+{-# INLINE constructorExpression #-}
 
 identifier :: (MonadParser e s m) => m Identifier
 identifier = Identifier <$> L.identifier
-{-# INLINABLE identifier #-}
+{-# INLINE identifier #-}
 
 separator :: (MonadParser e s m) => m ()
 separator = L.symbol ";"
-{-# INLINABLE separator #-}
+{-# INLINE separator #-}

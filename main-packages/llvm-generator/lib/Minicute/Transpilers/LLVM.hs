@@ -25,7 +25,7 @@ import qualified LLVM.AST.Type as ASTT
 generateMachineCode :: GMachineProgram -> [AST.Definition]
 generateMachineCode program
   = fromMaybe [] $ execModuleBuilderT emptyModuleBuilder $ generateMachineCodeProgram program
-{-# INLINABLE generateMachineCode #-}
+{-# INLINE generateMachineCode #-}
 
 generateMachineCodeProgram :: GMachineProgram -> ModuleBuilderT Maybe ()
 generateMachineCodeProgram program
@@ -46,10 +46,10 @@ generateMachineCodeSc (Identifier binder, _, expr) = do
     nodeName = fromString $ "minicute__user_defined__" <> binder <> "__node"
     nodeBodyBuilder = constantNodeNGlobal codeName
 
-    {-# INLINABLE codeName #-}
     {-# INLINE codeBodyBuilder #-}
-    {-# INLINABLE nodeName #-}
+    {-# INLINE nodeName #-}
     {-# INLINE nodeBodyBuilder #-}
+{-# INLINE generateMachineCodeSc #-}
 
 generateMachineCodeE :: GMachineExpression -> IRBuilderT (ModuleBuilderT Maybe) ()
 generateMachineCodeE = go []
@@ -160,4 +160,3 @@ generateMachineCodeE = go []
       store sName' 0 operandAddrBasePointer
       _ <- call operandUtilUnwind []
       store bName 0 operandAddrBasePointer
-    {-# INLINABLE evalBody #-}

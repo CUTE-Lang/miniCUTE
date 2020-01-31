@@ -55,7 +55,7 @@ toString PrimLt = "<"
 toString PrimLe = "<="
 toString PrimGt = ">"
 toString PrimGe = ">="
-{-# INLINABLE toString #-}
+{-# INLINE toString #-}
 
 instance PrettyMC Primitive where
   prettyMC _ = fromString . toString
@@ -86,3 +86,4 @@ binaryPrimitivePrecedenceTable
     , (PrimMul, PInfixL 50)
     , (PrimDiv, PInfixL 50)
     ]
+{-# INLINE binaryPrimitivePrecedenceTable #-}

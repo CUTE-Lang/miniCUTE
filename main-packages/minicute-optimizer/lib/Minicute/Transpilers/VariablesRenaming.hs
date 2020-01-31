@@ -27,7 +27,7 @@ import qualified Data.Map as Map
 -- A transpiler to rename variables in 'MainProgram'
 renameVariablesMain :: MainProgram t l -> MainProgram t l
 renameVariablesMain = renameVariables id
-{-# INLINABLE renameVariablesMain #-}
+{-# INLINE renameVariablesMain #-}
 
 renameVariables :: ALens' a Identifier -> Program t l a -> Program t l a
 renameVariables _a
@@ -53,16 +53,18 @@ renameVariables _a
           where
             renameScBody = _supercombinatorBody %%~ renameVariablesE _a
 
-            {-# INLINABLE renameScBody #-}
-        {-# INLINABLE renameScsArgsAndBody #-}
+            {-# INLINE renameScBody #-}
+
+        {-# INLINE renameScArgsAndBody #-}
+        {-# INLINE renameScsArgsAndBody #-}
 
     renameScBinder sc
       | sc ^. _supercombinatorBinder == "main" = pure ([], sc)
       | otherwise = first pure <$> renameAIn _supercombinatorBinder id sc
 
     {-# INLINE renameProgram #-}
-    {-# INLINABLE renameScBinder #-}
-{-# INLINABLE renameVariables #-}
+    {-# INLINE renameScBinder #-}
+{-# INLINE renameVariables #-}
 
 renameVariablesE :: ALens' a Identifier -> Renamer' (Expression t l a)
 renameVariablesE _ e@(EInteger _ _) = pure e
@@ -89,8 +91,7 @@ renameVariablesE _a (ELet ann flag lDefs expr) = do
           | otherwise = record
         exprRecord = lDefsBinderRecord <> record
 
-        {-# INLINABLE lDefsRecord #-}
-        {-# INLINABLE exprRecord #-}
+        {-# INLINE lDefsRecord #-}
 
     renameLDefs lDefsRecord
       = local (const lDefsRecord)
@@ -98,10 +99,10 @@ renameVariablesE _a (ELet ann flag lDefs expr) = do
     renameLDefsBodies = each . _letDefinitionBody %%~ renameVariablesE _a
     renameExpr exprRecord = local (const exprRecord) . renameVariablesE _a
 
-    {-# INLINABLE getRecords #-}
-    {-# INLINABLE renameLDefs #-}
-    {-# INLINABLE renameLDefsBodies #-}
-    {-# INLINABLE renameExpr #-}
+    {-# INLINE getRecords #-}
+    {-# INLINE renameLDefs #-}
+    {-# INLINE renameLDefsBodies #-}
+    {-# INLINE renameExpr #-}
 renameVariablesE _a (EMatch ann expr mCases)
   = EMatch ann <$> renameVariablesE _a expr <*> renameMCases mCases
   where
@@ -114,8 +115,8 @@ renameVariablesE _a (EMatch ann expr mCases)
       where
         renameMCaseBody = _matchCaseBody %%~ renameVariablesE _a
 
-        {-# INLINABLE renameMCaseBody #-}
-    {-# INLINABLE renameMCases #-}
+        {-# INLINE renameMCaseBody #-}
+    {-# INLINE renameMCases #-}
 renameVariablesE _a (ELambda ann args expr) = do
   (argRecord, args') <-
     first renamedRecordFromIdentifierPairList
@@ -129,7 +130,7 @@ type Renamer' a = Renamer a a
 
 renameIdentifier :: Renamer' Identifier
 renameIdentifier = lift . generateId
-{-# INLINABLE renameIdentifier #-}
+{-# INLINE renameIdentifier #-}
 
 renameIdentifierIn :: ALens' s Identifier -> Renamer s ((Identifier, Identifier), s)
 renameIdentifierIn _s s = do
@@ -137,13 +138,11 @@ renameIdentifierIn _s s = do
   pure ((ident, ident'), s & _s #~ ident')
   where
     ident = s ^# _s
-
-    {-# INLINABLE ident #-}
-{-# INLINABLE renameIdentifierIn #-}
+{-# INLINE renameIdentifierIn #-}
 
 renameIdentifiers :: Renamer' [Identifier]
 renameIdentifiers = traverse renameIdentifier
-{-# INLINABLE renameIdentifiers #-}
+{-# INLINE renameIdentifiers #-}
 
 renameIdentifiersIn :: ALens' s [Identifier] -> Renamer s ([(Identifier, Identifier)], s)
 renameIdentifiersIn _s s = do
@@ -151,41 +150,39 @@ renameIdentifiersIn _s s = do
   pure (zip idents idents', s & _s #~ idents')
   where
     idents = s ^# _s
-
-    {-# INLINABLE idents #-}
-{-# INLINABLE renameIdentifiersIn #-}
+{-# INLINE renameIdentifiersIn #-}
 
 renameAIn :: ALens' s a -> ALens' a Identifier -> Renamer s ((Identifier, Identifier), s)
 renameAIn _s _a = renameIdentifierIn (cloneLens _s . cloneLens _a)
-{-# INLINABLE renameAIn #-}
+{-# INLINE renameAIn #-}
 
 renameAsIn :: ALens' s [a] -> ALens' a Identifier -> Renamer s ([(Identifier, Identifier)], s)
 renameAsIn _s _a = renameIdentifiersIn (cloneLens _s . partsOf (each . cloneLens _a))
-{-# INLINABLE renameAsIn #-}
+{-# INLINE renameAsIn #-}
 
 type RenamedRecord = Map.Map Identifier Identifier
 
 initialRenamedRecord :: RenamedRecord
 initialRenamedRecord = Map.empty
-{-# INLINABLE initialRenamedRecord #-}
+{-# INLINE initialRenamedRecord #-}
 
 renamedRecordFromIdentifierPairList :: [(Identifier, Identifier)] -> RenamedRecord
 renamedRecordFromIdentifierPairList = Map.fromList
-{-# INLINABLE renamedRecordFromIdentifierPairList #-}
+{-# INLINE renamedRecordFromIdentifierPairList #-}
 
 type IdGeneratorState = Int
 
 initialIdGeneratorState :: IdGeneratorState
 initialIdGeneratorState = 0
-{-# INLINABLE initialIdGeneratorState #-}
+{-# INLINE initialIdGeneratorState #-}
 
 nextIdGeneratorState :: IdGeneratorState -> IdGeneratorState
 nextIdGeneratorState = (+ 1)
-{-# INLINABLE nextIdGeneratorState #-}
+{-# INLINE nextIdGeneratorState #-}
 
 generateId :: Identifier -> State IdGeneratorState Identifier
 generateId (Identifier n) = do
   st <- get
   put (nextIdGeneratorState st)
   pure (Identifier (n <> show st))
-{-# INLINABLE generateId #-}
+{-# INLINE generateId #-}

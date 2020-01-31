@@ -47,7 +47,7 @@ import qualified Data.Map as Map
 -- Transpiler for a __Program__.
 transpileProgram :: MainProgram t 'LLMC -> GMachineProgram
 transpileProgram program = transpileSc <$> program ^. _Wrapped
-{-# INLINABLE transpileProgram #-}
+{-# INLINE transpileProgram #-}
 
 -- |
 -- Transpiler for a __S__uper__c__ombinator (top-level function definition).
@@ -62,11 +62,11 @@ transpileSc sc = (scBinder, scArgsLength, scInsts)
     scArgsLength = length scArgs
     scArgs = sc ^. _supercombinatorArguments
 
-    {-# INLINABLE scBinder #-}
-    {-# INLINABLE scInsts #-}
-    {-# INLINABLE scArgsEnv #-}
-    {-# INLINABLE scArgsLength #-}
-{-# INLINABLE transpileSc #-}
+    {-# INLINE scBinder #-}
+    {-# INLINE scInsts #-}
+    {-# INLINE scArgsEnv #-}
+    {-# INLINE scArgsLength #-}
+{-# INLINE transpileSc #-}
 
 -- *** Transpilers for an Expression
 -- |
@@ -211,7 +211,7 @@ transpileLet transpileBody env (flag, lDefs, body)
     env' = updateLetEnv lDefs env
 
     {-# INLINE bodyInst #-}
-    {-# INLINABLE env' #-}
+{-# INLINE transpileLet #-}
 
 transpileLetDefs :: TranspilerE [MainLetDefinition t 'LLMC]
 transpileLetDefs env lDefs
@@ -220,9 +220,9 @@ transpileLetDefs env lDefs
     envs = iterate addEnvOffset1 env
     lDefsBodies = lDefs ^.. each . _letDefinitionBody
 
-    {-# INLINABLE envs #-}
-    {-# INLINABLE lDefsBodies #-}
-{-# INLINABLE transpileLetDefs #-}
+    {-# INLINE envs #-}
+    {-# INLINE lDefsBodies #-}
+{-# INLINE transpileLetDefs #-}
 
 transpileLetRecDefs :: TranspilerE [MainLetDefinition t 'LLMC]
 transpileLetRecDefs env lDefs
@@ -233,9 +233,8 @@ transpileLetRecDefs env lDefs
     lDefsBodies = lDefs ^.. each . _letDefinitionBody
     len = length lDefs
 
-    {-# INLINABLE lDefsBodies #-}
-    {-# INLINE len #-}
-{-# INLINABLE transpileLetRecDefs #-}
+    {-# INLINE lDefsBodies #-}
+{-# INLINE transpileLetRecDefs #-}
 
 updateLetEnv :: [MainLetDefinition t 'LLMC] -> TranspilerEEnv -> TranspilerEEnv
 updateLetEnv lDefs env
@@ -246,10 +245,9 @@ updateLetEnv lDefs env
     lDefsBinders = lDefs ^.. each . _letDefinitionBinder
     len = length lDefs
 
-    {-# INLINABLE envOfLDefs #-}
-    {-# INLINABLE lDefsBinders #-}
-    {-# INLINE len #-}
-{-# INLINABLE updateLetEnv #-}
+    {-# INLINE envOfLDefs #-}
+    {-# INLINE lDefsBinders #-}
+{-# INLINE updateLetEnv #-}
 
 -- |
 -- Transpiler for a __Match__ expression.
@@ -263,12 +261,12 @@ transpileMatch transpileBody transpileCase env (body, mCases)
     bodyInst = transpileBody env body
 
     {-# INLINE bodyInst #-}
-{-# INLINABLE transpileMatch #-}
+{-# INLINE transpileMatch #-}
 
 makeMatchTable :: (Integer -> TranspilerE (MainExpression t l)) -> TranspilerEEnv -> [MainMatchCase t l] -> MatchTable
 makeMatchTable transpileCase env
   = MatchTable . fmap (makeMatchEntry transpileCase env)
-{-# INLINABLE makeMatchTable #-}
+{-# INLINE makeMatchTable #-}
 
 makeMatchEntry :: (Integer -> TranspilerE (MainExpression t l)) -> TranspilerEEnv -> MainMatchCase t l -> MatchEntry
 makeMatchEntry transpileCase env mCase
@@ -291,10 +289,8 @@ makeMatchEntry transpileCase env mCase
     {-# INLINE caseInst #-}
     {-# INLINE caseBody #-}
     {-# INLINE caseTag #-}
-    {-# INLINABLE env' #-}
-    {-# INLINABLE caseArgsLen #-}
-    {-# INLINABLE caseArgs #-}
-{-# INLINABLE makeMatchEntry #-}
+    {-# INLINE env' #-}
+{-# INLINE makeMatchEntry #-}
 
 -- ** Types
 -- |

@@ -106,7 +106,9 @@
     rules:
     - warn: {lhs: "(^. partsOf a)", rhs: "(^.. a)"}
     - warn: {lhs: "traverse (a %%~ b)", rhs: "(each . a) %%~ b"}
-    - warn: {lhs: "Set.fromList (a ^.. b)", rhs: "a ^. setFrom b"}
+    ## Enable this rule again after
+    ## moving 'setFrom' function into a separated module (or package)
+    # - warn: {lhs: "Set.fromList (a ^.. b)", rhs: "a ^. setFrom b"}
 
 - extensions:
   - name: ["MagicHash"]

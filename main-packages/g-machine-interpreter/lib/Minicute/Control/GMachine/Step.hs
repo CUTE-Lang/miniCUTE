@@ -1,4 +1,3 @@
-{-# LANGUAGE DeriveFunctor #-}
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
@@ -18,8 +17,8 @@ module Minicute.Control.GMachine.Step
 import Prelude hiding ( fail )
 
 import Control.Monad.Fail
-import Control.Monad.State ( MonadState(..), StateT, runStateT )
-import Control.Monad.Trans ( MonadTrans(..) )
+import Control.Monad.State ( MonadState, StateT, execStateT, runStateT )
+import Control.Monad.Trans ( MonadTrans )
 import Data.Data ( Typeable )
 import GHC.Generics ( Generic )
 import Minicute.Data.GMachine.State
@@ -46,5 +45,5 @@ runGMachineStepT = runStateT . runGMachineStepMonadT
 {-# INLINE runGMachineStepT #-}
 
 execGMachineStepT :: (Monad m) => GMachineStepMonadT m a -> GMachineState -> m GMachineState
-execGMachineStepT = (fmap snd .) . runGMachineStepT
+execGMachineStepT = execStateT . runGMachineStepMonadT
 {-# INLINE execGMachineStepT #-}
