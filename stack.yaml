@@ -41,9 +41,6 @@ packages:
 - ./main-packages/minicute-optimizer
 - ./main-packages/minicute-syntax
 
-- ./test-packages/common-syntax
-- ./test-packages/minicute-syntax
-
 - ./utilities/hlint
 
 # Dependency packages to be pulled from upstream that are not in the resolver.
