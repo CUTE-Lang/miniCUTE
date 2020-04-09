@@ -23,6 +23,7 @@ import Prelude hiding ( fail )
 import Control.Monad.Fail
 import Control.Monad.State ( MonadState(..), StateT, execStateT, gets, modify )
 import Control.Monad.Trans ( MonadTrans(..) )
+-- Replace this with Control.Monad.Writer.CPS after mtl > 2.2.2 is released
 import Control.Monad.Writer ( MonadWriter(..), Writer, runWriter )
 import Data.Data ( Typeable )
 import Data.List.NonEmpty ( NonEmpty(..), (<|) )
@@ -35,6 +36,10 @@ import qualified Data.List.NonEmpty as NonEmpty
 
 type GMachineMonad = GMachineMonadT IO
 
+-- This type needs complete refactoring.
+--
+-- 1. Writer does not make any sense since it will never be updated after initialization.
+-- 2. StateT (NonEmpty s) carries too much freedom.
 newtype GMachineMonadT m a
   = GMachineMonadT
     { runGMachineMonadT :: Writer (Alt Maybe GMachineState) (StateT (NonEmpty GMachineState) m a)
