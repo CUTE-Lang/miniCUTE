@@ -15,9 +15,6 @@ module Minicute.Parser.Minicute.Parser
   , mainProgramLLMC
   ) where
 
-import Prelude hiding ( fail )
-
-import Control.Monad.Fail
 import Control.Monad.Reader ( ReaderT, ask, mapReaderT, runReaderT )
 import Data.Functor
 import Data.List.Extra

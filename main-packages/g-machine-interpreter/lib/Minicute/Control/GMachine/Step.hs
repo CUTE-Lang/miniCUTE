@@ -14,9 +14,6 @@ module Minicute.Control.GMachine.Step
   , execGMachineStepT
   ) where
 
-import Prelude hiding ( fail )
-
-import Control.Monad.Fail
 import Control.Monad.State ( MonadState, StateT, execStateT, runStateT )
 import Control.Monad.Trans ( MonadTrans )
 import Data.Data ( Typeable )

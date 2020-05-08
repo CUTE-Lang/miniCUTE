@@ -17,7 +17,7 @@
 #
 # resolver: ./custom-snapshot.yaml
 # resolver: https://example.com/snapshots/2018-01-01.yaml
-resolver: lts-14.7
+resolver: lts-15.11
 
 # User packages to be built.
 # Various formats can be used as shown in the example below.
@@ -55,8 +55,7 @@ extra-deps: []
 
 ghc-options:
   "$locals": >-
-    -XMonadFailDesugaring -Wnoncanonical-monadfail-instances -Wmissing-monadfail-instances
-    -Wstar-is-type
+    -Wmissing-monadfail-instances -Wstar-is-type
 
 # Override default flag values for local packages and extra-deps
 flags: {}
@@ -70,7 +69,7 @@ flags: {}
 # Require a specific version of stack, using version ranges
 # require-stack-version: -any # Default
 # require-stack-version: ">=2.1"
-require-stack-version: ">= 2.1"
+require-stack-version: ">= 2.3"
 
 # Override the architecture used by stack, especially useful on Windows
 # arch: i386

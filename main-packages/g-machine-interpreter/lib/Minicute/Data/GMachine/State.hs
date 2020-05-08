@@ -47,8 +47,6 @@ module Minicute.Data.GMachine.State
   , loadStateFromDump
   ) where
 
-import Prelude hiding ( fail )
-
 import Control.Lens.Each ( each )
 import Control.Lens.Getter ( to )
 import Control.Lens.Iso ( iso )
@@ -59,7 +57,6 @@ import Control.Lens.Tuple
 import Control.Lens.Type
 import Control.Lens.Unsound ( lensProduct )
 import Control.Monad ( forM )
-import Control.Monad.Fail
 import Control.Monad.State
   ( MonadState
   , StateT

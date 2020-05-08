@@ -8,11 +8,8 @@ module Minicute.Interpreter.GMachine.Instruction
   , interpretInstruction
   ) where
 
-import Prelude hiding ( fail )
-
 import Control.Exception ( assert )
 import Control.Monad.Extra ( forM, ifM, replicateM, void )
-import Control.Monad.Fail
 import Minicute.Control.GMachine.Step
 import Minicute.Data.Common
 import Minicute.Data.GMachine.Instruction

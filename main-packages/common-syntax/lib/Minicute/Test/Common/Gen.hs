@@ -8,8 +8,6 @@ module Minicute.Test.Common.Gen
   , primitive
   ) where
 
-import Prelude hiding ( fail )
-
 import Hedgehog
 import Minicute.Data.Common
 

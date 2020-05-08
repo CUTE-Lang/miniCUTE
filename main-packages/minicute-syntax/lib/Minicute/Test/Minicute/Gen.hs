@@ -19,8 +19,6 @@ module Minicute.Test.Minicute.Gen
   , expression
   ) where
 
-import Prelude hiding ( fail )
-
 import Control.Lens.Each ( each )
 import Control.Lens.Lens ( ALens', cloneLens )
 import Control.Lens.Operators

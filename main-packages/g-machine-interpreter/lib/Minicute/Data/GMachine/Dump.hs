@@ -17,8 +17,6 @@ module Minicute.Data.GMachine.Dump
   , emptyDumpItem
   ) where
 
-import Prelude hiding ( fail )
-
 import Control.Lens.Getter ( use )
 import Control.Lens.Iso ( Iso', coerced )
 import Control.Lens.Operators
@@ -26,7 +24,6 @@ import Control.Lens.Operators.Minicute
 import Control.Lens.Traversal ( partsOf )
 import Control.Lens.Tuple
 import Control.Monad.Extra ( concatMapM )
-import Control.Monad.Fail
 import Control.Monad.State ( MonadState, evalStateT )
 import Data.Data ( Data, Typeable )
 import GHC.Generics ( Generic )

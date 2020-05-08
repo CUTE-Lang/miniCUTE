@@ -49,11 +49,11 @@ library:
   ghc-options:
     - -Wall
   dependencies:
-    - llvm-hs-pure >= 8.0.0 && < 9
-    - mtl >= 2.2 && < 3
+    - llvm-hs-pure
+    - mtl
 
-    - minicute-common-syntax == 0.1.0.0
-    - minicute-g-machine-syntax == 0.1.0.0
+    - minicute-common-syntax
+    - minicute-g-machine-syntax
 
 # internal-libraries:
 
@@ -132,7 +132,7 @@ tests:
 # extra-frameworks-dirs:
 # ld-options:
 dependencies:
-  - base >= 4.12 && < 5
+  - base
 # pkg-config-dependencies:
 # build-tools:
 # system-build-tools:

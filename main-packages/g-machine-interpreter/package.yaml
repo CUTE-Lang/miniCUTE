@@ -49,17 +49,17 @@ library:
   ghc-options:
     - -Wall
   dependencies:
-    - base-minicute == 0.1.0.0
-    - containers >= 0.6 && < 0.7
-    - extra >= 1.6 && < 2
-    - lens >= 4.17 && < 5
-    - mtl >= 2.2 && < 3
-    - prettyprinter >= 1.2 && < 2
-    - template-haskell >= 2.14 && < 3
+    - base-minicute
+    - containers
+    - extra
+    - lens
+    - mtl
+    - prettyprinter
+    - template-haskell
 
-    - minicute-common-syntax == 0.1.0.0
-    - minicute-g-machine-syntax == 0.1.0.0
-    - minicute-g-machinizer == 0.1.0.0
+    - minicute-common-syntax
+    - minicute-g-machine-syntax
+    - minicute-g-machinizer
 
 # internal-libraries:
 
@@ -79,11 +79,11 @@ executables:
       - -with-rtsopts=-N
     dependencies:
       ## Remove following dependence if possible
-      - megaparsec >= 7.0 && < 8
-      - prettyprinter >= 1.2 && < 2
+      - megaparsec
+      - prettyprinter
 
-      - minicute-g-machine-interpreter == 0.1.0.0
-      - minicute-g-machine-syntax == 0.1.0.0
+      - minicute-g-machine-interpreter
+      - minicute-g-machine-syntax
 
 # executable:
 
@@ -154,7 +154,7 @@ tests:
 # extra-frameworks-dirs:
 # ld-options:
 dependencies:
-  - base >= 4.12 && < 5
+  - base
 # pkg-config-dependencies:
 # build-tools:
 # system-build-tools:

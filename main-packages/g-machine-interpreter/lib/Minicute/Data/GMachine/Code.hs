@@ -17,14 +17,11 @@ module Minicute.Data.GMachine.Code
   , assertLastCode
   ) where
 
-import Prelude hiding ( fail )
-
 import Control.Lens.Getter ( to, use )
 import Control.Lens.Iso ( Iso', coerced )
 import Control.Lens.Operators
 import Control.Lens.Operators.Minicute
 import Control.Monad.Extra ( unlessM )
-import Control.Monad.Fail
 import Control.Monad.State ( MonadState )
 import Data.Data ( Data, Typeable )
 import GHC.Generics ( Generic )

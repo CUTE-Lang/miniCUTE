@@ -50,9 +50,9 @@ library:
   ghc-options:
     - -Wall
   dependencies:
-    - prettyprinter >= 1.2 && < 2
-    - template-haskell >= 2.14 && < 3
-    - text >= 1.2 && < 2
+    - prettyprinter
+    - template-haskell
+    - text
 
 # internal-libraries:
 
@@ -107,7 +107,7 @@ tests:
 # extra-frameworks-dirs:
 # ld-options:
 dependencies:
-  - base >= 4.12 && < 5
+  - base
 # pkg-config-dependencies:
 # build-tools:
 # system-build-tools:

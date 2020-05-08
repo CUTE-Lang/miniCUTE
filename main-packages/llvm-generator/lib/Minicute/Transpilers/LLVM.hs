@@ -8,10 +8,7 @@ module Minicute.Transpilers.LLVM
   , generateMachineCode
   ) where
 
-import Prelude hiding ( fail )
-
 import Control.Monad ( forM_ )
-import Control.Monad.Fail
 import Data.Maybe
 import Data.String
 import LLVM.IRBuilder

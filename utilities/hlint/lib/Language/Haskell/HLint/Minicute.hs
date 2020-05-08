@@ -7,10 +7,7 @@ module Language.Haskell.HLint.Minicute
   ( hlint
   ) where
 
-import Prelude hiding ( fail )
-
 import Control.Monad ( unless )
-import Control.Monad.Fail
 import Data.Maybe ( fromMaybe )
 import System.Directory ( canonicalizePath, findFile, getCurrentDirectory )
 import System.Exit ( exitFailure )

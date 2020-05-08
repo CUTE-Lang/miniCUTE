@@ -11,7 +11,6 @@ module Minicute.Parser.Common
   , Parser
   ) where
 
-import Control.Monad.Fail
 import Data.Void
 import Text.Megaparsec
 

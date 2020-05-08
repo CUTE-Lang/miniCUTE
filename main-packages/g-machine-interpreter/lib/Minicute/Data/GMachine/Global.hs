@@ -18,15 +18,12 @@ module Minicute.Data.GMachine.Global
   , getGlobalMap
   ) where
 
-import Prelude hiding ( fail )
-
 import Control.Lens.At ( at )
 import Control.Lens.Getter ( use )
 import Control.Lens.Iso ( Iso', coerced )
 import Control.Lens.Operators
 import Control.Lens.Operators.Minicute
 import Control.Lens.Traversal ( partsOf )
-import Control.Monad.Fail
 import Control.Monad.State ( MonadState )
 import Data.Data ( Data, Typeable )
 import GHC.Generics ( Generic )

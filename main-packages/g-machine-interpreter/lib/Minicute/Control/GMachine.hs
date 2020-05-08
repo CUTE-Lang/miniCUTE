@@ -18,9 +18,6 @@ module Minicute.Control.GMachine
   , checkGMachineFinished
   ) where
 
-import Prelude hiding ( fail )
-
-import Control.Monad.Fail
 import Control.Monad.State ( MonadState(..), StateT, execStateT, gets, modify )
 import Control.Monad.Trans ( MonadTrans(..) )
 -- Replace this with Control.Monad.Writer.CPS after mtl > 2.2.2 is released

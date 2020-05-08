@@ -53,15 +53,15 @@ executables:
       - -with-rtsopts=-N
     dependencies:
       ## Remove following dependence if possible
-      - lens >= 4.17 && < 5
-      - megaparsec >= 7.0 && < 8
-      - mtl >= 2.2 && < 3
-      - prettyprinter-minicute == 0.1.0.0
+      - lens
+      - megaparsec
+      - mtl
+      - prettyprinter-minicute
 
-      - minicute-g-machinizer == 0.1.0.0
-      - minicute-llvm-generator == 0.1.0.0
-      - minicute-minicute-optimizer == 0.1.0.0
-      - minicute-minicute-syntax == 0.1.0.0
+      - minicute-g-machinizer
+      - minicute-llvm-generator
+      - minicute-minicute-optimizer
+      - minicute-minicute-syntax
 
 # executable:
 
@@ -112,7 +112,7 @@ tests:
 # extra-frameworks-dirs:
 # ld-options:
 dependencies:
-  - base >= 4.12 && < 5
+  - base
 # pkg-config-dependencies:
 # build-tools:
 # system-build-tools:

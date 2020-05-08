@@ -49,15 +49,15 @@ library:
   ghc-options:
     - -Wall
   dependencies:
-    - base-minicute == 0.1.0.0
-    - extra >= 1.6 && < 2
-    - hedgehog >= 1.0 && < 2
-    - lens >= 4.17 && < 5
-    - megaparsec >= 7.0 && < 8
+    - base-minicute
+    - extra
+    - hedgehog
+    - lens
+    - megaparsec
     - parser-combinators
-    - prettyprinter >= 1.2 && < 2
-    - prettyprinter-minicute == 0.1.0.0
-    - template-haskell >= 2.14 && < 3
+    - prettyprinter
+    - prettyprinter-minicute
+    - template-haskell
 
 # internal-libraries:
 
@@ -138,7 +138,7 @@ tests:
 # extra-frameworks-dirs:
 # ld-options:
 dependencies:
-  - base >= 4.12 && < 5
+  - base
 # pkg-config-dependencies:
 # build-tools:
 # system-build-tools:

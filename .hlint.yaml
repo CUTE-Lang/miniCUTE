@@ -43,7 +43,6 @@
     rules:
       - warn: {lhs: "- a", rhs: "negate a", name: "Use negate"}
       - warn: {lhs: "return a", rhs: "pure a", name: "Use pure"}
-      - warn: {lhs: "Prelude.fail", rhs: "Control.Monad.Fail.fail", name: "Use Control.Monad.Fail.fail"}
 
 - group:
     name: pretty-printer

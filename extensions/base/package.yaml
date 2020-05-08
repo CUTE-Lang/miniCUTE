@@ -50,7 +50,7 @@ library:
   ghc-options:
     - -Wall
   dependencies:
-    - template-haskell >= 2.14 && < 3
+    - template-haskell
 
 # internal-libraries:
 
@@ -105,7 +105,7 @@ tests:
 # extra-frameworks-dirs:
 # ld-options:
 dependencies:
-  - base >= 4.12 && < 5
+  - base
 # pkg-config-dependencies:
 # build-tools:
 # system-build-tools:
