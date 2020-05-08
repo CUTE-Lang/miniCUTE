@@ -1,0 +1,55 @@
+name: Continuous Integration
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - '!.github/**'
+      - '.github/workflows/**'
+      - '!*.md'
+  pull_request:
+    paths:
+      - '!.github/**'
+      - '.github/workflows/**'
+      - '!*.md'
+
+jobs:
+  # stack is already installed in GitHub-hosted Runners
+  stack-install-dependencies:
+    name: "[stack] Install Dependencies"
+    runs-on: ubuntu-18.04
+    container:
+      image: cutelang/stack:minicute
+    steps:
+      - run: chown root "$HOME"
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 1
+      - run: chown root "$GITHUB_WORKSPACE"
+      - uses: actions/cache@v1
+        with:
+          path: ~/.stack/
+          key: ${{ runner.os }}-stack-global-v1.0-${{ hashFiles('**/stack.yaml.lock') }}-${{ hashFiles('**/stack.yaml') }}-${{ hashFiles('**/package.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-stack-global-v1.0-${{ hashFiles('**/stack.yaml.lock') }}-${{ hashFiles('**/stack.yaml') }}-
+            ${{ runner.os }}-stack-global-v1.0-${{ hashFiles('**/stack.yaml.lock') }}-
+            ${{ runner.os }}-stack-global-v1.0-
+      - uses: actions/cache@v1
+        with:
+          path: .stack-work/
+          key: ${{ runner.os }}-stack-project-v1.0-${{ hashFiles('**/stack.yaml.lock') }}-${{ hashFiles('**/stack.yaml') }}-${{ hashFiles('**/package.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-stack-project-v1.0-${{ hashFiles('**/stack.yaml.lock') }}-${{ hashFiles('**/stack.yaml') }}-
+            ${{ runner.os }}-stack-project-v1.0-${{ hashFiles('**/stack.yaml.lock') }}-
+            ${{ runner.os }}-stack-project-v1.0-
+      - run: stack setup --no-terminal -j2
+      - run: stack haddock --only-dependencies --no-terminal -j2
+      - run: stack test --only-dependencies --no-terminal -j2
+      - run: stack build --only-dependencies --no-terminal -j2
+  stack-compile-and-test-packages:
+    name: "[stack] Compile and Test Packages"
+    needs: stack-install-dependencies
+    runs-on: ubuntu-18.04
+    steps:
+      - run: ls
