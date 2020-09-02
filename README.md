@@ -9,7 +9,7 @@
 
 A core version of CUTE lang.
 
-# RoadMap
+## RoadMap
 
 See [the Roadmap issue][Roadmap issue]
 
