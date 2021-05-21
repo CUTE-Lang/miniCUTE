@@ -17,7 +17,7 @@
 #
 # resolver: ./custom-snapshot.yaml
 # resolver: https://example.com/snapshots/2018-01-01.yaml
-resolver: lts-15.11
+resolver: lts-17.12
 
 # User packages to be built.
 # Various formats can be used as shown in the example below.
@@ -56,6 +56,7 @@ extra-deps: []
 ghc-options:
   "$locals": >-
     -Wmissing-monadfail-instances -Wstar-is-type
+  llvm-hs: -optcxx=-std=c++14 -optcxx=-lstdc++ -optcxx=-fno-rtti
 
 # Override default flag values for local packages and extra-deps
 flags: {}

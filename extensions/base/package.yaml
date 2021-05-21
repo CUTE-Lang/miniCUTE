@@ -25,7 +25,7 @@ license-file:                       LICENSE
 extra-doc-files:                    README.md
 # data-files:
 # data-dir:
-github:                             CUTE-Lang/miniCUTE/extensions/base
+github:                             CUTE-Lang/miniCUTE/extensions
 ## Following is ignored when "github" field exists
 # git:
 # custom-setup:

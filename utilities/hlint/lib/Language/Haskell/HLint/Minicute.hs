@@ -13,7 +13,7 @@ import System.Directory ( canonicalizePath, findFile, getCurrentDirectory )
 import System.Exit ( exitFailure )
 import System.FilePath ( isDrive, (</>) )
 
-import qualified Language.Haskell.HLint4 as HLINT
+import qualified Language.Haskell.HLint as HLINT
 
 hlint :: [FilePath] -> IO ()
 hlint dirs = do
